@@ -153,6 +153,62 @@ Core expertise: React, Vue, TypeScript, Node.js, Go, Kubernetes, AI integration`
 
   // Resume link (if available)
   resumeUrl: "/resume.pdf",
+
+  // Work experience (for SEO/noscript fallback)
+  workExperience: [
+    {
+      company: "Snyk",
+      role: "Full Stack Engineer",
+      period: "May 2024 - Present",
+    },
+    {
+      company: "Frontiers",
+      role: "Frontend Tech Lead",
+      period: "Feb 2023 - May 2024",
+    },
+    {
+      company: "Meta (Facebook)",
+      role: "Frontend Engineer",
+      period: "Jun 2022 - Feb 2023",
+    },
+    {
+      company: "Tundra",
+      role: "Senior Frontend Engineer",
+      period: "Nov 2021 - Jun 2022",
+    },
+    {
+      company: "Tray.ai",
+      role: "Senior Frontend Engineer",
+      period: "Jan 2021 - Oct 2021",
+    },
+  ],
+
+  // SEO metadata
+  seo: {
+    siteUrl: "https://www.danieletortora.com",
+    siteName: "Daniele Tortora - Portfolio",
+    shortDescription:
+      "Senior Software Engineer with 8+ years building React, TypeScript, Next.js, Vue, Node.js applications and AI-powered solutions.",
+    currentRole: "Senior Software Engineer",
+    currentCompany: "Snyk",
+    twitter: "@floroz87",
+    themeColor: "#1a1a2e",
+    keywords: [
+      "Daniele Tortora",
+      "floroz",
+      "Senior Software Engineer",
+      "Frontend Engineer",
+      "Full Stack Developer",
+      "React Developer",
+      "TypeScript",
+      "Vue.js",
+      "Node.js",
+      "AI Integration",
+      "Design Systems",
+      "Zurich",
+      "Switzerland",
+    ],
+  },
 } as const;
 
 export type Profile = typeof PROFILE;

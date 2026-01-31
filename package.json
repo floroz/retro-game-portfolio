@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "npm run generate:html",
     "build": "tsc -b && vite build",
     "lint": "run-s lint:* knip",
     "lint:code": "eslint .",
@@ -16,7 +17,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:docker": "./scripts/playwright-docker.sh",
-    "test:e2e:docker:update": "./scripts/playwright-docker.sh --update-snapshots"
+    "test:e2e:docker:update": "./scripts/playwright-docker.sh --update-snapshots",
+    "generate:html": "npx tsx scripts/generate-html.ts",
+    "generate:og-image": "npx tsx scripts/generate-og-image.ts"
   },
   "dependencies": {
     "framer-motion": "^12.29.2",
@@ -40,6 +43,7 @@
     "knip": "^5.82.1",
     "npm-run-all2": "^8.0.4",
     "prettier": "^3.8.1",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"

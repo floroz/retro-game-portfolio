@@ -1,0 +1,196 @@
+/* OG Image - 1200x630 social sharing image */
+/* Styled to match the retro adventure game aesthetic */
+.og-image {
+  width: 1200px;
+  height: 630px;
+  font-family: "Press Start 2P", monospace;
+  background: #0a0f14;
+  color: #e0e8f0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  border: 6px solid #2a3a4a;
+  box-sizing: border-box;
+}
+
+/* CRT scanline overlay */
+.og-image::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+  pointer-events: none;
+  opacity: 0.3;
+  z-index: 10;
+}
+
+/* Inner glow effect */
+.og-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 0 0 0 2px #1a2a3a,
+    0 0 40px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(0, 212, 170, 0.1);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Header with speaker name */
+.og-image__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 4px solid #2a3a4a;
+  background: linear-gradient(
+    to bottom,
+    rgba(42, 58, 74, 0.3) 0%,
+    transparent 100%
+  );
+  position: relative;
+  z-index: 1;
+}
+
+.og-image__speaker {
+  color: #00d4aa;
+  font-size: 24px;
+  letter-spacing: 4px;
+  text-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
+  text-transform: uppercase;
+}
+
+/* Decorative pixel corners */
+.og-image__decoration {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #00d4aa;
+  box-shadow: 0 0 8px rgba(0, 212, 170, 0.6);
+}
+
+.og-image__decoration--tl {
+  top: 40px;
+  left: 40px;
+}
+
+.og-image__decoration--tr {
+  top: 40px;
+  right: 40px;
+}
+
+.og-image__decoration--bl {
+  bottom: 40px;
+  left: 40px;
+}
+
+.og-image__decoration--br {
+  bottom: 40px;
+  right: 40px;
+}
+
+.og-image__container {
+  display: flex;
+  width: 100%;
+  flex: 1;
+  padding: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.og-image__left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 40px;
+}
+
+.og-image__right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.og-image__avatar {
+  width: auto;
+  height: 320px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  border: 4px solid #2a3a4a;
+  box-shadow:
+    0 0 20px rgba(0, 0, 0, 0.5),
+    0 0 10px rgba(0, 212, 170, 0.1);
+}
+
+.og-image__name {
+  font-size: 48px;
+  font-weight: normal;
+  margin: 0 0 24px;
+  color: #e0e8f0;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+.og-image__title {
+  font-size: 20px;
+  color: #00d4aa;
+  font-weight: normal;
+  margin: 0 0 32px;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
+}
+
+.og-image__description {
+  font-size: 14px;
+  color: #a0b0c0;
+  line-height: 2.2;
+  max-width: 600px;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.og-image__skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.og-image__skill {
+  background: rgba(0, 212, 170, 0.1);
+  border: 2px solid rgba(0, 212, 170, 0.4);
+  padding: 12px 20px;
+  font-size: 12px;
+  color: #00d4aa;
+  font-family: "Press Start 2P", monospace;
+  letter-spacing: 1px;
+}
+
+/* Footer */
+.og-image__footer {
+  padding: 20px 32px;
+  border-top: 4px solid #2a3a4a;
+  background: linear-gradient(
+    to top,
+    rgba(42, 58, 74, 0.2) 0%,
+    transparent 100%
+  );
+  position: relative;
+  z-index: 1;
+}
+
+.og-image__url {
+  font-size: 14px;
+  color: #607080;
+  font-family: "Press Start 2P", monospace;
+  letter-spacing: 2px;
+}
