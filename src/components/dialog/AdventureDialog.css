@@ -70,28 +70,81 @@
 }
 
 .adventure-dialog__sound-toggle {
-  background: transparent;
-  border: 1px solid #2a3a4a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(42, 58, 74, 0.4);
+  border: 2px solid #3a4a5a;
   color: #a0b0c0;
   font-family: "Press Start 2P", monospace;
-  font-size: 8px;
-  padding: 4px 8px;
+  font-size: 9px;
+  padding: 6px 10px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+  border-radius: 4px;
 }
 
 .adventure-dialog__sound-toggle:hover {
-  border-color: #3a4a5a;
-  color: #c0d0e0;
+  border-color: #5a6a7a;
+  background: rgba(42, 58, 74, 0.6);
+  color: #e0e8f0;
+  transform: scale(1.05);
+}
+
+.adventure-dialog__sound-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.adventure-dialog__sound-label {
+  letter-spacing: 1px;
 }
 
 .adventure-dialog__sound-toggle--on {
   color: #00d4aa;
-  border-color: rgba(0, 212, 170, 0.3);
+  border-color: rgba(0, 212, 170, 0.5);
+  background: rgba(0, 212, 170, 0.1);
+  box-shadow: 0 0 10px rgba(0, 212, 170, 0.2);
+}
+
+.adventure-dialog__sound-toggle--on .adventure-dialog__sound-icon {
+  animation: none;
 }
 
 .adventure-dialog__sound-toggle--off {
-  color: #666;
+  color: #ff9944;
+  border-color: rgba(255, 153, 68, 0.5);
+  background: rgba(255, 153, 68, 0.15);
+  animation: sound-pulse 2s ease-in-out infinite;
+}
+
+.adventure-dialog__sound-toggle--off .adventure-dialog__sound-icon {
+  animation: megaphone-bounce 1s ease-in-out infinite;
+}
+
+@keyframes sound-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(255, 153, 68, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 15px rgba(255, 153, 68, 0.5),
+      0 0 25px rgba(255, 153, 68, 0.2);
+  }
+}
+
+@keyframes megaphone-bounce {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(5deg);
+  }
 }
 
 /* Content area */

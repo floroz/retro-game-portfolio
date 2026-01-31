@@ -168,8 +168,12 @@ export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
             }`}
             onClick={toggleSound}
             aria-label={soundEnabled ? "Mute sounds" : "Unmute sounds"}
+            title={soundEnabled ? "Click to mute" : "Click for sound effects!"}
           >
-            {soundEnabled ? "♪ ON" : "♪ OFF"}
+            <span className="adventure-dialog__sound-icon">📢</span>
+            <span className="adventure-dialog__sound-label">
+              {soundEnabled ? "ON" : "OFF"}
+            </span>
           </button>
         </div>
 
