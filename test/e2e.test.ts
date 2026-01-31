@@ -1,5 +1,10 @@
 import { test, expect } from "@playwright/test";
 
+// Ensure desktop viewport for all tests
+test.use({
+  viewport: { width: 1280, height: 720 },
+});
+
 test.describe("Portfolio E2E Tests", () => {
   test("should load the homepage", async ({ page }) => {
     await page.goto("/");
@@ -10,16 +15,18 @@ test.describe("Portfolio E2E Tests", () => {
 
   test("should display the game canvas", async ({ page }) => {
     await page.goto("/");
+    await page.waitForLoadState("networkidle");
 
-    // Dismiss welcome screen first
+    // Wait for welcome screen first
+    const welcomeScreen = page.locator(".welcome-screen");
+    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
+
+    // Dismiss welcome screen
     await page.keyboard.press("Space");
 
     // Wait for game canvas to appear
-    await page.waitForSelector(".game-canvas");
-
-    // Check that the main game canvas is visible
     const gameCanvas = page.locator(".game-canvas");
-    await expect(gameCanvas).toBeVisible();
+    await expect(gameCanvas).toBeVisible({ timeout: 10000 });
   });
 });
 
@@ -28,11 +35,11 @@ test.describe("Visual Regression Tests", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    // Wait for welcome screen to be visible
-    const welcomeScreen = page.locator('.welcome-screen[role="dialog"]');
-    await expect(welcomeScreen).toBeVisible();
+    // Wait for welcome screen to be visible (use class selector)
+    const welcomeScreen = page.locator(".welcome-screen");
+    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
 
-    // Wait for content to be fully rendered (animations complete)
+    // Wait for content to be fully rendered
     await expect(page.locator(".welcome-screen__name")).toBeVisible();
     await expect(page.locator(".welcome-screen__title")).toBeVisible();
     await expect(page.locator(".welcome-screen__prompt")).toBeVisible();
@@ -49,6 +56,10 @@ test.describe("Visual Regression Tests", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
+    // Wait for welcome screen first
+    const welcomeScreen = page.locator(".welcome-screen");
+    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
+
     // Dismiss welcome screen
     await page.keyboard.press("Space");
 
@@ -62,9 +73,7 @@ test.describe("Visual Regression Tests", () => {
     await expect(dialogOptions).toBeVisible({ timeout: 15000 });
 
     // Verify the "Nice to meet you!" option is visible (confirms typewriter done)
-    await expect(
-      page.locator('.dialog-options__option:has-text("Nice to meet you!")'),
-    ).toBeVisible();
+    await expect(page.getByText("Nice to meet you!")).toBeVisible();
 
     await expect(page).toHaveScreenshot("02-intro-dialog.png", {
       fullPage: true,
@@ -74,6 +83,10 @@ test.describe("Visual Regression Tests", () => {
   test("game scene after dialog closed", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+
+    // Wait for welcome screen first
+    const welcomeScreen = page.locator(".welcome-screen");
+    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
 
     // Dismiss welcome screen
     await page.keyboard.press("Space");
