@@ -120,4 +120,78 @@ test.describe("Visual Regression Tests", () => {
       fullPage: true,
     });
   });
+
+  test("content modal open", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Wait for welcome screen and dismiss it
+    const welcomeScreen = page.locator(".welcome-screen");
+    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
+    await page.keyboard.press("Space");
+
+    // Wait for intro dialog and close it
+    const adventureDialog = page.locator(".adventure-dialog");
+    await expect(adventureDialog).toBeVisible({ timeout: 5000 });
+    const dialogOptions = page.locator(".dialog-options");
+    await expect(dialogOptions).toBeVisible({ timeout: 15000 });
+    await page.keyboard.press("Escape");
+    await expect(adventureDialog).not.toBeVisible();
+
+    // Wait for game scene to be ready
+    await expect(page.locator(".game-canvas")).toBeVisible();
+
+    // Click on the Skills button in the toolbar to open the modal
+    await page.getByTitle("Skills").click();
+
+    // Wait for modal to appear
+    const modal = page.locator(".modal");
+    await expect(modal).toBeVisible({ timeout: 5000 });
+
+    // Verify modal content is loaded
+    await expect(page.locator(".modal__title")).toBeVisible();
+    await expect(page.locator(".modal__content")).toBeVisible();
+
+    await expect(page).toHaveScreenshot("04-content-modal.png", {
+      fullPage: true,
+    });
+  });
+
+  test("terminal open", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Wait for welcome screen and dismiss it
+    const welcomeScreen = page.locator(".welcome-screen");
+    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
+    await page.keyboard.press("Space");
+
+    // Wait for intro dialog and close it
+    const adventureDialog = page.locator(".adventure-dialog");
+    await expect(adventureDialog).toBeVisible({ timeout: 5000 });
+    const dialogOptions = page.locator(".dialog-options");
+    await expect(dialogOptions).toBeVisible({ timeout: 15000 });
+    await page.keyboard.press("Escape");
+    await expect(adventureDialog).not.toBeVisible();
+
+    // Wait for game scene to be ready
+    await expect(page.locator(".game-canvas")).toBeVisible();
+
+    // Open terminal with backtick key
+    await page.keyboard.press("`");
+
+    // Wait for terminal to appear
+    const terminal = page.locator(".terminal");
+    await expect(terminal).toBeVisible({ timeout: 5000 });
+
+    // Verify terminal content is loaded
+    await expect(page.locator(".terminal__input")).toBeVisible();
+
+    // Small delay to ensure terminal is fully rendered
+    await page.waitForTimeout(300);
+
+    await expect(page).toHaveScreenshot("05-terminal.png", {
+      fullPage: true,
+    });
+  });
 });
