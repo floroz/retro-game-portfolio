@@ -2,7 +2,7 @@
 # SEO-optimized settings for single-page application
 
 [build]
-  command = "npm ci && npm run build"
+  command = "npm ci --include=dev && npm run build"
   publish = "dist"
 
 # SPA fallback - redirect all routes to index.html
