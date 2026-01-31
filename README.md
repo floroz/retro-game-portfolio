@@ -1,5 +1,14 @@
 # Daniele Tortora — Personal Portfolio
 
+  <div align="center">
+  <img src="src/assets/retro-daniele.png" alt="Pixel art portrait of Daniele" width="300" />
+
+_A retro point-and-click adventure portfolio_
+
+</div>
+
+---
+
 A personal website presented as an interactive point-and-click adventure, inspired by classic SCUMM games (e.g. Day of the Tentacle). Visitors explore a 2D scene, click hotspots, use a retro-style terminal, and open modals to read about skills, experience, contact, and more.
 
 ## Stack
