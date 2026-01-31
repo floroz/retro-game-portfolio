@@ -6,65 +6,150 @@
 export const PROFILE = {
   // Personal
   name: "Daniele Tortora",
-  title: "Senior Software Engineer",
-  location: "London, UK",
+  title: "Senior Software Engineer | Frontend & Full-Stack | AI Focused",
+  location: "Zürich, Switzerland",
 
   // Contact
-  email: "hello@danieletortora.dev",
+  email: "danieletortora.contact@gmail.com",
 
   // Social links
   social: {
-    github: "https://github.com/danieletortora",
-    linkedin: "https://linkedin.com/in/danieletortora",
+    github: "https://github.com/floroz",
+    linkedin: "https://www.linkedin.com/in/danieletortora/",
   },
 
   // Portfolio metadata
   portfolio: {
-    version: "1.0",
+    version: "4.0",
     title: "DANIELE TORTORA",
   },
 
   // Bio/About summary
-  bio: `Hello! I'm a passionate software engineer who loves creating 
-engaging user experiences and solving complex problems.
+  bio: `As a software engineer with over 8 years of experience, I've built my career on a core belief: that the most powerful systems are defined by their human experience.
+
+This principle, shaped by my background in psychology, drives me to bridge the divide between complex software architecture and elegant, intuitive user interfaces.
+
+I put this philosophy into practice across the full stack—delivering modern frontend applications, designing robust APIs, and building scalable distributed systems. I'm now keenly focused on applying this user-centric approach to AI, ensuring intelligent systems are not only powerful but also accessible and intuitive.
 
 When I'm not coding, you can find me:
 • Playing retro video games (hence this portfolio!)
-• Contributing to open source
-• Learning new technologies
-• Exploring the outdoors`,
+• Exploring the Swiss Alps
+• Learning about AI and emerging technologies`,
 
-  // Skills categories
+  // Skills categories (7 groups from resume)
   skills: {
     frontend: [
       "React",
+      "Vue.js",
+      "Next.js",
+      "Nuxt",
       "TypeScript",
       "JavaScript",
-      "CSS",
-      "Tailwind",
-      "Styled Components",
-      "Testing: Jest, React Testing Library, Cypress",
+      "Tailwind CSS",
+      "Design Systems",
+      "Component Libraries",
+      "Storybook",
+      "Accessibility (WCAG)",
     ],
     backend: [
       "Node.js",
-      "Express",
-      "NestJS",
-      "PostgreSQL",
-      "MongoDB",
-      "Redis",
+      "Go",
+      "Express.js",
       "GraphQL",
-      "REST APIs",
+      "REST API",
+      "gRPC",
+      "WebSockets",
+      "Microservices",
+      "Distributed Systems",
     ],
-    tools: ["Git", "CI/CD", "Docker", "Agile", "TDD", "Code Review"],
+    ai: [
+      "AI Integration",
+      "Cursor",
+      "Claude AI",
+      "Gemini",
+      "OpenAI APIs",
+      "Prompt Engineering",
+    ],
+    cloud: [
+      "AWS",
+      "GCP",
+      "Kubernetes",
+      "Docker",
+      "Terraform",
+      "CI/CD",
+      "GitHub Actions",
+      "Datadog",
+      "OpenTelemetry",
+    ],
+    data: ["PostgreSQL", "MongoDB", "Redis", "Kafka", "NATS", "Message Queues"],
+    testing: [
+      "Playwright",
+      "Cypress",
+      "Testing Library",
+      "Jest",
+      "Vitest",
+      "Visual Regression Testing",
+    ],
+    leadership: [
+      "Technical Leadership",
+      "Team Management",
+      "Agile",
+      "Architecture Design",
+      "Code Review",
+      "Mentoring",
+    ],
   },
 
   // Experience summary
-  experienceSummary: `Senior Software Engineer with 8+ years of experience building web applications.
+  experienceSummary: `Senior Software Engineer with 8+ years building production applications across the full stack.
 
-• Lead Frontend Developer at Tech Company
-• Full-stack development with React, TypeScript, Node.js
-• Mentoring junior developers
-• Architecting scalable frontend solutions`,
+Currently at Snyk:
+• Building AI-powered security features serving 500K+ daily scans
+• Designed worker-thread architecture cutting p95 latency by 65%
+• Won 3rd place company-wide for AI adoption initiatives
+
+Previously:
+• Frontend Tech Lead at Frontiers - Led team of 6 to build Vue 3 component library
+• Frontend Engineer at Meta - Improved performance metrics by 20-60%
+• Senior roles at Tundra, Tray.ai, OVO Energy
+
+Core expertise: React, Vue, TypeScript, Node.js, Go, Kubernetes, AI integration`,
+
+  // Featured projects
+  projects: [
+    {
+      emoji: "🎮",
+      name: "This Portfolio",
+      description: "90s retro game inspired interactive portfolio",
+      tech: "React, TypeScript, CSS pixel art",
+    },
+    {
+      emoji: "🔒",
+      name: "Snyk Code Rule Extensions",
+      description: "AI-assisted security interface",
+      tech: "Vue.js, TypeScript, custom SAST sanitizers",
+    },
+    {
+      emoji: "🧩",
+      name: "Brink UI",
+      description: "Vue 3 Component Library",
+      tech: "Led team of 6 to build design system from scratch",
+    },
+    {
+      emoji: "🌍",
+      name: "Mapillary Web Platform",
+      description: "Meta Integration",
+      tech: "Improved performance metrics by 20-60%",
+    },
+  ],
+
+  // Contact section content
+  contactInterests: [
+    "Exciting opportunities in AI & developer tools",
+    "Full-stack and frontend challenges",
+    "Tech conversations over coffee",
+    "Open source collaboration",
+  ],
 
   // Resume link (if available)
   resumeUrl: "/resume.pdf",

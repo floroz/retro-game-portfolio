@@ -9,7 +9,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Intro - shown first after welcome screen with typewriter effect
   intro: {
     speaker: "daniele",
-    text: "Congratulations, traveler! You've discovered this little corner of the internet. I'm Daniele, and this is my interactive portfolio. Feel free to explore!",
+    text: "Well, well, well... a visitor! You've stumbled upon my pixelated corner of the internet. I'm Daniele—software engineer by day, retro game enthusiast by... also day. Welcome to my interactive portfolio!",
     options: [
       { id: "continue", label: "Nice to meet you!", nextNode: "welcome" },
     ],
@@ -18,9 +18,13 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Welcome / Main hub
   welcome: {
     speaker: "daniele",
-    text: "So, what would you like to know about me?",
+    text: "So, brave adventurer, what quest brings you here today?",
     options: [
-      { id: "about", label: "Tell me about yourself", nextNode: "about-intro" },
+      {
+        id: "about",
+        label: "Tell me about yourself",
+        nextNode: "about-intro",
+      },
       {
         id: "work",
         label: "What kind of work do you do?",
@@ -38,11 +42,11 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // About branch
   "about-intro": {
     speaker: "daniele",
-    text: "Ah, you want to know about me? How flattering! I'm Daniele, a Senior Software Engineer who loves building web applications.",
+    text: "Ah, you want my origin story? Plot twist: I started with a Master's in Psychology! Turns out, understanding how humans think is pretty useful when you're building software for them. 8+ years later, here I am in Zürich, Switzerland, bridging the gap between complex systems and intuitive experiences.",
     options: [
       {
         id: "about-more",
-        label: "What else should I know?",
+        label: "Psychology to coding? Tell me more!",
         nextNode: "about-details",
       },
       {
@@ -60,7 +64,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-details": {
     speaker: "daniele",
-    text: "I've been coding for over a decade, starting with Java and eventually falling in love with JavaScript and TypeScript. These days I focus on React, Node.js, and building great user experiences.",
+    text: "My psychology background taught me that the best systems are defined by their human experience. So I went full stack—React, Vue, Node.js, Go, Kubernetes... the whole buffet. Now I'm obsessed with AI and making intelligent systems that are actually usable by, you know, humans.",
     options: [
       {
         id: "about-philosophy",
@@ -77,7 +81,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-philosophy": {
     speaker: "daniele",
-    text: "I believe code should be clean, maintainable, and serve the user first. Tests aren't optional - they're how we sleep at night. And never, ever use 'any' in TypeScript unless you have a really good reason!",
+    text: "Code should be clean, tested, and serve the user first. Tests aren't optional—they're how we sleep at night. And never, EVER use 'any' in TypeScript unless you have a really good reason and a written apology to your future self!",
     options: [
       {
         id: "back",
@@ -89,7 +93,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-hobbies": {
     speaker: "daniele",
-    text: "When I'm not coding, you might find me playing retro video games - as you can probably tell from this portfolio! I'm also into music, reading sci-fi, and exploring new places.",
+    text: "When I'm not wrangling microservices, you'll find me playing retro video games—as this portfolio loudly proclaims! I also enjoy hiking the Swiss Alps, tinkering with AI tools, and occasionally convincing myself that 'just one more feature' won't take that long.",
     options: [
       {
         id: "about-games",
@@ -106,11 +110,11 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-games": {
     speaker: "daniele",
-    text: "LucasArts adventures are my favorites - Monkey Island, Day of the Tentacle, Grim Fandango... This portfolio is my love letter to that era. I also enjoy classic RPGs and platformers.",
+    text: "LucasArts adventures are my jam—Monkey Island, Day of the Tentacle, Grim Fandango... This portfolio is basically my love letter to that golden era. I wanted to fight like a dairy farmer, but I settled for coding like one instead.",
     options: [
       {
         id: "back",
-        label: "I can tell! Back to the main topics",
+        label: "You fight like a cow! Back to the main topics",
         nextNode: "welcome",
       },
     ],
@@ -119,7 +123,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Work branch
   "work-intro": {
     speaker: "daniele",
-    text: "I build web applications! Frontend, backend, you name it. Currently I specialize in React and TypeScript on the frontend, with Node.js powering the backend.",
+    text: "I'm a Full Stack Engineer at Snyk, building AI-powered security features that scan 500K+ projects daily. Before that, I was a Tech Lead at Frontiers and worked at Meta. Basically, I make things that help developers sleep better at night!",
     options: [
       {
         id: "work-stack",
@@ -128,7 +132,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
       },
       {
         id: "work-experience",
-        label: "Where have you worked?",
+        label: "Tell me more about your experience",
         nextNode: "work-experience",
       },
       {
@@ -141,7 +145,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-stack": {
     speaker: "daniele",
-    text: "React, TypeScript, and Node.js are my bread and butter. I also work with Next.js, GraphQL, PostgreSQL, and various cloud services. CSS is secretly one of my favorite things - hence all the pixel art!",
+    text: "React, Vue, and TypeScript on the frontend. Node.js and Go on the backend. Kubernetes, AWS, and GCP keeping it all running. I've also been diving deep into AI integration—won 3rd place company-wide at Snyk for AI adoption! Oh, and CSS is secretly one of my favorite things. Hence all the pixel art!",
     options: [
       {
         id: "work-projects",
@@ -158,11 +162,11 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-projects": {
     speaker: "daniele",
-    text: "Check out the Projects section for details! I've built everything from enterprise applications to interactive experiences like this portfolio. Each project taught me something new.",
+    text: "At Snyk, I built an AI-assisted interface for custom security rules and designed a worker-thread architecture that cut latency by 65%. At Frontiers, I led a team building a Vue 3 component library from scratch. And at Meta, I improved web performance by up to 60%. Check out the Experience section for the full saga!",
     options: [
       {
         id: "back",
-        label: "I'll check them out! Back to the main topics",
+        label: "I'll check it out! Back to the main topics",
         nextNode: "welcome",
       },
     ],
@@ -170,11 +174,11 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-experience": {
     speaker: "daniele",
-    text: "I've worked at startups and larger companies across different industries. The Experience section has the full timeline, but the short version: I love building products that make people's lives easier.",
+    text: "Currently at Snyk doing full-stack magic with security tools. Before that: Tech Lead at Frontiers (built a component library with a team of 6), Frontend Engineer at Meta (Mapillary integration), and senior roles at Tundra, Tray.ai, and OVO Energy. 8+ years of shipping code and only a few production incidents!",
     options: [
       {
         id: "back",
-        label: "Nice! Back to the main topics",
+        label: "Nice track record! Back to the main topics",
         nextNode: "welcome",
       },
     ],
@@ -183,7 +187,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Hire branch
   "hire-info": {
     speaker: "daniele",
-    text: "Great question! I'm always interested in hearing about exciting opportunities. Whether it's a full-time role or an interesting project, I'd love to chat.",
+    text: "Ah, a recruiter approaches! Or perhaps someone with an interesting project? Either way, I'm always curious about exciting opportunities—especially ones involving AI, developer tools, or anything that makes complex systems more human-friendly.",
     options: [
       {
         id: "hire-contact",
@@ -205,7 +209,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "hire-contact": {
     speaker: "daniele",
-    text: "The Contact section has all my details - email, LinkedIn, GitHub. Or you can use the terminal in this portfolio to run 'contact' for quick links!",
+    text: "Email me at danieletortora.contact@gmail.com, or find me on LinkedIn and GitHub—links are in the toolbar! Pro tip: you can also type 'contact' in the terminal for quick access. I promise I check my messages more often than I check my test coverage.",
     options: [
       {
         id: "back",
@@ -217,7 +221,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "hire-remote": {
     speaker: "daniele",
-    text: "Absolutely! I've been working remotely for years and I'm comfortable with async communication, video calls, and all the tools that make distributed teams work well.",
+    text: "I'm based in Zürich, Switzerland, but I've been doing remote and hybrid work for years. Async communication, video calls, Slack threads at 2 AM—I know the drill. Time zones are just numbers, and good documentation is my love language.",
     options: [
       {
         id: "back",
@@ -230,14 +234,14 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Goodbye
   bye: {
     speaker: "daniele",
-    text: "No problem! Feel free to explore the portfolio. Click on things, open the terminal, have fun! Come back anytime you want to chat.",
+    text: "No worries! Feel free to click around, open the terminal (try 'help'), or just admire the pixels. This portfolio doesn't have a three-headed monkey, but it does have some Easter eggs. Come back anytime!",
     options: [{ id: "close", label: "[Close dialog]", nextNode: "__close__" }],
   },
 
   // Easter eggs
   "easter-egg-click": {
     speaker: "daniele",
-    text: "You're still clicking? I admire your persistence! Did you know you can also use keyboard shortcuts? Try pressing T to open the terminal!",
+    text: "Still clicking? I admire your persistence! You'd make a great QA engineer. Did you know you can press T to open the terminal? There might be some hidden commands in there...",
     options: [{ id: "back", label: "Good tip!", nextNode: "welcome" }],
   },
 };

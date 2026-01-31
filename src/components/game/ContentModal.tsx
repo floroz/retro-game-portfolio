@@ -10,7 +10,6 @@ interface ContentModalProps {
   onClose: () => void;
 }
 
-// Generate content from PROFILE config
 function getContent(action: ActionType): { title: string; content: string } {
   switch (action) {
     case "experience":
@@ -18,18 +17,15 @@ function getContent(action: ActionType): { title: string; content: string } {
         title: "Work Experience",
         content: PROFILE.experienceSummary,
       };
-    case "projects":
+    case "projects": {
+      const projectsList = PROFILE.projects
+        .map((p) => `${p.emoji} ${p.name} - ${p.description}\n   ${p.tech}`)
+        .join("\n\n");
       return {
         title: "Projects",
-        content: `Featured Projects:
-
-🎮 This Portfolio - Day of the Tentacle inspired interactive portfolio
-📱 Project Alpha - Mobile-first web application
-🔧 Project Beta - Developer tooling and automation
-📊 Project Gamma - Data visualization dashboard
-
-[Detailed project cards with links will go here]`,
+        content: `Featured Projects:\n\n${projectsList}\n\n[More projects on GitHub]`,
       };
+    }
     case "skills":
       return {
         title: "Technical Skills",
@@ -39,15 +35,30 @@ ${PROFILE.skills.frontend.map((s) => `• ${s}`).join("\n")}
 Backend:
 ${PROFILE.skills.backend.map((s) => `• ${s}`).join("\n")}
 
-Tools & Practices:
-${PROFILE.skills.tools.map((s) => `• ${s}`).join("\n")}`,
+AI & Developer Tools:
+${PROFILE.skills.ai.map((s) => `• ${s}`).join("\n")}
+
+Cloud & DevOps:
+${PROFILE.skills.cloud.map((s) => `• ${s}`).join("\n")}
+
+Data & Infrastructure:
+${PROFILE.skills.data.map((s) => `• ${s}`).join("\n")}
+
+Testing:
+${PROFILE.skills.testing.map((s) => `• ${s}`).join("\n")}
+
+Leadership & Process:
+${PROFILE.skills.leadership.map((s) => `• ${s}`).join("\n")}`,
       };
     case "about":
       return {
         title: `About ${PROFILE.name.split(" ")[0]}`,
         content: PROFILE.bio,
       };
-    case "contact":
+    case "contact": {
+      const interests = PROFILE.contactInterests
+        .map((i) => `• ${i}`)
+        .join("\n");
       return {
         title: "Contact",
         content: `Let's connect!
@@ -55,13 +66,12 @@ ${PROFILE.skills.tools.map((s) => `• ${s}`).join("\n")}`,
 📧 Email: ${PROFILE.email}
 💼 LinkedIn: ${PROFILE.social.linkedin}
 🐙 GitHub: ${PROFILE.social.github}
+📍 Location: ${PROFILE.location}
 
 I'm always open to discussing:
-• New opportunities
-• Collaboration on projects
-• Tech conversations
-• Coffee chats ☕`,
+${interests}`,
       };
+    }
     case "resume":
       return {
         title: "Resume",
@@ -76,6 +86,12 @@ ${PROFILE.location}
 Or view the online version with interactive elements.
 
 [Online Resume Link]`,
+      };
+    case "talk":
+      // "talk" action opens dialog, not modal - this case should never be reached
+      return {
+        title: "",
+        content: "",
       };
   }
 }
