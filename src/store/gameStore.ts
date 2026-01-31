@@ -109,7 +109,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   onArrival: () => {
-    const { pendingAction, openDialog } = get();
+    const { pendingAction } = get();
 
     set({
       targetPosition: null,
@@ -118,17 +118,11 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     // If there was a pending action, execute it
     if (pendingAction) {
-      // Redirect "about" action to adventure dialog
-      if (pendingAction.action === "about") {
-        set({ pendingAction: null, activeAction: null });
-        openDialog("about-intro");
-      } else {
-        set({
-          activeAction: pendingAction.action,
-          modalOpen: true,
-          pendingAction: null,
-        });
-      }
+      set({
+        activeAction: pendingAction.action,
+        modalOpen: true,
+        pendingAction: null,
+      });
     }
   },
 
@@ -149,12 +143,6 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   openModal: (action) => {
-    // Redirect "about" action to adventure dialog
-    if (action === "about") {
-      get().openDialog("about-intro");
-      return;
-    }
-
     set({
       activeAction: action,
       modalOpen: true,

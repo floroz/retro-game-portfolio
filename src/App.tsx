@@ -8,15 +8,19 @@ import { RetroTerminal } from "./components/game/RetroTerminal";
 import { FloatingTerminalButton } from "./components/game/FloatingTerminalButton";
 import { WelcomeScreen } from "./components/dialog/WelcomeScreen";
 import { AdventureDialog } from "./components/dialog/AdventureDialog";
+import { MobileTerminal } from "./components/mobile/MobileTerminal";
 import { useGameStore } from "./store/gameStore";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { useIsMobile } from "./hooks/useIsMobile";
 
 /**
  * Day of the Tentacle inspired portfolio
  * Interactive point-and-click adventure game UI
  */
 function App() {
-  // Global keyboard shortcuts
+  const isMobile = useIsMobile();
+
+  // Global keyboard shortcuts (only for desktop)
   useKeyboardShortcuts();
 
   // Track when welcome screen is dismissed to trigger dialog
@@ -35,17 +39,36 @@ function App() {
     openDialog,
   } = useGameStore();
 
-  // Open intro dialog after welcome screen is dismissed
+  // Open intro dialog after welcome screen is dismissed (desktop only)
   useEffect(() => {
-    if (welcomeDismissed && welcomeShown) {
+    if (!isMobile && welcomeDismissed && welcomeShown) {
       const timer = setTimeout(() => {
         openDialog("intro");
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [welcomeDismissed, welcomeShown, openDialog]);
+  }, [isMobile, welcomeDismissed, welcomeShown, openDialog]);
 
-  // Don't render game content until welcome screen is dismissed
+  // Mobile experience - show full-screen terminal with modals
+  if (isMobile) {
+    return (
+      <>
+        <MobileTerminal />
+
+        {/* Content modal overlay - shared with desktop */}
+        <ContentModal
+          isOpen={modalOpen}
+          action={activeAction}
+          onClose={closeModal}
+        />
+
+        {/* Adventure dialog overlay - shared with desktop */}
+        <AdventureDialog isOpen={dialogOpen} onClose={closeDialog} />
+      </>
+    );
+  }
+
+  // Desktop: Don't render game content until welcome screen is dismissed
   if (!welcomeShown) {
     return (
       <div className="app">
@@ -59,6 +82,7 @@ function App() {
     );
   }
 
+  // Desktop experience - interactive game
   return (
     <div className="app">
       <GameCanvas>

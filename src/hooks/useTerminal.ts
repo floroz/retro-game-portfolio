@@ -218,6 +218,7 @@ export function useTerminal() {
     input,
     setInput,
     handleKeyDown,
+    executeCommand,
     inputRef,
   };
 }
