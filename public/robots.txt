@@ -1,0 +1,22 @@
+# Robots.txt for Daniele Tortora Portfolio
+# https://www.danieletortora.com
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.danieletortora.com/sitemap.xml
+
+# Block build artifacts and non-content paths
+Disallow: /assets/*.js
+Disallow: /assets/*.css
+Disallow: /assets/*.js.map
+Disallow: /assets/*.css.map
+
+# Allow important SEO resources
+Allow: /og-image.png
+Allow: /favicon.ico
+Allow: /favicon-96x96.png
+Allow: /apple-touch-icon.png
+Allow: /site.webmanifest
+Allow: /sitemap.xml
