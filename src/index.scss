@@ -1,0 +1,95 @@
+@use "./styles/functions" as *;
+@use "./styles/variables";
+@use "./styles/animations";
+
+/* ============================================
+   FONT IMPORTS
+   ============================================ */
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+/* ============================================
+   RESET & BASE STYLES
+   ============================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px; // Base for rem calculations
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: "IBM Plex Mono", "Courier New", monospace;
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  background: var(--color-bg-dark);
+
+  /* Pixelated rendering for retro feel */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Disable text selection on game elements */
+.scene,
+.scene *,
+.toolbar,
+.toolbar * {
+  user-select: none;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+// Skip to main content link
+.skip-link {
+  position: absolute;
+  inset-block-start: to-rem(-40px);
+  inset-inline-start: 0;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-accent);
+  color: var(--color-bg-dark);
+  text-decoration: none;
+  z-index: 1000;
+
+  &:focus {
+    inset-block-start: 0;
+  }
+}
+
+// Focus visible for all interactive elements
+:focus-visible {
+  outline: to-rem(2px) solid var(--color-accent);
+  outline-offset: to-rem(2px);
+}
+
+// Respect reduced motion
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

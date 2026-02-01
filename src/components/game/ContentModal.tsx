@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { ActionType } from "../../types/game";
 import { PROFILE } from "../../config/profile";
-import "./ContentModal.css";
+import styles from "./ContentModal.module.scss";
 
 interface ContentModalProps {
   isOpen: boolean;
@@ -130,7 +130,7 @@ export function ContentModal({ isOpen, action, onClose }: ContentModalProps) {
         <>
           {/* Backdrop */}
           <motion.div
-            className="modal-backdrop"
+            className={styles.backdrop}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -139,7 +139,7 @@ export function ContentModal({ isOpen, action, onClose }: ContentModalProps) {
 
           {/* Modal content - centered with fade animation */}
           <motion.div
-            className="modal"
+            className={styles.modal}
             data-e2e="modal"
             ref={contentRef}
             tabIndex={-1}
@@ -148,12 +148,12 @@ export function ContentModal({ isOpen, action, onClose }: ContentModalProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="modal__header">
-              <h2 className="modal__title" data-e2e="modal-title">
+            <div className={styles.header}>
+              <h2 className={styles.title} data-e2e="modal-title">
                 {content.title}
               </h2>
               <button
-                className="modal__close"
+                className={styles.close}
                 onClick={onClose}
                 aria-label="Close"
                 type="button"
@@ -162,14 +162,14 @@ export function ContentModal({ isOpen, action, onClose }: ContentModalProps) {
               </button>
             </div>
 
-            <div className="modal__body">
-              <pre className="modal__content" data-e2e="modal-content">
+            <div className={styles.body}>
+              <pre className={styles.content} data-e2e="modal-content">
                 {content.content}
               </pre>
             </div>
 
-            <div className="modal__footer">
-              <button className="modal__button" onClick={onClose} type="button">
+            <div className={styles.footer}>
+              <button className={styles.button} onClick={onClose} type="button">
                 Close
               </button>
             </div>

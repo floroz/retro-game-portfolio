@@ -1,4 +1,4 @@
-import "./Hotspot.css";
+import styles from "./Hotspot.module.scss";
 
 export interface HotspotConfig {
   id: string;
@@ -30,7 +30,7 @@ interface HotspotProps {
 export function Hotspot({ config, isHovered, onClick, onHover }: HotspotProps) {
   return (
     <button
-      className={`hotspot ${isHovered ? "hotspot--hovered" : ""}`}
+      className={`${styles.hotspot} ${isHovered ? styles.hovered : ""}`}
       style={{
         left: `${config.left}%`,
         top: `${config.top}%`,
@@ -46,7 +46,7 @@ export function Hotspot({ config, isHovered, onClick, onHover }: HotspotProps) {
       aria-label={config.label}
       tabIndex={-1}
     >
-      <span className="hotspot__label">{config.label}</span>
+      <span className={styles.label}>{config.label}</span>
     </button>
   );
 }

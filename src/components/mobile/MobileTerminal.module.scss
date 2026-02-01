@@ -1,0 +1,265 @@
+@use "../../styles/functions" as *;
+@use "../../styles/mixins" as *;
+
+/* Mobile Terminal - Full screen interface for mobile devices */
+.mobileTerminal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #0a0a0a;
+  color: #0f0;
+  font-family: "IBM Plex Mono", "Courier New", monospace;
+  overflow: hidden;
+}
+
+/* Desktop experience banner */
+.banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: to-rem(8) to-rem(12);
+  background: linear-gradient(180deg, #1a3a1a 0%, #0f2a0f 100%);
+  border-block-end: to-rem(1) solid #0f0;
+  font-size: to-rem(11);
+  color: #8f8;
+  flex-shrink: 0;
+}
+
+.bannerClose {
+  background: transparent;
+  border: none;
+  color: #0f0;
+  font-size: to-rem(18);
+  padding: 0 to-rem(4);
+  cursor: pointer;
+  line-height: 1;
+
+  &:hover {
+    color: #8f8;
+  }
+}
+
+/* CRT scanline effect */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgb(0 0 0 / 15%),
+    rgb(0 0 0 / 15%) to-rem(1),
+    transparent to-rem(1),
+    transparent to-rem(2)
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: to-rem(12) to-rem(16);
+  background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+  border-block-end: to-rem(2) solid #333;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: to-rem(14);
+  color: #0f0;
+  text-shadow: 0 0 to-rem(10) rgb(0 255 0 / 50%);
+  font-weight: bold;
+}
+
+.subtitle {
+  font-size: to-rem(10);
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: to-rem(1);
+}
+
+/* Output area */
+.output {
+  flex: 1;
+  padding: to-rem(12) to-rem(16);
+  overflow-y: auto;
+  font-size: to-rem(13);
+  line-height: 1.6;
+  text-shadow: 0 0 to-rem(5) rgb(0 255 0 / 50%);
+  -webkit-overflow-scrolling: touch;
+
+  /* Scrollbar styling */
+  &::-webkit-scrollbar {
+    inline-size: to-rem(4);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #0a0a0a;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: to-rem(2);
+  }
+}
+
+/* Output lines */
+.line {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  margin-block-end: to-rem(4);
+
+  &.input {
+    color: #0c0;
+  }
+
+  &.output {
+    color: #0f0;
+  }
+
+  &.error {
+    color: #ff6b6b;
+  }
+}
+
+/* Input line */
+.inputLine {
+  display: flex;
+  align-items: center;
+  padding: to-rem(12) to-rem(16);
+  background: #0f0f0f;
+  border-block-start: to-rem(1) solid #222;
+  gap: to-rem(8);
+  flex-shrink: 0;
+}
+
+.prompt {
+  color: #0f0;
+  font-size: to-rem(16);
+  text-shadow: 0 0 to-rem(10) rgb(0 255 0 / 50%);
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  background: #1a1a1a;
+  border: to-rem(1) solid #333;
+  border-radius: to-rem(4);
+  padding: to-rem(10) to-rem(12);
+  font-family: inherit;
+  font-size: to-rem(16); /* Prevents iOS zoom */
+  color: #0f0;
+  outline: none;
+  caret-color: #0f0;
+
+  &::placeholder {
+    color: #363;
+  }
+
+  &:focus {
+    border-color: #0f0;
+    box-shadow: 0 0 to-rem(10) rgb(0 255 0 / 20%);
+  }
+}
+
+.submit {
+  background: #1a3a1a;
+  border: to-rem(1) solid #0f0;
+  border-radius: to-rem(4);
+  color: #0f0;
+  font-size: to-rem(18);
+  padding: to-rem(8) to-rem(14);
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:active {
+    background: #0f0;
+    color: #0a0a0a;
+  }
+}
+
+/* Quick command buttons */
+.quickCommands {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: to-rem(8);
+  padding: to-rem(12) to-rem(16);
+  background: #0f0f0f;
+  border-block-start: to-rem(1) solid #222;
+  flex-shrink: 0;
+}
+
+.quickBtn {
+  background: linear-gradient(180deg, #1a2a1a 0%, #0f1f0f 100%);
+  border: to-rem(1) solid #363;
+  border-radius: to-rem(6);
+  color: #0f0;
+  font-family: inherit;
+  font-size: to-rem(12);
+  font-weight: bold;
+  padding: to-rem(12) to-rem(8);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: to-rem(0.5);
+  transition: all 0.15s ease;
+
+  &:active {
+    background: #0f0;
+    color: #0a0a0a;
+    border-color: #0f0;
+  }
+}
+
+/* Help hint */
+.hint {
+  padding: to-rem(8) to-rem(16);
+  background: #0a0a0a;
+  font-size: to-rem(11);
+  color: #444;
+  text-align: center;
+  flex-shrink: 0;
+
+  code {
+    color: #0f0;
+    background: #1a1a1a;
+    padding: to-rem(2) to-rem(6);
+    border-radius: to-rem(3);
+  }
+}
+
+/* Copyright footer */
+.copyright {
+  padding: to-rem(8) to-rem(16);
+  background: #050505;
+  font-size: to-rem(10);
+  color: #333;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Safe area insets for notched devices */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .copyright {
+    padding-block-end: calc(to-rem(8) + env(safe-area-inset-bottom));
+  }
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  .banner,
+  .header {
+    padding-block-start: calc(to-rem(12) + env(safe-area-inset-top));
+  }
+
+  .banner:first-child + .header {
+    padding-block-start: to-rem(12);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .scanlines {
+    display: none;
+  }
+}

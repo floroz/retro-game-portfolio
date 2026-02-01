@@ -1,5 +1,8 @@
+@use "../../styles/functions" as *;
+@use "../../styles/mixins" as *;
+
 /* Terminal backdrop - covers entire viewport */
-.terminal-backdrop {
+.backdrop {
   position: fixed;
   inset: 0;
   background: rgb(0 0 0 / 80%);
@@ -11,17 +14,17 @@
   position: fixed;
   inset: 0;
   margin: auto;
-  width: 90vw;
-  max-width: 600px;
-  height: 60vh;
-  max-height: 450px;
+  inline-size: 90vw;
+  max-inline-size: to-rem(600);
+  block-size: 60vh;
+  max-block-size: to-rem(450);
   background: #0a0a0a;
-  border: 4px solid #333;
-  border-radius: 8px;
+  border: to-rem(4) solid #333;
+  border-radius: to-rem(8);
   box-shadow:
-    0 0 0 2px #000,
-    0 0 60px rgb(0 255 0 / 15%),
-    inset 0 0 100px rgb(0 255 0 / 5%);
+    0 0 0 to-rem(2) #000,
+    0 0 to-rem(60) rgb(0 255 0 / 15%),
+    inset 0 0 to-rem(100) rgb(0 255 0 / 5%);
   z-index: 201;
   display: flex;
   flex-direction: column;
@@ -29,151 +32,171 @@
 }
 
 /* CRT scanline effect */
-.terminal__scanlines {
+.scanlines {
   position: absolute;
   inset: 0;
   background: repeating-linear-gradient(
     0deg,
     rgb(0 0 0 / 15%),
-    rgb(0 0 0 / 15%) 1px,
-    transparent 1px,
-    transparent 2px
+    rgb(0 0 0 / 15%) to-rem(1),
+    transparent to-rem(1),
+    transparent to-rem(2)
   );
   pointer-events: none;
   z-index: 10;
 }
 
 /* Terminal header */
-.terminal__header {
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
+  padding: to-rem(8) to-rem(12);
   background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
-  border-bottom: 2px solid #333;
+  border-block-end: to-rem(2) solid #333;
 }
 
-.terminal__title {
+.title {
   font-family: "IBM Plex Mono", "Courier New", monospace;
-  font-size: 12px;
+  font-size: to-rem(12);
   color: #0f0;
-  text-shadow: 0 0 10px rgb(0 255 0 / 50%);
+  text-shadow: 0 0 to-rem(10) rgb(0 255 0 / 50%);
 }
 
-.terminal__close {
-  padding: 2px 6px;
+.close {
+  padding: to-rem(2) to-rem(6);
   font-family: "Courier New", monospace;
-  font-size: 12px;
+  font-size: to-rem(12);
   color: #0f0;
   background: transparent;
-  border: 1px solid #333;
+  border: to-rem(1) solid #333;
   cursor: pointer;
   transition: all 0.2s;
-}
 
-.terminal__close:hover {
-  color: #ff6b6b;
-  border-color: #ff6b6b;
-}
+  &:hover {
+    color: #ff6b6b;
+    border-color: #ff6b6b;
+  }
 
-.terminal__close:focus-visible {
-  outline: 2px solid #0f0;
-  outline-offset: 2px;
+  &:focus-visible {
+    outline: to-rem(2) solid #0f0;
+    outline-offset: to-rem(2);
+  }
 }
 
 /* Output area */
-.terminal__output {
+.output {
   flex: 1;
-  padding: 12px;
+  padding: to-rem(12);
   overflow-y: auto;
   font-family: "IBM Plex Mono", "Courier New", monospace;
-  font-size: 13px;
+  font-size: to-rem(13);
   line-height: 1.5;
   color: #0f0;
+  text-shadow: 0 0 to-rem(5) rgb(0 255 0 / 50%);
+
+  /* Scrollbar styling */
+  &::-webkit-scrollbar {
+    inline-size: to-rem(8);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #0a0a0a;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: to-rem(4);
+
+    &:hover {
+      background: #444;
+    }
+  }
 }
 
 /* Output lines */
-.terminal__line {
+.line {
   white-space: pre-wrap;
   overflow-wrap: break-word;
-  margin-bottom: 2px;
-}
+  margin-block-end: to-rem(2);
 
-.terminal__line--input {
-  color: #0c0;
-}
+  &.input {
+    color: #0c0;
+  }
 
-.terminal__line--output {
-  color: #0f0;
-}
+  &.output {
+    color: #0f0;
+  }
 
-.terminal__line--error {
-  color: #ff6b6b;
+  &.error {
+    color: #ff6b6b;
+  }
 }
 
 /* Input line */
-.terminal__input-line {
+.inputLine {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
+  padding: to-rem(8) to-rem(12);
   background: #0f0f0f;
-  border-top: 1px solid #222;
+  border-block-start: to-rem(1) solid #222;
+  text-shadow: 0 0 to-rem(5) rgb(0 255 0 / 50%);
 }
 
-.terminal__prompt {
+.prompt {
   color: #0f0;
   font-family: "IBM Plex Mono", "Courier New", monospace;
-  font-size: 13px;
-  margin-right: 8px;
-  text-shadow: 0 0 10px rgb(0 255 0 / 50%);
+  font-size: to-rem(13);
+  margin-inline-end: to-rem(8);
+  text-shadow: 0 0 to-rem(10) rgb(0 255 0 / 50%);
   flex-shrink: 0;
 }
 
 /* Input wrapper to position cursor after text */
-.terminal__input-wrapper {
+.inputWrapper {
   flex: 1;
   position: relative;
   display: flex;
   align-items: center;
-  min-width: 0;
+  min-inline-size: 0;
 }
 
 /* Visible text display */
-.terminal__input-text {
+.inputText {
   font-family: "IBM Plex Mono", "Courier New", monospace;
-  font-size: 13px;
+  font-size: to-rem(13);
   color: #0f0;
   white-space: pre;
 }
 
 /* Hidden actual input - covers the wrapper for click focus */
-.terminal__input {
+.input {
   position: absolute;
   inset: 0;
   background: transparent;
   border: none;
   outline: none;
   font-family: "IBM Plex Mono", "Courier New", monospace;
-  font-size: 13px;
+  font-size: to-rem(13);
   color: transparent;
   caret-color: transparent;
   padding: 0;
-}
 
-.terminal__input::selection {
-  background: transparent;
+  &::selection {
+    background: transparent;
+  }
 }
 
 /* Blinking cursor - block style, positioned after text */
-.terminal__cursor {
+.cursor {
   display: inline-block;
-  width: 8px;
-  height: 16px;
+  inline-size: to-rem(8);
+  block-size: to-rem(16);
   background-color: #0f0;
   animation: cursor-blink 1s step-end infinite;
-  box-shadow: 0 0 8px rgb(0 255 0 / 80%);
+  box-shadow: 0 0 to-rem(8) rgb(0 255 0 / 80%);
   flex-shrink: 0;
-  margin-left: 1px;
+  margin-inline-start: to-rem(1);
 }
 
 @keyframes cursor-blink {
@@ -187,38 +210,14 @@
   }
 }
 
-/* Scrollbar styling */
-.terminal__output::-webkit-scrollbar {
-  width: 8px;
-}
-
-.terminal__output::-webkit-scrollbar-track {
-  background: #0a0a0a;
-}
-
-.terminal__output::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
-}
-
-.terminal__output::-webkit-scrollbar-thumb:hover {
-  background: #444;
-}
-
-/* CRT glow effect on text */
-.terminal__output,
-.terminal__input-line {
-  text-shadow: 0 0 5px rgb(0 255 0 / 50%);
-}
-
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .terminal__cursor {
+  .cursor {
     animation: none;
     opacity: 1;
   }
 
-  .terminal__scanlines {
+  .scanlines {
     display: none;
   }
 }

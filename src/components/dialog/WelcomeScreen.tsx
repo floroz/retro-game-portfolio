@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { DialogPortrait } from "./DialogPortrait";
 import { useGameStore } from "../../store/gameStore";
-import "./WelcomeScreen.css";
+import styles from "./WelcomeScreen.module.scss";
 
 interface WelcomeScreenProps {
   onDismiss: () => void;
@@ -56,53 +56,51 @@ export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
 
   return (
     <div
-      className="welcome-screen"
+      className={styles.screen}
       data-e2e="welcome-screen"
       role="dialog"
       aria-modal="true"
       aria-label="Welcome screen - press space to start"
     >
       {/* CRT scanline overlay */}
-      <div className="welcome-screen__scanlines" aria-hidden="true" />
+      <div className={styles.scanlines} aria-hidden="true" />
 
       {/* Sound toggle in corner */}
-      <div className="welcome-screen__sound-corner">
+      <div className={styles.soundCorner}>
         <button
-          className={`welcome-screen__sound-toggle ${soundEnabled ? "welcome-screen__sound-toggle--on" : ""}`}
+          className={`${styles.soundToggle} ${soundEnabled ? styles.soundToggleOn : ""}`}
           onClick={handleSoundToggle}
           aria-pressed={soundEnabled}
           aria-label={soundEnabled ? "Sound enabled" : "Sound disabled"}
         >
-          <span className="welcome-screen__sound-icon" aria-hidden="true">
+          <span className={styles.soundIcon} aria-hidden="true">
             {soundEnabled ? "🔊" : "🔇"}
           </span>
-          <span className="welcome-screen__sound-label">
+          <span className={styles.soundLabel}>
             SOUND: {soundEnabled ? "ON" : "OFF"}
           </span>
         </button>
-        <p className="welcome-screen__sound-hint">
-          Enable for better experience
-        </p>
+        <p className={styles.soundHint}>Enable for better experience</p>
       </div>
 
       {/* Content container */}
-      <div className="welcome-screen__content">
+      <div className={styles.content}>
         {/* Large portrait with frame */}
-        <div className="welcome-screen__portrait-wrapper">
+        <div className={styles.portraitWrapper}>
           <DialogPortrait size="large" />
         </div>
 
         {/* Name and title */}
-        <h1 className="welcome-screen__name" data-e2e="welcome-screen-name">
+        <h1 className={styles.name} data-e2e="welcome-screen-name">
           DANIELE TORTORA
         </h1>
-        <p className="welcome-screen__title" data-e2e="welcome-screen-title">
+        <p className={styles.title} data-e2e="welcome-screen-title">
           Senior Software Engineer
         </p>
 
         {/* Press space to start prompt - clickable */}
         <button
-          className="welcome-screen__prompt"
+          className={styles.prompt}
           data-e2e="welcome-screen-prompt"
           onClick={handlePromptClick}
           aria-label="Press space or click to start"
@@ -112,10 +110,10 @@ export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
       </div>
 
       {/* Decorative corner elements */}
-      <div className="welcome-screen__corner welcome-screen__corner--tl" />
-      <div className="welcome-screen__corner welcome-screen__corner--tr" />
-      <div className="welcome-screen__corner welcome-screen__corner--bl" />
-      <div className="welcome-screen__corner welcome-screen__corner--br" />
+      <div className={`${styles.corner} ${styles.cornerTl}`} />
+      <div className={`${styles.corner} ${styles.cornerTr}`} />
+      <div className={`${styles.corner} ${styles.cornerBl}`} />
+      <div className={`${styles.corner} ${styles.cornerBr}`} />
     </div>
   );
 }

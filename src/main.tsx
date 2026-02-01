@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { MotionConfig } from "framer-motion";
-import "./index.css";
+import "./index.scss";
 import App from "./App.tsx";
 import { OGImage } from "./components/seo/OGImage";
 

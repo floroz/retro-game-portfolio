@@ -1,0 +1,237 @@
+@use "../../styles/functions" as *;
+
+/* Adventure Dialog Component */
+
+/* 80s point-and-click adventure game aesthetic */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 85%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: dialog-fade-in 0.2s ease-out;
+}
+
+@keyframes dialog-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.dialog {
+  inline-size: 100%;
+  max-inline-size: to-rem(640px);
+  margin: to-rem(16px);
+  background: #0a0f14;
+  border: to-rem(3px) solid #2a3a4a;
+  box-shadow:
+    inset 0 0 0 to-rem(1px) #1a2a3a,
+    0 0 to-rem(40px) rgb(0 0 0 / 80%),
+    0 0 to-rem(20px) rgb(0 212 170 / 10%);
+  font-family: var(--font-heading);
+  animation: dialog-slide-in 0.25s ease-out;
+  transform: scale(1.5);
+  transform-origin: center center;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent to-rem(2px),
+      rgb(0 0 0 / 10%) to-rem(2px),
+      rgb(0 0 0 / 10%) to-rem(4px)
+    );
+    pointer-events: none;
+    opacity: 0.3;
+    border-radius: inherit;
+  }
+}
+
+@keyframes dialog-slide-in {
+  from {
+    opacity: 0;
+    transform: scale(1.5) translateY(to-rem(-20px));
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.5) translateY(0);
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: to-rem(12px) to-rem(16px);
+  border-block-end: to-rem(2px) solid #2a3a4a;
+  background: linear-gradient(
+    to bottom,
+    rgb(42 58 74 / 30%) 0%,
+    transparent 100%
+  );
+}
+
+.speaker {
+  color: #00d4aa;
+  font-size: to-rem(12px);
+  letter-spacing: to-rem(2px);
+  text-shadow: 0 0 to-rem(10px) rgb(0 212 170 / 50%);
+}
+
+.soundToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: to-rem(6px);
+  background: rgb(42 58 74 / 40%);
+  border: to-rem(2px) solid #3a4a5a;
+  color: #a0b0c0;
+  font-family: var(--font-heading);
+  font-size: to-rem(9px);
+  padding: to-rem(6px) to-rem(10px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: to-rem(4px);
+
+  &:hover {
+    border-color: #5a6a7a;
+    background: rgb(42 58 74 / 60%);
+    color: #e0e8f0;
+    transform: scale(1.05);
+  }
+
+  &On {
+    color: #00d4aa;
+    border-color: rgb(0 212 170 / 50%);
+    background: rgb(0 212 170 / 10%);
+    box-shadow: 0 0 to-rem(10px) rgb(0 212 170 / 20%);
+  }
+
+  &Off {
+    color: #f94;
+    border-color: rgb(255 153 68 / 50%);
+    background: rgb(255 153 68 / 15%);
+    animation: sound-pulse 2s ease-in-out infinite;
+  }
+}
+
+.soundToggleOn .soundIcon {
+  animation: none;
+}
+
+.soundToggleOff .soundIcon {
+  animation: megaphone-bounce 1s ease-in-out infinite;
+}
+
+.soundIcon {
+  font-size: to-rem(14px);
+  line-height: 1;
+}
+
+.soundLabel {
+  letter-spacing: to-rem(1px);
+}
+
+@keyframes sound-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 to-rem(5px) rgb(255 153 68 / 30%);
+  }
+
+  50% {
+    box-shadow:
+      0 0 to-rem(15px) rgb(255 153 68 / 50%),
+      0 0 to-rem(25px) rgb(255 153 68 / 20%);
+  }
+}
+
+@keyframes megaphone-bounce {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+
+  75% {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
+.content {
+  display: flex;
+  gap: to-rem(20px);
+  padding: to-rem(20px);
+  min-block-size: to-rem(200px);
+}
+
+.textArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.text {
+  color: #e0e8f0;
+  font-size: to-rem(11px);
+  line-height: 2.4;
+  letter-spacing: to-rem(0.5px);
+  margin: 0;
+  flex: 1;
+}
+
+.cursor {
+  color: #00d4aa;
+  animation: cursor-blink 0.8s step-end infinite;
+}
+
+@keyframes cursor-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+.footer {
+  padding: to-rem(10px) to-rem(16px);
+  border-block-start: to-rem(2px) solid #2a3a4a;
+  text-align: end;
+  background: linear-gradient(to top, rgb(42 58 74 / 20%) 0%, transparent 100%);
+}
+
+.hint {
+  color: #607080;
+  font-size: to-rem(8px);
+  letter-spacing: to-rem(1px);
+}
+
+/* Responsive adjustments */
+@media (inline-size <= to-rem(600px)) {
+  .content {
+    flex-direction: column;
+    align-items: center;
+    gap: to-rem(16px);
+  }
+
+  .text {
+    font-size: to-rem(10px);
+    text-align: center;
+  }
+}

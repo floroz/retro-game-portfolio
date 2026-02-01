@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from "react";
 import type { DialogOption } from "../../types/game";
-import "./DialogOptions.css";
+import styles from "./DialogOptions.module.scss";
 
 interface DialogOptionsProps {
   options: DialogOption[];
@@ -59,7 +59,7 @@ export function DialogOptions({
 
   return (
     <div
-      className="dialog-options"
+      className={styles.options}
       data-e2e="dialog-options"
       role="listbox"
       aria-label="Dialog options"
@@ -67,8 +67,8 @@ export function DialogOptions({
       {options.map((option, index) => (
         <button
           key={option.id}
-          className={`dialog-options__item ${
-            index === selectedIndex ? "dialog-options__item--selected" : ""
+          className={`${styles.item} ${
+            index === selectedIndex ? styles.selected : ""
           }`}
           onClick={() => !disabled && onSelect(option)}
           onMouseEnter={() => !disabled && onHover(index)}
@@ -77,10 +77,10 @@ export function DialogOptions({
           disabled={disabled}
           tabIndex={-1}
         >
-          <span className="dialog-options__marker">
+          <span className={styles.marker}>
             {index === selectedIndex ? "▸" : " "}
           </span>
-          <span className="dialog-options__label">{option.label}</span>
+          <span className={styles.label}>{option.label}</span>
         </button>
       ))}
     </div>

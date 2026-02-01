@@ -24,7 +24,7 @@ export const VIEWPORT = {
  * - The floor/wall boundary is at ~200px from bottom
  * - Character sprite is ~100px wide, positioned by center-bottom
  */
-export const WALKABLE_AREA = {
+const WALKABLE_AREA = {
   minY: 15, // Front of floor (closest to viewer, near bottom edge)
   maxY: 200, // Back of floor (where floor meets the wall)
   minX: 50, // Left edge (closer to the wall)
@@ -164,11 +164,6 @@ export const SCENE_CONFIG: SceneConfig = {
 export const CHARACTER_SPEED = 350;
 
 /**
- * Character movement speed when moving to an interactive object (2x faster)
- */
-export const CHARACTER_INTERACTION_SPEED = 500;
-
-/**
  * Calculate scale based on Y position for depth illusion
  * Higher Y (closer to floor line at wall) = farther away = smaller
  * Lower Y (closer to screen bottom) = nearer = larger
@@ -215,16 +210,4 @@ export function clampToWalkableArea(
     x: Math.max(WALKABLE_AREA.minX, Math.min(WALKABLE_AREA.maxX, x)),
     y: Math.max(WALKABLE_AREA.minY, Math.min(WALKABLE_AREA.maxY, y)),
   };
-}
-
-/**
- * Check if a position is within the walkable area
- */
-export function isInWalkableArea(x: number, y: number): boolean {
-  return (
-    x >= WALKABLE_AREA.minX &&
-    x <= WALKABLE_AREA.maxX &&
-    y >= WALKABLE_AREA.minY &&
-    y <= WALKABLE_AREA.maxY
-  );
 }

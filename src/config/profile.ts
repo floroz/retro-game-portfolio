@@ -210,5 +210,3 @@ Core expertise: React, Vue, TypeScript, Node.js, Go, Kubernetes, AI integration`
     ],
   },
 } as const;
-
-export type Profile = typeof PROFILE;

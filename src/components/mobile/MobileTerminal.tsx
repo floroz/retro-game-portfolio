@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTerminal } from "../../hooks/useTerminal";
 import { PROFILE } from "../../config/profile";
-import "./MobileTerminal.css";
+import styles from "./MobileTerminal.module.scss";
 
 interface QuickCommand {
   label: string;
@@ -58,13 +58,13 @@ export function MobileTerminal() {
   };
 
   return (
-    <div className="mobile-terminal">
+    <div className={styles.mobileTerminal}>
       {/* Desktop banner - dismissible */}
       {showDesktopBanner && (
-        <div className="mobile-terminal__banner">
+        <div className={styles.banner}>
           <span>For the full interactive experience, visit on desktop</span>
           <button
-            className="mobile-terminal__banner-close"
+            className={styles.bannerClose}
             onClick={() => setShowDesktopBanner(false)}
             aria-label="Dismiss banner"
             type="button"
@@ -75,35 +75,32 @@ export function MobileTerminal() {
       )}
 
       {/* Scanline overlay */}
-      <div className="mobile-terminal__scanlines" />
+      <div className={styles.scanlines} />
 
       {/* Header */}
-      <header className="mobile-terminal__header">
-        <span className="mobile-terminal__title">
+      <header className={styles.header}>
+        <span className={styles.title}>
           {PROFILE.portfolio.title} v{PROFILE.portfolio.version}
         </span>
-        <span className="mobile-terminal__subtitle">mobile terminal</span>
+        <span className={styles.subtitle}>mobile terminal</span>
       </header>
 
       {/* Output area */}
-      <div className="mobile-terminal__output" ref={outputRef}>
+      <div className={styles.output} ref={outputRef}>
         {history.map((line, index) => (
-          <div
-            key={index}
-            className={`mobile-terminal__line mobile-terminal__line--${line.type}`}
-          >
+          <div key={index} className={`${styles.line} ${styles[line.type]}`}>
             {line.content}
           </div>
         ))}
       </div>
 
       {/* Input area */}
-      <form className="mobile-terminal__input-line" onSubmit={handleFormSubmit}>
-        <span className="mobile-terminal__prompt">&gt;</span>
+      <form className={styles.inputLine} onSubmit={handleFormSubmit}>
+        <span className={styles.prompt}>&gt;</span>
         <input
           ref={inputRef}
           type="text"
-          className="mobile-terminal__input"
+          className={styles.input}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -115,7 +112,7 @@ export function MobileTerminal() {
         />
         <button
           type="submit"
-          className="mobile-terminal__submit"
+          className={styles.submit}
           aria-label="Execute command"
         >
           ↵
@@ -123,11 +120,11 @@ export function MobileTerminal() {
       </form>
 
       {/* Quick access buttons */}
-      <div className="mobile-terminal__quick-commands">
+      <div className={styles.quickCommands}>
         {QUICK_COMMANDS.map((cmd) => (
           <button
             key={cmd.command}
-            className="mobile-terminal__quick-btn"
+            className={styles.quickBtn}
             onClick={() => handleQuickCommand(cmd.command)}
             type="button"
           >
@@ -137,14 +134,12 @@ export function MobileTerminal() {
       </div>
 
       {/* Help hint */}
-      <div className="mobile-terminal__hint">
+      <div className={styles.hint}>
         Type <code>help</code> for all commands
       </div>
 
       {/* Copyright footer */}
-      <footer className="mobile-terminal__copyright">
-        © 2026 Daniele Tortora
-      </footer>
+      <footer className={styles.copyright}>© 2026 Daniele Tortora</footer>
     </div>
   );
 }

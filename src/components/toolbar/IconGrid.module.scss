@@ -1,0 +1,73 @@
+@use "../../styles/functions" as *;
+@use "../../styles/mixins" as *;
+
+/* 2x2 grid matching the ActionGrid retro style */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  grid-template-rows: repeat(2, 1fr);
+  gap: var(--space-xs);
+}
+
+/* Beveled button style matching ActionGrid */
+.button {
+  @include beveled-button(#4a4a6c, #7a7a9c, #2a2a4a);
+  @include flex-center;
+
+  gap: var(--space-sm);
+  padding: to-rem(8px) to-rem(16px);
+  font-family: "Press Start 2P", "Courier New", monospace;
+  font-size: var(--font-size-xs);
+  color: #fff;
+  text-transform: uppercase;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-accent);
+
+    .icon {
+      color: var(--color-accent);
+    }
+  }
+}
+
+.icon {
+  flex-shrink: 0;
+  color: #ccc;
+}
+
+.label {
+  white-space: nowrap;
+}
+
+/* Highlighted buttons (Talk, Terminal) - slightly different background */
+.buttonHighlight {
+  @include beveled-button(#5a4a6c, #8a7a9c, #2a2a4a);
+  @include flex-center;
+
+  gap: var(--space-sm);
+  padding: to-rem(8px) to-rem(16px);
+  font-family: "Press Start 2P", "Courier New", monospace;
+  font-size: var(--font-size-xs);
+  color: #fff;
+  text-transform: uppercase;
+  text-decoration: none;
+
+  .icon {
+    color: #e0c060;
+  }
+
+  &:hover {
+    background: linear-gradient(
+      180deg,
+      lighten-color(#5a4a6c, 15%) 0%,
+      lighten-color(#5a4a6c, 10%) 50%,
+      #5a4a6c 100%
+    );
+    color: var(--color-accent);
+
+    .icon {
+      color: var(--color-accent);
+    }
+  }
+}

@@ -1,44 +1,45 @@
+@use "../../styles/functions" as *;
+@use "../../styles/mixins" as *;
+
 /* SCUMM-style toolbar - 40/40/20 grid */
 .toolbar {
   display: grid;
   grid-template-columns: 40% 40% 20%;
   height: 100%;
-  padding: 12px 16px;
+  padding: to-rem(12px) to-rem(16px);
   background: linear-gradient(180deg, #3a3a5c 0%, #2a2a4a 100%);
-  border-top: 4px solid #4a4a6c;
+  border-block-start: to-rem(4px) solid #4a4a6c;
 }
 
 /* Action buttons section (40%) */
-.toolbar__actions {
-  display: flex;
-  align-items: center;
+.actions {
+  @include flex-center;
+
   justify-content: flex-start;
 }
 
 /* Status text section (40% - center) */
-.toolbar__status {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 16px;
+.status {
+  @include flex-center;
+
+  padding: 0 to-rem(16px);
 }
 
-.toolbar__status-text {
+.statusText {
+  @include truncate;
+
   font-family: "Press Start 2P", "Courier New", monospace;
-  font-size: 14px;
-  color: #ffd700;
+  font-size: to-rem(14px);
+  color: var(--color-accent);
   text-transform: uppercase;
-  text-shadow: 2px 2px 0 #000;
+  text-shadow: to-rem(2px) to-rem(2px) 0 #000;
   text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* Icon buttons section (20%) */
-.toolbar__icons {
+.icons {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--space-sm);
 }

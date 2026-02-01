@@ -1,4 +1,4 @@
-import "./Scene.css";
+import styles from "./Scene.module.scss";
 
 // Hooks
 import { useCharacterMovement } from "../../hooks/useCharacterMovement";
@@ -35,12 +35,12 @@ export function Scene() {
   const characterZIndex = getZIndexForY();
 
   return (
-    <div className="scene" data-e2e="scene" onClick={handleSceneClick}>
+    <div className={styles.scene} data-e2e="scene" onClick={handleSceneClick}>
       {/* Background layer - custom artwork */}
       <ImageBackground />
 
       {/* Interactive hotspot overlays */}
-      <div className="scene__hotspots">
+      <div className={styles.hotspots}>
         {HOTSPOTS.map((hotspot) => (
           <Hotspot
             key={hotspot.id}
@@ -54,7 +54,7 @@ export function Scene() {
 
       {/* Character layer - positioned with X/Y and scale for depth */}
       <div
-        className="scene__character"
+        className={styles.character}
         style={{
           left: `${characterPosition.x}px`,
           bottom: `${characterPosition.y}px`,

@@ -1,14 +1,17 @@
+@use "../../../styles/functions" as *;
+@use "../../../styles/mixins" as *;
+
 /* Image-based background */
-.image-background {
+.imageBackground {
   position: absolute;
   inset: 0;
   overflow: hidden;
 }
 
-.image-background__image {
+.image {
   /* Fill the entire scene area */
-  width: 100%;
-  height: 100%;
+  inline-size: 100%;
+  block-size: 100%;
 
   /* Cover ensures the image fills the container, cropping if needed */
   object-fit: cover;

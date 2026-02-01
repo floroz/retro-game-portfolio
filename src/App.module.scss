@@ -1,8 +1,11 @@
+@use "./styles/functions" as *;
+@use "./styles/mixins" as *;
+
 /* App root - full viewport game container */
 .app {
-  min-height: 100vh;
-  max-height: 100vh;
-  background: var(--color-bg-dark, #1a1a2e);
+  min-block-size: 100vh;
+  max-block-size: 100vh;
+  background: var(--color-bg-dark);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -11,17 +14,16 @@
 }
 
 /* Copyright footer - fixed at bottom */
-.app__copyright {
+.copyright {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 8px 24px;
+  inset-block-end: 0;
+  inset-inline: 0;
+  padding: var(--space-sm) var(--space-2xl);
   text-align: center;
   font-family: "Press Start 2P", monospace;
-  font-size: 8px;
+  font-size: var(--font-size-xs);
   color: #4a4a6a;
-  letter-spacing: 1px;
+  letter-spacing: to-rem(1px);
   background: transparent;
   pointer-events: none;
   z-index: 1;

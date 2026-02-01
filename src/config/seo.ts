@@ -12,5 +12,3 @@ export const SEO_CONFIG = {
     email: PROFILE.email,
   },
 } as const;
-
-export type SEOConfig = typeof SEO_CONFIG;

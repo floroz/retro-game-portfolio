@@ -1,0 +1,47 @@
+@use "sass:meta";
+@use "sass:math";
+@use "sass:color";
+
+// Base font size (browser default)
+$base-font-size: 16px;
+
+/// Convert px to rem
+/// @param {Number} $px - Pixel value to convert
+/// @return {Number} - Rem value
+@function to-rem($px) {
+  @if meta.type-of($px) == "number" and math.unit($px) == "px" {
+    @return calc($px / $base-font-size) * 1rem;
+  } @else if meta.type-of($px) == "number" and math.is-unitless($px) {
+    @return calc($px / 16) * 1rem;
+  } @else {
+    @error "to-rem() expects a pixel value, got #{$px}";
+  }
+}
+
+/// Fluid typography - scales between min and max based on viewport
+/// @param {Number} $min-size - Minimum size (px)
+/// @param {Number} $max-size - Maximum size (px)
+/// @param {Number} $min-vw - Minimum viewport width (px, default 320px)
+/// @param {Number} $max-vw - Maximum viewport width (px, default 1280px)
+@function fluid-size($min-size, $max-size, $min-vw: 320px, $max-vw: 1280px) {
+  $min-rem: to-rem($min-size);
+  $max-rem: to-rem($max-size);
+  $slope: calc(($max-size - $min-size) / ($max-vw - $min-vw));
+  $y-intercept: to-rem($min-size - ($slope * $min-vw));
+
+  @return clamp(#{$min-rem}, #{$y-intercept} + #{$slope * 100}vw, #{$max-rem});
+}
+
+/// Lighten color (works with hex)
+/// @param {Color} $color - Color to lighten
+/// @param {Number} $amount - Percentage to lighten (0-100)
+@function lighten-color($color, $amount) {
+  @return color.mix(white, $color, $amount);
+}
+
+/// Darken color (works with hex)
+/// @param {Color} $color - Color to darken
+/// @param {Number} $amount - Percentage to darken (0-100)
+@function darken-color($color, $amount) {
+  @return color.mix(black, $color, $amount);
+}

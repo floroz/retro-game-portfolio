@@ -1,0 +1,113 @@
+@use "./functions" as *;
+
+:root {
+  /* ============================================
+     SPACING SCALE (rem-based)
+     ============================================ */
+  --space-3xs: #{to-rem(2px)}; // 0.125rem
+  --space-2xs: #{to-rem(4px)}; // 0.25rem
+  --space-xs: #{to-rem(6px)}; // 0.375rem
+  --space-sm: #{to-rem(8px)}; // 0.5rem
+  --space-md: #{to-rem(12px)}; // 0.75rem
+  --space-lg: #{to-rem(16px)}; // 1rem
+  --space-xl: #{to-rem(20px)}; // 1.25rem
+  --space-2xl: #{to-rem(24px)}; // 1.5rem
+  --space-3xl: #{to-rem(32px)}; // 2rem
+  --space-4xl: #{to-rem(48px)}; // 3rem
+  --space-5xl: #{to-rem(64px)}; // 4rem
+
+  /* ============================================
+     FONT SIZES (fluid typography)
+     ============================================ */
+  --font-size-xs: #{fluid-size(8px, 10px)}; // Retro small text
+  --font-size-sm: #{fluid-size(10px, 12px)}; // Body small
+  --font-size-base: #{fluid-size(12px, 14px)}; // Base retro text
+  --font-size-lg: #{fluid-size(14px, 16px)}; // Headings
+  --font-size-xl: #{fluid-size(16px, 20px)}; // Large headings
+  --font-size-2xl: #{fluid-size(20px, 24px)}; // Hero text
+
+  /* ============================================
+     FONT FAMILIES
+     ============================================ */
+  --font-heading: "Press Start 2P", monospace;
+  --font-body: "IBM Plex Mono", "Courier New", monospace;
+
+  /* ============================================
+     COLORS
+     ============================================ */
+  /* Scene colors */
+  --color-sky: #1a1a4e;
+  --color-wall-left: #c4956a;
+  --color-wall-right: #4a7bb5;
+  --color-wall-center: #8b6914;
+  --color-floor-light: #d4a574;
+  --color-floor-dark: #b8956a;
+
+  /* UI colors - Retro terminal aesthetic */
+  --color-bg-dark: #1a1a2e;
+  --color-border: #3d3d5c;
+  --color-accent: #ffd700;
+  --color-toolbar-bg: #1a1a2e;
+  --color-toolbar-border: #4a4a6a;
+  --color-button-bg: #3a3a5a;
+  --color-button-hover: #4a4a6a;
+  --color-button-border: #6a6a8a;
+  --color-text-primary: #e8c44a;
+  --color-text-secondary: #d4c4a4;
+
+  /* Character colors */
+  --color-skin: #f5c6a5;
+  --color-skin-shadow: #d4a574;
+  --color-hair: #4a3728;
+  --color-glasses: #2a2a2a;
+  --color-shirt: #f0f0e8;
+  --color-bowtie: #a83232;
+  --color-pants: #555;
+  --color-shoes: #2a2a2a;
+
+  /* Object colors - Muted palette */
+  --color-door-frame: #5d4030;
+  --color-door-body: #5a7a9a;
+  --color-desk: #b47540;
+  --color-phone: #3a3a3a;
+  --color-plant: #3a6a34;
+  --color-sign-wood: #8b5a2b;
+  --color-sign-text: #f0e8d0;
+  --color-vending-body: #8b3030;
+  --color-vending-dark: #6a2020;
+
+  /* ============================================
+     SCENE DIMENSIONS (rem-based)
+     ============================================ */
+  --scene-width: #{to-rem(640px)}; // 40rem
+  --scene-height: #{to-rem(320px)}; // 20rem
+  --toolbar-height: #{to-rem(80px)}; // 5rem
+  --total-height: #{to-rem(400px)}; // 25rem
+
+  /* ============================================
+     Z-INDEX LAYERS
+     ============================================ */
+  --z-background: 0;
+  --z-wall-objects: 3;
+  --z-floor: 4;
+  --z-floor-objects-far: 5;
+  --z-floor-objects-mid: 7;
+  --z-floor-objects-near: 8;
+  --z-character: 10;
+  --z-modal: 100;
+  --z-tooltip: 200;
+
+  /* ============================================
+     BORDER RADIUS
+     ============================================ */
+  --radius-sm: #{to-rem(2px)};
+  --radius-md: #{to-rem(4px)};
+  --radius-lg: #{to-rem(8px)};
+
+  /* ============================================
+     TRANSITIONS
+     ============================================ */
+  --transition-fast: 0.1s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}

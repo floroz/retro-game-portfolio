@@ -1,0 +1,53 @@
+@use "../../styles/functions" as *;
+@use "../../styles/mixins" as *;
+
+.wrapper {
+  @include flex-center;
+
+  min-block-size: 100vh;
+  inline-size: 100%;
+  padding: var(--space-2xl);
+  background: var(--color-bg-dark);
+  box-sizing: border-box;
+}
+
+.canvas {
+  @include pixelated;
+
+  inline-size: to-rem(1280px);
+  block-size: to-rem(800px);
+  background: #000;
+  border: to-rem(4px) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 to-rem(8px) to-rem(32px) rgb(0 0 0 / 50%);
+  overflow: hidden;
+}
+
+/* Safari-specific: Use auto rendering with integer scaling */
+@supports (-webkit-hyphens: none) {
+  .canvas,
+  .canvas *,
+  :global(.scene),
+  :global(.scene *),
+  :global(.scene img),
+  :global(.scene [class*="__"]) {
+    image-rendering: auto;
+  }
+}
+
+/* Scene area - top 640px (80% of 800px) */
+.scene {
+  position: relative;
+  inline-size: to-rem(1280px);
+  block-size: to-rem(640px);
+  overflow: hidden;
+}
+
+/* Toolbar area - bottom 160px (20% of 800px) */
+.toolbar {
+  position: relative;
+  inline-size: to-rem(1280px);
+  block-size: to-rem(160px);
+  background: var(--color-toolbar-bg);
+  border-block-start: to-rem(4px) solid var(--color-border);
+}
