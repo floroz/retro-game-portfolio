@@ -9,6 +9,9 @@ import {
 
 const ARRIVAL_THRESHOLD = 5; // Distance in pixels to consider "arrived"
 
+// Track which movement keys are currently pressed
+type DirectionKey = "left" | "right" | "up" | "down";
+
 /**
  * Hook to handle character movement animation and input
  */
@@ -16,6 +19,11 @@ export function useCharacterMovement() {
   const animationFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
   const initialDistanceRef = useRef<number>(0);
+
+  // Track held keys for continuous keyboard movement
+  const heldKeysRef = useRef<Set<DirectionKey>>(new Set());
+  const keyboardAnimationRef = useRef<number | null>(null);
+  const lastKeyboardTimeRef = useRef<number>(0);
 
   const {
     characterPosition,
@@ -132,9 +140,72 @@ export function useCharacterMovement() {
     [moveTo, modalOpen, terminalOpen],
   );
 
-  // Handle keyboard input for character movement
+  // Handle keyboard input for continuous character movement
   useEffect(() => {
-    const MOVE_STEP = 20; // Pixels per key press
+    const keyToDirection: Record<string, DirectionKey> = {
+      ArrowLeft: "left",
+      a: "left",
+      ArrowRight: "right",
+      d: "right",
+      ArrowUp: "up",
+      w: "up",
+      ArrowDown: "down",
+      s: "down",
+    };
+
+    // Animation loop for continuous keyboard movement
+    const animateKeyboardMovement = (currentTime: number) => {
+      const store = useGameStore.getState();
+
+      if (heldKeysRef.current.size === 0) {
+        keyboardAnimationRef.current = null;
+        lastKeyboardTimeRef.current = 0;
+        // Set character back to idle when no keys are held
+        store.setCharacterState("idle");
+        return;
+      }
+
+      if (!lastKeyboardTimeRef.current) {
+        lastKeyboardTimeRef.current = currentTime;
+      }
+
+      const deltaTime = (currentTime - lastKeyboardTimeRef.current) / 1000;
+      lastKeyboardTimeRef.current = currentTime;
+
+      const pos = store.characterPosition;
+      const moveDistance = CHARACTER_SPEED * deltaTime;
+
+      let dx = 0;
+      let dy = 0;
+
+      if (heldKeysRef.current.has("left")) {
+        dx -= moveDistance;
+        store.setCharacterDirection("left");
+      }
+      if (heldKeysRef.current.has("right")) {
+        dx += moveDistance;
+        store.setCharacterDirection("right");
+      }
+      if (heldKeysRef.current.has("up")) {
+        dy += moveDistance;
+      }
+      if (heldKeysRef.current.has("down")) {
+        dy -= moveDistance;
+      }
+
+      if (dx !== 0 || dy !== 0) {
+        const newX = pos.x + dx;
+        const newY = pos.y + dy;
+        const clamped = clampToWalkableArea(newX, newY);
+        store.setCharacterPosition(clamped);
+        // Ensure character is in walking state while moving
+        store.setCharacterState("walking");
+      }
+
+      keyboardAnimationRef.current = requestAnimationFrame(
+        animateKeyboardMovement,
+      );
+    };
 
     const handleKeyDown = (event: KeyboardEvent) => {
       // Don't handle keyboard movement if modal or terminal is open
@@ -148,49 +219,69 @@ export function useCharacterMovement() {
         return;
       }
 
-      const { characterPosition: pos } = useGameStore.getState();
-      let newX = pos.x;
-      let newY = pos.y;
-      let moved = false;
-
-      switch (event.key) {
-        case "ArrowLeft":
-        case "a":
-          newX = pos.x - MOVE_STEP;
-          setCharacterDirection("left");
-          moved = true;
-          break;
-        case "ArrowRight":
-        case "d":
-          newX = pos.x + MOVE_STEP;
-          setCharacterDirection("right");
-          moved = true;
-          break;
-        case "ArrowUp":
-        case "w":
-          newY = pos.y + MOVE_STEP; // Up increases bottom Y
-          moved = true;
-          break;
-        case "ArrowDown":
-        case "s":
-          newY = pos.y - MOVE_STEP; // Down decreases bottom Y
-          moved = true;
-          break;
-        case "Escape":
-          stopMovement();
-          break;
+      // Handle escape to stop movement
+      if (event.key === "Escape") {
+        stopMovement();
+        heldKeysRef.current.clear();
+        useGameStore.getState().setCharacterState("idle");
+        return;
       }
 
-      if (moved) {
+      const direction = keyToDirection[event.key];
+      if (direction) {
         event.preventDefault();
-        const clamped = clampToWalkableArea(newX, newY);
-        moveTo(clamped);
+
+        // Stop any click-based movement when using keyboard
+        stopMovement();
+
+        // Add key to held keys
+        if (!heldKeysRef.current.has(direction)) {
+          heldKeysRef.current.add(direction);
+
+          // Set character to walking state
+          useGameStore.getState().setCharacterState("walking");
+
+          // Start animation loop if not already running
+          if (!keyboardAnimationRef.current) {
+            lastKeyboardTimeRef.current = 0;
+            keyboardAnimationRef.current = requestAnimationFrame(
+              animateKeyboardMovement,
+            );
+          }
+        }
       }
     };
 
+    const handleKeyUp = (event: KeyboardEvent) => {
+      const direction = keyToDirection[event.key];
+      if (direction) {
+        heldKeysRef.current.delete(direction);
+        // If no more keys are held, set to idle
+        if (heldKeysRef.current.size === 0) {
+          useGameStore.getState().setCharacterState("idle");
+        }
+      }
+    };
+
+    // Also clear keys when window loses focus
+    const handleBlur = () => {
+      heldKeysRef.current.clear();
+      useGameStore.getState().setCharacterState("idle");
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [modalOpen, terminalOpen, setCharacterDirection, moveTo, stopMovement]);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", handleBlur);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", handleBlur);
+      if (keyboardAnimationRef.current) {
+        cancelAnimationFrame(keyboardAnimationRef.current);
+      }
+    };
+  }, [modalOpen, terminalOpen, stopMovement]);
 
   return {
     characterPosition,

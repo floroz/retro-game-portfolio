@@ -15,7 +15,7 @@ export function VendingMachineObject({
     <div
       className={`vending ${highlighted ? "vending--highlighted" : ""}`}
       role="button"
-      tabIndex={0}
+      tabIndex={-1}
       aria-label="Skills - click to interact"
     >
       {/* Machine body */}

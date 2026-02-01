@@ -12,7 +12,7 @@ export function PhoneObject({ highlighted = false }: PhoneObjectProps) {
     <div
       className={`phone ${highlighted ? "phone--highlighted" : ""}`}
       role="button"
-      tabIndex={0}
+      tabIndex={-1}
       aria-label="Contact - click to interact"
     >
       {/* Phone base/mount */}

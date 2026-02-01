@@ -19,7 +19,7 @@ export function DoorObject({
     <div
       className={`door door--${variant} ${highlighted ? "door--highlighted" : ""}`}
       role="button"
-      tabIndex={0}
+      tabIndex={-1}
       aria-label={`${label} - click to interact`}
     >
       {/* Door frame */}

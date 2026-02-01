@@ -14,7 +14,7 @@ export function FramedSignObject({
     <div
       className={`framed-sign ${highlighted ? "framed-sign--highlighted" : ""}`}
       role="button"
-      tabIndex={0}
+      tabIndex={-1}
       aria-label="Resume - click to interact"
     >
       {/* Frame */}

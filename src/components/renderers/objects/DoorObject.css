@@ -2,8 +2,8 @@
 
 .door {
   position: relative;
-  width: 55px;
-  height: 95px;
+  width: 110px;
+  height: 190px;
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -13,9 +13,9 @@
   transform: scale(1.02);
 }
 
-.door:focus {
-  outline: 3px solid #e8c44a;
-  outline-offset: 4px;
+.door:focus-visible {
+  outline: 6px solid #e8c44a;
+  outline-offset: 8px;
 }
 
 /* Door frame - recessed into wall */
@@ -24,15 +24,15 @@
   top: 0;
   left: 0;
   right: 0;
-  bottom: 16px;
+  bottom: 32px;
   background: linear-gradient(to bottom, #3a2818 0%, #4a3828 50%, #3a2818 100%);
-  border: 3px solid #2a1808;
-  border-radius: 2px 2px 0 0;
-  padding: 4px;
+  border: 6px solid #2a1808;
+  border-radius: 4px 4px 0 0;
+  padding: 8px;
   /* Recessed look - darker at edges */
   box-shadow:
-    inset 3px 3px 6px rgba(0, 0, 0, 0.4),
-    inset -2px -2px 4px rgba(0, 0, 0, 0.2);
+    inset 6px 6px 12px rgba(0, 0, 0, 0.4),
+    inset -4px -4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Door body - muted blue-grey */
@@ -46,12 +46,12 @@
     #4a6a8a 70%,
     #3a5a7a 100%
   );
-  border: 2px solid #3a5a7a;
-  border-radius: 1px;
+  border: 4px solid #3a5a7a;
+  border-radius: 2px;
   position: relative;
   box-shadow:
-    inset -4px 0 8px rgba(0, 0, 0, 0.2),
-    inset 2px 0 4px rgba(255, 255, 255, 0.1);
+    inset -8px 0 16px rgba(0, 0, 0, 0.2),
+    inset 4px 0 8px rgba(255, 255, 255, 0.1);
 }
 
 /* Office variant - slightly different shade */
@@ -68,69 +68,69 @@
 /* Door window - frosted glass effect */
 .door__window {
   position: absolute;
-  top: 8px;
-  left: 6px;
-  right: 6px;
-  height: 28px;
+  top: 16px;
+  left: 12px;
+  right: 12px;
+  height: 56px;
   background: linear-gradient(
     to bottom,
     rgba(180, 200, 220, 0.4) 0%,
     rgba(160, 180, 200, 0.3) 100%
   );
-  border: 2px solid #3a5a7a;
+  border: 4px solid #3a5a7a;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.2);
 }
 
 .door__window-text {
   font-family: "Press Start 2P", "Courier New", monospace;
-  font-size: 5px;
+  font-size: 10px;
   color: #1a3a5a;
-  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
-  letter-spacing: -0.5px;
+  text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.3);
+  letter-spacing: -1px;
   opacity: 0.8;
 }
 
 /* Door handle - brass/bronze */
 .door__handle {
   position: absolute;
-  right: 5px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  width: 8px;
-  height: 14px;
+  width: 16px;
+  height: 28px;
   background: linear-gradient(to bottom, #c4a464 0%, #a48444 50%, #846424 100%);
-  border: 1px solid #645414;
-  border-radius: 2px;
+  border: 2px solid #645414;
+  border-radius: 4px;
   box-shadow:
-    1px 1px 2px rgba(0, 0, 0, 0.4),
-    inset 1px 1px 1px rgba(255, 255, 255, 0.2);
+    2px 2px 4px rgba(0, 0, 0, 0.4),
+    inset 2px 2px 2px rgba(255, 255, 255, 0.2);
 }
 
 /* Door panels - recessed */
 .door__panel {
   position: absolute;
-  left: 6px;
-  right: 6px;
-  height: 16px;
-  border: 2px solid #3a5a7a;
+  left: 12px;
+  right: 12px;
+  height: 32px;
+  border: 4px solid #3a5a7a;
   background: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0.15) 0%,
     rgba(0, 0, 0, 0.05) 100%
   );
-  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .door__panel--top {
-  top: 42px;
+  top: 84px;
 }
 
 .door__panel--bottom {
-  bottom: 6px;
+  bottom: 12px;
 }
 
 /* Sign below door */
@@ -142,9 +142,9 @@
   background: linear-gradient(to bottom, #2a2a3a 0%, #1a1a2a 100%);
   color: #c4a44a;
   font-family: "Press Start 2P", "Courier New", monospace;
-  font-size: 5px;
-  padding: 3px 6px;
-  border: 1px solid #3a3a4a;
+  font-size: 10px;
+  padding: 6px 12px;
+  border: 2px solid #3a3a4a;
   white-space: nowrap;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
 }

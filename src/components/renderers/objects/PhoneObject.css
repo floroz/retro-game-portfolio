@@ -2,8 +2,8 @@
 
 .phone {
   position: relative;
-  width: 34px;
-  height: 65px;
+  width: 68px;
+  height: 130px;
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -13,9 +13,9 @@
   transform: scale(1.03);
 }
 
-.phone:focus {
-  outline: 3px solid #e8c44a;
-  outline-offset: 4px;
+.phone:focus-visible {
+  outline: 6px solid #e8c44a;
+  outline-offset: 8px;
 }
 
 /* Wall mount - flush with wall */
@@ -24,24 +24,24 @@
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 28px;
-  height: 10px;
+  width: 56px;
+  height: 20px;
   background: linear-gradient(to bottom, #4a4a4a 0%, #3a3a3a 100%);
-  border: 2px solid #2a2a2a;
-  border-radius: 2px 2px 0 0;
+  border: 4px solid #2a2a2a;
+  border-radius: 4px 4px 0 0;
   box-shadow:
-    inset 1px 1px 2px rgba(255, 255, 255, 0.1),
-    2px 2px 4px rgba(0, 0, 0, 0.3);
+    inset 2px 2px 4px rgba(255, 255, 255, 0.1),
+    4px 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* Phone body - darker, more depth */
 .phone__body {
   position: absolute;
-  top: 8px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  width: 26px;
-  height: 38px;
+  width: 52px;
+  height: 76px;
   background: linear-gradient(
     to right,
     #3a3a3a 0%,
@@ -49,83 +49,83 @@
     #3a3a3a 70%,
     #2a2a2a 100%
   );
-  border: 2px solid #2a2a2a;
-  border-radius: 3px;
+  border: 4px solid #2a2a2a;
+  border-radius: 6px;
   box-shadow:
-    inset -3px 0 6px rgba(0, 0, 0, 0.3),
-    inset 2px 0 4px rgba(255, 255, 255, 0.05),
-    3px 3px 6px rgba(0, 0, 0, 0.4);
+    inset -6px 0 12px rgba(0, 0, 0, 0.3),
+    inset 4px 0 8px rgba(255, 255, 255, 0.05),
+    6px 6px 12px rgba(0, 0, 0, 0.4);
 }
 
 /* Dial buttons */
 .phone__dial {
   position: absolute;
-  top: 10px;
-  left: 5px;
-  right: 5px;
+  top: 20px;
+  left: 10px;
+  right: 10px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
+  gap: 4px;
 }
 
 .phone__button {
-  width: 4px;
-  height: 4px;
+  width: 8px;
+  height: 8px;
   background: linear-gradient(to bottom, #5a5a5a 0%, #4a4a4a 100%);
-  border: 1px solid #3a3a3a;
-  border-radius: 1px;
+  border: 2px solid #3a3a3a;
+  border-radius: 2px;
 }
 
 /* Handset */
 .phone__handset {
   position: absolute;
-  top: 4px;
-  left: 3px;
-  width: 8px;
-  height: 30px;
+  top: 8px;
+  left: 6px;
+  width: 16px;
+  height: 60px;
 }
 
 .phone__earpiece {
-  width: 8px;
-  height: 9px;
+  width: 16px;
+  height: 18px;
   background: linear-gradient(to right, #2a2a2a 0%, #3a3a3a 50%, #2a2a2a 100%);
-  border: 1px solid #1a1a1a;
-  border-radius: 3px 3px 0 0;
+  border: 2px solid #1a1a1a;
+  border-radius: 6px 6px 0 0;
 }
 
 .phone__handle {
-  width: 5px;
-  height: 14px;
+  width: 10px;
+  height: 28px;
   background: linear-gradient(to right, #3a3a3a 0%, #4a4a4a 50%, #3a3a3a 100%);
-  margin-left: 1px;
-  border-left: 1px solid #2a2a2a;
-  border-right: 1px solid #2a2a2a;
+  margin-left: 2px;
+  border-left: 2px solid #2a2a2a;
+  border-right: 2px solid #2a2a2a;
 }
 
 .phone__mouthpiece {
-  width: 8px;
-  height: 7px;
+  width: 16px;
+  height: 14px;
   background: linear-gradient(to right, #2a2a2a 0%, #3a3a3a 50%, #2a2a2a 100%);
-  border: 1px solid #1a1a1a;
-  border-radius: 0 0 3px 3px;
+  border: 2px solid #1a1a1a;
+  border-radius: 0 0 6px 6px;
 }
 
 /* Cord - coiled */
 .phone__cord {
   position: absolute;
-  bottom: 18px;
+  bottom: 36px;
   left: 50%;
   transform: translateX(-50%);
-  width: 4px;
-  height: 18px;
+  width: 8px;
+  height: 36px;
   background: repeating-linear-gradient(
     to bottom,
     #2a2a2a 0px,
-    #2a2a2a 2px,
-    #3a3a3a 2px,
-    #3a3a3a 4px
+    #2a2a2a 4px,
+    #3a3a3a 4px,
+    #3a3a3a 8px
   );
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 /* Label */
@@ -137,9 +137,9 @@
   background: linear-gradient(to bottom, #2a2a3a 0%, #1a1a2a 100%);
   color: #c4a44a;
   font-family: "Press Start 2P", "Courier New", monospace;
-  font-size: 5px;
-  padding: 2px 4px;
-  border: 1px solid #3a3a4a;
+  font-size: 10px;
+  padding: 4px 8px;
+  border: 2px solid #3a3a4a;
   white-space: nowrap;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
 }

@@ -2,8 +2,8 @@
 
 .desk {
   position: relative;
-  width: 95px;
-  height: 62px;
+  width: 190px;
+  height: 124px;
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -13,9 +13,9 @@
   transform: scale(1.02);
 }
 
-.desk:focus {
-  outline: 3px solid #e8c44a;
-  outline-offset: 4px;
+.desk:focus-visible {
+  outline: 6px solid #e8c44a;
+  outline-offset: 8px;
 }
 
 /* Desk surface (top) - wooden with items */
@@ -24,7 +24,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 14px;
+  height: 28px;
   background: linear-gradient(
     to right,
     #a46530 0%,
@@ -33,14 +33,14 @@
     #b47540 70%,
     #946520 100%
   );
-  border: 2px solid #845510;
+  border: 4px solid #845510;
   border-bottom: none;
   /* Flat 2D - no perspective transform */
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  gap: 10px;
-  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  padding: 0 20px;
+  gap: 20px;
+  box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Computer on desk */
@@ -51,84 +51,84 @@
 }
 
 .desk__monitor {
-  width: 16px;
-  height: 12px;
+  width: 32px;
+  height: 24px;
   background: linear-gradient(to bottom, #3a3a3a 0%, #2a2a2a 100%);
-  border: 2px solid #1a1a1a;
-  border-radius: 2px;
+  border: 4px solid #1a1a1a;
+  border-radius: 4px;
   position: relative;
 }
 
 .desk__monitor::before {
   content: "";
   display: block;
-  width: 10px;
-  height: 6px;
-  margin: 2px auto;
+  width: 20px;
+  height: 12px;
+  margin: 4px auto;
   background: linear-gradient(to bottom, #3a6a8a 0%, #2a5a7a 100%);
-  border: 1px solid #1a4a6a;
+  border: 2px solid #1a4a6a;
 }
 
 .desk__keyboard {
-  width: 14px;
-  height: 4px;
+  width: 28px;
+  height: 8px;
   background: linear-gradient(to bottom, #4a4a4a 0%, #3a3a3a 100%);
-  border: 1px solid #2a2a2a;
-  margin-top: 1px;
+  border: 2px solid #2a2a2a;
+  margin-top: 2px;
 }
 
 /* Papers */
 .desk__papers {
-  width: 12px;
-  height: 10px;
+  width: 24px;
+  height: 20px;
   background: #f0e8d8;
-  border: 1px solid #c0b8a8;
+  border: 2px solid #c0b8a8;
   position: relative;
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .desk__papers::before {
   content: "";
   position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 2px;
-  height: 1px;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  height: 2px;
   background: #8a8a7a;
   box-shadow:
-    0 2px 0 #8a8a7a,
-    0 4px 0 #8a8a7a;
+    0 4px 0 #8a8a7a,
+    0 8px 0 #8a8a7a;
 }
 
 /* Coffee mug */
 .desk__mug {
-  width: 7px;
-  height: 8px;
+  width: 14px;
+  height: 16px;
   background: linear-gradient(to right, #e8e0d0 0%, #d8d0c0 50%, #c8c0b0 100%);
-  border: 1px solid #a8a090;
-  border-radius: 0 0 2px 2px;
+  border: 2px solid #a8a090;
+  border-radius: 0 0 4px 4px;
   position: relative;
 }
 
 .desk__mug::before {
   content: "";
   position: absolute;
-  right: -4px;
-  top: 2px;
-  width: 4px;
-  height: 5px;
-  border: 1px solid #a8a090;
+  right: -8px;
+  top: 4px;
+  width: 8px;
+  height: 10px;
+  border: 2px solid #a8a090;
   border-left: none;
-  border-radius: 0 3px 3px 0;
+  border-radius: 0 6px 6px 0;
 }
 
 /* Desk front panel - main visible part with 3D depth */
 .desk__front {
   position: absolute;
-  top: 12px;
+  top: 24px;
   left: 0;
   right: 0;
-  bottom: 14px;
+  bottom: 28px;
   background: linear-gradient(
     to right,
     #6a4510 0%,
@@ -139,23 +139,23 @@
     #8a5520 85%,
     #6a4510 100%
   );
-  border: 3px solid #5a3000;
-  border-top: 2px solid #c48550;
+  border: 6px solid #5a3000;
+  border-top: 4px solid #c48550;
   display: flex;
-  gap: 4px;
-  padding: 5px;
+  gap: 8px;
+  padding: 10px;
   /* Strong 3D shading */
   box-shadow:
-    inset -6px 0 12px rgba(0, 0, 0, 0.3),
-    inset 3px 0 6px rgba(255, 255, 255, 0.08),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.2);
+    inset -12px 0 24px rgba(0, 0, 0, 0.3),
+    inset 6px 0 12px rgba(255, 255, 255, 0.08),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .desk__panel {
   flex: 1;
   background: linear-gradient(to bottom, #946520 0%, #845510 100%);
-  border: 2px inset #7a4a08;
-  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3);
+  border: 4px inset #7a4a08;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3);
 }
 
 /* Label */
@@ -167,9 +167,9 @@
   background: linear-gradient(to bottom, #2a2a3a 0%, #1a1a2a 100%);
   color: #c4a44a;
   font-family: "Press Start 2P", "Courier New", monospace;
-  font-size: 5px;
-  padding: 2px 5px;
-  border: 1px solid #3a3a4a;
+  font-size: 10px;
+  padding: 4px 10px;
+  border: 2px solid #3a3a4a;
   white-space: nowrap;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
 }

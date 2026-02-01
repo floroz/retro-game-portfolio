@@ -13,7 +13,7 @@
 /* Hover state - subtle highlight */
 .hotspot--hovered {
   background: rgba(255, 220, 100, 0.15);
-  box-shadow: 0 0 20px rgba(255, 220, 100, 0.4);
+  box-shadow: 0 0 40px rgba(255, 220, 100, 0.4);
 }
 
 /* Label - hidden by default, shown on hover */
@@ -24,15 +24,15 @@
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.85);
   color: #ffd700;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 8px 16px;
+  border-radius: 8px;
   font-family: "Press Start 2P", monospace;
-  font-size: 8px;
+  font-size: 16px;
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .hotspot--hovered .hotspot__label {
@@ -41,8 +41,8 @@
 
 /* Focus visible for keyboard navigation */
 .hotspot:focus-visible {
-  outline: 2px solid var(--color-accent, #ffd700);
-  outline-offset: 2px;
+  outline: 4px solid var(--color-accent, #ffd700);
+  outline-offset: 4px;
 }
 
 .hotspot:focus-visible .hotspot__label {

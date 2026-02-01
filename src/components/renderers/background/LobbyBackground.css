@@ -18,7 +18,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: 120px;
   background: linear-gradient(to bottom, #1d1528 0%, #2d2538 60%, #3d3548 100%);
   z-index: 1;
 }
@@ -28,12 +28,12 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 16px;
+  height: 32px;
   background: linear-gradient(to bottom, #5d4568 0%, #4d3558 50%, #3d2548 100%);
-  border-bottom: 4px solid #2d1538;
+  border-bottom: 8px solid #2d1538;
   box-shadow:
-    inset 0 2px 4px rgba(255, 255, 255, 0.1),
-    0 4px 8px rgba(0, 0, 0, 0.4);
+    inset 0 4px 8px rgba(255, 255, 255, 0.1),
+    0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
 /* ===========================================
@@ -42,44 +42,44 @@
 
 .lobby__wall {
   position: absolute;
-  top: 60px;
+  top: 120px;
   left: 0;
   right: 0;
-  height: 180px;
+  height: 360px;
   display: flex;
   z-index: 0;
 }
 
 /* Orange/brown left zone - Wood panel texture */
 .lobby__wall-zone--left {
-  width: 180px;
+  width: 360px;
   background:
     /* Subtle crosshatch */
     repeating-linear-gradient(
       45deg,
       rgba(255, 255, 255, 0.03) 0px,
-      rgba(255, 255, 255, 0.03) 2px,
-      transparent 2px,
-      transparent 6px
+      rgba(255, 255, 255, 0.03) 4px,
+      transparent 4px,
+      transparent 12px
     ),
     /* Vertical wood grain lines */
     repeating-linear-gradient(
         to right,
         transparent 0px,
-        transparent 18px,
-        rgba(0, 0, 0, 0.15) 18px,
-        rgba(0, 0, 0, 0.15) 20px,
-        transparent 20px,
-        transparent 24px
+        transparent 36px,
+        rgba(0, 0, 0, 0.15) 36px,
+        rgba(0, 0, 0, 0.15) 40px,
+        transparent 40px,
+        transparent 48px
       ),
     /* Horizontal panel divisions */
     repeating-linear-gradient(
         to bottom,
         transparent 0px,
-        transparent 44px,
-        rgba(0, 0, 0, 0.2) 44px,
-        rgba(0, 0, 0, 0.25) 46px,
-        transparent 46px
+        transparent 88px,
+        rgba(0, 0, 0, 0.2) 88px,
+        rgba(0, 0, 0, 0.25) 92px,
+        transparent 92px
       ),
     /* Base wood gradient */
     linear-gradient(
@@ -89,7 +89,7 @@
         #b97953 60%,
         #c88962 100%
       );
-  box-shadow: inset -20px 0 40px rgba(0, 0, 0, 0.2);
+  box-shadow: inset -40px 0 80px rgba(0, 0, 0, 0.2);
 }
 
 /* Gold/mustard center zone - Wallpaper texture */
@@ -100,18 +100,18 @@
     repeating-linear-gradient(
       45deg,
       rgba(255, 255, 255, 0.03) 0px,
-      rgba(255, 255, 255, 0.03) 2px,
-      transparent 2px,
-      transparent 6px
+      rgba(255, 255, 255, 0.03) 4px,
+      transparent 4px,
+      transparent 12px
     ),
     /* Horizontal stripe pattern */
     repeating-linear-gradient(
         to bottom,
         transparent 0px,
-        transparent 20px,
-        rgba(0, 0, 0, 0.08) 20px,
-        rgba(0, 0, 0, 0.1) 22px,
-        transparent 22px
+        transparent 40px,
+        rgba(0, 0, 0, 0.08) 40px,
+        rgba(0, 0, 0, 0.1) 44px,
+        transparent 44px
       ),
     /* Base gradient */
     linear-gradient(
@@ -125,44 +125,44 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 20px;
+  padding-top: 40px;
   position: relative;
 }
 
 /* Blue right zone - Vertical stripe paneling */
 .lobby__wall-zone--right {
-  width: 200px;
+  width: 400px;
   background:
     /* Subtle crosshatch */
     repeating-linear-gradient(
       45deg,
       rgba(255, 255, 255, 0.03) 0px,
-      rgba(255, 255, 255, 0.03) 2px,
-      transparent 2px,
-      transparent 6px
+      rgba(255, 255, 255, 0.03) 4px,
+      transparent 4px,
+      transparent 12px
     ),
     /* Vertical panel stripes */
     repeating-linear-gradient(
         to right,
         transparent 0px,
-        transparent 20px,
-        rgba(0, 0, 0, 0.12) 20px,
-        rgba(0, 0, 0, 0.12) 22px,
-        transparent 22px,
-        transparent 26px
+        transparent 40px,
+        rgba(0, 0, 0, 0.12) 40px,
+        rgba(0, 0, 0, 0.12) 44px,
+        transparent 44px,
+        transparent 52px
       ),
     /* Horizontal divisions */
     repeating-linear-gradient(
         to bottom,
         transparent 0px,
-        transparent 42px,
-        rgba(0, 0, 0, 0.15) 42px,
-        rgba(0, 0, 0, 0.18) 44px,
-        transparent 44px
+        transparent 84px,
+        rgba(0, 0, 0, 0.15) 84px,
+        rgba(0, 0, 0, 0.18) 88px,
+        transparent 88px
       ),
     /* Base blue gradient */
     linear-gradient(to left, #2a4b6b 0%, #3a5d7f 30%, #4a6f92 60%, #5b7fa4 100%);
-  box-shadow: inset 20px 0 40px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 40px 0 80px rgba(0, 0, 0, 0.2);
 }
 
 /* Welcome banner - Classic DotT style red banner */
@@ -172,28 +172,28 @@
     repeating-linear-gradient(
       45deg,
       transparent 0px,
-      transparent 2px,
-      rgba(0, 0, 0, 0.05) 2px,
-      rgba(0, 0, 0, 0.05) 4px
+      transparent 4px,
+      rgba(0, 0, 0, 0.05) 4px,
+      rgba(0, 0, 0, 0.05) 8px
     ),
     linear-gradient(to bottom, #b83030 0%, #982828 50%, #782020 100%);
   color: #f8f0e0;
   font-family: "Press Start 2P", "Courier New", monospace;
-  font-size: 11px;
-  padding: 16px 28px;
-  border: 4px solid #f0e8d8;
-  border-radius: 2px;
+  font-size: 22px;
+  padding: 32px 56px;
+  border: 8px solid #f0e8d8;
+  border-radius: 4px;
   position: relative;
   box-shadow:
-    0 8px 0 rgba(0, 0, 0, 0.3),
-    0 10px 16px rgba(0, 0, 0, 0.25),
-    inset 0 -4px 0 rgba(0, 0, 0, 0.2),
-    inset 0 3px 0 rgba(255, 255, 255, 0.15);
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
-  letter-spacing: 1px;
+    0 16px 0 rgba(0, 0, 0, 0.3),
+    0 20px 32px rgba(0, 0, 0, 0.25),
+    inset 0 -8px 0 rgba(0, 0, 0, 0.2),
+    inset 0 6px 0 rgba(255, 255, 255, 0.15);
+  text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  letter-spacing: 2px;
   line-height: 1.35;
   text-align: center;
-  max-width: 280px;
+  max-width: 560px;
 }
 
 /* Banner hanging ropes */
@@ -201,18 +201,18 @@
 .lobby__banner::after {
   content: "";
   position: absolute;
-  top: -20px;
-  width: 3px;
-  height: 20px;
+  top: -40px;
+  width: 6px;
+  height: 40px;
   background: linear-gradient(to bottom, #4a3020 0%, #6a4030 100%);
 }
 
 .lobby__banner::before {
-  left: 18px;
+  left: 36px;
 }
 
 .lobby__banner::after {
-  right: 18px;
+  right: 36px;
 }
 
 /* ===========================================
@@ -221,15 +221,15 @@
 
 .lobby__baseboard {
   position: absolute;
-  top: 240px;
+  top: 480px;
   left: 0;
   right: 0;
-  height: 16px;
+  height: 32px;
   background: linear-gradient(to bottom, #5a4835 0%, #4a3825 50%, #3a2815 100%);
-  border-top: 3px solid #6a5840;
+  border-top: 6px solid #6a5840;
   box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.4),
-    inset 0 2px 4px rgba(255, 255, 255, 0.06);
+    0 8px 16px rgba(0, 0, 0, 0.4),
+    inset 0 4px 8px rgba(255, 255, 255, 0.06);
   z-index: 2;
 }
 
@@ -240,7 +240,7 @@
 
 .lobby__floor {
   position: absolute;
-  top: 256px;
+  top: 512px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -250,7 +250,7 @@
     #c86830 0deg 90deg,
     #a85020 90deg 180deg
   );
-  background-size: 48px 48px;
+  background-size: 96px 96px;
   z-index: 0;
 }
 

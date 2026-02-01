@@ -13,7 +13,7 @@ export function DeskObject({ highlighted = false }: DeskObjectProps) {
     <div
       className={`desk ${highlighted ? "desk--highlighted" : ""}`}
       role="button"
-      tabIndex={0}
+      tabIndex={-1}
       aria-label="Projects - click to interact"
     >
       {/* Desk surface */}
