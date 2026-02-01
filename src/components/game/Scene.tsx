@@ -32,7 +32,7 @@ export function Scene() {
     useSceneClick();
 
   const characterScale = getScaleForY(characterPosition.y);
-  const characterZIndex = getZIndexForY(characterPosition.y);
+  const characterZIndex = getZIndexForY();
 
   return (
     <div className="scene" data-e2e="scene" onClick={handleSceneClick}>

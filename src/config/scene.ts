@@ -52,46 +52,46 @@ export const MAX_TRAVEL_TIME = 1.5;
 export const HOTSPOTS: HotspotConfig[] = [
   {
     id: "about",
-    left: 2,
-    top: 12,
+    left: 1,
+    top: 25,
     width: 9,
-    height: 35,
+    height: 25,
     action: "about",
     label: "About Me",
   },
   {
     id: "skills",
     left: 12,
-    top: 8,
-    width: 11,
-    height: 55,
+    top: 29,
+    width: 12,
+    height: 40,
     action: "skills",
     label: "Skills",
   },
   {
     id: "contact",
-    left: 32,
-    top: 10,
-    width: 12,
-    height: 45,
+    left: 36,
+    top: 33,
+    width: 7,
+    height: 15,
     action: "contact",
     label: "Contact",
   },
   {
     id: "experience",
-    left: 52,
-    top: 5,
-    width: 14,
-    height: 58,
+    left: 46,
+    top: 18,
+    width: 10,
+    height: 45,
     action: "experience",
     label: "Experience",
   },
   {
     id: "resume",
-    left: 78,
-    top: 8,
-    width: 20,
-    height: 50,
+    left: 72,
+    top: 21,
+    width: 19,
+    height: 25,
     action: "resume",
     label: "CV / Resume",
   },
@@ -198,7 +198,7 @@ export function getScaleForY(bottomY: number): number {
  * Character should always be in the foreground (above background elements)
  * Returns a high z-index that varies slightly based on depth for proper layering
  */
-export function getZIndexForY(_bottomY: number): number {
+export function getZIndexForY(): number {
   // Character always stays at a high z-index to remain visible
   // The background is static, so we don't need depth-based z-index sorting
   return 100;
