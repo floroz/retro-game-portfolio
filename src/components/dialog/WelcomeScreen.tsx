@@ -57,6 +57,7 @@ export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
   return (
     <div
       className="welcome-screen"
+      data-e2e="welcome-screen"
       role="dialog"
       aria-modal="true"
       aria-label="Welcome screen - press space to start"
@@ -92,12 +93,17 @@ export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
         </div>
 
         {/* Name and title */}
-        <h1 className="welcome-screen__name">DANIELE TORTORA</h1>
-        <p className="welcome-screen__title">Senior Software Engineer</p>
+        <h1 className="welcome-screen__name" data-e2e="welcome-screen-name">
+          DANIELE TORTORA
+        </h1>
+        <p className="welcome-screen__title" data-e2e="welcome-screen-title">
+          Senior Software Engineer
+        </p>
 
         {/* Press space to start prompt - clickable */}
         <button
           className="welcome-screen__prompt"
+          data-e2e="welcome-screen-prompt"
           onClick={handlePromptClick}
           aria-label="Press space or click to start"
         >

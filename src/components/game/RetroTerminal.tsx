@@ -62,6 +62,7 @@ export function RetroTerminal({ isOpen, onClose }: RetroTerminalProps) {
           {/* Terminal window */}
           <motion.div
             className="terminal"
+            data-e2e="terminal"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -107,6 +108,7 @@ export function RetroTerminal({ isOpen, onClose }: RetroTerminalProps) {
                   ref={inputRef}
                   type="text"
                   className="terminal__input"
+                  data-e2e="terminal-input"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}

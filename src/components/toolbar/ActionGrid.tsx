@@ -40,6 +40,7 @@ export function ActionGrid() {
         <button
           key={action}
           className="action-grid__button"
+          data-e2e="toolbar-button"
           onClick={() => handleActionClick(action)}
           onMouseEnter={() => setHoveredObject(action)}
           onMouseLeave={() => setHoveredObject(null)}

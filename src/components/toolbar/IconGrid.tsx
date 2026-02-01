@@ -16,6 +16,7 @@ export function IconGrid() {
       {/* Row 1: Social links */}
       <a
         className="icon-grid__button"
+        data-e2e="toolbar-button"
         href={PROFILE.social.github}
         target="_blank"
         rel="noopener noreferrer"
@@ -27,6 +28,7 @@ export function IconGrid() {
       </a>
       <a
         className="icon-grid__button"
+        data-e2e="toolbar-button"
         href={PROFILE.social.linkedin}
         target="_blank"
         rel="noopener noreferrer"
@@ -40,6 +42,7 @@ export function IconGrid() {
       {/* Row 2: Talk and Terminal */}
       <button
         className="icon-grid__button icon-grid__button--highlight"
+        data-e2e="toolbar-button"
         onClick={() => openDialog("intro")}
         onMouseEnter={() => setHoveredObject("talk")}
         onMouseLeave={() => setHoveredObject(null)}
@@ -51,6 +54,7 @@ export function IconGrid() {
       </button>
       <button
         className="icon-grid__button icon-grid__button--highlight"
+        data-e2e="toolbar-button"
         onClick={toggleTerminal}
         onMouseEnter={() => setHoveredObject("terminal")}
         onMouseLeave={() => setHoveredObject(null)}

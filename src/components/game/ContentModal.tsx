@@ -140,6 +140,7 @@ export function ContentModal({ isOpen, action, onClose }: ContentModalProps) {
           {/* Modal content - centered with fade animation */}
           <motion.div
             className="modal"
+            data-e2e="modal"
             ref={contentRef}
             tabIndex={-1}
             initial={{ opacity: 0 }}
@@ -148,7 +149,9 @@ export function ContentModal({ isOpen, action, onClose }: ContentModalProps) {
             transition={{ duration: 0.2 }}
           >
             <div className="modal__header">
-              <h2 className="modal__title">{content.title}</h2>
+              <h2 className="modal__title" data-e2e="modal-title">
+                {content.title}
+              </h2>
               <button
                 className="modal__close"
                 onClick={onClose}
@@ -160,7 +163,9 @@ export function ContentModal({ isOpen, action, onClose }: ContentModalProps) {
             </div>
 
             <div className="modal__body">
-              <pre className="modal__content">{content.content}</pre>
+              <pre className="modal__content" data-e2e="modal-content">
+                {content.content}
+              </pre>
             </div>
 
             <div className="modal__footer">

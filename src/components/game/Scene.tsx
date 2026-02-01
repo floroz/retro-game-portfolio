@@ -35,7 +35,7 @@ export function Scene() {
   const characterZIndex = getZIndexForY(characterPosition.y);
 
   return (
-    <div className="scene" onClick={handleSceneClick}>
+    <div className="scene" data-e2e="scene" onClick={handleSceneClick}>
       {/* Background layer - custom artwork */}
       <ImageBackground />
 

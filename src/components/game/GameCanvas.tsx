@@ -7,38 +7,40 @@ interface GameCanvasProps {
   children: ReactNode;
 }
 
+function getScale(): number {
+  // Available space (accounting for padding)
+  const availableWidth = window.innerWidth - 48;
+  const availableHeight = window.innerHeight - 48;
+
+  // Calculate scale to fit within available space
+  const scaleX = availableWidth / VIEWPORT.width;
+  const scaleY = availableHeight / VIEWPORT.height;
+
+  // Use the smaller scale to ensure it fits both dimensions
+  return Math.min(scaleX, scaleY, 1); // Cap at 1 (don't upscale)
+}
+
 /**
  * Responsive viewport container for the game
  * Base resolution: 1280x800 with CSS transform scaling for smaller screens
  */
 export function GameCanvas({ children }: GameCanvasProps) {
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(getScale);
 
-  const calculateScale = useCallback(() => {
-    // Available space (accounting for padding)
-    const availableWidth = window.innerWidth - 48;
-    const availableHeight = window.innerHeight - 48;
-
-    // Calculate scale to fit within available space
-    const scaleX = availableWidth / VIEWPORT.width;
-    const scaleY = availableHeight / VIEWPORT.height;
-
-    // Use the smaller scale to ensure it fits both dimensions
-    const newScale = Math.min(scaleX, scaleY, 1); // Cap at 1 (don't upscale)
-
-    setScale(newScale);
+  const handleResize = useCallback(() => {
+    setScale(getScale());
   }, []);
 
   useEffect(() => {
-    calculateScale();
-    window.addEventListener("resize", calculateScale);
-    return () => window.removeEventListener("resize", calculateScale);
-  }, [calculateScale]);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [handleResize]);
 
   return (
     <div className="game-canvas-wrapper">
       <div
         className="game-canvas"
+        data-e2e="game-canvas"
         style={{
           width: VIEWPORT.width,
           height: VIEWPORT.height,
