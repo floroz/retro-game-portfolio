@@ -194,4 +194,52 @@ test.describe("Visual Regression Tests", () => {
       fullPage: true,
     });
   });
+
+  test("toolbar keyboard navigation", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Wait for welcome screen and dismiss it
+    const welcomeScreen = page.locator(".welcome-screen");
+    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
+    await page.keyboard.press("Space");
+
+    // Wait for intro dialog and close it
+    const adventureDialog = page.locator(".adventure-dialog");
+    await expect(adventureDialog).toBeVisible({ timeout: 5000 });
+    const dialogOptions = page.locator(".dialog-options");
+    await expect(dialogOptions).toBeVisible({ timeout: 15000 });
+    await page.keyboard.press("Escape");
+    await expect(adventureDialog).not.toBeVisible();
+
+    // Wait for game scene to be ready
+    await expect(page.locator(".game-canvas")).toBeVisible();
+    await expect(page.locator(".toolbar")).toBeVisible();
+
+    // Tab should skip scene objects and go directly to first toolbar button
+    await page.keyboard.press("Tab");
+
+    // Verify focus is on a toolbar button (first focusable element should be a toolbar button)
+    const firstToolbarButton = page
+      .locator(".action-grid__button, .icon-grid__button")
+      .first();
+    await expect(firstToolbarButton).toBeFocused();
+
+    // Tab to next toolbar button
+    await page.keyboard.press("Tab");
+    const secondToolbarButton = page
+      .locator(".action-grid__button, .icon-grid__button")
+      .nth(1);
+    await expect(secondToolbarButton).toBeFocused();
+
+    // Verify we can navigate through all toolbar buttons
+    // Press Tab multiple times to navigate through toolbar
+    for (let i = 0; i < 5; i++) {
+      await page.keyboard.press("Tab");
+    }
+
+    // Verify focus is still on a toolbar element
+    const focusedElement = page.locator(":focus");
+    await expect(focusedElement).toHaveClass(/button/);
+  });
 });
