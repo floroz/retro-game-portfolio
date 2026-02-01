@@ -34,7 +34,7 @@ export function Toolbar() {
   };
 
   return (
-    <div className="toolbar">
+    <div className="toolbar" data-e2e="toolbar">
       <div className="toolbar__actions">
         <ActionGrid />
       </div>

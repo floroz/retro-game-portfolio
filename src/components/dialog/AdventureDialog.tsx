@@ -147,9 +147,14 @@ export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
     currentNode.speaker === "daniele" ? "DANIELE" : "NARRATOR";
 
   return (
-    <div className="adventure-dialog-overlay" onClick={handleClose}>
+    <div
+      className="adventure-dialog-overlay"
+      data-e2e="adventure-dialog-overlay"
+      onClick={handleClose}
+    >
       <div
         className="adventure-dialog"
+        data-e2e="adventure-dialog"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -184,7 +189,14 @@ export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
           <div className="adventure-dialog__text-area">
             <p className="adventure-dialog__text">
               {displayedText}
-              {isTyping && <span className="adventure-dialog__cursor">▌</span>}
+              {isTyping && (
+                <span
+                  className="adventure-dialog__cursor"
+                  data-e2e="adventure-dialog-cursor"
+                >
+                  ▌
+                </span>
+              )}
             </p>
 
             {/* Options (show after typing completes) */}

@@ -58,7 +58,12 @@ export function DialogOptions({
   }
 
   return (
-    <div className="dialog-options" role="listbox" aria-label="Dialog options">
+    <div
+      className="dialog-options"
+      data-e2e="dialog-options"
+      role="listbox"
+      aria-label="Dialog options"
+    >
       {options.map((option, index) => (
         <button
           key={option.id}
