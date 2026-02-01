@@ -28,7 +28,6 @@ export function useCharacterMovement() {
   const {
     characterPosition,
     targetPosition,
-    setCharacterDirection,
     moveTo,
     stopMovement,
     modalOpen,
