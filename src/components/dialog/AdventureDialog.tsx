@@ -6,7 +6,7 @@ import { useDialogSound } from "../../hooks/useDialogSound";
 import { DialogPortrait } from "./DialogPortrait";
 import { DialogOptions } from "./DialogOptions";
 import type { DialogOption } from "../../types/game";
-import "./AdventureDialog.css";
+import styles from "./AdventureDialog.module.scss";
 
 interface AdventureDialogProps {
   isOpen: boolean;
@@ -148,12 +148,12 @@ export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
 
   return (
     <div
-      className="adventure-dialog-overlay"
+      className={styles.overlay}
       data-e2e="adventure-dialog-overlay"
       onClick={handleClose}
     >
       <div
-        className="adventure-dialog"
+        className={styles.dialog}
         data-e2e="adventure-dialog"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -161,37 +161,35 @@ export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
         aria-labelledby="dialog-speaker"
       >
         {/* Header */}
-        <div className="adventure-dialog__header">
-          <span id="dialog-speaker" className="adventure-dialog__speaker">
+        <div className={styles.header}>
+          <span id="dialog-speaker" className={styles.speaker}>
             {speakerName}
           </span>
           <button
-            className={`adventure-dialog__sound-toggle ${
-              soundEnabled
-                ? "adventure-dialog__sound-toggle--on"
-                : "adventure-dialog__sound-toggle--off"
+            className={`${styles.soundToggle} ${
+              soundEnabled ? styles.soundToggleOn : styles.soundToggleOff
             }`}
             onClick={toggleSound}
             aria-label={soundEnabled ? "Mute sounds" : "Unmute sounds"}
             title={soundEnabled ? "Click to mute" : "Click for sound effects!"}
           >
-            <span className="adventure-dialog__sound-icon">📢</span>
-            <span className="adventure-dialog__sound-label">
+            <span className={styles.soundIcon}>📢</span>
+            <span className={styles.soundLabel}>
               {soundEnabled ? "ON" : "OFF"}
             </span>
           </button>
         </div>
 
         {/* Content area with portrait and text */}
-        <div className="adventure-dialog__content">
+        <div className={styles.content}>
           <DialogPortrait size="medium" />
 
-          <div className="adventure-dialog__text-area">
-            <p className="adventure-dialog__text">
+          <div className={styles.textArea}>
+            <p className={styles.text}>
               {displayedText}
               {isTyping && (
                 <span
-                  className="adventure-dialog__cursor"
+                  className={styles.cursor}
                   data-e2e="adventure-dialog-cursor"
                 >
                   ▌
@@ -214,16 +212,13 @@ export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
         </div>
 
         {/* Footer */}
-        <div className="adventure-dialog__footer">
+        <div className={styles.footer}>
           {isTyping ? (
-            <span className="adventure-dialog__hint" data-e2e="dialog-typing">
+            <span className={styles.hint} data-e2e="dialog-typing">
               Press ENTER to skip...
             </span>
           ) : (
-            <span
-              className="adventure-dialog__hint"
-              data-e2e="dialog-typing-complete"
-            >
+            <span className={styles.hint} data-e2e="dialog-typing-complete">
               ↑↓ Navigate • ENTER Select • ESC Close
             </span>
           )}

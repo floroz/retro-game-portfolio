@@ -245,9 +245,3 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
     options: [{ id: "back", label: "Good tip!", nextNode: "welcome" }],
   },
 };
-
-/** Starting node for the welcome dialog */
-export const WELCOME_START_NODE = "welcome";
-
-/** Starting node for the about dialog (triggered from About action) */
-export const ABOUT_START_NODE = "about-intro";

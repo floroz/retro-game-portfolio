@@ -50,6 +50,11 @@ jobs:
     needs: build
     container:
       image: mcr.microsoft.com/playwright:v1.58.1-noble
+      # required for playwright to run as root in Firefox
+      options: --user root
+    env:
+      # required for playwright to run as root in Firefox
+      HOME: /root
     steps:
       - name: Checkout
         uses: actions/checkout@v4

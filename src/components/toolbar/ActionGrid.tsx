@@ -6,7 +6,7 @@ import {
   Phone,
   FileText,
 } from "lucide-react";
-import "./ActionGrid.css";
+import styles from "./ActionGrid.module.scss";
 import { useSceneClick } from "../../hooks/useSceneClick";
 import { useGameStore } from "../../store/gameStore";
 import type { ActionType } from "../../types/game";
@@ -35,11 +35,11 @@ export function ActionGrid() {
   const setHoveredObject = useGameStore((state) => state.setHoveredObject);
 
   return (
-    <div className="action-grid">
+    <div className={styles.grid}>
       {ACTIONS.map(({ action, label, icon: Icon }) => (
         <button
           key={action}
-          className="action-grid__button"
+          className={styles.button}
           data-e2e="toolbar-button"
           onClick={() => handleActionClick(action)}
           onMouseEnter={() => setHoveredObject(action)}
@@ -48,8 +48,8 @@ export function ActionGrid() {
           title={label}
           tabIndex={0}
         >
-          <Icon className="action-grid__icon" size={12} strokeWidth={2} />
-          <span className="action-grid__label">{label}</span>
+          <Icon className={styles.icon} size={12} strokeWidth={2} />
+          <span className={styles.label}>{label}</span>
         </button>
       ))}
     </div>

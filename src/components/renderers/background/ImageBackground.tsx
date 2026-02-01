@@ -1,4 +1,4 @@
-import "./ImageBackground.css";
+import styles from "./ImageBackground.module.scss";
 import backgroundImage from "../../../assets/background.png";
 
 /**
@@ -7,11 +7,11 @@ import backgroundImage from "../../../assets/background.png";
  */
 export function ImageBackground() {
   return (
-    <div className="image-background" aria-hidden="true">
+    <div className={styles.imageBackground} aria-hidden="true">
       <img
         src={backgroundImage}
         alt=""
-        className="image-background__image"
+        className={styles.image}
         draggable={false}
       />
     </div>

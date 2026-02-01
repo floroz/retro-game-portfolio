@@ -1,0 +1,114 @@
+@use "../../styles/functions" as *;
+@use "../../styles/mixins" as *;
+
+/* Scene composition - Image-based with hotspot overlays */
+.scene {
+  @include pixelated;
+
+  position: relative;
+  inline-size: to-rem(1280px);
+  block-size: to-rem(640px);
+  overflow: hidden;
+  background: #0a0a1a;
+}
+
+/* Interactive hotspots layer - overlays on background */
+.hotspots {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+}
+
+/* Legacy: Ambient elements layer */
+.ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Legacy: Interactive objects layer */
+.objects {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+}
+
+/* Character layer - above objects, positioned via inline styles */
+.character {
+  position: absolute;
+  z-index: var(--z-character);
+  transform-origin: bottom center;
+  filter: drop-shadow(0 to-rem(20px) to-rem(12px) rgb(0 0 0 / 55%));
+  transition: transform var(--transition-base);
+}
+
+/* Element positioning - flat, no skew transforms */
+.element {
+  position: absolute;
+
+  &[role="button"] {
+    cursor: pointer;
+  }
+
+  &:focus-visible {
+    @include focus-visible(var(--color-accent), 8px);
+  }
+}
+
+/* Wall-mounted objects (on back wall) - Z-index 2-4, positioned in upper area */
+.sign {
+  inset-inline-start: to-rem(56px);
+  inset-block-start: to-rem(170px);
+  z-index: var(--z-wall-objects);
+  filter: drop-shadow(to-rem(6px) to-rem(12px) to-rem(8px) rgb(0 0 0 / 50%));
+}
+
+.clock {
+  inset-inline-end: to-rem(80px);
+  inset-block-start: to-rem(160px);
+  z-index: var(--z-wall-objects);
+  filter: drop-shadow(to-rem(-6px) to-rem(12px) to-rem(8px) rgb(0 0 0 / 50%));
+}
+
+.resume {
+  inset-inline-start: to-rem(100px);
+  inset-block-start: to-rem(290px);
+  z-index: var(--z-wall-objects);
+  filter: drop-shadow(to-rem(6px) to-rem(12px) to-rem(8px) rgb(0 0 0 / 50%));
+}
+
+.phone {
+  inset-inline-end: to-rem(390px);
+  inset-block-start: to-rem(230px);
+  z-index: var(--z-floor-objects-far);
+  filter: drop-shadow(to-rem(-6px) to-rem(12px) to-rem(8px) rgb(0 0 0 / 50%));
+}
+
+.door {
+  inset-inline-end: to-rem(80px);
+  inset-block-end: to-rem(140px);
+  z-index: var(--z-floor);
+  filter: drop-shadow(0 to-rem(16px) to-rem(12px) rgb(0 0 0 / 50%));
+}
+
+/* Floor objects - Z-index 5-8, positioned on floor area */
+.vending {
+  inset-inline-start: to-rem(260px);
+  inset-block-end: to-rem(60px);
+  z-index: var(--z-floor-objects-near);
+  filter: drop-shadow(to-rem(8px) to-rem(24px) to-rem(12px) rgb(0 0 0 / 55%));
+}
+
+.desk {
+  inset-inline-end: to-rem(520px);
+  inset-block-end: to-rem(90px);
+  z-index: var(--z-floor-objects-mid);
+  filter: drop-shadow(0 to-rem(20px) to-rem(12px) rgb(0 0 0 / 55%));
+}
+
+/* Interactive states */
+.hovered {
+  filter: drop-shadow(0 0 to-rem(16px) rgb(255 220 100 / 60%))
+    drop-shadow(0 to-rem(20px) to-rem(12px) rgb(0 0 0 / 55%));
+}

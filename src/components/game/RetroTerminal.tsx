@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTerminal } from "../../hooks/useTerminal";
 import { PROFILE } from "../../config/profile";
-import "./RetroTerminal.css";
+import styles from "./RetroTerminal.module.scss";
 
 interface RetroTerminalProps {
   isOpen: boolean;
@@ -52,7 +52,7 @@ export function RetroTerminal({ isOpen, onClose }: RetroTerminalProps) {
         <>
           {/* Backdrop */}
           <motion.div
-            className="terminal-backdrop"
+            className={styles.backdrop}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -61,7 +61,7 @@ export function RetroTerminal({ isOpen, onClose }: RetroTerminalProps) {
 
           {/* Terminal window */}
           <motion.div
-            className="terminal"
+            className={styles.terminal}
             data-e2e="terminal"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -69,15 +69,15 @@ export function RetroTerminal({ isOpen, onClose }: RetroTerminalProps) {
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
           >
             {/* Scanline overlay */}
-            <div className="terminal__scanlines" />
+            <div className={styles.scanlines} />
 
             {/* Header */}
-            <div className="terminal__header">
-              <span className="terminal__title">
+            <div className={styles.header}>
+              <span className={styles.title}>
                 {PROFILE.portfolio.title} v{PROFILE.portfolio.version}
               </span>
               <button
-                className="terminal__close"
+                className={styles.close}
                 onClick={onClose}
                 aria-label="Close terminal"
                 type="button"
@@ -87,11 +87,11 @@ export function RetroTerminal({ isOpen, onClose }: RetroTerminalProps) {
             </div>
 
             {/* Output area */}
-            <div className="terminal__output" ref={outputRef}>
+            <div className={styles.output} ref={outputRef}>
               {history.map((line, index) => (
                 <div
                   key={index}
-                  className={`terminal__line terminal__line--${line.type}`}
+                  className={`${styles.line} ${styles[line.type]}`}
                 >
                   {line.content}
                 </div>
@@ -99,15 +99,15 @@ export function RetroTerminal({ isOpen, onClose }: RetroTerminalProps) {
             </div>
 
             {/* Input area */}
-            <div className="terminal__input-line">
-              <span className="terminal__prompt">&gt;</span>
-              <div className="terminal__input-wrapper">
-                <span className="terminal__input-text">{input}</span>
-                <span className="terminal__cursor" aria-hidden="true" />
+            <div className={styles.inputLine}>
+              <span className={styles.prompt}>&gt;</span>
+              <div className={styles.inputWrapper}>
+                <span className={styles.inputText}>{input}</span>
+                <span className={styles.cursor} aria-hidden="true" />
                 <input
                   ref={inputRef}
                   type="text"
-                  className="terminal__input"
+                  className={styles.input}
                   data-e2e="terminal-input"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}

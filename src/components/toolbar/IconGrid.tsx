@@ -1,5 +1,5 @@
 import { Github, Linkedin, Terminal, MessageCircle } from "lucide-react";
-import "./IconGrid.css";
+import styles from "./IconGrid.module.scss";
 import { useGameStore } from "../../store/gameStore";
 import { PROFILE } from "../../config/profile";
 
@@ -12,10 +12,10 @@ export function IconGrid() {
   const { toggleTerminal, openDialog, setHoveredObject } = useGameStore();
 
   return (
-    <div className="icon-grid">
+    <div className={styles.grid}>
       {/* Row 1: Social links */}
       <a
-        className="icon-grid__button"
+        className={styles.button}
         data-e2e="toolbar-button"
         href={PROFILE.social.github}
         target="_blank"
@@ -23,11 +23,11 @@ export function IconGrid() {
         onMouseEnter={() => setHoveredObject("github")}
         onMouseLeave={() => setHoveredObject(null)}
       >
-        <Github className="icon-grid__icon" size={12} strokeWidth={2} />
-        <span className="icon-grid__label">GitHub</span>
+        <Github className={styles.icon} size={12} strokeWidth={2} />
+        <span className={styles.label}>GitHub</span>
       </a>
       <a
-        className="icon-grid__button"
+        className={styles.button}
         data-e2e="toolbar-button"
         href={PROFILE.social.linkedin}
         target="_blank"
@@ -35,13 +35,13 @@ export function IconGrid() {
         onMouseEnter={() => setHoveredObject("linkedin")}
         onMouseLeave={() => setHoveredObject(null)}
       >
-        <Linkedin className="icon-grid__icon" size={12} strokeWidth={2} />
-        <span className="icon-grid__label">LinkedIn</span>
+        <Linkedin className={styles.icon} size={12} strokeWidth={2} />
+        <span className={styles.label}>LinkedIn</span>
       </a>
 
       {/* Row 2: Talk and Terminal */}
       <button
-        className="icon-grid__button icon-grid__button--highlight"
+        className={styles.buttonHighlight}
         data-e2e="toolbar-button"
         onClick={() => openDialog("intro")}
         onMouseEnter={() => setHoveredObject("talk")}
@@ -49,11 +49,11 @@ export function IconGrid() {
         type="button"
         tabIndex={0}
       >
-        <MessageCircle className="icon-grid__icon" size={12} strokeWidth={2} />
-        <span className="icon-grid__label">Talk</span>
+        <MessageCircle className={styles.icon} size={12} strokeWidth={2} />
+        <span className={styles.label}>Talk</span>
       </button>
       <button
-        className="icon-grid__button icon-grid__button--highlight"
+        className={styles.buttonHighlight}
         data-e2e="toolbar-button"
         onClick={toggleTerminal}
         onMouseEnter={() => setHoveredObject("terminal")}
@@ -61,8 +61,8 @@ export function IconGrid() {
         type="button"
         tabIndex={0}
       >
-        <Terminal className="icon-grid__icon" size={12} strokeWidth={2} />
-        <span className="icon-grid__label">Terminal</span>
+        <Terminal className={styles.icon} size={12} strokeWidth={2} />
+        <span className={styles.label}>Terminal</span>
       </button>
     </div>
   );

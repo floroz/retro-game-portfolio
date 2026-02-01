@@ -1,5 +1,5 @@
 import retroDaniele from "../../assets/retro-daniele.png";
-import "./DialogPortrait.css";
+import styles from "./DialogPortrait.module.scss";
 
 interface DialogPortraitProps {
   /** Size variant for different contexts */
@@ -17,12 +17,12 @@ export function DialogPortrait({
   className = "",
 }: DialogPortraitProps) {
   return (
-    <div className={`dialog-portrait dialog-portrait--${size} ${className}`}>
-      <div className="dialog-portrait__frame">
+    <div className={`${styles.portrait} ${styles[size]} ${className}`}>
+      <div className={styles.frame}>
         <img
           src={retroDaniele}
           alt="Daniele - Pixel art portrait"
-          className="dialog-portrait__image"
+          className={styles.image}
           draggable={false}
         />
       </div>
