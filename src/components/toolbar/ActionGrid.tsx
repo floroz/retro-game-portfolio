@@ -45,6 +45,7 @@ export function ActionGrid() {
           onMouseLeave={() => setHoveredObject(null)}
           type="button"
           title={label}
+          tabIndex={0}
         >
           <Icon className="action-grid__icon" size={12} strokeWidth={2} />
           <span className="action-grid__label">{label}</span>

@@ -44,6 +44,7 @@ export function Hotspot({ config, isHovered, onClick, onHover }: HotspotProps) {
       onMouseEnter={() => onHover(config.id)}
       onMouseLeave={() => onHover(null)}
       aria-label={config.label}
+      tabIndex={-1}
     >
       <span className="hotspot__label">{config.label}</span>
     </button>

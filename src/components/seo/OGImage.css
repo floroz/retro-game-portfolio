@@ -1,4 +1,5 @@
 /* OG Image - 1200x630 social sharing image */
+
 /* Styled to match the retro adventure game aesthetic */
 .og-image {
   width: 1200px;
@@ -21,10 +22,10 @@
   inset: 0;
   background: repeating-linear-gradient(
     0deg,
-    transparent 0px,
+    transparent 0,
     transparent 2px,
-    rgba(0, 0, 0, 0.1) 2px,
-    rgba(0, 0, 0, 0.1) 4px
+    rgb(0 0 0 / 10%) 2px,
+    rgb(0 0 0 / 10%) 4px
   );
   pointer-events: none;
   opacity: 0.3;
@@ -38,8 +39,8 @@
   inset: 0;
   box-shadow:
     inset 0 0 0 2px #1a2a3a,
-    0 0 40px rgba(0, 0, 0, 0.8),
-    0 0 20px rgba(0, 212, 170, 0.1);
+    0 0 40px rgb(0 0 0 / 80%),
+    0 0 20px rgb(0 212 170 / 10%);
   pointer-events: none;
   z-index: 5;
 }
@@ -53,7 +54,7 @@
   border-bottom: 4px solid #2a3a4a;
   background: linear-gradient(
     to bottom,
-    rgba(42, 58, 74, 0.3) 0%,
+    rgb(42 58 74 / 30%) 0%,
     transparent 100%
   );
   position: relative;
@@ -64,7 +65,7 @@
   color: #00d4aa;
   font-size: 24px;
   letter-spacing: 4px;
-  text-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
+  text-shadow: 0 0 10px rgb(0 212 170 / 50%);
   text-transform: uppercase;
 }
 
@@ -74,7 +75,7 @@
   width: 12px;
   height: 12px;
   background: #00d4aa;
-  box-shadow: 0 0 8px rgba(0, 212, 170, 0.6);
+  box-shadow: 0 0 8px rgb(0 212 170 / 60%);
 }
 
 .og-image__decoration--tl {
@@ -125,10 +126,11 @@
   height: 320px;
   object-fit: contain;
   image-rendering: pixelated;
+  image-rendering: crisp-edges;
   border: 4px solid #2a3a4a;
   box-shadow:
-    0 0 20px rgba(0, 0, 0, 0.5),
-    0 0 10px rgba(0, 212, 170, 0.1);
+    0 0 20px rgb(0 0 0 / 50%),
+    0 0 10px rgb(0 212 170 / 10%);
 }
 
 .og-image__name {
@@ -137,7 +139,7 @@
   margin: 0 0 24px;
   color: #e0e8f0;
   letter-spacing: 2px;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+  text-shadow: 2px 2px 0 rgb(0 0 0 / 50%);
 }
 
 .og-image__title {
@@ -146,7 +148,7 @@
   font-weight: normal;
   margin: 0 0 32px;
   letter-spacing: 1px;
-  text-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
+  text-shadow: 0 0 10px rgb(0 212 170 / 50%);
 }
 
 .og-image__description {
@@ -166,8 +168,8 @@
 }
 
 .og-image__skill {
-  background: rgba(0, 212, 170, 0.1);
-  border: 2px solid rgba(0, 212, 170, 0.4);
+  background: rgb(0 212 170 / 10%);
+  border: 2px solid rgb(0 212 170 / 40%);
   padding: 12px 20px;
   font-size: 12px;
   color: #00d4aa;
@@ -179,11 +181,7 @@
 .og-image__footer {
   padding: 20px 32px;
   border-top: 4px solid #2a3a4a;
-  background: linear-gradient(
-    to top,
-    rgba(42, 58, 74, 0.2) 0%,
-    transparent 100%
-  );
+  background: linear-gradient(to top, rgb(42 58 74 / 20%) 0%, transparent 100%);
   position: relative;
   z-index: 1;
 }

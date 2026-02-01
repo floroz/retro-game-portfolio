@@ -44,6 +44,7 @@ export function IconGrid() {
         onMouseEnter={() => setHoveredObject("talk")}
         onMouseLeave={() => setHoveredObject(null)}
         type="button"
+        tabIndex={0}
       >
         <MessageCircle className="icon-grid__icon" size={12} strokeWidth={2} />
         <span className="icon-grid__label">Talk</span>
@@ -54,6 +55,7 @@ export function IconGrid() {
         onMouseEnter={() => setHoveredObject("terminal")}
         onMouseLeave={() => setHoveredObject(null)}
         type="button"
+        tabIndex={0}
       >
         <Terminal className="icon-grid__icon" size={12} strokeWidth={2} />
         <span className="icon-grid__label">Terminal</span>
