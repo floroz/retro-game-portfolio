@@ -36,29 +36,6 @@
   white-space: nowrap;
 }
 
-.icon-grid__button:hover {
-  background: linear-gradient(180deg, #6a6a8c 0%, #5a5a7c 50%, #4a4a6c 100%);
-  color: #ffd700;
-}
-
-.icon-grid__button:hover .icon-grid__icon {
-  color: #ffd700;
-}
-
-.icon-grid__button:active {
-  /* Invert bevels for pressed effect */
-  border-top: 4px solid #2a2a4a;
-  border-left: 4px solid #2a2a4a;
-  border-right: 4px solid #6a6a8c;
-  border-bottom: 4px solid #7a7a9c;
-  transform: translateY(2px);
-}
-
-.icon-grid__button:focus-visible {
-  outline: 4px solid #ffd700;
-  outline-offset: 4px;
-}
-
 /* ===========================================
    HIGHLIGHTED BUTTONS (Talk, Terminal)
    Slightly different background to stand out
@@ -74,10 +51,37 @@
   color: #e0c060;
 }
 
+/* ===========================================
+   HOVER / ACTIVE / FOCUS STATES
+   =========================================== */
+
+.icon-grid__button:hover {
+  background: linear-gradient(180deg, #6a6a8c 0%, #5a5a7c 50%, #4a4a6c 100%);
+  color: #ffd700;
+}
+
+.icon-grid__button:hover .icon-grid__icon {
+  color: #ffd700;
+}
+
 .icon-grid__button--highlight:hover {
   background: linear-gradient(180deg, #7a6a8c 0%, #6a5a7c 50%, #5a4a6c 100%);
 }
 
 .icon-grid__button--highlight:hover .icon-grid__icon {
   color: #ffd700;
+}
+
+.icon-grid__button:active {
+  /* Invert bevels for pressed effect */
+  border-top: 4px solid #2a2a4a;
+  border-left: 4px solid #2a2a4a;
+  border-right: 4px solid #6a6a8c;
+  border-bottom: 4px solid #7a7a9c;
+  transform: translateY(2px);
+}
+
+.icon-grid__button:focus-visible {
+  outline: 4px solid #ffd700;
+  outline-offset: 4px;
 }
