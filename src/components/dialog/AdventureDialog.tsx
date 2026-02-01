@@ -216,11 +216,14 @@ export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
         {/* Footer */}
         <div className="adventure-dialog__footer">
           {isTyping ? (
-            <span className="adventure-dialog__hint">
+            <span className="adventure-dialog__hint" data-e2e="dialog-typing">
               Press ENTER to skip...
             </span>
           ) : (
-            <span className="adventure-dialog__hint">
+            <span
+              className="adventure-dialog__hint"
+              data-e2e="dialog-typing-complete"
+            >
               ↑↓ Navigate • ENTER Select • ESC Close
             </span>
           )}

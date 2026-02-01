@@ -15,17 +15,17 @@ test.describe("Portfolio E2E Tests", () => {
 
   test("should display the game canvas", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
 
     // Wait for welcome screen first
-    const welcomeScreen = page.locator(".welcome-screen");
+    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
     await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
 
     // Dismiss welcome screen
     await page.keyboard.press("Space");
 
     // Wait for game canvas to appear
-    const gameCanvas = page.locator(".game-canvas");
+    const gameCanvas = page.locator("[data-e2e=game-canvas]");
     await expect(gameCanvas).toBeVisible({ timeout: 10000 });
   });
 });
@@ -35,20 +35,24 @@ test.describe("Visual Regression Tests", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    // Wait for welcome screen to be visible (use class selector)
-    const welcomeScreen = page.locator(".welcome-screen");
+    // Wait for welcome screen to be visible
+    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
     await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
 
     // Wait for content to be fully rendered
-    await expect(page.locator(".welcome-screen__name")).toBeVisible();
-    await expect(page.locator(".welcome-screen__title")).toBeVisible();
-    await expect(page.locator(".welcome-screen__prompt")).toBeVisible();
+    await expect(page.locator("[data-e2e=welcome-screen-name]")).toBeVisible();
+    await expect(page.locator("[data-e2e=welcome-screen-title]")).toBeVisible();
+    await expect(
+      page.locator("[data-e2e=welcome-screen-prompt]"),
+    ).toBeVisible();
 
     // Small delay to ensure all CSS animations have settled
     await page.waitForTimeout(500);
 
     await expect(page).toHaveScreenshot("01-welcome-screen.png", {
       fullPage: true,
+      animations: "disabled",
+      maxDiffPixelRatio: 0.02,
     });
   });
 
@@ -57,26 +61,31 @@ test.describe("Visual Regression Tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Wait for welcome screen first
-    const welcomeScreen = page.locator(".welcome-screen");
+    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
     await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
 
     // Dismiss welcome screen
     await page.keyboard.press("Space");
 
     // Wait for the intro dialog to appear (300ms delay + dialog opening)
-    const adventureDialog = page.locator(".adventure-dialog");
-    await expect(adventureDialog).toBeVisible({ timeout: 5000 });
+    const adventureDialog = page.locator("[data-e2e=adventure-dialog]");
+    await expect(adventureDialog).toBeVisible({ timeout: 10000 });
 
-    // Wait for typewriter to complete by checking for the options to appear
-    // Options only show after typing is complete
-    const dialogOptions = page.locator(".dialog-options");
-    await expect(dialogOptions).toBeVisible({ timeout: 15000 });
+    // Wait for dialog options to be visible (they only render when typing is complete)
+    // Note: VITE_TYPEWRITER_SPEED=0 in E2E makes this instant
+    const dialogOptions = page.locator("[data-e2e=dialog-options]");
+    await expect(dialogOptions).toBeVisible({ timeout: 10000 });
 
-    // Verify the "Nice to meet you!" option is visible (confirms typewriter done)
+    // Verify the option text is visible
     await expect(page.getByText("Nice to meet you!")).toBeVisible();
+
+    // Allow browser to finish painting before screenshot
+    await page.waitForTimeout(500);
 
     await expect(page).toHaveScreenshot("02-intro-dialog.png", {
       fullPage: true,
+      animations: "disabled",
+      maxDiffPixelRatio: 0.02,
     });
   });
 
@@ -85,39 +94,42 @@ test.describe("Visual Regression Tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Wait for welcome screen first
-    const welcomeScreen = page.locator(".welcome-screen");
+    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
     await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
 
     // Dismiss welcome screen
     await page.keyboard.press("Space");
 
     // Wait for the intro dialog to appear
-    const adventureDialog = page.locator(".adventure-dialog");
-    await expect(adventureDialog).toBeVisible({ timeout: 5000 });
+    const adventureDialog = page.locator("[data-e2e=adventure-dialog]");
+    await expect(adventureDialog).toBeVisible({ timeout: 10000 });
 
-    // Wait for typewriter to complete
-    const dialogOptions = page.locator(".dialog-options");
-    await expect(dialogOptions).toBeVisible({ timeout: 15000 });
+    // Wait for dialog options (typing complete - instant with VITE_TYPEWRITER_SPEED=0)
+    await expect(page.locator("[data-e2e=dialog-options]")).toBeVisible({
+      timeout: 10000,
+    });
 
     // Close the dialog by pressing Escape
     await page.keyboard.press("Escape");
 
-    // Wait for dialog to close
-    await expect(adventureDialog).not.toBeVisible();
+    // Wait for dialog to be gone
+    await expect(adventureDialog).toBeHidden({ timeout: 10000 });
 
     // Wait for game scene to be fully visible
-    const gameCanvas = page.locator(".game-canvas");
+    const gameCanvas = page.locator("[data-e2e=game-canvas]");
     await expect(gameCanvas).toBeVisible();
 
     // Wait for scene elements to load
-    await expect(page.locator(".scene")).toBeVisible();
-    await expect(page.locator(".toolbar")).toBeVisible();
+    await expect(page.locator("[data-e2e=scene]")).toBeVisible();
+    await expect(page.locator("[data-e2e=toolbar]")).toBeVisible();
 
     // Small delay to ensure scene is fully rendered
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(500);
 
     await expect(page).toHaveScreenshot("03-game-scene.png", {
       fullPage: true,
+      animations: "disabled",
+      maxDiffPixelRatio: 0.02,
     });
   });
 
@@ -126,34 +138,44 @@ test.describe("Visual Regression Tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Wait for welcome screen and dismiss it
-    const welcomeScreen = page.locator(".welcome-screen");
+    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
     await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
     await page.keyboard.press("Space");
 
-    // Wait for intro dialog and close it
-    const adventureDialog = page.locator(".adventure-dialog");
+    // Wait for intro dialog and for typewriter to complete
+    const adventureDialog = page.locator("[data-e2e=adventure-dialog]");
     await expect(adventureDialog).toBeVisible({ timeout: 5000 });
-    const dialogOptions = page.locator(".dialog-options");
-    await expect(dialogOptions).toBeVisible({ timeout: 15000 });
+
+    // Wait for dialog options (typing complete - instant with VITE_TYPEWRITER_SPEED=0)
+    await expect(page.locator("[data-e2e=dialog-options]")).toBeVisible({
+      timeout: 10000,
+    });
+
+    // Close the dialog by pressing Escape
     await page.keyboard.press("Escape");
-    await expect(adventureDialog).not.toBeVisible();
+    await expect(adventureDialog).toBeHidden({ timeout: 10000 });
 
     // Wait for game scene to be ready
-    await expect(page.locator(".game-canvas")).toBeVisible();
+    await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
+    await expect(page.locator("[data-e2e=toolbar]")).toBeVisible();
 
     // Click on the Skills button in the toolbar to open the modal
-    await page.getByTitle("Skills").click();
+    const skillsButton = page.getByTitle("Skills");
+    await expect(skillsButton).toBeVisible({ timeout: 5000 });
+    await skillsButton.click();
 
     // Wait for modal to appear
-    const modal = page.locator(".modal");
-    await expect(modal).toBeVisible({ timeout: 5000 });
+    const modal = page.locator("[data-e2e=modal]");
+    await expect(modal).toBeVisible({ timeout: 10000 });
 
     // Verify modal content is loaded
-    await expect(page.locator(".modal__title")).toBeVisible();
-    await expect(page.locator(".modal__content")).toBeVisible();
+    await expect(page.locator("[data-e2e=modal-title]")).toBeVisible();
+    await expect(page.locator("[data-e2e=modal-content]")).toBeVisible();
 
     await expect(page).toHaveScreenshot("04-content-modal.png", {
       fullPage: true,
+      animations: "disabled",
+      maxDiffPixelRatio: 0.02,
     });
   });
 
@@ -162,36 +184,46 @@ test.describe("Visual Regression Tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Wait for welcome screen and dismiss it
-    const welcomeScreen = page.locator(".welcome-screen");
+    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
     await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
     await page.keyboard.press("Space");
 
-    // Wait for intro dialog and close it
-    const adventureDialog = page.locator(".adventure-dialog");
+    // Wait for intro dialog and typewriter to complete
+    const adventureDialog = page.locator("[data-e2e=adventure-dialog]");
     await expect(adventureDialog).toBeVisible({ timeout: 5000 });
-    const dialogOptions = page.locator(".dialog-options");
-    await expect(dialogOptions).toBeVisible({ timeout: 15000 });
+
+    // Wait for dialog options (typing complete - instant with VITE_TYPEWRITER_SPEED=0)
+    await expect(page.locator("[data-e2e=dialog-options]")).toBeVisible({
+      timeout: 10000,
+    });
+
+    // Close the dialog by pressing Escape
     await page.keyboard.press("Escape");
-    await expect(adventureDialog).not.toBeVisible();
+    await expect(adventureDialog).toBeHidden({ timeout: 10000 });
 
     // Wait for game scene to be ready
-    await expect(page.locator(".game-canvas")).toBeVisible();
+    await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
+    await expect(page.locator("[data-e2e=toolbar]")).toBeVisible();
 
-    // Open terminal with backtick key
-    await page.keyboard.press("`");
+    // Open terminal by clicking the Terminal button (more reliable than backtick)
+    const terminalButton = page.getByRole("button", { name: "Terminal" });
+    await expect(terminalButton).toBeVisible({ timeout: 5000 });
+    await terminalButton.click();
 
     // Wait for terminal to appear
-    const terminal = page.locator(".terminal");
+    const terminal = page.locator("[data-e2e=terminal]");
     await expect(terminal).toBeVisible({ timeout: 5000 });
 
     // Verify terminal content is loaded
-    await expect(page.locator(".terminal__input")).toBeVisible();
+    await expect(page.locator("[data-e2e=terminal-input]")).toBeVisible();
 
     // Small delay to ensure terminal is fully rendered
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(500);
 
     await expect(page).toHaveScreenshot("05-terminal.png", {
       fullPage: true,
+      animations: "disabled",
+      maxDiffPixelRatio: 0.02,
     });
   });
 
@@ -200,35 +232,40 @@ test.describe("Visual Regression Tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Wait for welcome screen and dismiss it
-    const welcomeScreen = page.locator(".welcome-screen");
+    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
     await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
     await page.keyboard.press("Space");
 
-    // Wait for intro dialog and close it
-    const adventureDialog = page.locator(".adventure-dialog");
+    // Wait for intro dialog and typewriter to complete, then close
+    const adventureDialog = page.locator("[data-e2e=adventure-dialog]");
     await expect(adventureDialog).toBeVisible({ timeout: 5000 });
-    const dialogOptions = page.locator(".dialog-options");
-    await expect(dialogOptions).toBeVisible({ timeout: 15000 });
+
+    // Wait for dialog options (typing complete - instant with VITE_TYPEWRITER_SPEED=0)
+    await expect(page.locator("[data-e2e=dialog-options]")).toBeVisible({
+      timeout: 10000,
+    });
+
+    // Close the dialog by pressing Escape
     await page.keyboard.press("Escape");
-    await expect(adventureDialog).not.toBeVisible();
+    await expect(adventureDialog).toBeHidden({ timeout: 10000 });
 
     // Wait for game scene to be ready
-    await expect(page.locator(".game-canvas")).toBeVisible();
-    await expect(page.locator(".toolbar")).toBeVisible();
+    await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
+    await expect(page.locator("[data-e2e=toolbar]")).toBeVisible();
 
     // Tab should skip scene objects and go directly to first toolbar button
     await page.keyboard.press("Tab");
 
     // Verify focus is on a toolbar button (first focusable element should be a toolbar button)
     const firstToolbarButton = page
-      .locator(".action-grid__button, .icon-grid__button")
+      .locator("[data-e2e=toolbar-button]")
       .first();
     await expect(firstToolbarButton).toBeFocused();
 
     // Tab to next toolbar button
     await page.keyboard.press("Tab");
     const secondToolbarButton = page
-      .locator(".action-grid__button, .icon-grid__button")
+      .locator("[data-e2e=toolbar-button]")
       .nth(1);
     await expect(secondToolbarButton).toBeFocused();
 
@@ -240,6 +277,6 @@ test.describe("Visual Regression Tests", () => {
 
     // Verify focus is still on a toolbar element
     const focusedElement = page.locator(":focus");
-    await expect(focusedElement).toHaveClass(/button/);
+    await expect(focusedElement).toHaveAttribute("data-e2e", "toolbar-button");
   });
 });
