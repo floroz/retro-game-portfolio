@@ -1,7 +1,23 @@
 import { useCallback, useRef, useReducer, useEffect } from "react";
 
+/**
+ * Get the typewriter speed from environment variable or use default.
+ * Set VITE_TYPEWRITER_SPEED=0 to disable typewriter animation (instant text).
+ * This is useful for E2E tests to avoid timing issues.
+ */
+function getTypewriterSpeed(optionSpeed?: number): number {
+  const envSpeed = import.meta.env.VITE_TYPEWRITER_SPEED;
+  if (envSpeed !== undefined) {
+    const parsed = parseInt(envSpeed, 10);
+    if (!isNaN(parsed)) {
+      return parsed;
+    }
+  }
+  return optionSpeed ?? 40; // Default: 40 characters per second
+}
+
 interface UseTypewriterOptions {
-  /** Characters per second */
+  /** Characters per second (default: 40, set to 0 for instant) */
   speed?: number;
   /** Callback fired for each character typed */
   onType?: () => void;
@@ -81,13 +97,20 @@ function createInitialState(text: string): TypewriterState {
 
 /**
  * Typewriter effect hook for adventure game dialog
- * Types out text character by character with configurable speed
+ * Types out text character by character with configurable speed.
+ *
+ * Set VITE_TYPEWRITER_SPEED=0 in environment to disable animation (instant text).
+ * This is useful for E2E tests to avoid timing issues.
  */
 export function useTypewriter(
   text: string,
   options: UseTypewriterOptions = {},
 ): UseTypewriterReturn {
-  const { speed = 40, onType, onComplete } = options;
+  const { speed: optionSpeed, onType, onComplete } = options;
+  const speed = getTypewriterSpeed(optionSpeed);
+
+  // If speed is 0, show text instantly (useful for E2E tests)
+  const isInstant = speed === 0;
 
   const [state, dispatch] = useReducer(
     typewriterReducer,
@@ -130,6 +153,13 @@ export function useTypewriter(
       return;
     }
 
+    // If instant mode, skip directly to full text
+    if (isInstant) {
+      dispatch({ type: "SKIP" });
+      onCompleteRef.current?.();
+      return;
+    }
+
     const delay = 1000 / speed;
 
     intervalRef.current = window.setInterval(() => {
@@ -150,6 +180,7 @@ export function useTypewriter(
     state.targetText,
     state.charIndex,
     speed,
+    isInstant,
     clearTypingInterval,
   ]);
 
