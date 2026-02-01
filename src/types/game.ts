@@ -51,7 +51,7 @@ export interface SceneConfig {
 }
 
 /** Terminal command action types */
-export type TerminalAction =
+type TerminalAction =
   | "showHelp"
   | "openModal"
   | "openDialog"

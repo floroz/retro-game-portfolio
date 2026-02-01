@@ -1,0 +1,73 @@
+@use "../../styles/functions" as *;
+@use "../../styles/mixins" as *;
+
+/* Selectable options list with retro adventure game styling */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  margin-block-start: var(--space-lg);
+  padding-block-start: var(--space-md);
+  border-block-start: to-rem(1px) solid rgb(42 58 74 / 50%);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  background: transparent;
+  border: none;
+  text-align: start;
+  cursor: pointer;
+  font-family: "Press Start 2P", monospace;
+  font-size: var(--font-size-xs);
+  line-height: 2;
+  letter-spacing: to-rem(0.5px);
+  color: #a0b0c0;
+  transition: color 0.15s ease;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+
+  &:hover:not(:disabled) {
+    color: #c0d0e0;
+  }
+}
+
+.selected {
+  color: #4ade80;
+
+  &:hover:not(:disabled) {
+    color: #5aee90;
+  }
+
+  .marker {
+    animation: option-pulse 1s ease-in-out infinite;
+  }
+}
+
+.marker {
+  flex-shrink: 0;
+  inline-size: to-rem(12px);
+  color: #4ade80;
+  font-size: to-rem(12px);
+}
+
+.label {
+  flex: 1;
+}
+
+/* Pulse animation for selected item */
+@keyframes option-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}

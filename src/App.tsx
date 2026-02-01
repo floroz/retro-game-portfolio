@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import "./App.css";
+import styles from "./App.module.scss";
 import { GameCanvas } from "./components/game/GameCanvas";
+import gameCanvasStyles from "./components/game/GameCanvas.module.scss";
 import { Scene } from "./components/game/Scene";
 import { Toolbar } from "./components/toolbar/Toolbar";
 import { ContentModal } from "./components/game/ContentModal";
@@ -70,7 +71,7 @@ function App() {
   // Desktop: Don't render game content until welcome screen is dismissed
   if (!welcomeShown) {
     return (
-      <div className="app">
+      <div className={styles.app}>
         <WelcomeScreen
           onDismiss={() => {
             dismissWelcome();
@@ -83,15 +84,15 @@ function App() {
 
   // Desktop experience - interactive game
   return (
-    <div className="app">
+    <div className={styles.app}>
       <GameCanvas>
-        {/* Scene area - 640x320 */}
-        <div className="game-canvas__scene">
+        {/* Scene area - 1280x640 */}
+        <div className={gameCanvasStyles.scene}>
           <Scene />
         </div>
 
-        {/* Toolbar area - 640x80 */}
-        <div className="game-canvas__toolbar">
+        {/* Toolbar area - 1280x160 */}
+        <div className={gameCanvasStyles.toolbar}>
           <Toolbar />
         </div>
       </GameCanvas>
@@ -110,7 +111,7 @@ function App() {
       <AdventureDialog isOpen={dialogOpen} onClose={closeDialog} />
 
       {/* Copyright footer */}
-      <footer className="app__copyright">© 2026 Daniele Tortora</footer>
+      <footer className={styles.copyright}>© 2026 Daniele Tortora</footer>
     </div>
   );
 }

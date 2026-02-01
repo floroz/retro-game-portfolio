@@ -1,4 +1,4 @@
-import "./Toolbar.css";
+import styles from "./Toolbar.module.scss";
 import { ActionGrid } from "./ActionGrid";
 import { IconGrid } from "./IconGrid";
 import { useGameStore } from "../../store/gameStore";
@@ -34,16 +34,16 @@ export function Toolbar() {
   };
 
   return (
-    <div className="toolbar" data-e2e="toolbar">
-      <div className="toolbar__actions">
+    <div className={styles.toolbar} data-e2e="toolbar">
+      <div className={styles.actions}>
         <ActionGrid />
       </div>
 
-      <div className="toolbar__status">
-        <span className="toolbar__status-text">{getStatusText()}</span>
+      <div className={styles.status}>
+        <span className={styles.statusText}>{getStatusText()}</span>
       </div>
 
-      <div className="toolbar__icons">
+      <div className={styles.icons}>
         <IconGrid />
       </div>
     </div>

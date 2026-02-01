@@ -1,0 +1,129 @@
+@use "./functions" as *;
+
+/// Beveled 3D button effect (retro aesthetic)
+/// @param {Color} $base - Base button color
+/// @param {Color} $highlight - Top/left highlight color
+/// @param {Color} $shadow - Bottom/right shadow color
+@mixin beveled-button($base: #4a4a6c, $highlight: #7a7a9c, $shadow: #2a2a4a) {
+  background: linear-gradient(
+    180deg,
+    lighten-color($base, 10%) 0%,
+    $base 50%,
+    darken-color($base, 10%) 100%
+  );
+  border: none;
+  border-block-start: to-rem(4px) solid $highlight;
+  border-inline-start: to-rem(4px) solid lighten-color($highlight, 5%);
+  border-inline-end: to-rem(4px) solid $shadow;
+  border-block-end: to-rem(4px) solid darken-color($shadow, 10%);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: linear-gradient(
+      180deg,
+      lighten-color($base, 15%) 0%,
+      lighten-color($base, 10%) 50%,
+      $base 100%
+    );
+  }
+
+  &:active {
+    // Invert bevels for pressed effect
+    border-block-start: to-rem(4px) solid $shadow;
+    border-inline-start: to-rem(4px) solid $shadow;
+    border-inline-end: to-rem(4px) solid lighten-color($highlight, 5%);
+    border-block-end: to-rem(4px) solid $highlight;
+    transform: translateY(to-rem(2px));
+  }
+
+  &:focus-visible {
+    outline: to-rem(4px) solid var(--color-accent);
+    outline-offset: to-rem(4px);
+  }
+}
+
+/// Retro drop shadow for objects
+/// @param {Number} $size - Shadow blur radius (px)
+/// @param {Number} $opacity - Shadow opacity (0-1)
+@mixin retro-shadow($size: 12px, $opacity: 0.5) {
+  filter: drop-shadow(0 to-rem($size) to-rem($size) rgba(0, 0, 0, $opacity));
+}
+
+/// Glow effect for hovered objects
+/// @param {Color} $color - Glow color
+/// @param {Number} $size - Glow size (px)
+@mixin glow-shadow($color: #ffd700, $size: 16px) {
+  filter: drop-shadow(0 0 to-rem($size) rgba($color, 0.6))
+    drop-shadow(0 to-rem(20px) to-rem(12px) rgba(0, 0, 0, 0.55));
+}
+
+/// Pixelated rendering for retro sprites
+@mixin pixelated {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/// Responsive breakpoint mixin
+/// @param {String} $breakpoint - Breakpoint name (sm, md, lg, xl)
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == "sm" {
+    @media (min-width: to-rem(640px)) {
+      @content;
+    }
+  } @else if $breakpoint == "md" {
+    @media (min-width: to-rem(768px)) {
+      @content;
+    }
+  } @else if $breakpoint == "lg" {
+    @media (min-width: to-rem(1024px)) {
+      @content;
+    }
+  } @else if $breakpoint == "xl" {
+    @media (min-width: to-rem(1280px)) {
+      @content;
+    }
+  }
+}
+
+/// Respect reduced motion preference
+@mixin motion-safe {
+  @media (prefers-reduced-motion: no-preference) {
+    @content;
+  }
+}
+
+/// Visually hidden (for screen readers)
+@mixin visually-hidden {
+  position: absolute;
+  width: to-rem(1px);
+  height: to-rem(1px);
+  padding: 0;
+  margin: to-rem(-1px);
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/// Flex center
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/// Truncate text with ellipsis
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/// Focus visible styles (consistent across components)
+@mixin focus-visible($color: var(--color-accent), $offset: 4px) {
+  &:focus-visible {
+    outline: to-rem(4px) solid $color;
+    outline-offset: to-rem($offset);
+  }
+}

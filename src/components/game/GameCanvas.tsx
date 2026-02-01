@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useState, useCallback } from "react";
 import { VIEWPORT } from "../../config/scene";
-import "./GameCanvas.css";
+import styles from "./GameCanvas.module.scss";
 
 interface GameCanvasProps {
   children: ReactNode;
@@ -37,9 +37,9 @@ export function GameCanvas({ children }: GameCanvasProps) {
   }, [handleResize]);
 
   return (
-    <div className="game-canvas-wrapper">
+    <div className={styles.wrapper}>
       <div
-        className="game-canvas"
+        className={styles.canvas}
         data-e2e="game-canvas"
         style={{
           width: VIEWPORT.width,
