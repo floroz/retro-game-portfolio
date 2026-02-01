@@ -1,11 +1,8 @@
 /* Modal backdrop */
 .modal-backdrop {
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.7);
+  inset: 0;
+  background: rgb(0 0 0 / 70%);
   z-index: 100;
 }
 
@@ -23,7 +20,7 @@
   border-radius: 6px;
   box-shadow:
     0 0 0 3px #000,
-    0 25px 80px rgba(0, 0, 0, 0.6);
+    0 25px 80px rgb(0 0 0 / 60%);
   z-index: 101;
   display: flex;
   flex-direction: column;
@@ -85,7 +82,7 @@
   line-height: 1.7;
   color: #e0e0e0;
   white-space: pre-wrap;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Modal footer */

@@ -1,5 +1,7 @@
 /* Lobby background - Flat 2D approach */
+
 /* Single back wall with color zones, flat floor */
+
 /* Depth achieved through shadows and layering, not geometry */
 
 .lobby {
@@ -32,8 +34,8 @@
   background: linear-gradient(to bottom, #5d4568 0%, #4d3558 50%, #3d2548 100%);
   border-bottom: 8px solid #2d1538;
   box-shadow:
-    inset 0 4px 8px rgba(255, 255, 255, 0.1),
-    0 8px 16px rgba(0, 0, 0, 0.4);
+    inset 0 4px 8px rgb(255 255 255 / 10%),
+    0 8px 16px rgb(0 0 0 / 40%);
 }
 
 /* ===========================================
@@ -57,28 +59,28 @@
     /* Subtle crosshatch */
     repeating-linear-gradient(
       45deg,
-      rgba(255, 255, 255, 0.03) 0px,
-      rgba(255, 255, 255, 0.03) 4px,
+      rgb(255 255 255 / 3%) 0,
+      rgb(255 255 255 / 3%) 4px,
       transparent 4px,
       transparent 12px
     ),
     /* Vertical wood grain lines */
     repeating-linear-gradient(
         to right,
-        transparent 0px,
+        transparent 0,
         transparent 36px,
-        rgba(0, 0, 0, 0.15) 36px,
-        rgba(0, 0, 0, 0.15) 40px,
+        rgb(0 0 0 / 15%) 36px,
+        rgb(0 0 0 / 15%) 40px,
         transparent 40px,
         transparent 48px
       ),
     /* Horizontal panel divisions */
     repeating-linear-gradient(
         to bottom,
-        transparent 0px,
+        transparent 0,
         transparent 88px,
-        rgba(0, 0, 0, 0.2) 88px,
-        rgba(0, 0, 0, 0.25) 92px,
+        rgb(0 0 0 / 20%) 88px,
+        rgb(0 0 0 / 25%) 92px,
         transparent 92px
       ),
     /* Base wood gradient */
@@ -89,7 +91,7 @@
         #b97953 60%,
         #c88962 100%
       );
-  box-shadow: inset -40px 0 80px rgba(0, 0, 0, 0.2);
+  box-shadow: inset -40px 0 80px rgb(0 0 0 / 20%);
 }
 
 /* Gold/mustard center zone - Wallpaper texture */
@@ -99,18 +101,18 @@
     /* Subtle fabric/wallpaper texture */
     repeating-linear-gradient(
       45deg,
-      rgba(255, 255, 255, 0.03) 0px,
-      rgba(255, 255, 255, 0.03) 4px,
+      rgb(255 255 255 / 3%) 0,
+      rgb(255 255 255 / 3%) 4px,
       transparent 4px,
       transparent 12px
     ),
     /* Horizontal stripe pattern */
     repeating-linear-gradient(
         to bottom,
-        transparent 0px,
+        transparent 0,
         transparent 40px,
-        rgba(0, 0, 0, 0.08) 40px,
-        rgba(0, 0, 0, 0.1) 44px,
+        rgb(0 0 0 / 8%) 40px,
+        rgb(0 0 0 / 10%) 44px,
         transparent 44px
       ),
     /* Base gradient */
@@ -136,33 +138,33 @@
     /* Subtle crosshatch */
     repeating-linear-gradient(
       45deg,
-      rgba(255, 255, 255, 0.03) 0px,
-      rgba(255, 255, 255, 0.03) 4px,
+      rgb(255 255 255 / 3%) 0,
+      rgb(255 255 255 / 3%) 4px,
       transparent 4px,
       transparent 12px
     ),
     /* Vertical panel stripes */
     repeating-linear-gradient(
         to right,
-        transparent 0px,
+        transparent 0,
         transparent 40px,
-        rgba(0, 0, 0, 0.12) 40px,
-        rgba(0, 0, 0, 0.12) 44px,
+        rgb(0 0 0 / 12%) 40px,
+        rgb(0 0 0 / 12%) 44px,
         transparent 44px,
         transparent 52px
       ),
     /* Horizontal divisions */
     repeating-linear-gradient(
         to bottom,
-        transparent 0px,
+        transparent 0,
         transparent 84px,
-        rgba(0, 0, 0, 0.15) 84px,
-        rgba(0, 0, 0, 0.18) 88px,
+        rgb(0 0 0 / 15%) 84px,
+        rgb(0 0 0 / 18%) 88px,
         transparent 88px
       ),
     /* Base blue gradient */
     linear-gradient(to left, #2a4b6b 0%, #3a5d7f 30%, #4a6f92 60%, #5b7fa4 100%);
-  box-shadow: inset 40px 0 80px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 40px 0 80px rgb(0 0 0 / 20%);
 }
 
 /* Welcome banner - Classic DotT style red banner */
@@ -171,10 +173,10 @@
     /* Fabric texture */
     repeating-linear-gradient(
       45deg,
-      transparent 0px,
+      transparent 0,
       transparent 4px,
-      rgba(0, 0, 0, 0.05) 4px,
-      rgba(0, 0, 0, 0.05) 8px
+      rgb(0 0 0 / 5%) 4px,
+      rgb(0 0 0 / 5%) 8px
     ),
     linear-gradient(to bottom, #b83030 0%, #982828 50%, #782020 100%);
   color: #f8f0e0;
@@ -185,11 +187,11 @@
   border-radius: 4px;
   position: relative;
   box-shadow:
-    0 16px 0 rgba(0, 0, 0, 0.3),
-    0 20px 32px rgba(0, 0, 0, 0.25),
-    inset 0 -8px 0 rgba(0, 0, 0, 0.2),
-    inset 0 6px 0 rgba(255, 255, 255, 0.15);
-  text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+    0 16px 0 rgb(0 0 0 / 30%),
+    0 20px 32px rgb(0 0 0 / 25%),
+    inset 0 -8px 0 rgb(0 0 0 / 20%),
+    inset 0 6px 0 rgb(255 255 255 / 15%);
+  text-shadow: 4px 4px 0 rgb(0 0 0 / 50%);
   letter-spacing: 2px;
   line-height: 1.35;
   text-align: center;
@@ -228,8 +230,8 @@
   background: linear-gradient(to bottom, #5a4835 0%, #4a3825 50%, #3a2815 100%);
   border-top: 6px solid #6a5840;
   box-shadow:
-    0 8px 16px rgba(0, 0, 0, 0.4),
-    inset 0 4px 8px rgba(255, 255, 255, 0.06);
+    0 8px 16px rgb(0 0 0 / 40%),
+    inset 0 4px 8px rgb(255 255 255 / 6%);
   z-index: 2;
 }
 
@@ -240,10 +242,8 @@
 
 .lobby__floor {
   position: absolute;
-  top: 512px;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 512px 0 0;
+
   /* Classic DotT orange/red checkerboard */
   background-image: repeating-conic-gradient(
     from 0deg,
@@ -261,9 +261,9 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.35) 0%,
-    rgba(0, 0, 0, 0.15) 40%,
-    rgba(0, 0, 0, 0) 100%
+    rgb(0 0 0 / 35%) 0%,
+    rgb(0 0 0 / 15%) 40%,
+    rgb(0 0 0 / 0%) 100%
   );
   pointer-events: none;
 }

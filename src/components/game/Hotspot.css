@@ -5,15 +5,17 @@
   border: none;
   cursor: pointer;
   padding: 0;
+
   /* Debug outline - remove for production */
+
   /* outline: 2px dashed rgba(255, 255, 0, 0.5); */
   transition: all 0.2s ease;
 }
 
 /* Hover state - subtle highlight */
 .hotspot--hovered {
-  background: rgba(255, 220, 100, 0.15);
-  box-shadow: 0 0 40px rgba(255, 220, 100, 0.4);
+  background: rgb(255 220 100 / 15%);
+  box-shadow: 0 0 40px rgb(255 220 100 / 40%);
 }
 
 /* Label - hidden by default, shown on hover */
@@ -22,7 +24,7 @@
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.85);
+  background: rgb(0 0 0 / 85%);
   color: #ffd700;
   padding: 8px 16px;
   border-radius: 8px;

@@ -1,4 +1,5 @@
 /* Welcome Screen Component */
+
 /* Full-screen intro with retro CRT aesthetic */
 
 .welcome-screen {
@@ -17,6 +18,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -28,10 +30,10 @@
   inset: 0;
   background: repeating-linear-gradient(
     0deg,
-    transparent 0px,
+    transparent 0,
     transparent 2px,
-    rgba(0, 0, 0, 0.15) 2px,
-    rgba(0, 0, 0, 0.15) 4px
+    rgb(0 0 0 / 15%) 2px,
+    rgb(0 0 0 / 15%) 4px
   );
   pointer-events: none;
   animation: scanline-scroll 8s linear infinite;
@@ -41,6 +43,7 @@
   0% {
     transform: translateY(0);
   }
+
   100% {
     transform: translateY(4px);
   }
@@ -54,7 +57,7 @@
   background: radial-gradient(
     ellipse at center,
     transparent 30%,
-    rgba(0, 0, 0, 0.6) 100%
+    rgb(0 0 0 / 60%) 100%
   );
   pointer-events: none;
 }
@@ -76,6 +79,7 @@
     opacity: 0;
     transform: scale(1.5) translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: scale(1.5) translateY(0);
@@ -91,10 +95,11 @@
 @keyframes portrait-glow {
   0%,
   100% {
-    filter: drop-shadow(0 0 20px rgba(0, 212, 170, 0.2));
+    filter: drop-shadow(0 0 20px rgb(0 212 170 / 20%));
   }
+
   50% {
-    filter: drop-shadow(0 0 30px rgba(0, 212, 170, 0.4));
+    filter: drop-shadow(0 0 30px rgb(0 212 170 / 40%));
   }
 }
 
@@ -104,9 +109,9 @@
   font-size: 20px;
   color: #00d4aa;
   text-shadow:
-    0 0 10px rgba(0, 212, 170, 0.5),
-    0 0 20px rgba(0, 212, 170, 0.3),
-    0 0 30px rgba(0, 212, 170, 0.2);
+    0 0 10px rgb(0 212 170 / 50%),
+    0 0 20px rgb(0 212 170 / 30%),
+    0 0 30px rgb(0 212 170 / 20%);
   letter-spacing: 4px;
   margin: 0;
   text-align: center;
@@ -116,14 +121,15 @@
 @keyframes text-glow {
   from {
     text-shadow:
-      0 0 10px rgba(0, 212, 170, 0.5),
-      0 0 20px rgba(0, 212, 170, 0.3);
+      0 0 10px rgb(0 212 170 / 50%),
+      0 0 20px rgb(0 212 170 / 30%);
   }
+
   to {
     text-shadow:
-      0 0 15px rgba(0, 212, 170, 0.6),
-      0 0 30px rgba(0, 212, 170, 0.4),
-      0 0 40px rgba(0, 212, 170, 0.2);
+      0 0 15px rgb(0 212 170 / 60%),
+      0 0 30px rgb(0 212 170 / 40%),
+      0 0 40px rgb(0 212 170 / 20%);
   }
 }
 
@@ -157,7 +163,7 @@
   font-family: "Press Start 2P", monospace;
   font-size: 10px;
   color: #607080;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(0 0 0 / 60%);
   border: 2px solid #607080;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -166,19 +172,19 @@
 .welcome-screen__sound-toggle:hover {
   border-color: #00d4aa;
   color: #00d4aa;
-  background: rgba(0, 212, 170, 0.1);
+  background: rgb(0 212 170 / 10%);
 }
 
 .welcome-screen__sound-toggle:focus {
   outline: none;
   border-color: #00d4aa;
-  box-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+  box-shadow: 0 0 10px rgb(0 212 170 / 30%);
 }
 
 .welcome-screen__sound-toggle--on {
   border-color: #00d4aa;
   color: #00d4aa;
-  background: rgba(0, 212, 170, 0.15);
+  background: rgb(0 212 170 / 15%);
 }
 
 .welcome-screen__sound-icon {
@@ -224,7 +230,7 @@
 
 .welcome-screen__prompt:hover {
   border-color: #00d4aa;
-  background: rgba(0, 212, 170, 0.1);
+  background: rgb(0 212 170 / 10%);
   animation: none;
   opacity: 1;
 }
@@ -232,7 +238,7 @@
 .welcome-screen__prompt:focus {
   outline: none;
   border-color: #00d4aa;
-  box-shadow: 0 0 15px rgba(0, 212, 170, 0.4);
+  box-shadow: 0 0 15px rgb(0 212 170 / 40%);
 }
 
 @keyframes prompt-blink {
@@ -240,6 +246,7 @@
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.4;
   }
@@ -250,7 +257,7 @@
   position: absolute;
   width: 40px;
   height: 40px;
-  border: 2px solid rgba(0, 212, 170, 0.3);
+  border: 2px solid rgb(0 212 170 / 30%);
   pointer-events: none;
 }
 
@@ -283,7 +290,7 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .welcome-screen__name {
     font-size: 14px;
     letter-spacing: 2px;

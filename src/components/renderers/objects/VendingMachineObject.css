@@ -21,10 +21,7 @@
 /* Machine body - Deep muted red, 3D depth */
 .vending__body {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 32px;
+  inset: 0 0 32px;
   background: linear-gradient(
     to right,
     #5a1818 0%,
@@ -35,11 +32,12 @@
   );
   border: 6px solid #3a1010;
   border-radius: 6px 6px 0 0;
+
   /* Strong 3D shading */
   box-shadow:
-    inset -16px 0 32px rgba(0, 0, 0, 0.4),
-    inset 8px 0 16px rgba(255, 255, 255, 0.05),
-    inset 0 -8px 16px rgba(0, 0, 0, 0.3);
+    inset -16px 0 32px rgb(0 0 0 / 40%),
+    inset 8px 0 16px rgb(255 255 255 / 5%),
+    inset 0 -8px 16px rgb(0 0 0 / 30%);
 }
 
 /* Top sign - muted, hand-painted look */
@@ -86,18 +84,23 @@
 .vending__item--1 {
   background: linear-gradient(to bottom, #4a6a8a 0%, #3a5a7a 100%);
 }
+
 .vending__item--2 {
   background: linear-gradient(to bottom, #5a8a6a 0%, #4a7a5a 100%);
 }
+
 .vending__item--3 {
   background: linear-gradient(to bottom, #8a6a4a 0%, #7a5a3a 100%);
 }
+
 .vending__item--4 {
   background: linear-gradient(to bottom, #6a4a7a 0%, #5a3a6a 100%);
 }
+
 .vending__item--5 {
   background: linear-gradient(to bottom, #8a5a6a 0%, #7a4a5a 100%);
 }
+
 .vending__item--6 {
   background: linear-gradient(to bottom, #6a7a4a 0%, #5a6a3a 100%);
 }

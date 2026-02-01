@@ -35,12 +35,13 @@
   );
   border: 4px solid #845510;
   border-bottom: none;
+
   /* Flat 2D - no perspective transform */
   display: flex;
   align-items: center;
   padding: 0 20px;
   gap: 20px;
-  box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 -4px 8px rgb(0 0 0 / 20%);
 }
 
 /* Computer on desk */
@@ -84,7 +85,7 @@
   background: #f0e8d8;
   border: 2px solid #c0b8a8;
   position: relative;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 2px 4px rgb(0 0 0 / 20%);
 }
 
 .desk__papers::before {
@@ -125,10 +126,7 @@
 /* Desk front panel - main visible part with 3D depth */
 .desk__front {
   position: absolute;
-  top: 24px;
-  left: 0;
-  right: 0;
-  bottom: 28px;
+  inset: 24px 0 28px;
   background: linear-gradient(
     to right,
     #6a4510 0%,
@@ -144,18 +142,19 @@
   display: flex;
   gap: 8px;
   padding: 10px;
+
   /* Strong 3D shading */
   box-shadow:
-    inset -12px 0 24px rgba(0, 0, 0, 0.3),
-    inset 6px 0 12px rgba(255, 255, 255, 0.08),
-    inset 0 -6px 12px rgba(0, 0, 0, 0.2);
+    inset -12px 0 24px rgb(0 0 0 / 30%),
+    inset 6px 0 12px rgb(255 255 255 / 8%),
+    inset 0 -6px 12px rgb(0 0 0 / 20%);
 }
 
 .desk__panel {
   flex: 1;
   background: linear-gradient(to bottom, #946520 0%, #845510 100%);
   border: 4px inset #7a4a08;
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 8px rgb(0 0 0 / 30%);
 }
 
 /* Label */
@@ -171,5 +170,5 @@
   padding: 4px 10px;
   border: 2px solid #3a3a4a;
   white-space: nowrap;
-  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 4px 4px 8px rgb(0 0 0 / 30%);
 }

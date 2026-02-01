@@ -1,8 +1,10 @@
 /* Daniele character - PNG sprite based */
+
 /* Uses transparent PNG images for idle and walking states */
 
 .character {
   position: relative;
+
   /* Adjust these values to scale the character appropriately for the scene (2.88x scale for 2x viewport) */
   width: 230px;
   height: auto;
@@ -19,16 +21,18 @@
   display: block;
   width: 100%;
   height: auto;
+
   /* Preserve pixel art crispness */
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+
   /* Ensure no border/background shows */
   background: transparent;
   border: none;
   outline: none;
+
   /* Prevent selection highlight */
   user-select: none;
-  -webkit-user-select: none;
   pointer-events: none;
 }
 
@@ -42,6 +46,7 @@
   100% {
     transform: scaleY(1) scaleX(1);
   }
+
   50% {
     transform: scaleY(1.01) scaleX(0.995);
   }
@@ -57,6 +62,7 @@
   100% {
     transform: scaleX(-1) scaleY(1);
   }
+
   50% {
     transform: scaleX(-0.995) scaleY(1.01);
   }

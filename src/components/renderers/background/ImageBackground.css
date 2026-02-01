@@ -9,10 +9,13 @@
   /* Fill the entire scene area */
   width: 100%;
   height: 100%;
+
   /* Cover ensures the image fills the container, cropping if needed */
   object-fit: cover;
+
   /* Position from top-left to ensure consistent alignment */
   object-position: center top;
+
   /* Maintain crisp pixel art rendering when scaled */
   image-rendering: pixelated;
   image-rendering: crisp-edges;

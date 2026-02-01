@@ -21,18 +21,16 @@
 /* Door frame - recessed into wall */
 .door__frame {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 32px;
+  inset: 0 0 32px;
   background: linear-gradient(to bottom, #3a2818 0%, #4a3828 50%, #3a2818 100%);
   border: 6px solid #2a1808;
   border-radius: 4px 4px 0 0;
   padding: 8px;
+
   /* Recessed look - darker at edges */
   box-shadow:
-    inset 6px 6px 12px rgba(0, 0, 0, 0.4),
-    inset -4px -4px 8px rgba(0, 0, 0, 0.2);
+    inset 6px 6px 12px rgb(0 0 0 / 40%),
+    inset -4px -4px 8px rgb(0 0 0 / 20%);
 }
 
 /* Door body - muted blue-grey */
@@ -50,8 +48,8 @@
   border-radius: 2px;
   position: relative;
   box-shadow:
-    inset -8px 0 16px rgba(0, 0, 0, 0.2),
-    inset 4px 0 8px rgba(255, 255, 255, 0.1);
+    inset -8px 0 16px rgb(0 0 0 / 20%),
+    inset 4px 0 8px rgb(255 255 255 / 10%);
 }
 
 /* Office variant - slightly different shade */
@@ -74,22 +72,22 @@
   height: 56px;
   background: linear-gradient(
     to bottom,
-    rgba(180, 200, 220, 0.4) 0%,
-    rgba(160, 180, 200, 0.3) 100%
+    rgb(180 200 220 / 40%) 0%,
+    rgb(160 180 200 / 30%) 100%
   );
   border: 4px solid #3a5a7a;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 16px rgb(0 0 0 / 20%);
 }
 
 .door__window-text {
   font-family: "Press Start 2P", "Courier New", monospace;
   font-size: 10px;
   color: #1a3a5a;
-  text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.3);
+  text-shadow: 2px 2px 0 rgb(255 255 255 / 30%);
   letter-spacing: -1px;
   opacity: 0.8;
 }
@@ -106,8 +104,8 @@
   border: 2px solid #645414;
   border-radius: 4px;
   box-shadow:
-    2px 2px 4px rgba(0, 0, 0, 0.4),
-    inset 2px 2px 2px rgba(255, 255, 255, 0.2);
+    2px 2px 4px rgb(0 0 0 / 40%),
+    inset 2px 2px 2px rgb(255 255 255 / 20%);
 }
 
 /* Door panels - recessed */
@@ -119,10 +117,10 @@
   border: 4px solid #3a5a7a;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.15) 0%,
-    rgba(0, 0, 0, 0.05) 100%
+    rgb(0 0 0 / 15%) 0%,
+    rgb(0 0 0 / 5%) 100%
   );
-  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 2px 2px 4px rgb(0 0 0 / 20%);
 }
 
 .door__panel--top {
@@ -146,5 +144,5 @@
   padding: 6px 12px;
   border: 2px solid #3a3a4a;
   white-space: nowrap;
-  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 4px 4px 8px rgb(0 0 0 / 30%);
 }

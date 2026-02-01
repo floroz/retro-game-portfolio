@@ -15,8 +15,8 @@
   border-radius: 50%;
   padding: 3px;
   box-shadow:
-    inset 2px 2px 4px rgba(255, 255, 255, 0.1),
-    2px 2px 6px rgba(0, 0, 0, 0.4);
+    inset 2px 2px 4px rgb(255 255 255 / 10%),
+    2px 2px 6px rgb(0 0 0 / 40%);
 }
 
 /* Clock face */
@@ -32,7 +32,7 @@
 /* Hour markers */
 .clock__marker {
   position: absolute;
-  background: #333333;
+  background: #333;
 }
 
 .clock__marker--12 {
@@ -73,7 +73,7 @@
   left: 50%;
   bottom: 50%;
   transform-origin: bottom center;
-  background: #333333;
+  background: #333;
 }
 
 .clock__hand--hour {
@@ -93,7 +93,7 @@
 .clock__hand--second {
   width: 1px;
   height: 10px;
-  background: #cc3333;
+  background: #c33;
   transform: translateX(-50%) rotate(0deg);
   animation: clock-tick 60s steps(60) infinite;
 }
@@ -102,6 +102,7 @@
   from {
     transform: translateX(-50%) rotate(0deg);
   }
+
   to {
     transform: translateX(-50%) rotate(360deg);
   }
@@ -115,6 +116,6 @@
   transform: translate(-50%, -50%);
   width: 4px;
   height: 4px;
-  background: #333333;
+  background: #333;
   border-radius: 50%;
 }
