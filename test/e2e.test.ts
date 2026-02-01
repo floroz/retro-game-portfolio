@@ -10,7 +10,7 @@ test.describe("Portfolio E2E Tests", () => {
     await page.goto("/");
 
     // Wait for the page to be fully loaded
-    await expect(page).toHaveTitle(/portfolio/i);
+    await expect(page).toHaveTitle(/Daniele Tortora/i);
   });
 
   test("should display the game canvas", async ({ page }) => {
