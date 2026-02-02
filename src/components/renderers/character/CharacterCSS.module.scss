@@ -6,7 +6,9 @@
 .character {
   position: relative;
   inline-size: to-rem(230px);
-  block-size: auto;
+  block-size: to-rem(
+    230px
+  ); /* Set explicit height to contain absolutely positioned images */
   transform-origin: bottom center;
 }
 
@@ -30,16 +32,39 @@
   /* Prevent flash by ensuring scale is always applied immediately */
   will-change: transform;
 
+  /* Position both images in the same space, anchored to bottom */
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+
+  /* Default: always scale to 0.65x to prevent flash */
+  /* This ensures even if class hasn't updated, the image is scaled */
+  transform: scale(0.65);
+
   @include pixelated;
 }
 
-/* Static sprite needs to be scaled down to 0.65x */
+/* Visibility control - used to toggle between static and moving sprites */
+.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.hidden {
+  opacity: 0;
+  visibility: hidden;
+  /* Keep in DOM but don't render */
+  pointer-events: none;
+}
+
+/* Static sprite - explicitly scaled down to 0.65x */
 .spriteStatic {
   transform: scale(0.65);
 }
 
-/* Moving sprite with increased brightness */
+/* Moving sprite - reset to normal size */
 .spriteMoving {
+  transform: scale(1);
   filter: brightness(1.3);
 }
 

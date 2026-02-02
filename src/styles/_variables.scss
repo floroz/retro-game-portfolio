@@ -31,6 +31,25 @@
      ============================================ */
   --font-heading: "Press Start 2P", monospace;
   --font-body: "IBM Plex Mono", "Courier New", monospace;
+  --font-terminal: "VT323", "Courier New", monospace;
+
+  /* ============================================
+     TERMINAL-SPECIFIC STYLES
+     ============================================ */
+  --terminal-bg: #000;
+  --terminal-text: #0f0;
+  --terminal-text-cyan: #00d4aa;
+  --terminal-text-amber: #fa0;
+  --terminal-text-bright: #0c0;
+  --terminal-text-dim: #0a0;
+  --terminal-text-error: #ff6b6b;
+  --terminal-font-size-sm: #{to-rem(16px)}; // Small text (banners, hints)
+  --terminal-font-size-base: #{to-rem(18px)}; // Base terminal text
+  --terminal-font-size-input: #{to-rem(20px)}; // Input text (prevents iOS zoom)
+  --terminal-line-height: 1.4;
+  --terminal-letter-spacing: #{to-rem(0.5px)};
+  --terminal-border: #{to-rem(1px)} solid var(--terminal-text);
+  --terminal-border-width: #{to-rem(2px)};
 
   /* ============================================
      COLORS

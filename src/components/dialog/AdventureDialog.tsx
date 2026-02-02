@@ -5,6 +5,7 @@ import { useTypewriter } from "../../hooks/useTypewriter";
 import { useDialogSound } from "../../hooks/useDialogSound";
 import { DialogPortrait } from "./DialogPortrait";
 import { DialogOptions } from "./DialogOptions";
+import { SoundToggleButton } from "../shared/SoundToggleButton";
 import type { DialogOption } from "../../types/game";
 import styles from "./AdventureDialog.module.scss";
 
@@ -19,8 +20,7 @@ interface AdventureDialogProps {
  * The dialog container stays stable - only content changes between nodes
  */
 export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
-  const { dialogNode, selectDialogOption, soundEnabled, toggleSound } =
-    useGameStore();
+  const { dialogNode, selectDialogOption } = useGameStore();
 
   // Track the dialogNode that this selection belongs to
   // When dialogNode changes, we reset the index by storing the new node
@@ -165,19 +165,7 @@ export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
           <span id="dialog-speaker" className={styles.speaker}>
             {speakerName}
           </span>
-          <button
-            className={`${styles.soundToggle} ${
-              soundEnabled ? styles.soundToggleOn : styles.soundToggleOff
-            }`}
-            onClick={toggleSound}
-            aria-label={soundEnabled ? "Mute sounds" : "Unmute sounds"}
-            title={soundEnabled ? "Click to mute" : "Click for sound effects!"}
-          >
-            <span className={styles.soundIcon}>📢</span>
-            <span className={styles.soundLabel}>
-              {soundEnabled ? "ON" : "OFF"}
-            </span>
-          </button>
+          <SoundToggleButton />
         </div>
 
         {/* Content area with portrait and text */}

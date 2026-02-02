@@ -1,6 +1,14 @@
 @use "../../styles/functions" as *;
 @use "../../styles/mixins" as *;
 
+/* Sound toggle positioned outside scene in top-right corner */
+.soundToggleWrapper {
+  position: absolute;
+  top: to-rem(20px);
+  right: to-rem(20px);
+  z-index: 1000;
+}
+
 /* Scene composition - Image-based with hotspot overlays */
 .scene {
   @include pixelated;
