@@ -21,13 +21,16 @@ function preloadImages() {
  * Daniele character using PNG sprite images
  * Uses daniele-static.png for idle, daniele-moving-1.png for walking
  * Flips horizontally when facing left
+ *
+ * IMPORTANT: Both images are kept in the DOM at all times to prevent
+ * any flashing during state transitions. We toggle visibility instead
+ * of swapping src attributes.
  */
 export function CharacterCSS({
   direction = "right",
   state = "idle",
 }: CharacterCSSProps) {
   const isWalking = state === "walking";
-  const sprite = isWalking ? danieleMoving : danieleStatic;
 
   // Preload images on mount to prevent flash when switching sprites
   useEffect(() => {
@@ -42,24 +45,20 @@ export function CharacterCSS({
     .filter(Boolean)
     .join(" ");
 
-  const spriteClassNames = [
-    styles.sprite,
-    isWalking ? styles.spriteMoving : styles.spriteStatic,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  // Inline style ensures transform is applied immediately, preventing flash
-  // when the image source changes before CSS class is applied
-  const spriteStyle = isWalking ? undefined : { transform: "scale(0.65)" };
-
   return (
     <div className={classNames} aria-label="Portfolio character">
+      {/* Static sprite - visible when idle */}
       <img
-        src={sprite}
+        src={danieleStatic}
         alt="Daniele"
-        className={spriteClassNames}
-        style={spriteStyle}
+        className={`${styles.sprite} ${styles.spriteStatic} ${!isWalking ? styles.visible : styles.hidden}`}
+        draggable={false}
+      />
+      {/* Moving sprite - visible when walking */}
+      <img
+        src={danieleMoving}
+        alt="Daniele"
+        className={`${styles.sprite} ${styles.spriteMoving} ${isWalking ? styles.visible : styles.hidden}`}
         draggable={false}
       />
     </div>

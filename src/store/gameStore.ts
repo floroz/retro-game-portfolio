@@ -51,6 +51,9 @@ interface GameState {
   closeDialog: () => void;
   selectDialogOption: (nodeId: string) => void;
   toggleSound: () => void;
+
+  // Mobile actions
+  startMobileDialogSession: () => void;
 }
 
 // Always show welcome on each page load (no persistence)
@@ -72,7 +75,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   // Initial dialog state - always start fresh
   welcomeShown: false,
   dialogOpen: false,
-  dialogNode: "welcome",
+  dialogNode: "",
   visitedNodes: new Set<string>(),
   soundEnabled: false,
 
@@ -226,5 +229,10 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   toggleSound: () => {
     set((state) => ({ soundEnabled: !state.soundEnabled }));
+  },
+
+  // Mobile actions
+  startMobileDialogSession: () => {
+    set({ dialogNode: "intro", dialogOpen: true });
   },
 }));

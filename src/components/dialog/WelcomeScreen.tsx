@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { DialogPortrait } from "./DialogPortrait";
-import { useGameStore } from "../../store/gameStore";
+import { useIsMobile } from "../../hooks/useIsMobile";
+import { SoundToggleButton } from "../shared/SoundToggleButton";
 import styles from "./WelcomeScreen.module.scss";
 
 interface WelcomeScreenProps {
@@ -12,27 +13,31 @@ interface WelcomeScreenProps {
  * Displays once per session, dismisses only on SPACE key or clicking the prompt
  */
 export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
-  const soundEnabled = useGameStore((state) => state.soundEnabled);
-  const toggleSound = useGameStore((state) => state.toggleSound);
+  const isMobile = useIsMobile();
 
   // Handle dismiss - only triggered by space key or clicking prompt
   const handleDismiss = useCallback(() => {
-    onDismiss();
-  }, [onDismiss]);
+    // Optional: Haptic feedback on mobile
+    if (isMobile && "vibrate" in navigator) {
+      navigator.vibrate(50);
+    }
 
-  // Handle sound toggle without dismissing the screen
-  const handleSoundToggle = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      toggleSound();
-    },
-    [toggleSound],
-  );
+    onDismiss();
+  }, [isMobile, onDismiss]);
 
   // Handle prompt click
   const handlePromptClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
+      handleDismiss();
+    },
+    [handleDismiss],
+  );
+
+  // Handle touch events on mobile
+  const handleTouch = useCallback(
+    (e: React.TouchEvent) => {
+      e.preventDefault();
       handleDismiss();
     },
     [handleDismiss],
@@ -60,27 +65,19 @@ export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
       data-e2e="welcome-screen"
       role="dialog"
       aria-modal="true"
-      aria-label="Welcome screen - press space to start"
+      aria-label={
+        isMobile
+          ? "Welcome screen - tap to start"
+          : "Welcome screen - press space to start"
+      }
+      onTouchEnd={isMobile ? handleTouch : undefined}
     >
       {/* CRT scanline overlay */}
       <div className={styles.scanlines} aria-hidden="true" />
 
       {/* Sound toggle in corner */}
-      <div className={styles.soundCorner}>
-        <button
-          className={`${styles.soundToggle} ${soundEnabled ? styles.soundToggleOn : ""}`}
-          onClick={handleSoundToggle}
-          aria-pressed={soundEnabled}
-          aria-label={soundEnabled ? "Sound enabled" : "Sound disabled"}
-        >
-          <span className={styles.soundIcon} aria-hidden="true">
-            {soundEnabled ? "🔊" : "🔇"}
-          </span>
-          <span className={styles.soundLabel}>
-            SOUND: {soundEnabled ? "ON" : "OFF"}
-          </span>
-        </button>
-        <p className={styles.soundHint}>Enable for better experience</p>
+      <div className={styles.soundToggleWrapper}>
+        <SoundToggleButton />
       </div>
 
       {/* Content container */}
@@ -103,9 +100,11 @@ export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
           className={styles.prompt}
           data-e2e="welcome-screen-prompt"
           onClick={handlePromptClick}
-          aria-label="Press space or click to start"
+          aria-label={
+            isMobile ? "Tap to start" : "Press space or click to start"
+          }
         >
-          [ Press SPACE to start ]
+          {isMobile ? "[ Tap to begin ]" : "[ Press SPACE to start ]"}
         </button>
       </div>
 

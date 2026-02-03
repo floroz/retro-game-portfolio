@@ -28,6 +28,14 @@
   }
 }
 
+/* Sound toggle positioned in top-right corner */
+.soundToggleWrapper {
+  position: absolute;
+  top: to-rem(20px);
+  right: to-rem(20px);
+  z-index: 10;
+}
+
 @keyframes welcome-fade-in {
   from {
     opacity: 0;
@@ -139,91 +147,32 @@
   text-align: center;
 }
 
-.soundCorner {
-  position: absolute;
-  inset-block-start: to-rem(32px);
-  inset-inline-end: to-rem(32px);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: to-rem(8px);
-  z-index: 10;
-}
-
-.soundToggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: to-rem(10px);
-  padding: to-rem(10px) to-rem(16px);
-  font-family: var(--font-heading);
-  font-size: to-rem(10px);
-  color: #607080;
-  background: rgb(0 0 0 / 60%);
-  border: to-rem(2px) solid #607080;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: #00d4aa;
-    color: #00d4aa;
-    background: rgb(0 212 170 / 10%);
-  }
-
-  &:focus-visible {
-    outline: none;
-    border-color: #00d4aa;
-    box-shadow: 0 0 to-rem(10px) rgb(0 212 170 / 30%);
-  }
-
-  &On {
-    border-color: #00d4aa;
-    color: #00d4aa;
-    background: rgb(0 212 170 / 15%);
-  }
-}
-
-.soundIcon {
-  font-size: to-rem(16px);
-  line-height: 1;
-}
-
-.soundLabel {
-  letter-spacing: to-rem(1px);
-}
-
-.soundHint {
-  font-family: var(--font-heading);
-  font-size: to-rem(8px);
-  color: #a0b0c0;
-  letter-spacing: to-rem(0.5px);
-  margin: 0;
-  opacity: 0.8;
-}
-
-.soundSection {
-  display: none;
-}
-
 .prompt {
   font-family: var(--font-heading);
   font-size: to-rem(12px);
   color: #00d4aa;
-  letter-spacing: to-rem(1px);
+  letter-spacing: to-rem(4px);
   margin: 0;
   margin-block-start: to-rem(32px);
   padding: to-rem(12px) to-rem(24px);
   background: transparent;
   border: to-rem(2px) solid transparent;
   cursor: pointer;
+  text-shadow:
+    0 0 to-rem(10px) rgb(0 212 170 / 50%),
+    0 0 to-rem(20px) rgb(0 212 170 / 30%);
   animation: prompt-blink 1.5s ease-in-out infinite;
   transition:
     border-color 0.2s ease,
-    background 0.2s ease;
+    background 0.2s ease,
+    text-shadow 0.2s ease;
 
   &:hover {
     border-color: #00d4aa;
     background: rgb(0 212 170 / 10%);
+    text-shadow:
+      0 0 to-rem(15px) rgb(0 212 170 / 60%),
+      0 0 to-rem(30px) rgb(0 212 170 / 40%);
     animation: none;
     opacity: 1;
   }
@@ -232,6 +181,9 @@
     outline: none;
     border-color: #00d4aa;
     box-shadow: 0 0 to-rem(15px) rgb(0 212 170 / 40%);
+    text-shadow:
+      0 0 to-rem(15px) rgb(0 212 170 / 60%),
+      0 0 to-rem(30px) rgb(0 212 170 / 40%);
   }
 }
 
@@ -247,39 +199,7 @@
 }
 
 .corner {
-  position: absolute;
-  inline-size: to-rem(40px);
-  block-size: to-rem(40px);
-  border: to-rem(2px) solid rgb(0 212 170 / 30%);
-  pointer-events: none;
-
-  &Tl {
-    inset-block-start: to-rem(20px);
-    inset-inline-start: to-rem(20px);
-    border-inline-end: none;
-    border-block-end: none;
-  }
-
-  &Tr {
-    inset-block-start: to-rem(20px);
-    inset-inline-end: to-rem(20px);
-    border-inline-start: none;
-    border-block-end: none;
-  }
-
-  &Bl {
-    inset-block-end: to-rem(20px);
-    inset-inline-start: to-rem(20px);
-    border-inline-end: none;
-    border-block-start: none;
-  }
-
-  &Br {
-    inset-block-end: to-rem(20px);
-    inset-inline-end: to-rem(20px);
-    border-inline-start: none;
-    border-block-start: none;
-  }
+  display: none;
 }
 
 /* Reduce glow intensity in Safari (renders drop-shadow/text-shadow more strongly) */
@@ -341,28 +261,19 @@
   .prompt {
     font-size: to-rem(8px);
     padding: to-rem(8px) to-rem(16px);
+    letter-spacing: to-rem(2px);
   }
+}
 
-  .soundCorner {
-    inset-block-start: to-rem(16px);
-    inset-inline-end: to-rem(16px);
+/* Responsive spacing for smaller heights */
+@media (block-size <= to-rem(700px)) {
+  .prompt {
+    margin-block-start: to-rem(16px);
   }
+}
 
-  .soundToggle {
-    font-size: to-rem(8px);
-    padding: to-rem(8px) to-rem(12px);
-  }
-
-  .soundIcon {
-    font-size: to-rem(12px);
-  }
-
-  .soundHint {
-    font-size: to-rem(6px);
-  }
-
-  .corner {
-    inline-size: to-rem(24px);
-    block-size: to-rem(24px);
+@media (block-size <= to-rem(600px)) {
+  .prompt {
+    margin-block-start: to-rem(8px);
   }
 }

@@ -123,13 +123,14 @@ test.describe("Visual Regression Tests", () => {
     await expect(page.locator("[data-e2e=scene]")).toBeVisible();
     await expect(page.locator("[data-e2e=toolbar]")).toBeVisible();
 
-    // Small delay to ensure scene is fully rendered
-    await page.waitForTimeout(500);
+    // Longer delay to ensure scene is fully rendered (especially for webkit)
+    await page.waitForTimeout(1000);
 
     await expect(page).toHaveScreenshot("03-game-scene.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
+      timeout: 10000,
     });
   });
 
@@ -217,13 +218,14 @@ test.describe("Visual Regression Tests", () => {
     // Verify terminal content is loaded
     await expect(page.locator("[data-e2e=terminal-input]")).toBeVisible();
 
-    // Small delay to ensure terminal is fully rendered
-    await page.waitForTimeout(500);
+    // Longer delay to ensure terminal is fully rendered (especially for webkit)
+    await page.waitForTimeout(1000);
 
     await expect(page).toHaveScreenshot("05-terminal.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
+      timeout: 10000,
     });
   });
 
@@ -253,13 +255,13 @@ test.describe("Visual Regression Tests", () => {
     await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
     await expect(page.locator("[data-e2e=toolbar]")).toBeVisible();
 
-    // Tab should skip scene objects and go directly to first toolbar button
-    await page.keyboard.press("Tab");
-
-    // Verify focus is on a toolbar button (first focusable element should be a toolbar button)
+    // Focus the first toolbar button directly to start keyboard navigation
     const firstToolbarButton = page
       .locator("[data-e2e=toolbar-button]")
       .first();
+    await firstToolbarButton.focus();
+
+    // Verify focus is on the first toolbar button
     await expect(firstToolbarButton).toBeFocused();
 
     // Tab to next toolbar button

@@ -88,3 +88,21 @@ export interface DialogNode {
   options?: DialogOption[];
   autoAdvance?: string; // Next node ID for linear dialog
 }
+
+/** Terminal output line types for mobile */
+export interface TerminalLine {
+  type:
+    | "input" // User typed command/input
+    | "output" // Command output
+    | "error" // Error messages
+    | "dialog-agent" // Agent dialog message
+    | "dialog-options"; // Dialog option list
+
+  content: string;
+
+  metadata?: {
+    speaker?: DialogSpeaker;
+    options?: DialogOption[];
+    timestamp?: number;
+  };
+}
