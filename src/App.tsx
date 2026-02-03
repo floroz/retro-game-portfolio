@@ -9,9 +9,11 @@ import { RetroTerminal } from "./components/game/RetroTerminal";
 import { WelcomeScreen } from "./components/dialog/WelcomeScreen";
 import { AdventureDialog } from "./components/dialog/AdventureDialog";
 import { MobileTerminal } from "./components/mobile/MobileTerminal";
+import { MobileASCIIWelcome } from "./components/mobile/MobileASCIIWelcome";
 import { useGameStore } from "./store/gameStore";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useIsMobile } from "./hooks/useIsMobile";
+import { useBackgroundMusic } from "./hooks/useBackgroundMusic";
 
 /**
  * Day of the Tentacle inspired portfolio
@@ -22,6 +24,9 @@ function App() {
 
   // Global keyboard shortcuts (only for desktop)
   useKeyboardShortcuts();
+
+  // Background music (plays throughout the app when sound is enabled)
+  useBackgroundMusic();
 
   // Track when welcome screen is dismissed to trigger dialog
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
@@ -49,8 +54,22 @@ function App() {
     }
   }, [isMobile, welcomeDismissed, welcomeShown, openDialog]);
 
-  // Mobile experience - show full-screen terminal with modals
+  // Mobile experience - show welcome screen first, then terminal
   if (isMobile) {
+    // Show ASCII welcome screen on mobile
+    if (!welcomeShown) {
+      return (
+        <div className={styles.app}>
+          <MobileASCIIWelcome
+            onDismiss={() => {
+              dismissWelcome();
+            }}
+          />
+        </div>
+      );
+    }
+
+    // After welcome dismissed, show mobile terminal
     return (
       <>
         <MobileTerminal />
@@ -62,8 +81,8 @@ function App() {
           onClose={closeModal}
         />
 
-        {/* Adventure dialog overlay - shared with desktop */}
-        <AdventureDialog isOpen={dialogOpen} onClose={closeDialog} />
+        {/* Adventure dialog overlay - keep for shared types but hidden on mobile */}
+        <AdventureDialog isOpen={false} onClose={closeDialog} />
       </>
     );
   }
