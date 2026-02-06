@@ -1,0 +1,263 @@
+// Windows 95 Desktop styling
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Desktop background
+.desktop {
+  position: absolute;
+  inset: 0;
+  background: #008080; // Windows 3.1/95 teal
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    );
+  display: flex;
+  flex-direction: column;
+}
+
+// Desktop icons container
+.desktopIcons {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  z-index: 1;
+
+  @media (width >= 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  @media (width <= 768px) {
+    left: 8px;
+    top: 8px;
+    gap: 12px;
+  }
+}
+
+// Recycle Bin positioned at bottom-right (classic Win95)
+.recycleBinIcon {
+  position: absolute;
+  right: 16px;
+  bottom: 60px; // Above taskbar
+  z-index: 1;
+
+  @media (width <= 768px) {
+    right: 8px;
+    bottom: 52px;
+  }
+}
+
+// Desktop icon styling
+.iconButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 2px solid transparent;
+  padding: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.1s;
+  width: 80px;
+
+  &:hover {
+    background: rgba(0, 0, 128, 0.1);
+  }
+
+  &:active,
+  &:focus {
+    border: 2px dotted #fff;
+    outline: none;
+  }
+
+  @media (width <= 768px) {
+    width: 70px;
+    padding: 6px;
+  }
+}
+
+.iconImage {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  padding: 4px;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    image-rendering: pixelated;
+  }
+
+  @media (width <= 768px) {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.iconLabel {
+  color: #fff;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: 11px;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: 100%;
+
+  @media (width <= 768px) {
+    font-size: 10px;
+  }
+}
+
+// Taskbar
+.taskbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: #c0c0c0;
+  border-top: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  z-index: 10;
+  user-select: none;
+
+  @media (width <= 768px) {
+    height: 36px;
+  }
+}
+
+.startButton {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #000;
+  gap: 4px;
+
+  &:active {
+    border-color: #000 #fff #fff #000;
+    transform: translateY(1px);
+  }
+
+  &:focus {
+    outline: 1px dotted #000;
+    outline-offset: -4px;
+  }
+
+  @media (width <= 768px) {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+}
+
+.taskbarCenter {
+  flex: 1;
+  margin: 0 8px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.taskbarButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+  color: #000;
+  max-width: 160px;
+  min-width: 100px;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    background: #d4d4d4;
+  }
+
+  &:active,
+  &.active {
+    border-color: #000 #fff #fff #000;
+    background: #dfdfdf;
+  }
+
+  @media (width <= 768px) {
+    font-size: 10px;
+    padding: 3px 6px;
+    min-width: 80px;
+  }
+}
+
+.taskbarIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.clock {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  background: #fff;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: 11px;
+  color: #000;
+
+  @media (width <= 768px) {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+}

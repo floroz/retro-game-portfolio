@@ -1,0 +1,66 @@
+// Windows 95 game window styling
+// Note: Most window styling is handled by Win95Window component
+// This file contains game-specific content styling
+
+.gameContent {
+  // Override default content styling from Win95Window
+  background: #000;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  margin: 2px;
+  overflow: hidden;
+  position: relative;
+
+  // Don't use flex here - let children handle their own layout
+}
+
+.innerContent {
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  // The game canvas will center itself
+  // The dialog will overlay with position: absolute
+}
+
+// Legacy styles kept for reference but moved to Win95Window component
+.window {
+  // This is now handled by Win95Window wrapper
+}
+
+.active {
+  // This is now handled by Win95Window wrapper
+}
+
+.titleBar {
+  // This is now handled by Win95Window wrapper
+}
+
+.titleText {
+  // This is now handled by Win95Window wrapper
+}
+
+.systemButtons {
+  // This is now handled by Win95Window wrapper
+}
+
+.minimizeButton,
+.closeButton {
+  // This is now handled by Win95Window wrapper
+}
+
+.minimizeButton {
+  span {
+    // This is now handled by Win95Window wrapper
+  }
+}
+
+.closeButton {
+  span {
+    // This is now handled by Win95Window wrapper
+  }
+}
+
+.content {
+  // This is now handled by Win95Window wrapper
+}

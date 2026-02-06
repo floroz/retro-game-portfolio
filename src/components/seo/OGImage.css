@@ -134,12 +134,13 @@
 }
 
 .og-image__name {
-  font-size: 48px;
+  font-size: 64px;
   font-weight: normal;
   margin: 0 0 24px;
   color: #e0e8f0;
   letter-spacing: 2px;
   text-shadow: 2px 2px 0 rgb(0 0 0 / 50%);
+  font-family: "VT323", monospace;
 }
 
 .og-image__title {
@@ -158,23 +159,6 @@
   max-width: 600px;
   margin: 0;
   letter-spacing: 0.5px;
-}
-
-.og-image__skills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 32px;
-}
-
-.og-image__skill {
-  background: rgb(0 212 170 / 10%);
-  border: 2px solid rgb(0 212 170 / 40%);
-  padding: 12px 20px;
-  font-size: 12px;
-  color: #00d4aa;
-  font-family: "Press Start 2P", monospace;
-  letter-spacing: 1px;
 }
 
 /* Footer */

@@ -18,7 +18,6 @@ export function Toolbar() {
     if (hoveredObject) {
       const labels: Record<string, string> = {
         experience: "View Experience",
-        projects: "View Projects",
         skills: "View Skills",
         contact: "View Contact",
         resume: "View Resume",

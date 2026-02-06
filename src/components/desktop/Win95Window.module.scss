@@ -1,0 +1,102 @@
+// Windows 95 reusable window styling
+.window {
+  width: 100%;
+  height: 100%;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+
+  &.active {
+    // Active windows could have enhanced shadow or border
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+  }
+}
+
+// Title bar styling
+.titleBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px;
+  background: linear-gradient(to right, #000080, #1084d0);
+  color: #fff;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  user-select: none;
+  cursor: move;
+}
+
+.titleText {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.systemButtons {
+  display: flex;
+  gap: 2px;
+}
+
+.minimizeButton,
+.closeButton {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  color: #000;
+
+  &:active {
+    border-color: #000 #fff #fff #000;
+    transform: translateY(1px);
+  }
+
+  &:focus {
+    outline: 1px dotted #000;
+    outline-offset: -4px;
+  }
+
+  span {
+    line-height: 1;
+  }
+}
+
+.minimizeButton {
+  span {
+    margin-top: -4px;
+  }
+}
+
+.closeButton {
+  span {
+    font-size: 14px;
+    margin-top: -2px;
+  }
+}
+
+// Window content area
+.content {
+  position: relative;
+  flex: 1;
+  background: #000;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  margin: 2px;
+  overflow: hidden;
+}

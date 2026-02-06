@@ -9,16 +9,8 @@ import "./OGImage.css";
  * Access via /?og-image=true in development
  */
 export function OGImage() {
-  const topSkills = ["React", "TypeScript", "Node.js", "AI"];
-
   return (
     <div className="og-image">
-      {/* Decorative pixel corners */}
-      <div className="og-image__decoration og-image__decoration--tl" />
-      <div className="og-image__decoration og-image__decoration--tr" />
-      <div className="og-image__decoration og-image__decoration--bl" />
-      <div className="og-image__decoration og-image__decoration--br" />
-
       {/* Header */}
       <div className="og-image__header">
         <span className="og-image__speaker">{PROFILE.name.split(" ")[0]}</span>
@@ -34,15 +26,8 @@ export function OGImage() {
         </div>
         <div className="og-image__right">
           <h1 className="og-image__name">{PROFILE.name}</h1>
-          <p className="og-image__title">{SEO_CONFIG.currentRole}</p>
+          <p className="og-image__title">Senior Software Engineer</p>
           <p className="og-image__description">{SEO_CONFIG.shortDescription}</p>
-          <div className="og-image__skills">
-            {topSkills.map((skill) => (
-              <span key={skill} className="og-image__skill">
-                {skill}
-              </span>
-            ))}
-          </div>
         </div>
       </div>
 

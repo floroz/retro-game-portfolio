@@ -1,0 +1,241 @@
+// Windows 95 terminal window styling
+// Note: Most window styling is handled by Win95Window component
+// This file contains terminal-specific content styling
+
+$font-family: "Press Start 2P", monospace;
+$font-size: 12px;
+
+.terminalContent {
+  // Override default content styling from Win95Window
+  background: #000;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  margin: 2px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: $font-family;
+  color: #aaa;
+
+  // Pixelated DOS-style text rendering
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+  text-rendering: optimizespeed;
+}
+
+.innerContent {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+// Legacy styles kept for reference but moved to Win95Window component
+.window {
+  // This is now handled by Win95Window wrapper
+}
+
+.active {
+  // This is now handled by Win95Window wrapper
+}
+
+.titleBar {
+  // This is now handled by Win95Window wrapper
+}
+
+.titleText {
+  // This is now handled by Win95Window wrapper
+}
+
+.systemButtons {
+  // This is now handled by Win95Window wrapper
+}
+
+.minimizeButton,
+.closeButton {
+  // This is now handled by Win95Window wrapper
+}
+
+.minimizeButton {
+  span {
+    // This is now handled by Win95Window wrapper
+  }
+}
+
+.closeButton {
+  span {
+    // This is now handled by Win95Window wrapper
+  }
+}
+
+.content {
+  // This is now handled by Win95Window wrapper and terminalContent
+}
+
+// CRT scanlines effect
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+// Terminal output area
+.output {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px;
+  font-size: $font-size;
+  line-height: 1.5;
+  white-space: pre-wrap;
+
+  &::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #000;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border: 1px solid #808080;
+  }
+}
+
+// Terminal line styling
+.line {
+  margin-bottom: 3px;
+
+  &.input {
+    color: #fff;
+  }
+
+  &.error {
+    color: #f55;
+  }
+
+  &.output {
+    color: #aaa;
+  }
+}
+
+// Dialog agent messages
+.dialogAgent {
+  color: #aaa;
+  margin-bottom: 6px;
+}
+
+.agentPrefix {
+  color: #fff;
+  font-weight: bold;
+}
+
+// Dialog options
+.dialogOptions {
+  margin: 6px 0;
+}
+
+.optionLine {
+  color: #fff;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin: 2px 0;
+  border-radius: 0;
+  transition: background-color 0.1s;
+
+  &:hover {
+    background-color: #000080;
+    color: #fff;
+  }
+
+  &:active {
+    background-color: #000060;
+    color: #fff;
+  }
+}
+
+.optionNumber {
+  color: #fff;
+  font-weight: bold;
+}
+
+// Cursor animation
+.cursor {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+// Input line
+.inputLine {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  border-top: 1px solid #333;
+  background: #000;
+  position: relative;
+  z-index: 2;
+  cursor: text; // Show text cursor to indicate clickable/typeable area
+}
+
+.prompt {
+  color: #aaa;
+  margin-right: 8px;
+  white-space: nowrap;
+  font-size: $font-size;
+}
+
+.inputWrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 20px;
+}
+
+.inputMirror {
+  color: #fff;
+  font-family: $font-family;
+  font-size: $font-size;
+  white-space: pre;
+}
+
+.inputField {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0; // Hidden but still captures input
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: $font-family;
+  font-size: $font-size;
+  caret-color: transparent;
+  padding: 0;
+  cursor: text;
+}
+
+.inputCursor {
+  color: #fff;
+  animation: blink 1s step-end infinite;
+}

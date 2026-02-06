@@ -3,10 +3,10 @@ import { useGameStore } from "../store/gameStore";
 
 /**
  * Global keyboard shortcuts for the game
+ * Note: Win95 Desktop is now always active, so terminal toggle is removed
  */
 export function useKeyboardShortcuts() {
-  const { toggleTerminal, closeModal, modalOpen, terminalOpen } =
-    useGameStore();
+  const { closeModal, modalOpen } = useGameStore();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -19,25 +19,10 @@ export function useKeyboardShortcuts() {
       }
 
       switch (e.key) {
-        case "`":
-          // Toggle terminal with backtick
-          e.preventDefault();
-          toggleTerminal();
-          break;
-
         case "Escape":
-          // Close modal or terminal
+          // Close modal if open
           if (modalOpen) {
             closeModal();
-          } else if (terminalOpen) {
-            toggleTerminal();
-          }
-          break;
-
-        case "?":
-          // Show help (open terminal if closed)
-          if (!terminalOpen && !modalOpen) {
-            toggleTerminal();
           }
           break;
       }
@@ -45,5 +30,5 @@ export function useKeyboardShortcuts() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [toggleTerminal, closeModal, modalOpen, terminalOpen]);
+  }, [closeModal, modalOpen]);
 }

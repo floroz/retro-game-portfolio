@@ -9,16 +9,37 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Intro - shown first after welcome screen with typewriter effect
   intro: {
     speaker: "daniele",
-    text: "Well, well, well... a visitor! You've stumbled upon my pixelated corner of the internet. I'm Daniele—software engineer by day, retro game enthusiast by... also day. Welcome to my interactive portfolio!",
+    text: "Hey! Welcome to my portfolio. I'm Daniele—a software engineer based in Zürich.",
+    options: [{ id: "continue", label: "Continue...", nextNode: "intro-2" }],
+  },
+
+  "intro-2": {
+    speaker: "daniele",
+    text: "Feel free to explore around. What would you like to know?",
     options: [
-      { id: "continue", label: "Nice to meet you!", nextNode: "welcome" },
+      {
+        id: "about",
+        label: "Tell me about yourself",
+        nextNode: "about-intro",
+      },
+      {
+        id: "work",
+        label: "What kind of work do you do?",
+        nextNode: "work-intro",
+      },
+      {
+        id: "hire",
+        label: "Are you available for hire?",
+        nextNode: "hire-info",
+      },
+      { id: "bye", label: "Just browsing, thanks", nextNode: "bye" },
     ],
   },
 
   // Welcome / Main hub
   welcome: {
     speaker: "daniele",
-    text: "So, brave adventurer, what quest brings you here today?",
+    text: "What would you like to know?",
     options: [
       {
         id: "about",
@@ -42,11 +63,19 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // About branch
   "about-intro": {
     speaker: "daniele",
-    text: "Ah, you want my origin story? Plot twist: I started with a Master's in Psychology! Turns out, understanding how humans think is pretty useful when you're building software for them. 8+ years later, here I am in Zürich, Switzerland, bridging the gap between complex systems and intuitive experiences.",
+    text: "Plot twist: I started with a Master's in Psychology! Understanding users helps when building software.",
+    options: [
+      { id: "continue", label: "Continue...", nextNode: "about-intro-2" },
+    ],
+  },
+
+  "about-intro-2": {
+    speaker: "daniele",
+    text: "8+ years later, I'm in Zürich bridging complex systems and intuitive UX.",
     options: [
       {
         id: "about-more",
-        label: "Psychology to coding? Tell me more!",
+        label: "Tell me more about your approach",
         nextNode: "about-details",
       },
       {
@@ -64,7 +93,15 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-details": {
     speaker: "daniele",
-    text: "My psychology background taught me that the best systems are defined by their human experience. So I went full stack—React, Vue, Node.js, Go, Kubernetes... the whole buffet. Now I'm obsessed with AI and making intelligent systems that are actually usable by, you know, humans.",
+    text: "My psychology background drives my focus on human experience. Now I'm full-stack—React, Vue, Node.js, Go, Kubernetes.",
+    options: [
+      { id: "continue", label: "Continue...", nextNode: "about-details-2" },
+    ],
+  },
+
+  "about-details-2": {
+    speaker: "daniele",
+    text: "Currently exploring AI and making intelligent systems actually usable by humans.",
     options: [
       {
         id: "about-philosophy",
@@ -81,7 +118,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-philosophy": {
     speaker: "daniele",
-    text: "Code should be clean, tested, and serve the user first. Tests aren't optional—they're how we sleep at night. And never, EVER use 'any' in TypeScript unless you have a really good reason and a written apology to your future self!",
+    text: "Code should be clean, tested, and user-first. Tests aren't optional. And please don't use 'any' in TypeScript!",
     options: [
       {
         id: "back",
@@ -93,7 +130,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-hobbies": {
     speaker: "daniele",
-    text: "When I'm not wrangling microservices, you'll find me playing retro video games—as this portfolio loudly proclaims! I also enjoy hiking the Swiss Alps, tinkering with AI tools, and occasionally convincing myself that 'just one more feature' won't take that long.",
+    text: "Beyond code: retro games (hence this portfolio!), hiking the Swiss Alps, and tinkering with AI tools.",
     options: [
       {
         id: "about-games",
@@ -110,11 +147,11 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-games": {
     speaker: "daniele",
-    text: "LucasArts adventures are my jam—Monkey Island, Day of the Tentacle, Grim Fandango... This portfolio is basically my love letter to that golden era. I wanted to fight like a dairy farmer, but I settled for coding like one instead.",
+    text: "LucasArts adventures are my favorite—Monkey Island, Day of the Tentacle, Grim Fandango. This portfolio is a love letter to that era.",
     options: [
       {
         id: "back",
-        label: "You fight like a cow! Back to the main topics",
+        label: "Classic! Back to the main topics",
         nextNode: "welcome",
       },
     ],
@@ -123,7 +160,15 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Work branch
   "work-intro": {
     speaker: "daniele",
-    text: "I'm a Full Stack Engineer at Snyk, building AI-powered security features that scan 500K+ projects daily. Before that, I was a Tech Lead at Frontiers and worked at Meta. Basically, I make things that help developers sleep better at night!",
+    text: "I'm a Full Stack Engineer at Snyk, building AI-powered security features scanning 500K+ projects daily.",
+    options: [
+      { id: "continue", label: "Continue...", nextNode: "work-intro-2" },
+    ],
+  },
+
+  "work-intro-2": {
+    speaker: "daniele",
+    text: "Previously Tech Lead at Frontiers and engineer at Meta. I build tools that help developers sleep better at night!",
     options: [
       {
         id: "work-stack",
@@ -145,7 +190,15 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-stack": {
     speaker: "daniele",
-    text: "React, Vue, and TypeScript on the frontend. Node.js and Go on the backend. Kubernetes, AWS, and GCP keeping it all running. I've also been diving deep into AI integration—won 3rd place company-wide at Snyk for AI adoption! Oh, and CSS is secretly one of my favorite things. Hence all the pixel art!",
+    text: "Frontend: React, Vue, TypeScript. Backend: Node.js, Go. Infrastructure: Kubernetes, AWS, GCP.",
+    options: [
+      { id: "continue", label: "Continue...", nextNode: "work-stack-2" },
+    ],
+  },
+
+  "work-stack-2": {
+    speaker: "daniele",
+    text: "Also deep into AI integration—won 3rd place company-wide at Snyk for AI adoption.",
     options: [
       {
         id: "work-projects",
@@ -162,7 +215,15 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-projects": {
     speaker: "daniele",
-    text: "At Snyk, I built an AI-assisted interface for custom security rules and designed a worker-thread architecture that cut latency by 65%. At Frontiers, I led a team building a Vue 3 component library from scratch. And at Meta, I improved web performance by up to 60%. Check out the Experience section for the full saga!",
+    text: "At Snyk: AI-assisted security rules interface, worker-thread architecture cutting latency by 65%.",
+    options: [
+      { id: "continue", label: "Continue...", nextNode: "work-projects-2" },
+    ],
+  },
+
+  "work-projects-2": {
+    speaker: "daniele",
+    text: "At Frontiers: Led Vue 3 component library. At Meta: Improved web performance by 60%. Check out the Experience section for more!",
     options: [
       {
         id: "back",
@@ -174,7 +235,15 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-experience": {
     speaker: "daniele",
-    text: "Currently at Snyk doing full-stack magic with security tools. Before that: Tech Lead at Frontiers (built a component library with a team of 6), Frontend Engineer at Meta (Mapillary integration), and senior roles at Tundra, Tray.ai, and OVO Energy. 8+ years of shipping code and only a few production incidents!",
+    text: "Currently at Snyk doing full-stack security tools. Before: Tech Lead at Frontiers, Frontend at Meta (Mapillary integration).",
+    options: [
+      { id: "continue", label: "Continue...", nextNode: "work-experience-2" },
+    ],
+  },
+
+  "work-experience-2": {
+    speaker: "daniele",
+    text: "Also senior roles at Tundra, Tray.ai, and OVO Energy. 8+ years shipping code.",
     options: [
       {
         id: "back",
@@ -187,7 +256,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Hire branch
   "hire-info": {
     speaker: "daniele",
-    text: "Ah, a recruiter approaches! Or perhaps someone with an interesting project? Either way, I'm always curious about exciting opportunities—especially ones involving AI, developer tools, or anything that makes complex systems more human-friendly.",
+    text: "Always curious about exciting opportunities—especially involving AI, developer tools, or making complex systems more human-friendly.",
     options: [
       {
         id: "hire-contact",
@@ -209,7 +278,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "hire-contact": {
     speaker: "daniele",
-    text: "Email me at danieletortora.contact@gmail.com, or find me on LinkedIn and GitHub—links are in the toolbar! Pro tip: you can also type 'contact' in the terminal for quick access. I promise I check my messages more often than I check my test coverage.",
+    text: "Email: danieletortora.contact@gmail.com. Also on LinkedIn and GitHub—links in the toolbar. Or type 'contact' in the terminal!",
     options: [
       {
         id: "back",
@@ -221,7 +290,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "hire-remote": {
     speaker: "daniele",
-    text: "I'm based in Zürich, Switzerland, but I've been doing remote and hybrid work for years. Async communication, video calls, Slack threads at 2 AM—I know the drill. Time zones are just numbers, and good documentation is my love language.",
+    text: "Based in Zürich, but experienced with remote/hybrid work. Async communication, video calls, good documentation—I know the drill.",
     options: [
       {
         id: "back",
@@ -234,14 +303,14 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Goodbye
   bye: {
     speaker: "daniele",
-    text: "No worries! Feel free to click around, open the terminal (try 'help'), or just admire the pixels. This portfolio doesn't have a three-headed monkey, but it does have some Easter eggs. Come back anytime!",
+    text: "No worries! Feel free to explore, open the terminal (try 'help'), or look for Easter eggs. Come back anytime!",
     options: [{ id: "close", label: "[Close dialog]", nextNode: "__close__" }],
   },
 
   // Easter eggs
   "easter-egg-click": {
     speaker: "daniele",
-    text: "Still clicking? I admire your persistence! You'd make a great QA engineer. Did you know you can press T to open the terminal? There might be some hidden commands in there...",
+    text: "Still clicking? You'd make a great QA engineer. Press T to open the terminal—there might be hidden commands...",
     options: [{ id: "back", label: "Good tip!", nextNode: "welcome" }],
   },
 };

@@ -12,28 +12,19 @@ export const TERMINAL_COMMANDS: TerminalCommands = {
   },
   about: {
     description: "About me",
-    action: "openModal",
-    payload: "about",
+    action: "showAbout",
   },
   experience: {
     description: "Work experience",
-    action: "openModal",
-    payload: "experience",
-  },
-  projects: {
-    description: "View projects",
-    action: "openModal",
-    payload: "projects",
+    action: "showExperience",
   },
   skills: {
     description: "Technical skills",
-    action: "openModal",
-    payload: "skills",
+    action: "showSkills",
   },
   contact: {
     description: "Contact info",
-    action: "openModal",
-    payload: "contact",
+    action: "showContact",
   },
   talk: {
     description: "Chat with Daniele",
@@ -57,10 +48,6 @@ export const TERMINAL_COMMANDS: TerminalCommands = {
   ls: {
     description: "List sections",
     action: "listSections",
-  },
-  cd: {
-    description: "Navigate to section",
-    action: "navigate",
   },
   whoami: {
     description: "Show user info",
@@ -111,11 +98,10 @@ export function getListSections(): string {
 Available sections:
   about/      - About me
   experience/ - Work experience  
-  projects/   - Project showcase
   skills/     - Technical skills
   contact/    - Contact information
 
-Use 'cd <section>' or type the section name directly.
+Type the section name directly, e.g. 'about'
 `;
 }
 
@@ -167,4 +153,84 @@ export function getMatrixEffect(): string {
   lines.push("");
 
   return lines.join("\n");
+}
+
+/**
+ * About text - uses PROFILE config
+ */
+export function getAboutText(): string {
+  const separator = "─".repeat(30);
+  return `
+About ${PROFILE.name.split(" ")[0]}
+${separator}
+
+${PROFILE.bio}
+`;
+}
+
+/**
+ * Experience text - uses PROFILE config
+ */
+export function getExperienceText(): string {
+  const separator = "─".repeat(30);
+  return `
+Work Experience
+${separator}
+
+${PROFILE.experienceSummary}
+`;
+}
+
+/**
+ * Skills text - uses PROFILE config
+ */
+export function getSkillsText(): string {
+  const separator = "─".repeat(30);
+  return `
+Technical Skills
+${separator}
+
+Frontend:
+${PROFILE.skills.frontend.map((s) => `  • ${s}`).join("\n")}
+
+Backend:
+${PROFILE.skills.backend.map((s) => `  • ${s}`).join("\n")}
+
+AI & Developer Tools:
+${PROFILE.skills.ai.map((s) => `  • ${s}`).join("\n")}
+
+Cloud & DevOps:
+${PROFILE.skills.cloud.map((s) => `  • ${s}`).join("\n")}
+
+Data & Infrastructure:
+${PROFILE.skills.data.map((s) => `  • ${s}`).join("\n")}
+
+Testing:
+${PROFILE.skills.testing.map((s) => `  • ${s}`).join("\n")}
+
+Leadership & Process:
+${PROFILE.skills.leadership.map((s) => `  • ${s}`).join("\n")}
+`;
+}
+
+/**
+ * Contact text - uses PROFILE config
+ */
+export function getContactText(): string {
+  const separator = "─".repeat(30);
+  const interests = PROFILE.contactInterests.map((i) => `  • ${i}`).join("\n");
+  return `
+Contact
+${separator}
+
+Let's connect!
+
+  Email:    ${PROFILE.email}
+  LinkedIn: ${PROFILE.social.linkedin}
+  GitHub:   ${PROFILE.social.github}
+  Location: ${PROFILE.location}
+
+I'm always open to discussing:
+${interests}
+`;
 }

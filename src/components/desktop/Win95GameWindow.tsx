@@ -1,0 +1,94 @@
+import type { ReactNode } from "react";
+import { useMemo } from "react";
+import { Win95Window } from "./Win95Window";
+import styles from "./Win95GameWindow.module.scss";
+
+/** Aspect ratio for the game window (16:10) */
+const ASPECT_RATIO = 16 / 10;
+
+/** Full-size dimensions including window chrome (borders + title bar) */
+const FULL_WIDTH = 1296;
+
+/** Minimum window width – game should never be smaller than this */
+const MIN_WIDTH = 900;
+const MIN_HEIGHT = Math.round(MIN_WIDTH / ASPECT_RATIO);
+
+interface Win95GameWindowProps {
+  children?: ReactNode; // Optional since welcome screen might be shown instead
+  onClose: () => void;
+  isActive: boolean;
+  onFocus: () => void;
+  zIndex: number;
+  modalContent?: ReactNode; // Modal/dialog content to render inside window
+  welcomeContent?: ReactNode; // Welcome screen content to render before game
+}
+
+/**
+ * Compute the initial window dimensions so the window fits in the viewport
+ * while respecting the locked aspect ratio and the minimum size.
+ */
+function computeInitialSize(): { width: number; height: number } {
+  const maxW = window.innerWidth * 0.95;
+  const maxH = window.innerHeight * 0.9;
+
+  // Start from full size and shrink to fit
+  let width = Math.min(FULL_WIDTH, maxW);
+  let height = Math.round(width / ASPECT_RATIO);
+
+  if (height > maxH) {
+    height = maxH;
+    width = Math.round(height * ASPECT_RATIO);
+  }
+
+  // Clamp to minimum
+  width = Math.max(width, MIN_WIDTH);
+  height = Math.max(height, MIN_HEIGHT);
+
+  return { width, height };
+}
+
+/**
+ * Windows 95 style game window
+ * Wraps the game scene in a Win95 window frame
+ * Can show welcome screen or game content
+ * Modals/dialogs are rendered inside the content area for containment
+ */
+export function Win95GameWindow({
+  children,
+  onClose,
+  isActive,
+  onFocus,
+  zIndex,
+  modalContent,
+  welcomeContent,
+}: Win95GameWindowProps) {
+  const initialSize = useMemo(() => computeInitialSize(), []);
+
+  return (
+    <Win95Window
+      title="Daniele_Tortora_Portfolio.exe - Interactive Portfolio"
+      onClose={onClose}
+      isActive={isActive}
+      onFocus={onFocus}
+      zIndex={zIndex}
+      initialWidth={initialSize.width}
+      initialHeight={initialSize.height}
+      minWidth={MIN_WIDTH}
+      minHeight={MIN_HEIGHT}
+      maxWidth="95vw"
+      maxHeight="90vh"
+      aspectRatio={ASPECT_RATIO}
+      initialX="center"
+      initialY="center"
+      contentClassName={styles.gameContent}
+      showMinimizeButton={true}
+    >
+      <div className={styles.innerContent} data-e2e="win95-game-window">
+        {/* Show welcome screen if provided, otherwise show game content */}
+        {welcomeContent || children}
+        {/* Modals/dialogs rendered inside window for containment */}
+        {modalContent}
+      </div>
+    </Win95Window>
+  );
+}

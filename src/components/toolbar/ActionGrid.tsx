@@ -1,11 +1,4 @@
-import {
-  Briefcase,
-  FolderKanban,
-  Wrench,
-  User,
-  Phone,
-  FileText,
-} from "lucide-react";
+import { Briefcase, Wrench, User, Phone, FileText } from "lucide-react";
 import styles from "./ActionGrid.module.scss";
 import { useSceneClick } from "../../hooks/useSceneClick";
 import { useGameStore } from "../../store/gameStore";
@@ -20,7 +13,6 @@ interface ActionButton {
 
 const ACTIONS: ActionButton[] = [
   { action: "experience", label: "Experience", icon: Briefcase },
-  { action: "projects", label: "Projects", icon: FolderKanban },
   { action: "skills", label: "Skills", icon: Wrench },
   { action: "about", label: "About", icon: User },
   { action: "contact", label: "Contact", icon: Phone },

@@ -1,4 +1,4 @@
-import { Github, Linkedin, Terminal, MessageCircle } from "lucide-react";
+import { Github, Linkedin, MessageCircle } from "lucide-react";
 import styles from "./IconGrid.module.scss";
 import { useGameStore } from "../../store/gameStore";
 import { PROFILE } from "../../config/profile";
@@ -6,10 +6,10 @@ import { PROFILE } from "../../config/profile";
 /**
  * 2x2 grid of buttons matching the retro SCUMM toolbar style
  * - Top row: Social links (GitHub, LinkedIn)
- * - Bottom row: Talk and Terminal
+ * - Bottom row: Talk and (placeholder for future feature)
  */
 export function IconGrid() {
-  const { toggleTerminal, openDialog, setHoveredObject } = useGameStore();
+  const { openDialog, setHoveredObject } = useGameStore();
 
   return (
     <div className={styles.grid}>
@@ -39,7 +39,7 @@ export function IconGrid() {
         <span className={styles.label}>LinkedIn</span>
       </a>
 
-      {/* Row 2: Talk and Terminal */}
+      {/* Row 2: Talk button */}
       <button
         className={styles.buttonHighlight}
         data-e2e="toolbar-button"
@@ -51,18 +51,6 @@ export function IconGrid() {
       >
         <MessageCircle className={styles.icon} size={12} strokeWidth={2} />
         <span className={styles.label}>Talk</span>
-      </button>
-      <button
-        className={styles.buttonHighlight}
-        data-e2e="toolbar-button"
-        onClick={toggleTerminal}
-        onMouseEnter={() => setHoveredObject("terminal")}
-        onMouseLeave={() => setHoveredObject(null)}
-        type="button"
-        tabIndex={0}
-      >
-        <Terminal className={styles.icon} size={12} strokeWidth={2} />
-        <span className={styles.label}>Terminal</span>
       </button>
     </div>
   );

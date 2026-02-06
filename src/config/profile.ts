@@ -25,7 +25,7 @@ export const PROFILE = {
   },
 
   // Bio/About summary
-  bio: `As a software engineer with over 8 years of experience, I've built my career on a core belief: that the most powerful systems are defined by their human experience.
+  bio: `As a software engineer with over 9 years of experience, I've built my career on a core belief: that the most powerful systems are defined by their human experience.
 
 This principle, shaped by my background in psychology, drives me to bridge the divide between complex software architecture and elegant, intuitive user interfaces.
 
@@ -101,7 +101,7 @@ When I'm not coding, you can find me:
   },
 
   // Experience summary
-  experienceSummary: `Senior Software Engineer with 8+ years building production applications across the full stack.
+  experienceSummary: `Senior Software Engineer with over 9 years building production applications across the full stack.
 
 Currently at Snyk:
 • Building AI-powered security features serving 500K+ daily scans
@@ -188,7 +188,7 @@ Core expertise: React, Vue, TypeScript, Node.js, Go, Kubernetes, AI integration`
     siteUrl: "https://www.danieletortora.com",
     siteName: "Daniele Tortora - Portfolio",
     shortDescription:
-      "Senior Software Engineer with 8+ years building React, TypeScript, Next.js, Vue, Node.js applications and AI-powered solutions.",
+      "Senior Software Engineer with 10 years of experience building web applications in React, TypeScript, Golang, Next.js, Vue, Node.js. Currently focused on AI-powered solutions.",
     currentRole: "Senior Software Engineer",
     currentCompany: "Snyk",
     twitter: "@floroz87",

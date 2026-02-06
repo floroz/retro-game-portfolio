@@ -8,6 +8,7 @@ interface ContentModalProps {
   isOpen: boolean;
   action: ActionType | null;
   onClose: () => void;
+  contained?: boolean; // NEW: whether modal is contained within game window
 }
 
 function getContent(action: ActionType): { title: string; content: string } {
@@ -17,15 +18,6 @@ function getContent(action: ActionType): { title: string; content: string } {
         title: "Work Experience",
         content: PROFILE.experienceSummary,
       };
-    case "projects": {
-      const projectsList = PROFILE.projects
-        .map((p) => `${p.emoji} ${p.name} - ${p.description}\n   ${p.tech}`)
-        .join("\n\n");
-      return {
-        title: "Projects",
-        content: `Featured Projects:\n\n${projectsList}\n\n[More projects on GitHub]`,
-      };
-    }
     case "skills":
       return {
         title: "Technical Skills",
@@ -99,8 +91,14 @@ Or view the online version with interactive elements.
 /**
  * Full-screen content overlay styled like a new "room"
  * Slides in from right with retro border styling
+ * Can be contained within game window or cover full viewport
  */
-export function ContentModal({ isOpen, action, onClose }: ContentModalProps) {
+export function ContentModal({
+  isOpen,
+  action,
+  onClose,
+  contained = false,
+}: ContentModalProps) {
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Handle escape key
@@ -124,13 +122,17 @@ export function ContentModal({ isOpen, action, onClose }: ContentModalProps) {
 
   const content = action ? getContent(action) : null;
 
+  // Use contained styles when in windowed mode
+  const backdropClass = contained ? styles.backdropContained : styles.backdrop;
+  const modalClass = contained ? styles.modalContained : styles.modal;
+
   return (
     <AnimatePresence>
       {isOpen && content && (
         <>
           {/* Backdrop */}
           <motion.div
-            className={styles.backdrop}
+            className={backdropClass}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -139,7 +141,7 @@ export function ContentModal({ isOpen, action, onClose }: ContentModalProps) {
 
           {/* Modal content - centered with fade animation */}
           <motion.div
-            className={styles.modal}
+            className={modalClass}
             data-e2e="modal"
             ref={contentRef}
             tabIndex={-1}

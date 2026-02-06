@@ -13,18 +13,23 @@ export function useSceneClick() {
     hoveredObject,
     modalOpen,
     terminalOpen,
+    gameWindowActive,
   } = useGameStore();
 
   const handleObjectClick = useCallback(
     (objectId: string) => {
-      if (modalOpen || terminalOpen) return;
+      // Don't handle clicks if modal is open
+      if (modalOpen) return;
+
+      // Don't handle clicks if terminal is open UNLESS the game window is active
+      if (terminalOpen && !gameWindowActive) return;
 
       const object = OBJECTS.find((obj) => obj.id === objectId);
       if (!object) return;
 
       triggerAction(object.action, object.interactionPoint);
     },
-    [triggerAction, modalOpen, terminalOpen],
+    [triggerAction, modalOpen, terminalOpen, gameWindowActive],
   );
 
   const handleObjectHover = useCallback(
@@ -36,14 +41,18 @@ export function useSceneClick() {
 
   const handleActionClick = useCallback(
     (action: ActionType) => {
-      if (modalOpen || terminalOpen) return;
+      // Don't handle clicks if modal is open
+      if (modalOpen) return;
+
+      // Don't handle clicks if terminal is open UNLESS the game window is active
+      if (terminalOpen && !gameWindowActive) return;
 
       const object = OBJECTS.find((obj) => obj.action === action);
       if (!object) return;
 
       triggerAction(action, object.interactionPoint);
     },
-    [triggerAction, modalOpen, terminalOpen],
+    [triggerAction, modalOpen, terminalOpen, gameWindowActive],
   );
 
   return {
