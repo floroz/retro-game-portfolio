@@ -4,6 +4,7 @@ import { useGameStore } from "../../store/gameStore";
 import { Win95TerminalWindow } from "./Win95TerminalWindow";
 import { Win95GameWindow } from "./Win95GameWindow";
 import { Win95LoadingWidget } from "./Win95LoadingWidget";
+import { Win95RecycleBin } from "./Win95RecycleBin";
 import styles from "./Win95Desktop.module.scss";
 import retroDanieleImg from "../../assets/retro-daniele.png";
 
@@ -19,11 +20,12 @@ interface DesktopIcon {
   id: string;
   label: string;
   command?: string;
-  action?: "openGame" | "openTerminal";
+  action?: "openGame" | "openTerminal" | "openRecycleBin";
   icon: React.ReactNode;
 }
 
-type OpenWindow = "game" | "terminal" | null;
+type WindowType = "game" | "terminal" | "recycleBin";
+type ActiveWindow = WindowType | null;
 
 /**
  * Windows 95 Desktop environment with multiple windowed applications
@@ -52,11 +54,14 @@ export function Win95Desktop({
   const [loadingComplete, setLoadingComplete] = useState(false);
 
   const [time, setTime] = useState(new Date());
-  const [openWindows, setOpenWindows] = useState<Set<"game" | "terminal">>(
+  const [openWindows, setOpenWindows] = useState<Set<WindowType>>(
     () => new Set(), // Start with no windows open
   );
-  const [activeWindow, setActiveWindow] = useState<OpenWindow>(null);
-  const [windowZOrder, setWindowZOrder] = useState<("game" | "terminal")[]>([]);
+  const [activeWindow, setActiveWindow] = useState<ActiveWindow>(null);
+  const [minimizedWindows, setMinimizedWindows] = useState<Set<WindowType>>(
+    () => new Set(),
+  );
+  const [windowZOrder, setWindowZOrder] = useState<WindowType[]>([]);
 
   const {
     setGameWindowActive,
@@ -84,13 +89,13 @@ export function Win95Desktop({
   }, []);
 
   // Helper function to get z-index for a window
-  const getZIndex = (window: "game" | "terminal"): number => {
+  const getZIndex = (window: WindowType): number => {
     const index = windowZOrder.indexOf(window);
     return index === -1 ? 100 : 100 + index;
   };
 
   // Bring window to front (highest z-index)
-  const bringWindowToFront = (window: "game" | "terminal") => {
+  const bringWindowToFront = (window: WindowType) => {
     setWindowZOrder((prev) => {
       const filtered = prev.filter((w) => w !== window);
       return [...filtered, window];
@@ -166,16 +171,40 @@ export function Win95Desktop({
         setActiveWindow("game");
       } else {
         // Game already loaded, just bring it to front
+        setMinimizedWindows((prev) => {
+          const next = new Set(prev);
+          next.delete("game");
+          return next;
+        });
         bringWindowToFront("game");
         setActiveWindow("game");
       }
     } else if (icon.action === "openTerminal") {
       setOpenWindows((prev) => new Set(prev).add("terminal"));
+      setMinimizedWindows((prev) => {
+        const next = new Set(prev);
+        next.delete("terminal");
+        return next;
+      });
       bringWindowToFront("terminal");
       setActiveWindow("terminal");
+    } else if (icon.action === "openRecycleBin") {
+      setOpenWindows((prev) => new Set(prev).add("recycleBin"));
+      setMinimizedWindows((prev) => {
+        const next = new Set(prev);
+        next.delete("recycleBin");
+        return next;
+      });
+      bringWindowToFront("recycleBin");
+      setActiveWindow("recycleBin");
     } else if (icon.command) {
       // Open terminal if not already open
       setOpenWindows((prev) => new Set(prev).add("terminal"));
+      setMinimizedWindows((prev) => {
+        const next = new Set(prev);
+        next.delete("terminal");
+        return next;
+      });
       bringWindowToFront("terminal");
       setActiveWindow("terminal");
       executeInput(icon.command);
@@ -186,8 +215,15 @@ export function Win95Desktop({
     }
   };
 
-  const handleCloseWindow = (window: "game" | "terminal") => {
+  const handleCloseWindow = (window: WindowType) => {
     setOpenWindows((prev) => {
+      const next = new Set(prev);
+      next.delete(window);
+      return next;
+    });
+
+    // Also remove from minimized set
+    setMinimizedWindows((prev) => {
       const next = new Set(prev);
       next.delete(window);
       return next;
@@ -203,26 +239,41 @@ export function Win95Desktop({
       }
     }
 
-    // If closing active window, switch to the other window or none
+    // If closing active window, switch to another open non-minimized window
     if (activeWindow === window) {
-      if (window === "game" && openWindows.has("terminal")) {
-        setActiveWindow("terminal");
-      } else if (window === "terminal" && openWindows.has("game")) {
-        setActiveWindow("game");
-      } else {
-        setActiveWindow(null);
-      }
+      const remaining = [...openWindows].filter(
+        (w) => w !== window && !minimizedWindows.has(w),
+      );
+      setActiveWindow(remaining.length > 0 ? remaining[0] : null);
     }
   };
 
-  const handleTaskbarClick = (window: "game" | "terminal") => {
+  const handleMinimizeWindow = (window: WindowType) => {
+    setMinimizedWindows((prev) => new Set(prev).add(window));
+    // If this was the active window, find another non-minimized window to activate
     if (activeWindow === window) {
-      // Clicking active window minimizes it (just changes active state)
-      setActiveWindow(null);
+      const remaining = [...openWindows].filter(
+        (w) => w !== window && !minimizedWindows.has(w),
+      );
+      setActiveWindow(remaining.length > 0 ? remaining[0] : null);
+    }
+  };
+
+  const handleTaskbarClick = (window: WindowType) => {
+    if (minimizedWindows.has(window)) {
+      // Restore minimized window
+      setMinimizedWindows((prev) => {
+        const next = new Set(prev);
+        next.delete(window);
+        return next;
+      });
+      bringWindowToFront(window);
+      setActiveWindow(window);
+    } else if (activeWindow === window) {
+      // Clicking active window minimizes it
+      handleMinimizeWindow(window);
     } else {
-      // Clicking inactive window brings it to front
-      // Also ensure the window is in the openWindows set
-      setOpenWindows((prev) => new Set(prev).add(window));
+      // Clicking inactive, non-minimized window brings it to front
       bringWindowToFront(window);
       setActiveWindow(window);
     }
@@ -289,11 +340,13 @@ export function Win95Desktop({
 
         {/* Game window */}
         {openWindows.has("game") &&
+          !minimizedWindows.has("game") &&
           !isLoading &&
           loadingComplete &&
           (gameContent || welcomeContent) && (
             <Win95GameWindow
               onClose={() => handleCloseWindow("game")}
+              onMinimize={() => handleMinimizeWindow("game")}
               isActive={activeWindow === "game"}
               onFocus={() => {
                 bringWindowToFront("game");
@@ -308,7 +361,7 @@ export function Win95Desktop({
           )}
 
         {/* Terminal window */}
-        {openWindows.has("terminal") && (
+        {openWindows.has("terminal") && !minimizedWindows.has("terminal") && (
           <Win95TerminalWindow
             history={history}
             input={input}
@@ -320,6 +373,7 @@ export function Win95Desktop({
             isTyping={isTyping}
             skipTypewriter={skipTypewriter}
             onClose={() => handleCloseWindow("terminal")}
+            onMinimize={() => handleMinimizeWindow("terminal")}
             isActive={activeWindow === "terminal"}
             onFocus={() => {
               bringWindowToFront("terminal");
@@ -328,6 +382,21 @@ export function Win95Desktop({
             zIndex={getZIndex("terminal")}
           />
         )}
+
+        {/* Recycle Bin window */}
+        {openWindows.has("recycleBin") &&
+          !minimizedWindows.has("recycleBin") && (
+            <Win95RecycleBin
+              onClose={() => handleCloseWindow("recycleBin")}
+              onMinimize={() => handleMinimizeWindow("recycleBin")}
+              isActive={activeWindow === "recycleBin"}
+              onFocus={() => {
+                bringWindowToFront("recycleBin");
+                setActiveWindow("recycleBin");
+              }}
+              zIndex={getZIndex("recycleBin")}
+            />
+          )}
 
         {/* Taskbar */}
         <div className={styles.taskbar}>
@@ -364,6 +433,18 @@ export function Win95Desktop({
                 data-e2e="taskbar-terminal"
               >
                 <span>MS-DOS Prompt</span>
+              </button>
+            )}
+
+            {openWindows.has("recycleBin") && (
+              <button
+                className={`${styles.taskbarButton} ${activeWindow === "recycleBin" ? styles.active : ""}`}
+                onClick={() => handleTaskbarClick("recycleBin")}
+                type="button"
+                aria-label="Recycle Bin"
+                data-e2e="taskbar-recycle-bin"
+              >
+                <span>Recycle Bin</span>
               </button>
             )}
           </div>
@@ -542,5 +623,6 @@ const DESKTOP_ICONS: DesktopIcon[] = [
 const RECYCLE_BIN_ICON: DesktopIcon = {
   id: "recycle-bin",
   label: "Recycle Bin",
+  action: "openRecycleBin",
   icon: <RecycleBinEmptyIcon />,
 };

@@ -14,6 +14,7 @@ interface Win95TerminalWindowProps {
   isTyping: boolean;
   skipTypewriter: () => void;
   onClose: () => void;
+  onMinimize?: () => void;
   isActive: boolean;
   onFocus: () => void;
   zIndex: number;
@@ -34,6 +35,7 @@ export function Win95TerminalWindow({
   isTyping,
   skipTypewriter,
   onClose,
+  onMinimize,
   isActive,
   onFocus,
   zIndex,
@@ -100,6 +102,7 @@ export function Win95TerminalWindow({
     <Win95Window
       title="MS-DOS Prompt"
       onClose={onClose}
+      onMinimize={onMinimize}
       isActive={isActive}
       onFocus={onFocus}
       zIndex={zIndex}

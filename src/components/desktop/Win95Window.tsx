@@ -152,9 +152,9 @@ export function Win95Window(props: Win95WindowProps) {
                   e.stopPropagation();
                   onMinimize();
                 }}
-                aria-label="Minimize (presentational)"
+                aria-label="Minimize window"
                 type="button"
-                title="Minimize (not functional)"
+                title="Minimize"
               >
                 <span>_</span>
               </button>

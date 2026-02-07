@@ -29,6 +29,7 @@ const MIN_HEIGHT = Math.round(MIN_WIDTH / ASPECT_RATIO);
 interface Win95GameWindowProps {
   children?: ReactNode; // Optional since welcome screen might be shown instead
   onClose: () => void;
+  onMinimize?: () => void;
   isActive: boolean;
   onFocus: () => void;
   zIndex: number;
@@ -109,6 +110,7 @@ function clampPosition(
 export function Win95GameWindow({
   children,
   onClose,
+  onMinimize,
   isActive,
   onFocus,
   zIndex,
@@ -151,6 +153,7 @@ export function Win95GameWindow({
       controlled
       title="Daniele_Tortora_Portfolio.exe - Interactive Portfolio"
       onClose={onClose}
+      onMinimize={onMinimize}
       isActive={isActive}
       onFocus={onFocus}
       zIndex={zIndex}

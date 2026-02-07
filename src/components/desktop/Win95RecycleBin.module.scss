@@ -1,0 +1,139 @@
+// Win95 Recycle Bin - file list styling
+@use "../../styles/variables" as *;
+
+.recycleBinContent {
+  background: #c0c0c0;
+}
+
+.innerContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: $win-95-desktop-font-size;
+}
+
+// Toolbar row (File, Edit, View, Help)
+.menuBar {
+  display: flex;
+  gap: 0;
+  padding: 2px 4px;
+  background: #c0c0c0;
+  border-bottom: 1px solid #808080;
+
+  button {
+    background: transparent;
+    border: none;
+    padding: 2px 8px;
+    font-family: "MS Sans Serif", Arial, sans-serif;
+    font-size: $win-95-desktop-font-size;
+    cursor: default;
+    color: #000;
+
+    &:hover {
+      background: #000080;
+      color: #fff;
+    }
+  }
+}
+
+// Column header row
+.columnHeaders {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.2fr 0.8fr;
+  background: #c0c0c0;
+  border-bottom: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  user-select: none;
+}
+
+.columnHeader {
+  padding: 3px 8px;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: $win-95-desktop-font-size;
+  font-weight: normal;
+  background: #c0c0c0;
+  border: none;
+  border-right: 2px solid;
+  border-right-color: #808080;
+  text-align: left;
+  cursor: default;
+  color: #000;
+
+  &:last-child {
+    border-right: none;
+  }
+}
+
+// File list area
+.fileList {
+  flex: 1;
+  overflow-y: auto;
+  background: #fff;
+}
+
+// Individual file row
+.fileRow {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.2fr 0.8fr;
+  padding: 1px 0;
+  cursor: default;
+  user-select: none;
+
+  &:hover:not(.selected) {
+    background: #e8e8e8;
+  }
+}
+
+.selected {
+  background: #000080;
+
+  .fileCell {
+    color: #fff;
+  }
+
+  .fileIcon {
+    filter: brightness(0) invert(1);
+  }
+}
+
+.fileCell {
+  padding: 2px 8px;
+  color: #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fileIcon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+// Status bar at bottom
+.statusBar {
+  display: flex;
+  align-items: center;
+  padding: 3px 8px;
+  background: #c0c0c0;
+  border-top: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: $win-95-desktop-font-size;
+  color: #000;
+  gap: 16px;
+}
+
+.statusSection {
+  display: flex;
+  align-items: center;
+  padding: 1px 4px;
+  border: 1px solid;
+  border-color: #808080 #fff #fff #808080;
+  flex: 1;
+}
