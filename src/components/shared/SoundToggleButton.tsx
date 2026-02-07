@@ -27,7 +27,7 @@ export function SoundToggleButton() {
       title={soundEnabled ? "Click to mute" : "Click for sound effects!"}
     >
       <span className={styles.soundIcon} aria-hidden="true">
-        📢
+        {soundEnabled ? "📢" : "🔇"}
       </span>
       <span className={styles.soundLabel}>
         Sound {soundEnabled ? "ON" : "OFF"}

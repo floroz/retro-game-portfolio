@@ -27,7 +27,7 @@ export const VIEWPORT = {
 const WALKABLE_AREA = {
   minY: 15, // Front of floor (closest to viewer, near bottom edge)
   maxY: 200, // Back of floor (where floor meets the wall)
-  minX: 50, // Left edge (closer to the wall)
+  minX: 5, // Left edge (closer to the wall)
   maxX: 1100, // Right edge (accounting for character sprite width)
 } as const;
 

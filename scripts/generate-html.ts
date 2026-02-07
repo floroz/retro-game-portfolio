@@ -21,7 +21,7 @@ const __dirname = dirname(__filename);
 // Derived SEO values
 const SEO = {
   title: `${PROFILE.name} | ${PROFILE.title}`,
-  description: `Senior Software Engineer with 8+ years building production applications with React, TypeScript, Next.js, Vue, Node.js. Specializing in AI integration, design systems, and scalable architectures. Based in ${PROFILE.location}.`,
+  description: `Senior Software Engineer with 10 years building production applications with React, TypeScript, Next.js, Vue, Node.js. Specializing in AI integration, design systems, and scalable architectures. Based in ${PROFILE.location}.`,
   topSkills:
     "React, Vue.js, TypeScript, Node.js, Go, Kubernetes, AWS, GCP, AI Integration, Design Systems",
 };
@@ -32,7 +32,7 @@ function generateStructuredData() {
     "@type": "Person",
     name: PROFILE.name,
     jobTitle: PROFILE.seo.currentRole,
-    description: `${PROFILE.seo.currentRole} with 8+ years of experience specializing in React, TypeScript, Vue.js, Node.js, and AI integration. Currently at ${PROFILE.seo.currentCompany} building AI-powered security features.`,
+    description: `${PROFILE.seo.currentRole} with 10 years of experience specializing in React, TypeScript, Vue.js, Node.js, and AI integration. Currently at ${PROFILE.seo.currentCompany} building AI-powered security features.`,
     url: PROFILE.seo.siteUrl,
     email: PROFILE.email,
     image: `${PROFILE.seo.siteUrl}/og-image.png`,

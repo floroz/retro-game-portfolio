@@ -253,14 +253,18 @@ export function useMobileTerminal() {
                 break;
               }
             }
-            // Add user selection to history
-            updated.push({
+            return updated;
+          });
+
+          // Add user input line showing the selected option label
+          setHistory((prev) => [
+            ...prev,
+            {
               type: "input",
               content: `> ${option.label}`,
               metadata: { timestamp: Date.now() },
-            });
-            return updated;
-          });
+            },
+          ]);
 
           // Allow new dialog node to be added by clearing the ref guard
           addedNodesRef.current.delete(option.nextNode);

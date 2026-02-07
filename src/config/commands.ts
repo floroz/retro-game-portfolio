@@ -3,7 +3,7 @@ import { PROFILE } from "./profile";
 
 /**
  * Terminal command definitions
- * Commands can open modals, perform actions, or show text output
+ * Commands can open dialogs, perform actions, or show text output
  */
 export const TERMINAL_COMMANDS: TerminalCommands = {
   help: {

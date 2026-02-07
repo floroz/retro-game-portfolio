@@ -1,5 +1,6 @@
 @use "../../styles/functions" as *;
 @use "../../styles/mixins" as *;
+@use "../../styles/variables" as vars;
 
 /* 2x2 grid matching the ActionGrid retro style */
 .grid {
@@ -9,9 +10,10 @@
   gap: var(--space-xs);
 }
 
-/* Beveled button style matching ActionGrid */
-.button {
-  @include beveled-button(#4a4a6c, #7a7a9c, #2a2a4a);
+/* ============================================
+   SHARED BUTTON BASE
+   ============================================ */
+%button-base {
   @include flex-center;
 
   gap: var(--space-sm);
@@ -21,14 +23,6 @@
   color: #fff;
   text-transform: uppercase;
   text-decoration: none;
-
-  &:hover {
-    color: var(--color-accent);
-
-    .icon {
-      color: var(--color-accent);
-    }
-  }
 }
 
 .icon {
@@ -40,34 +34,122 @@
   white-space: nowrap;
 }
 
-/* Highlighted buttons (Talk, Terminal) - slightly different background */
-.buttonHighlight {
-  @include beveled-button(#5a4a6c, #8a7a9c, #2a2a4a);
-  @include flex-center;
+.soundIcon {
+  font-size: to-rem(10px);
+  line-height: 1;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: to-rem(12px);
+}
 
-  gap: var(--space-sm);
-  padding: to-rem(8px) to-rem(16px);
-  font-family: "Press Start 2P", "Courier New", monospace;
-  font-size: var(--font-size-xs);
-  color: #fff;
-  text-transform: uppercase;
-  text-decoration: none;
+/* ============================================
+   ROW 1: SOCIAL LINKS
+   ============================================ */
+
+/* GitHub – dark charcoal beveled button */
+.buttonGithub {
+  @extend %button-base;
+  @include beveled-button(
+    vars.$color-github,
+    vars.$color-github-light,
+    vars.$color-github-dark
+  );
 
   .icon {
-    color: #e0c060;
+    color: #f0f0f0;
   }
 
   &:hover {
-    background: linear-gradient(
-      180deg,
-      lighten-color(#5a4a6c, 15%) 0%,
-      lighten-color(#5a4a6c, 10%) 50%,
-      #5a4a6c 100%
-    );
     color: var(--color-accent);
 
     .icon {
       color: var(--color-accent);
     }
+  }
+}
+
+/* LinkedIn – brand blue beveled button */
+.buttonLinkedin {
+  @extend %button-base;
+  @include beveled-button(
+    vars.$color-linkedin,
+    vars.$color-linkedin-light,
+    vars.$color-linkedin-dark
+  );
+
+  .icon {
+    color: #fff;
+  }
+
+  &:hover {
+    color: var(--color-accent);
+
+    .icon {
+      color: var(--color-accent);
+    }
+  }
+}
+
+/* ============================================
+   ROW 2: TALK & SOUND
+   ============================================ */
+
+/* Talk – warm orange / amber beveled button */
+.buttonTalk {
+  @extend %button-base;
+  @include beveled-button(
+    vars.$color-talk,
+    vars.$color-talk-light,
+    vars.$color-talk-dark
+  );
+
+  .icon {
+    color: var(--color-talk-icon);
+  }
+
+  &:hover {
+    .icon {
+      color: #fff;
+    }
+  }
+}
+
+/* Sound toggle – fixed width to prevent layout shift */
+.buttonSound {
+  @extend %button-base;
+
+  min-inline-size: to-rem(140px);
+  justify-content: flex-start;
+}
+
+/* Sound ON – retro green beveled background, white text */
+.soundOn {
+  @include beveled-button(
+    vars.$color-sound-on,
+    vars.$color-sound-on-light,
+    vars.$color-sound-on-dark
+  );
+
+  color: #fff;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+/* Sound OFF – retro red beveled background, white text */
+.soundOff {
+  @include beveled-button(
+    vars.$color-sound-off,
+    vars.$color-sound-off-light,
+    vars.$color-sound-off-dark
+  );
+
+  color: #fff;
+
+  &:hover {
+    color: #fff;
   }
 }

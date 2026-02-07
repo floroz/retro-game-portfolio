@@ -1,5 +1,6 @@
 @use "../../styles/functions" as *;
 @use "../../styles/mixins" as *;
+@use "../../styles/variables" as vars;
 
 /* 2x3 grid of action buttons */
 .grid {
@@ -11,7 +12,11 @@
 
 /* Beveled button with icon and label */
 .button {
-  @include beveled-button(#4a4a6c, #7a7a9c, #2a2a4a);
+  @include beveled-button(
+    vars.$color-action,
+    vars.$color-action-light,
+    vars.$color-action-dark
+  );
   @include flex-center;
   gap: var(--space-sm);
   padding: to-rem(8px) to-rem(12px);

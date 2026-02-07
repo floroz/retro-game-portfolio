@@ -12,7 +12,7 @@ describe("gameStore", () => {
     store.setCharacterState("idle");
     store.stopMovement();
     store.setHoveredObject(null);
-    store.closeModal();
+    store.closeTerminalScreen();
     store.closeDialog();
     useGameStore.setState({
       welcomeShown: false,
@@ -138,8 +138,8 @@ describe("gameStore", () => {
 
       const state = useGameStore.getState();
       expect(state.pendingAction).toBeNull();
-      expect(state.modalOpen).toBe(true);
-      expect(state.activeAction).toBe("about");
+      expect(state.terminalScreenAction).toBe("about");
+      expect(state.characterState).toBe("interacting");
     });
 
     test("should open dialog on arrival when pending talk action", () => {
@@ -163,9 +163,8 @@ describe("gameStore", () => {
       const state = useGameStore.getState();
 
       expect(state.hoveredObject).toBeNull();
-      expect(state.activeAction).toBeNull();
+      expect(state.terminalScreenAction).toBeNull();
       expect(state.pendingAction).toBeNull();
-      expect(state.modalOpen).toBe(false);
     });
 
     test("should set hovered object", () => {
@@ -188,45 +187,42 @@ describe("gameStore", () => {
       // Note: position might be clamped to walkable area
       expect(state.pendingAction).toBeTruthy();
       expect(state.pendingAction?.action).toBe("about");
-      expect(state.activeAction).toBe("about");
       expect(state.characterState).toBe("walking");
     });
 
-    test("should open modal with action", () => {
+    test("should open terminal screen with action", () => {
       const store = useGameStore.getState();
 
-      store.openModal("about");
+      store.openTerminalScreen("about");
 
       const state = useGameStore.getState();
-      expect(state.activeAction).toBe("about");
-      expect(state.modalOpen).toBe(true);
+      expect(state.terminalScreenAction).toBe("about");
       expect(state.characterState).toBe("interacting");
     });
 
-    test("should open dialog instead of modal for talk action", () => {
+    test("should open dialog instead of terminal screen for talk action", () => {
       const store = useGameStore.getState();
 
-      store.openModal("talk");
+      store.openTerminalScreen("talk");
 
       const state = useGameStore.getState();
-      expect(state.modalOpen).toBe(false);
+      expect(state.terminalScreenAction).toBeNull();
       expect(state.dialogOpen).toBe(true);
       expect(state.dialogNode).toBe("intro");
     });
 
-    test("should close modal and reset state", () => {
+    test("should close terminal screen and reset state", () => {
       const store = useGameStore.getState();
 
-      // Open modal first
-      store.openModal("about");
-      expect(useGameStore.getState().modalOpen).toBe(true);
+      // Open terminal screen first
+      store.openTerminalScreen("about");
+      expect(useGameStore.getState().terminalScreenAction).toBe("about");
 
-      // Close modal
-      store.closeModal();
+      // Close terminal screen
+      store.closeTerminalScreen();
 
       const state = useGameStore.getState();
-      expect(state.activeAction).toBeNull();
-      expect(state.modalOpen).toBe(false);
+      expect(state.terminalScreenAction).toBeNull();
       expect(state.pendingAction).toBeNull();
       expect(state.characterState).toBe("idle");
     });
@@ -250,11 +246,11 @@ describe("gameStore", () => {
       expect(useGameStore.getState().terminalOpen).toBe(true);
     });
 
-    test("should not open terminal when modal is open", () => {
+    test("should not open terminal when terminal screen is open", () => {
       const store = useGameStore.getState();
 
-      // Open modal
-      store.openModal("about");
+      // Open terminal screen
+      store.openTerminalScreen("about");
 
       // Close terminal
       store.toggleTerminal();
@@ -311,7 +307,7 @@ describe("gameStore", () => {
       const state = useGameStore.getState();
       expect(state.dialogOpen).toBe(true);
       expect(state.dialogNode).toBe("welcome");
-      expect(state.modalOpen).toBe(false);
+      expect(state.terminalScreenAction).toBeNull();
     });
 
     test("should open dialog with specific node", () => {

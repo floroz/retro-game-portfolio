@@ -1,5 +1,47 @@
 @use "./functions" as *;
 
+/* ============================================
+   SCSS COLOR VARIABLES (compile-time)
+   Single source of truth: used by SCSS mixins
+   and exposed as CSS custom properties below.
+   ============================================ */
+
+// Toolbar accent – GitHub (dark charcoal)
+$color-github: #2b2b3e;
+$color-github-light: #505070;
+$color-github-dark: #141428;
+
+// Toolbar accent – LinkedIn (brand blue)
+$color-linkedin: #1a5a8a;
+$color-linkedin-light: #3090c0;
+$color-linkedin-dark: #0e3a5a;
+
+// Toolbar accent – Talk (warm orange / amber)
+$color-talk: #b85a1a;
+$color-talk-light: #e08040;
+$color-talk-dark: #8a3a0a;
+$color-talk-icon: #ffe880;
+
+// Toolbar accent – Sound ON (retro green)
+$color-sound-on: #2a6a2a;
+$color-sound-on-light: #4a9a4a;
+$color-sound-on-dark: #1a4a1a;
+
+// Toolbar accent – Sound OFF (retro red)
+$color-sound-off: #8b2a2a;
+$color-sound-off-light: #b04a4a;
+$color-sound-off-dark: #601010;
+
+// Toolbar base – warm dark brown-navy
+$color-toolbar-bg-top: #3a3548;
+$color-toolbar-bg-bottom: #2a2535;
+$color-toolbar-border: #504a5e;
+
+// Action buttons – warm muted purple-brown
+$color-action: #4a4558;
+$color-action-light: #6e6882;
+$color-action-dark: #2a2535;
+
 :root {
   /* ============================================
      SPACING SCALE (rem-based)
@@ -64,15 +106,33 @@
 
   /* UI colors - Retro terminal aesthetic */
   --color-bg-dark: #1a1a2e;
-  --color-border: #3d3d5c;
+  --color-border: #{$color-toolbar-border};
   --color-accent: #ffd700;
-  --color-toolbar-bg: #1a1a2e;
-  --color-toolbar-border: #4a4a6a;
-  --color-button-bg: #3a3a5a;
-  --color-button-hover: #4a4a6a;
-  --color-button-border: #6a6a8a;
+  --color-toolbar-bg: #{$color-toolbar-bg-bottom};
+  --color-toolbar-border: #{$color-toolbar-border};
+  --color-button-bg: #{$color-action};
+  --color-button-hover: #{lighten-color($color-action, 10%)};
+  --color-button-border: #{$color-action-light};
   --color-text-primary: #e8c44a;
   --color-text-secondary: #d4c4a4;
+
+  /* Toolbar accent colors (Warm Retro palette) */
+  --color-github: #{$color-github};
+  --color-github-light: #{$color-github-light};
+  --color-github-dark: #{$color-github-dark};
+  --color-linkedin: #{$color-linkedin};
+  --color-linkedin-light: #{$color-linkedin-light};
+  --color-linkedin-dark: #{$color-linkedin-dark};
+  --color-talk: #{$color-talk};
+  --color-talk-light: #{$color-talk-light};
+  --color-talk-dark: #{$color-talk-dark};
+  --color-talk-icon: #{$color-talk-icon};
+  --color-sound-on: #{$color-sound-on};
+  --color-sound-on-light: #{$color-sound-on-light};
+  --color-sound-on-dark: #{$color-sound-on-dark};
+  --color-sound-off: #{$color-sound-off};
+  --color-sound-off-light: #{$color-sound-off-light};
+  --color-sound-off-dark: #{$color-sound-off-dark};
 
   /* Character colors */
   --color-skin: #f5c6a5;

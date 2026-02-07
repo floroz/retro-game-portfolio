@@ -52,7 +52,6 @@ export interface SceneConfig {
 /** Terminal command action types */
 type TerminalAction =
   | "showHelp"
-  | "openModal"
   | "openDialog"
   | "downloadResume"
   | "clearTerminal"

@@ -1,5 +1,6 @@
 @use "../../styles/functions" as *;
 @use "../../styles/mixins" as *;
+@use "../../styles/variables" as vars;
 
 /* Retro 90s game-style sound toggle button */
 .soundToggle {
@@ -14,7 +15,8 @@
   transition: all var(--transition-fast);
   text-transform: uppercase;
   text-shadow: to-rem(1px) to-rem(1px) 0 #000;
-  min-width: to-rem(100px);
+  min-width: to-rem(120px);
+  color: #fff;
 
   &:focus-visible {
     outline: to-rem(2px) solid var(--color-accent);
@@ -35,34 +37,42 @@
   text-align: left;
 }
 
-/* ON state - green beveled button */
+/* ON state - retro green beveled button, white text */
 .soundToggleOn {
-  @include beveled-button(#2a6a2a, #4a9a4a, #1a4a1a);
+  @include beveled-button(
+    vars.$color-sound-on,
+    vars.$color-sound-on-light,
+    vars.$color-sound-on-dark
+  );
 
-  color: #8fff8f;
+  color: #fff;
 
   &:hover {
-    color: #bfffbf;
+    color: #fff;
   }
 
   &:active {
-    color: #8fff8f;
+    color: #fff;
   }
 }
 
-/* OFF state - red beveled button with subtle pulse */
+/* OFF state - retro red beveled button, white text */
 .soundToggleOff {
-  @include beveled-button(#6a2a2a, #9a4a4a, #4a1a1a);
+  @include beveled-button(
+    vars.$color-sound-off,
+    vars.$color-sound-off-light,
+    vars.$color-sound-off-dark
+  );
 
-  color: #ff8f8f;
+  color: #fff;
   animation: sound-pulse 2s ease-in-out infinite;
 
   &:hover {
-    color: #ffbfbf;
+    color: #fff;
   }
 
   &:active {
-    color: #ff8f8f;
+    color: #fff;
     animation: none;
   }
 }

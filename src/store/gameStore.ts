@@ -17,9 +17,8 @@ interface GameState {
 
   // Interaction state
   hoveredObject: string | null;
-  activeAction: ActionType | null;
   pendingAction: { action: ActionType; targetPos: Position } | null;
-  modalOpen: boolean;
+  terminalScreenAction: ActionType | null;
   terminalOpen: boolean;
   gameWindowActive: boolean; // Track if game window is active in Win95 desktop
 
@@ -41,8 +40,8 @@ interface GameState {
   // Interaction actions
   setHoveredObject: (id: string | null) => void;
   triggerAction: (action: ActionType, targetPos: Position) => void;
-  openModal: (action: ActionType) => void;
-  closeModal: () => void;
+  openTerminalScreen: (action: ActionType) => void;
+  closeTerminalScreen: () => void;
   toggleTerminal: () => void;
   closeTerminal: () => void;
   setGameWindowActive: (active: boolean) => void;
@@ -69,9 +68,8 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   // Initial interaction state
   hoveredObject: null,
-  activeAction: null,
   pendingAction: null,
-  modalOpen: false,
+  terminalScreenAction: null,
   terminalOpen: true, // Always start in Win95 Desktop mode
   gameWindowActive: true, // Game window is active by default
 
@@ -126,13 +124,13 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (pendingAction) {
       // "talk" action opens the adventure dialog
       if (pendingAction.action === "talk") {
-        set({ pendingAction: null, activeAction: null });
+        set({ pendingAction: null });
         openDialog("intro");
       } else {
         set({
-          activeAction: pendingAction.action,
-          modalOpen: true,
+          terminalScreenAction: pendingAction.action,
           pendingAction: null,
+          characterState: "interacting",
         });
       }
     }
@@ -147,14 +145,13 @@ export const useGameStore = create<GameState>((set, get) => ({
     // Set pending action and start walking to target
     set({
       pendingAction: { action, targetPos: clamped },
-      activeAction: action,
     });
 
     // Start moving to the interaction point
     get().moveTo(clamped);
   },
 
-  openModal: (action) => {
+  openTerminalScreen: (action: ActionType) => {
     // "talk" action opens the adventure dialog instead
     if (action === "talk") {
       get().openDialog("intro");
@@ -162,25 +159,23 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
 
     set({
-      activeAction: action,
-      modalOpen: true,
+      terminalScreenAction: action,
       characterState: "interacting",
     });
   },
 
-  closeModal: () => {
+  closeTerminalScreen: () => {
     set({
-      activeAction: null,
-      modalOpen: false,
+      terminalScreenAction: null,
       pendingAction: null,
       characterState: "idle",
     });
   },
 
   toggleTerminal: () => {
-    const { terminalOpen, modalOpen } = get();
-    // Don't open terminal if modal is open
-    if (modalOpen && !terminalOpen) return;
+    const { terminalOpen, terminalScreenAction } = get();
+    // Don't open terminal if terminal screen is open
+    if (terminalScreenAction && !terminalOpen) return;
 
     set({ terminalOpen: !terminalOpen });
   },
@@ -213,7 +208,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({
       dialogOpen: true,
       dialogNode: startNode,
-      modalOpen: false,
+      terminalScreenAction: null,
       terminalOpen: shouldKeepTerminalOpen,
     });
   },
