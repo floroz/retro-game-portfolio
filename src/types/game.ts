@@ -105,6 +105,8 @@ export interface TerminalLine {
   metadata?: {
     speaker?: DialogSpeaker;
     options?: DialogOption[];
+    /** The id of the option the user selected (only for dialog-options lines) */
+    selectedOptionId?: string;
     timestamp?: number;
   };
 }

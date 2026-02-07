@@ -241,35 +241,57 @@ export function MobileTerminal() {
 
           // Render dialog options
           if (line.type === "dialog-options" && line.metadata?.options) {
+            const selectedId = line.metadata.selectedOptionId;
+            const isResolved = !!selectedId;
+
             return (
               <div key={index} className={styles.dialogOptions}>
-                {line.metadata.options.map((option, idx) => (
-                  <div
-                    key={option.id}
-                    className={styles.optionLine}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      executeInput(String(idx + 1));
-                    }}
-                    onTouchEnd={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      executeInput(String(idx + 1));
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        executeInput(String(idx + 1));
+                {line.metadata.options.map((option, idx) => {
+                  // If an option was already selected, hide all non-selected options
+                  if (isResolved && option.id !== selectedId) {
+                    return null;
+                  }
+
+                  return (
+                    <div
+                      key={option.id}
+                      className={`${styles.optionLine} ${isResolved ? styles.optionDisabled : ""}`}
+                      onClick={
+                        isResolved
+                          ? undefined
+                          : (e) => {
+                              e.stopPropagation();
+                              executeInput(String(idx + 1));
+                            }
                       }
-                    }}
-                    data-e2e="dialog-option"
-                  >
-                    <span className={styles.optionNumber}>{idx + 1}.</span>{" "}
-                    {option.label}
-                  </div>
-                ))}
+                      onTouchEnd={
+                        isResolved
+                          ? undefined
+                          : (e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              executeInput(String(idx + 1));
+                            }
+                      }
+                      role={isResolved ? undefined : "button"}
+                      tabIndex={isResolved ? undefined : 0}
+                      onKeyDown={
+                        isResolved
+                          ? undefined
+                          : (e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                executeInput(String(idx + 1));
+                              }
+                            }
+                      }
+                      data-e2e="dialog-option"
+                    >
+                      <span className={styles.optionNumber}>{idx + 1}.</span>{" "}
+                      {option.label}
+                    </div>
+                  );
+                })}
               </div>
             );
           }
