@@ -163,6 +163,13 @@ $font-size: 12px;
   }
 }
 
+// Disabled option (already selected, shown in history)
+.optionDisabled {
+  color: #aaa;
+  cursor: default;
+  pointer-events: none;
+}
+
 .optionNumber {
   color: #fff;
   font-weight: bold;
