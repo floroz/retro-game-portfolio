@@ -231,6 +231,18 @@
   }
 }
 
+// Disabled option (already selected, shown in history)
+.optionDisabled {
+  color: var(--terminal-text-dim);
+  cursor: default;
+  pointer-events: none;
+  min-height: auto;
+
+  &:active {
+    background: transparent;
+  }
+}
+
 .optionNumber {
   color: var(--terminal-text-cyan);
   font-weight: bold;

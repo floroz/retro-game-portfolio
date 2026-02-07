@@ -235,15 +235,32 @@ export function useMobileTerminal() {
         const option = currentNode.options[optionIndex];
 
         if (option) {
-          // Add user selection to history
-          setHistory((prev) => [
-            ...prev,
-            {
+          // Mark the most recent dialog-options line with the selected option
+          setHistory((prev) => {
+            const updated = [...prev];
+            for (let i = updated.length - 1; i >= 0; i--) {
+              if (
+                updated[i].type === "dialog-options" &&
+                !updated[i].metadata?.selectedOptionId
+              ) {
+                updated[i] = {
+                  ...updated[i],
+                  metadata: {
+                    ...updated[i].metadata,
+                    selectedOptionId: option.id,
+                  },
+                };
+                break;
+              }
+            }
+            // Add user selection to history
+            updated.push({
               type: "input",
               content: `> ${option.label}`,
               metadata: { timestamp: Date.now() },
-            },
-          ]);
+            });
+            return updated;
+          });
 
           // Allow new dialog node to be added by clearing the ref guard
           addedNodesRef.current.delete(option.nextNode);
