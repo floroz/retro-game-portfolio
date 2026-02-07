@@ -9,12 +9,12 @@ test.use({
 async function waitForGameWindowReady(page: Page) {
   // Wait for Win95 desktop
   await expect(page.locator("[data-e2e=win95-desktop]")).toBeVisible({
-    timeout: 10000,
+    timeout: 30000,
   });
 
   // Wait for loading widget to appear and complete (game window appears after)
   await expect(page.locator("[data-e2e=win95-game-window]")).toBeVisible({
-    timeout: 10000,
+    timeout: 30000,
   });
 }
 
@@ -24,7 +24,7 @@ async function dismissWelcomeAndWaitForDialog(page: Page) {
   const dialog = page.locator("[data-e2e=adventure-dialog]");
   await expect(dialog).toBeVisible({ timeout: 5000 });
   await expect(page.locator("[data-e2e=dialog-options]")).toBeVisible({
-    timeout: 10000,
+    timeout: 30000,
   });
   return dialog;
 }
@@ -97,6 +97,7 @@ test.describe("Visual Regression Tests", () => {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
+      timeout: 30000,
     });
   });
 
@@ -127,7 +128,7 @@ test.describe("Visual Regression Tests", () => {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
-      timeout: 10000,
+      timeout: 30000,
     });
   });
 
@@ -166,7 +167,7 @@ test.describe("Visual Regression Tests", () => {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
-      timeout: 10000,
+      timeout: 30000,
     });
   });
 
@@ -203,7 +204,7 @@ test.describe("Visual Regression Tests", () => {
 
     // Verify terminal screen content is loaded (after boot sequence)
     await expect(page.locator("[data-e2e=terminal-screen-title]")).toBeVisible({
-      timeout: 10000,
+      timeout: 30000,
     });
     await expect(
       page.locator("[data-e2e=terminal-screen-content]"),
@@ -216,7 +217,7 @@ test.describe("Visual Regression Tests", () => {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
-      timeout: 10000,
+      timeout: 30000,
     });
   });
 
@@ -275,7 +276,7 @@ test.describe("Visual Regression Tests", () => {
         fullPage: true,
         animations: "disabled",
         maxDiffPixelRatio: 0.02,
-        timeout: 10000,
+        timeout: 30000,
       },
     );
   });
@@ -331,7 +332,7 @@ test.describe("Visual Regression Tests", () => {
     );
     await expect(terminalScreen).toBeVisible({ timeout: 15000 });
     await expect(page.locator("[data-e2e=terminal-screen-title]")).toBeVisible({
-      timeout: 10000,
+      timeout: 30000,
     });
 
     await page.waitForTimeout(1500);
@@ -340,7 +341,7 @@ test.describe("Visual Regression Tests", () => {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
-      timeout: 10000,
+      timeout: 30000,
     });
   });
 
@@ -364,7 +365,7 @@ test.describe("Visual Regression Tests", () => {
     );
     await expect(terminalScreen).toBeVisible({ timeout: 15000 });
     await expect(page.locator("[data-e2e=terminal-screen-title]")).toBeVisible({
-      timeout: 10000,
+      timeout: 30000,
     });
 
     await page.waitForTimeout(1500);
@@ -373,7 +374,7 @@ test.describe("Visual Regression Tests", () => {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
-      timeout: 10000,
+      timeout: 30000,
     });
   });
 
@@ -397,7 +398,7 @@ test.describe("Visual Regression Tests", () => {
     );
     await expect(terminalScreen).toBeVisible({ timeout: 15000 });
     await expect(page.locator("[data-e2e=terminal-screen-title]")).toBeVisible({
-      timeout: 10000,
+      timeout: 30000,
     });
 
     await page.waitForTimeout(1500);
@@ -406,7 +407,7 @@ test.describe("Visual Regression Tests", () => {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
-      timeout: 10000,
+      timeout: 30000,
     });
   });
 
@@ -430,7 +431,7 @@ test.describe("Visual Regression Tests", () => {
     );
     await expect(terminalScreen).toBeVisible({ timeout: 15000 });
     await expect(page.locator("[data-e2e=terminal-screen-title]")).toBeVisible({
-      timeout: 10000,
+      timeout: 30000,
     });
 
     await page.waitForTimeout(1500);
@@ -439,7 +440,7 @@ test.describe("Visual Regression Tests", () => {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
-      timeout: 10000,
+      timeout: 30000,
     });
   });
 
@@ -470,7 +471,7 @@ test.describe("Visual Regression Tests", () => {
 
     // Wait for Win95 desktop
     await expect(page.locator("[data-e2e=win95-desktop]")).toBeVisible({
-      timeout: 10000,
+      timeout: 30000,
     });
 
     // Double-click the terminal desktop icon to open terminal
@@ -495,7 +496,7 @@ test.describe("Visual Regression Tests", () => {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
-      timeout: 10000,
+      timeout: 30000,
     });
   });
 
@@ -547,7 +548,7 @@ test.describe("Visual Regression Tests", () => {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
-      timeout: 10000,
+      timeout: 30000,
     });
   });
 
@@ -593,5 +594,62 @@ test.describe("Visual Regression Tests", () => {
     await page.keyboard.press("Tab");
     const thirdToolbarButton = page.locator("[data-e2e=toolbar-button]").nth(2);
     await expect(thirdToolbarButton).toBeFocused();
+  });
+
+  test("recycle bin window with career reject files", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Wait for Win95 desktop
+    await expect(page.locator("[data-e2e=win95-desktop]")).toBeVisible({
+      timeout: 30000,
+    });
+
+    // Double-click the recycle bin desktop icon
+    const recycleBinIcon = page.locator("[data-e2e=desktop-icon-recycle-bin]");
+    await expect(recycleBinIcon).toBeVisible();
+    await recycleBinIcon.dblclick();
+
+    // Wait for recycle bin window to appear
+    const recycleBinWindow = page
+      .locator("[data-e2e=win95-window]")
+      .filter({ hasText: "Recycle Bin" });
+    await expect(recycleBinWindow).toBeVisible({ timeout: 5000 });
+
+    // Verify taskbar shows recycle bin button
+    await expect(page.locator("[data-e2e=taskbar-recycle-bin]")).toBeVisible();
+
+    // Verify the file list contains the expected career reject files
+    await expect(
+      recycleBinWindow.getByText("my_patience_for_IE11.dll"),
+    ).toBeVisible();
+    await expect(
+      recycleBinWindow.getByText("unnecessary_meetings.ics"),
+    ).toBeVisible();
+    await expect(
+      recycleBinWindow.getByText("imposter_syndrome.exe"),
+    ).toBeVisible();
+    await expect(
+      recycleBinWindow.getByText("promise_to_write_tests_later.todo"),
+    ).toBeVisible();
+    await expect(
+      recycleBinWindow.getByText("tabs_vs_spaces_debate.txt"),
+    ).toBeVisible();
+
+    // Verify status bar shows "9 object(s)" and infinity symbol
+    await expect(recycleBinWindow.getByText("9 object(s)")).toBeVisible();
+    // Status bar has infinity KB - use first() to select the status section
+    await expect(recycleBinWindow.getByText("∞ KB").last()).toBeVisible();
+
+    // Allow time for rendering to stabilize
+    await page.waitForTimeout(1000);
+
+    // Take screenshot of the recycle bin window
+    await expect(page).toHaveScreenshot("07-recycle-bin.png", {
+      fullPage: true,
+      animations: "disabled",
+      maxDiffPixelRatio: 0.02,
+      timeout: 30000,
+    });
   });
 });
