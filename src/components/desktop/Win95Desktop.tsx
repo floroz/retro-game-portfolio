@@ -7,6 +7,9 @@ import { Win95LoadingWidget } from "./Win95LoadingWidget";
 import { Win95RecycleBin } from "./Win95RecycleBin";
 import styles from "./Win95Desktop.module.scss";
 import retroDanieleImg from "../../assets/retro-daniele.png";
+import recycleBinImg from "../../assets/recycle.png";
+import msdosPromptImg from "../../assets/prompt.png";
+import win95LogoImg from "../../assets/win-95.png";
 
 interface Win95DesktopProps {
   isOpen: boolean;
@@ -406,7 +409,16 @@ export function Win95Desktop({
             aria-label="Start menu (presentational)"
             title="Start menu (not functional)"
           >
-            <WindowsIcon />
+            <img
+              src={win95LogoImg}
+              alt="Windows 95"
+              style={{
+                width: "16px",
+                height: "16px",
+                marginRight: "4px",
+                objectFit: "contain",
+              }}
+            />
             <span>Start</span>
           </button>
 
@@ -462,133 +474,33 @@ export function Win95Desktop({
   );
 }
 
-// Windows logo icon (4 squares)
-function WindowsIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="16"
-      height="16"
-      style={{ marginRight: "4px" }}
-    >
-      <rect x="2" y="2" width="9" height="9" fill="currentColor" />
-      <rect x="13" y="2" width="9" height="9" fill="currentColor" />
-      <rect x="2" y="13" width="9" height="9" fill="currentColor" />
-      <rect x="13" y="13" width="9" height="9" fill="currentColor" />
-    </svg>
-  );
-}
-
 // MS-DOS Prompt Icon (Win95 style)
 function MSDOSPromptIcon() {
   return (
-    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-      {/* Window frame - dark gray */}
-      <rect x="1" y="1" width="30" height="30" fill="#404040" />
-
-      {/* Title bar - blue */}
-      <rect x="2" y="2" width="28" height="4" fill="#000080" />
-
-      {/* Inner screen - black */}
-      <rect x="2" y="6" width="28" height="24" fill="#000" />
-
-      {/* DOS prompt text "C:\>" in monospace style */}
-      <text
-        x="4"
-        y="14"
-        fill="#c0c0c0"
-        fontSize="6"
-        fontFamily="monospace"
-        fontWeight="bold"
-      >
-        C:\&gt;
-      </text>
-
-      {/* Cursor */}
-      <rect x="16" y="10" width="4" height="6" fill="#c0c0c0" />
-    </svg>
+    <img
+      src={msdosPromptImg}
+      alt="MS-DOS Prompt"
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: "contain",
+      }}
+    />
   );
 }
 
 // Recycle Bin Icon (Empty - Win95 style)
 function RecycleBinEmptyIcon() {
   return (
-    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-      {/* Bin body - trapezoid shape */}
-      <path
-        d="M 8 12 L 24 12 L 23 29 L 9 29 Z"
-        fill="#808080"
-        stroke="#000"
-        strokeWidth="1"
-      />
-
-      {/* Lid */}
-      <rect
-        x="6"
-        y="9"
-        width="20"
-        height="3"
-        fill="#c0c0c0"
-        stroke="#000"
-        strokeWidth="1"
-      />
-
-      {/* Handle */}
-      <path
-        d="M 11 9 L 11 7 L 12 6 L 20 6 L 21 7 L 21 9"
-        fill="none"
-        stroke="#000"
-        strokeWidth="1.5"
-      />
-      <rect
-        x="12"
-        y="6"
-        width="8"
-        height="3"
-        fill="#c0c0c0"
-        stroke="#000"
-        strokeWidth="1"
-      />
-
-      {/* Basket weave pattern - vertical lines */}
-      <line x1="11" y1="14" x2="10" y2="27" stroke="#000" strokeWidth="1" />
-      <line x1="14" y1="14" x2="13.5" y2="27" stroke="#000" strokeWidth="1" />
-      <line x1="16" y1="14" x2="16" y2="27" stroke="#000" strokeWidth="1" />
-      <line x1="18" y1="14" x2="18.5" y2="27" stroke="#000" strokeWidth="1" />
-      <line x1="21" y1="14" x2="22" y2="27" stroke="#000" strokeWidth="1" />
-
-      {/* Horizontal weave lines */}
-      <line
-        x1="9"
-        y1="17"
-        x2="23"
-        y2="17"
-        stroke="#000"
-        strokeWidth="0.5"
-        opacity="0.5"
-      />
-      <line
-        x1="9.5"
-        y1="21"
-        x2="22.5"
-        y2="21"
-        stroke="#000"
-        strokeWidth="0.5"
-        opacity="0.5"
-      />
-      <line
-        x1="10"
-        y1="25"
-        x2="22"
-        y2="25"
-        stroke="#000"
-        strokeWidth="0.5"
-        opacity="0.5"
-      />
-
-      {/* Highlight on lid */}
-      <rect x="7" y="10" width="18" height="1" fill="#ffffff" opacity="0.6" />
-    </svg>
+    <img
+      src={recycleBinImg}
+      alt="Recycle Bin"
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: "contain",
+      }}
+    />
   );
 }
 
