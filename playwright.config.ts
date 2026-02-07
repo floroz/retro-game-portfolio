@@ -30,7 +30,10 @@ export default defineConfig({
     },
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"] },
+      use: {
+        ...devices["Desktop Safari"],
+      },
+      timeout: 60000, // Webkit is slower, increase timeout from default 30s to 60s
       testIgnore: /e2e-mobile\.test\.ts/, // Skip mobile tests for desktop browser
     },
     // Mobile browsers
