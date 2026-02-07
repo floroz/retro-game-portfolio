@@ -148,13 +148,44 @@ export function TerminalScreen({ action, onClose }: TerminalScreenProps) {
           )}
 
           <div className={styles.navHints}>
-            <span className={styles.navHint}>[ ESC ] BACK</span>
+            <button
+              className={styles.navHintButton}
+              onClick={onClose}
+              type="button"
+              aria-label="Go back"
+            >
+              [ ESC ] BACK
+            </button>
             {totalPages > 1 ? (
-              <span className={styles.navHint}>
-                [ &larr; / &rarr; ] NAVIGATE
-              </span>
+              <div className={styles.navHintsRight}>
+                <button
+                  className={styles.navHintButton}
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 0}
+                  type="button"
+                  aria-label="Previous page"
+                >
+                  [ &larr; ] PREV
+                </button>
+                <button
+                  className={styles.navHintButton}
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages - 1}
+                  type="button"
+                  aria-label="Next page"
+                >
+                  [ &rarr; ] NEXT
+                </button>
+              </div>
             ) : (
-              <span className={styles.navHint}>PRESS ESC TO RETURN</span>
+              <button
+                className={styles.navHintButton}
+                onClick={onClose}
+                type="button"
+                aria-label="Press Escape to return"
+              >
+                PRESS ESC TO RETURN
+              </button>
             )}
           </div>
         </div>

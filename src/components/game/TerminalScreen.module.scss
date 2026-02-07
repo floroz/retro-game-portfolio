@@ -156,12 +156,57 @@
   align-items: center;
 }
 
-.navHint {
+/* Group for prev/next buttons */
+.navHintsRight {
+  display: flex;
+  gap: to-rem(12px);
+  align-items: center;
+}
+
+/* Clickable navigation hint buttons (same aesthetic as WelcomeScreen .prompt) */
+.navHintButton {
   font-family: var(--font-heading);
   font-size: to-rem(11px);
   color: #a0b0c0;
   letter-spacing: to-rem(1px);
   text-transform: uppercase;
+  background: transparent;
+  border: to-rem(2px) solid transparent;
+  padding: to-rem(6px) to-rem(12px);
+  cursor: pointer;
+  text-shadow: 0 0 to-rem(8px) rgb(160 176 192 / 20%);
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    text-shadow 0.2s ease,
+    color 0.2s ease;
+
+  &:hover {
+    color: #00d4aa;
+    border-color: #00d4aa;
+    background: rgb(0 212 170 / 10%);
+    text-shadow:
+      0 0 to-rem(10px) rgb(0 212 170 / 50%),
+      0 0 to-rem(20px) rgb(0 212 170 / 30%);
+  }
+
+  &:focus-visible {
+    outline: none;
+    color: #00d4aa;
+    border-color: #00d4aa;
+    box-shadow: 0 0 to-rem(10px) rgb(0 212 170 / 30%);
+    text-shadow:
+      0 0 to-rem(10px) rgb(0 212 170 / 50%),
+      0 0 to-rem(20px) rgb(0 212 170 / 30%);
+  }
+
+  &:disabled {
+    color: #4a5568;
+    cursor: default;
+    border-color: transparent;
+    background: transparent;
+    text-shadow: none;
+  }
 }
 
 /* Blinking cursor after boot text */

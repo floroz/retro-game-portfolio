@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import { Rnd } from "react-rnd";
+import type { DraggableData, RndDragEvent, RndResizeCallback } from "react-rnd";
 import styles from "./Win95Window.module.scss";
 
-interface Win95WindowProps {
+interface Win95WindowBaseProps {
   title: string;
   onClose: () => void;
   onMinimize?: () => void;
@@ -12,65 +13,118 @@ interface Win95WindowProps {
   children: ReactNode;
 
   // Size constraints
-  initialWidth: number;
-  initialHeight: number;
   minWidth?: number;
   minHeight?: number;
   maxWidth?: number | string;
   maxHeight?: number | string;
   aspectRatio?: number; // e.g., 16/10 for locked aspect ratio
 
-  // Position
-  initialX?: number | string; // 'center' or pixel value
-  initialY?: number | string;
-
   // Customization
   contentClassName?: string;
   showMinimizeButton?: boolean;
 }
 
+/** Uncontrolled mode: size/position managed internally by Rnd */
+interface Win95WindowUncontrolledProps extends Win95WindowBaseProps {
+  controlled?: false;
+  initialWidth: number;
+  initialHeight: number;
+  initialX?: number | string; // 'center' or pixel value
+  initialY?: number | string;
+  size?: never;
+  position?: never;
+  onResizeStop?: never;
+  onDragStop?: never;
+}
+
+/** Controlled mode: size/position driven by parent state */
+interface Win95WindowControlledProps extends Win95WindowBaseProps {
+  controlled: true;
+  size: { width: number; height: number };
+  position: { x: number; y: number };
+  onResizeStop: (width: number, height: number, x: number, y: number) => void;
+  onDragStop: (x: number, y: number) => void;
+  initialWidth?: never;
+  initialHeight?: never;
+  initialX?: never;
+  initialY?: never;
+}
+
+type Win95WindowProps =
+  | Win95WindowUncontrolledProps
+  | Win95WindowControlledProps;
+
 /**
  * Reusable Windows 95 window wrapper with drag and resize
  * Uses react-rnd for draggable and resizable functionality
+ *
+ * Supports two modes:
+ * - Uncontrolled (default): uses `initialWidth`/`initialHeight`/`initialX`/`initialY`
+ * - Controlled (`controlled={true}`): uses `size`/`position` with `onResizeStop`/`onDragStop`
  */
-export function Win95Window({
-  title,
-  onClose,
-  onMinimize,
-  isActive,
-  onFocus,
-  zIndex,
-  children,
-  initialWidth,
-  initialHeight,
-  minWidth = 200,
-  minHeight = 150,
-  maxWidth = "95vw",
-  maxHeight = "90vh",
-  aspectRatio,
-  initialX = "center",
-  initialY = "center",
-  contentClassName = "",
-  showMinimizeButton = true,
-}: Win95WindowProps) {
-  // Calculate centered position
-  const defaultX =
-    initialX === "center"
-      ? window.innerWidth / 2 - initialWidth / 2
-      : (initialX as number);
-  const defaultY =
-    initialY === "center"
-      ? window.innerHeight / 2 - initialHeight / 2
-      : (initialY as number);
+export function Win95Window(props: Win95WindowProps) {
+  const {
+    title,
+    onClose,
+    onMinimize,
+    isActive,
+    onFocus,
+    zIndex,
+    children,
+    minWidth = 200,
+    minHeight = 150,
+    maxWidth = "95vw",
+    maxHeight = "90vh",
+    aspectRatio,
+    contentClassName = "",
+    showMinimizeButton = true,
+  } = props;
+
+  // Build Rnd props based on controlled vs uncontrolled mode
+  const rndSizePositionProps = props.controlled
+    ? {
+        size: props.size,
+        position: props.position,
+      }
+    : (() => {
+        const defaultX =
+          props.initialX === "center"
+            ? window.innerWidth / 2 - props.initialWidth / 2
+            : ((props.initialX as number) ?? 0);
+        const defaultY =
+          props.initialY === "center"
+            ? window.innerHeight / 2 - props.initialHeight / 2
+            : ((props.initialY as number) ?? 0);
+        return {
+          default: {
+            x: defaultX,
+            y: defaultY,
+            width: props.initialWidth,
+            height: props.initialHeight,
+          },
+        };
+      })();
+
+  const handleDragStop = props.controlled
+    ? (_e: RndDragEvent, data: DraggableData) => {
+        props.onDragStop(data.x, data.y);
+      }
+    : undefined;
+
+  const handleResizeStop: RndResizeCallback | undefined = props.controlled
+    ? (_e, _dir, elementRef, _delta, position) => {
+        props.onResizeStop(
+          elementRef.offsetWidth,
+          elementRef.offsetHeight,
+          position.x,
+          position.y,
+        );
+      }
+    : undefined;
 
   return (
     <Rnd
-      default={{
-        x: defaultX,
-        y: defaultY,
-        width: initialWidth,
-        height: initialHeight,
-      }}
+      {...rndSizePositionProps}
       minWidth={minWidth}
       minHeight={minHeight}
       maxWidth={maxWidth}
@@ -80,6 +134,8 @@ export function Win95Window({
       bounds="parent"
       style={{ zIndex }}
       onMouseDown={onFocus}
+      onDragStop={handleDragStop}
+      onResizeStop={handleResizeStop}
     >
       <div
         className={`${styles.window} ${isActive ? styles.active : ""}`}
@@ -112,7 +168,7 @@ export function Win95Window({
               aria-label="Close window"
               type="button"
             >
-              <span>×</span>
+              <span>&times;</span>
             </button>
           </div>
         </div>

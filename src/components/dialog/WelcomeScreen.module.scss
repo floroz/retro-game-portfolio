@@ -41,6 +41,8 @@
   z-index: 100;
   animation: welcome-fade-in 1s ease-out;
   overflow: hidden;
+  container-type: size;
+  container-name: welcome-container;
 
   &::before {
     content: "";
@@ -117,6 +119,46 @@
   to {
     opacity: 1;
     transform: scale(1.5) translateY(0);
+  }
+}
+
+/* Separate keyframes for each scale breakpoint (keyframe names are global) */
+@keyframes content-fade-in-md {
+  from {
+    opacity: 0;
+    transform: scale(1.2) translateY(to-rem(20px));
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.2) translateY(0);
+  }
+}
+
+@keyframes content-fade-in-sm {
+  from {
+    opacity: 0;
+    transform: scale(1) translateY(to-rem(20px));
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Scale down content when the container (game window) is smaller than native */
+@container welcome-container (max-width: 960px) {
+  .content {
+    transform: scale(1.2);
+    animation-name: content-fade-in-md;
+  }
+}
+
+@container welcome-container (max-width: 780px) {
+  .content {
+    transform: scale(1);
+    animation-name: content-fade-in-sm;
   }
 }
 
