@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Win95Window } from "./Win95Window";
 import styles from "./Win95GameWindow.module.scss";
 
@@ -22,8 +22,8 @@ const FULL_HEIGHT = 800 + CHROME_V; // 838
 /** Outer aspect ratio — accounts for chrome so the game canvas fills perfectly */
 const ASPECT_RATIO = FULL_WIDTH / FULL_HEIGHT;
 
-/** Minimum window width – game should never be smaller than this */
-const MIN_WIDTH = 900;
+/** Minimum window width – allows scaling down to ~768px viewports */
+const MIN_WIDTH = 680;
 const MIN_HEIGHT = Math.round(MIN_WIDTH / ASPECT_RATIO);
 
 interface Win95GameWindowProps {
@@ -37,20 +37,27 @@ interface Win95GameWindowProps {
 }
 
 /**
- * Compute the initial window dimensions so the window fits in the viewport
+ * Compute constrained window dimensions that fit the viewport
  * while respecting the locked aspect ratio and the minimum size.
  */
-function computeInitialSize(): { width: number; height: number } {
+function computeConstrainedSize(
+  currentWidth: number,
+  currentHeight: number,
+): { width: number; height: number } {
   const maxW = window.innerWidth * 0.95;
   const maxH = window.innerHeight * 0.9;
 
-  // Start from full size and shrink to fit
-  let width = Math.min(FULL_WIDTH, maxW);
-  let height = Math.round(width / ASPECT_RATIO);
+  // Start from the current size, but cap to viewport limits
+  let width = Math.min(currentWidth, maxW);
+  let height = Math.min(Math.round(width / ASPECT_RATIO), currentHeight);
 
+  // Recompute with aspect ratio after clamping height
   if (height > maxH) {
     height = maxH;
     width = Math.round(height * ASPECT_RATIO);
+  } else {
+    // Ensure aspect ratio is maintained
+    height = Math.round(width / ASPECT_RATIO);
   }
 
   // Clamp to minimum
@@ -61,10 +68,43 @@ function computeInitialSize(): { width: number; height: number } {
 }
 
 /**
+ * Compute the initial window dimensions so the window fits in the viewport
+ * while respecting the locked aspect ratio and the minimum size.
+ */
+function computeInitialSize(): { width: number; height: number } {
+  return computeConstrainedSize(FULL_WIDTH, FULL_HEIGHT);
+}
+
+/** Center a window of given size within the viewport */
+function computeCenteredPosition(size: { width: number; height: number }): {
+  x: number;
+  y: number;
+} {
+  return {
+    x: Math.max(0, window.innerWidth / 2 - size.width / 2),
+    y: Math.max(0, window.innerHeight / 2 - size.height / 2),
+  };
+}
+
+/** Clamp position so the window stays within the viewport bounds */
+function clampPosition(
+  pos: { x: number; y: number },
+  size: { width: number; height: number },
+): { x: number; y: number } {
+  return {
+    x: Math.max(0, Math.min(pos.x, window.innerWidth - size.width)),
+    y: Math.max(0, Math.min(pos.y, window.innerHeight - size.height)),
+  };
+}
+
+/**
  * Windows 95 style game window
  * Wraps the game scene in a Win95 window frame
  * Can show welcome screen or game content
  * Dialogs are rendered inside the content area for containment
+ *
+ * Uses controlled mode for Rnd so the window automatically adapts
+ * when the browser viewport is resized.
  */
 export function Win95GameWindow({
   children,
@@ -75,24 +115,54 @@ export function Win95GameWindow({
   dialogContent,
   welcomeContent,
 }: Win95GameWindowProps) {
-  const initialSize = useMemo(() => computeInitialSize(), []);
+  const [windowState, setWindowState] = useState(() => {
+    const size = computeInitialSize();
+    const position = computeCenteredPosition(size);
+    return { ...size, ...position };
+  });
+
+  // Recompute size/position when the viewport changes
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowState((prev) => {
+        const newSize = computeConstrainedSize(prev.width, prev.height);
+        const newPos = clampPosition({ x: prev.x, y: prev.y }, newSize);
+        return { ...newSize, ...newPos };
+      });
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const handleResizeStop = useCallback(
+    (width: number, height: number, x: number, y: number) => {
+      setWindowState({ width, height, x, y });
+    },
+    [],
+  );
+
+  const handleDragStop = useCallback((x: number, y: number) => {
+    setWindowState((prev) => ({ ...prev, x, y }));
+  }, []);
 
   return (
     <Win95Window
+      controlled
       title="Daniele_Tortora_Portfolio.exe - Interactive Portfolio"
       onClose={onClose}
       isActive={isActive}
       onFocus={onFocus}
       zIndex={zIndex}
-      initialWidth={initialSize.width}
-      initialHeight={initialSize.height}
+      size={{ width: windowState.width, height: windowState.height }}
+      position={{ x: windowState.x, y: windowState.y }}
+      onResizeStop={handleResizeStop}
+      onDragStop={handleDragStop}
       minWidth={MIN_WIDTH}
       minHeight={MIN_HEIGHT}
       maxWidth="95vw"
       maxHeight="90vh"
       aspectRatio={ASPECT_RATIO}
-      initialX="center"
-      initialY="center"
       contentClassName={styles.gameContent}
       showMinimizeButton={true}
     >
