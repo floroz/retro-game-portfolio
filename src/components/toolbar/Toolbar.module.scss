@@ -1,5 +1,6 @@
 @use "../../styles/functions" as *;
 @use "../../styles/mixins" as *;
+@use "../../styles/variables" as vars;
 
 /* SCUMM-style toolbar - 40/40/20 grid */
 .toolbar {
@@ -7,8 +8,12 @@
   grid-template-columns: 40% 40% 20%;
   height: 100%;
   padding: to-rem(12px) to-rem(16px);
-  background: linear-gradient(180deg, #3a3a5c 0%, #2a2a4a 100%);
-  border-block-start: to-rem(4px) solid #4a4a6c;
+  background: linear-gradient(
+    180deg,
+    vars.$color-toolbar-bg-top 0%,
+    vars.$color-toolbar-bg-bottom 100%
+  );
+  border-block-start: to-rem(4px) solid vars.$color-toolbar-border;
 }
 
 /* Action buttons section (40%) */

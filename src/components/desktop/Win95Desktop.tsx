@@ -11,7 +11,7 @@ interface Win95DesktopProps {
   isOpen: boolean;
   onClose: () => void;
   gameContent?: ReactNode;
-  modalContent?: ReactNode; // Modal content to render inside game window
+  dialogContent?: ReactNode; // Dialog content to render inside game window
   welcomeContent?: ReactNode; // Welcome screen to show before game content
 }
 
@@ -32,7 +32,7 @@ type OpenWindow = "game" | "terminal" | null;
 export function Win95Desktop({
   isOpen,
   gameContent,
-  modalContent,
+  dialogContent,
   welcomeContent,
 }: Win95DesktopProps) {
   const {
@@ -60,7 +60,7 @@ export function Win95Desktop({
 
   const {
     setGameWindowActive,
-    modalOpen,
+    terminalScreenAction,
     dialogOpen,
     soundEnabled,
     toggleSound,
@@ -119,13 +119,18 @@ export function Win95Desktop({
     handleCloseWindow("game");
   };
 
-  // Handle Escape key - Only close desktop if no modal/dialog is open
-  // (Modal and dialog components handle their own ESC key)
+  // Handle Escape key - Only close desktop if no terminal screen/dialog is open
+  // (Terminal screen and dialog components handle their own ESC key)
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // Don't close desktop on ESC - let modals/dialogs handle it
+      // Don't close desktop on ESC - let terminal screen/dialogs handle it
       // In windowed mode, ESC should not close the entire desktop
-      if (isOpen && e.key === "Escape" && !modalOpen && !dialogOpen) {
+      if (
+        isOpen &&
+        e.key === "Escape" &&
+        !terminalScreenAction &&
+        !dialogOpen
+      ) {
         // Do nothing - user can click the X button to close if needed
         return;
       }
@@ -133,7 +138,7 @@ export function Win95Desktop({
 
     window.addEventListener("keydown", handleGlobalKeyDown);
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, [isOpen, modalOpen, dialogOpen]);
+  }, [isOpen, terminalScreenAction, dialogOpen]);
 
   // Focus terminal input when terminal is active and user clicks on it
   // Removed auto-focus to allow keyboard shortcuts to work in windowed mode
@@ -295,7 +300,7 @@ export function Win95Desktop({
                 setActiveWindow("game");
               }}
               zIndex={getZIndex("game")}
-              modalContent={modalContent}
+              dialogContent={dialogContent}
               welcomeContent={welcomeContent}
             >
               {gameContent}

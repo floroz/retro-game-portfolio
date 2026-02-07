@@ -8,13 +8,10 @@ import { useGameStore } from "../../store/gameStore";
  * Layout: ActionGrid (40%) | Status Text (40%) | IconGrid (20%)
  */
 export function Toolbar() {
-  const { hoveredObject, activeAction } = useGameStore();
+  const hoveredObject = useGameStore((state) => state.hoveredObject);
 
   // Generate status text based on current state
   const getStatusText = () => {
-    if (activeAction) {
-      return `View ${activeAction.charAt(0).toUpperCase() + activeAction.slice(1)}`;
-    }
     if (hoveredObject) {
       const labels: Record<string, string> = {
         experience: "View Experience",
@@ -26,6 +23,7 @@ export function Toolbar() {
         linkedin: "Visit LinkedIn Profile",
         talk: "Talk to Daniele",
         terminal: "Open Terminal",
+        sound: "Toggle Sound",
       };
       return labels[hoveredObject] || hoveredObject;
     }

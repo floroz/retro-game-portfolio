@@ -53,10 +53,10 @@ describe("useSceneClick", () => {
   beforeEach(() => {
     // Reset store to clean state
     const store = useGameStore.getState();
-    store.closeModal();
+    store.closeTerminalScreen();
     store.closeDialog();
     useGameStore.setState({
-      modalOpen: false,
+      terminalScreenAction: null,
       terminalOpen: false,
       gameWindowActive: true,
       hoveredObject: null,
@@ -73,7 +73,7 @@ describe("useSceneClick", () => {
 
       const state = useGameStore.getState();
       // Check that triggerAction was called by verifying the state changes
-      expect(state.activeAction).toBe("about");
+      expect(state.pendingAction?.action).toBe("about");
       expect(state.characterState).toBe("walking");
     });
 
@@ -85,11 +85,11 @@ describe("useSceneClick", () => {
       });
 
       const state = useGameStore.getState();
-      expect(state.activeAction).toBeNull();
+      expect(state.pendingAction).toBeNull();
     });
 
-    test("should not trigger action when modal is open", () => {
-      useGameStore.setState({ modalOpen: true });
+    test("should not trigger action when terminal screen is open", () => {
+      useGameStore.setState({ terminalScreenAction: "about" });
 
       const { result } = renderHook(() => useSceneClick());
 
@@ -98,7 +98,7 @@ describe("useSceneClick", () => {
       });
 
       const state = useGameStore.getState();
-      expect(state.activeAction).toBeNull();
+      expect(state.pendingAction).toBeNull();
     });
 
     test("should not trigger action when terminal is open and game window is inactive", () => {
@@ -111,7 +111,7 @@ describe("useSceneClick", () => {
       });
 
       const state = useGameStore.getState();
-      expect(state.activeAction).toBeNull();
+      expect(state.pendingAction).toBeNull();
     });
 
     test("should trigger action when terminal is open but game window is active", () => {
@@ -124,7 +124,7 @@ describe("useSceneClick", () => {
       });
 
       const state = useGameStore.getState();
-      expect(state.activeAction).toBe("about");
+      expect(state.pendingAction?.action).toBe("about");
       expect(state.characterState).toBe("walking");
     });
   });
@@ -166,7 +166,7 @@ describe("useSceneClick", () => {
       });
 
       const state = useGameStore.getState();
-      expect(state.activeAction).toBe("about");
+      expect(state.pendingAction?.action).toBe("about");
       expect(state.characterState).toBe("walking");
     });
 
@@ -178,11 +178,11 @@ describe("useSceneClick", () => {
       });
 
       const state = useGameStore.getState();
-      expect(state.activeAction).toBeNull();
+      expect(state.pendingAction).toBeNull();
     });
 
-    test("should not trigger action when modal is open", () => {
-      useGameStore.setState({ modalOpen: true });
+    test("should not trigger action when terminal screen is open", () => {
+      useGameStore.setState({ terminalScreenAction: "about" });
 
       const { result } = renderHook(() => useSceneClick());
 
@@ -191,7 +191,7 @@ describe("useSceneClick", () => {
       });
 
       const state = useGameStore.getState();
-      expect(state.activeAction).toBeNull();
+      expect(state.pendingAction).toBeNull();
     });
 
     test("should not trigger action when terminal is open and game window is inactive", () => {
@@ -204,7 +204,7 @@ describe("useSceneClick", () => {
       });
 
       const state = useGameStore.getState();
-      expect(state.activeAction).toBeNull();
+      expect(state.pendingAction).toBeNull();
     });
 
     test("should trigger action when terminal is open but game window is active", () => {
@@ -217,7 +217,7 @@ describe("useSceneClick", () => {
       });
 
       const state = useGameStore.getState();
-      expect(state.activeAction).toBe("about");
+      expect(state.pendingAction?.action).toBe("about");
       expect(state.characterState).toBe("walking");
     });
   });

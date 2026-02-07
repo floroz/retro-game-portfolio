@@ -4,9 +4,10 @@ import { useGameStore } from "../store/gameStore";
 /**
  * Global keyboard shortcuts for the game
  * Note: Win95 Desktop is now always active, so terminal toggle is removed
+ * ESC for terminal screen is handled by the TerminalScreen component itself
  */
 export function useKeyboardShortcuts() {
-  const { closeModal, modalOpen } = useGameStore();
+  const { closeTerminalScreen, terminalScreenAction } = useGameStore();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -20,9 +21,9 @@ export function useKeyboardShortcuts() {
 
       switch (e.key) {
         case "Escape":
-          // Close modal if open
-          if (modalOpen) {
-            closeModal();
+          // Close terminal screen if open
+          if (terminalScreenAction) {
+            closeTerminalScreen();
           }
           break;
       }
@@ -30,5 +31,5 @@ export function useKeyboardShortcuts() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [closeModal, modalOpen]);
+  }, [closeTerminalScreen, terminalScreenAction]);
 }

@@ -9,7 +9,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Intro - shown first after welcome screen with typewriter effect
   intro: {
     speaker: "daniele",
-    text: "Hey! Welcome to my portfolio. I'm Daniele—a software engineer based in Zürich.",
+    text: "Hey! Welcome to my portfolio. I'm Daniele, a software engineer based in Switzerland.",
     options: [{ id: "continue", label: "Continue...", nextNode: "intro-2" }],
   },
 
@@ -71,7 +71,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-intro-2": {
     speaker: "daniele",
-    text: "8+ years later, I'm in Zürich bridging complex systems and intuitive UX.",
+    text: "10 years later, I'm in Switzerland bridging complex systems and intuitive UX.",
     options: [
       {
         id: "about-more",
@@ -93,7 +93,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-details": {
     speaker: "daniele",
-    text: "My psychology background drives my focus on human experience. Now I'm full-stack—React, Vue, Node.js, Go, Kubernetes.",
+    text: "My psychology background drives my focus on human experience. Now I'm full-stack-React, Next.js, Vue, Node.js, Go, Kubernetes.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "about-details-2" },
     ],
@@ -147,7 +147,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-games": {
     speaker: "daniele",
-    text: "LucasArts adventures are my favorite—Monkey Island, Day of the Tentacle, Grim Fandango. This portfolio is a love letter to that era.",
+    text: "LucasArts adventures are my favorite-Monkey Island, Day of the Tentacle, Grim Fandango. This portfolio is a love letter to that era.",
     options: [
       {
         id: "back",
@@ -160,7 +160,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Work branch
   "work-intro": {
     speaker: "daniele",
-    text: "I'm a Full Stack Engineer at Snyk, building AI-powered security features scanning 500K+ projects daily.",
+    text: "I'm a Full Stack Engineer at Snyk, building Frontend platforms and AI-powered security features.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-intro-2" },
     ],
@@ -168,7 +168,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-intro-2": {
     speaker: "daniele",
-    text: "Previously Tech Lead at Frontiers and engineer at Meta. I build tools that help developers sleep better at night!",
+    text: "Previously Tech Lead at Frontiers and engineer at Meta. I build delightful experiences while keeping an eye on performance and scalability.",
     options: [
       {
         id: "work-stack",
@@ -190,7 +190,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-stack": {
     speaker: "daniele",
-    text: "Frontend: React, Vue, TypeScript. Backend: Node.js, Go. Infrastructure: Kubernetes, AWS, GCP.",
+    text: "Frontend: React, Next.js, Vue, TypeScript, TanStack. Backend: Node.js, Go, PostgreSQL. DevOps: Kubernetes, Docker, CI/CD pipelines.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-stack-2" },
     ],
@@ -215,7 +215,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-projects": {
     speaker: "daniele",
-    text: "At Snyk: AI-assisted security rules interface, worker-thread architecture cutting latency by 65%.",
+    text: "At Snyk: Building Frontend platforms, Reporting Dashboards and AI-assisted security features.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-projects-2" },
     ],
@@ -243,7 +243,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-experience-2": {
     speaker: "daniele",
-    text: "Also senior roles at Tundra, Tray.ai, and OVO Energy. 8+ years shipping code.",
+    text: "Also senior roles at Tundra, Tray.ai, and OVO Energy. 10 years shipping code.",
     options: [
       {
         id: "back",
@@ -290,7 +290,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "hire-remote": {
     speaker: "daniele",
-    text: "Based in Zürich, but experienced with remote/hybrid work. Async communication, video calls, good documentation—I know the drill.",
+    text: "Based in Switzerland, but experienced with remote/hybrid work. Async communication, video calls, good documentation—I know the drill.",
     options: [
       {
         id: "back",

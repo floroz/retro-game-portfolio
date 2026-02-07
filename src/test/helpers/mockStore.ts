@@ -30,8 +30,8 @@ export function createMockStore(overrides: Partial<GameState> = {}): GameState {
     onArrival: vi.fn(),
     setHoveredObject: vi.fn(),
     triggerAction: vi.fn(),
-    openModal: vi.fn(),
-    closeModal: vi.fn(),
+    openTerminalScreen: vi.fn(),
+    closeTerminalScreen: vi.fn(),
     setGameWindowActive: vi.fn(),
     startMobileDialogSession: vi.fn(),
   };

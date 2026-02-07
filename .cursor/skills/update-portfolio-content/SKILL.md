@@ -79,11 +79,11 @@ The portfolio has a retro game theme (Day of the Tentacle / Monkey Island inspir
 
 ```typescript
 // Good - playful with accurate info
-"Plot twist: I started with a Master's in Psychology! 8+ years later,
+"Plot twist: I started with a Master's in Psychology! 10 years later,
 here I am in Zürich, building AI-powered security tools at Snyk."
 
 // Bad - too formal
-"I am a Senior Software Engineer with 8 years of experience
+"I am a Senior Software Engineer with 10 years of experience
 currently employed at Snyk in Zürich, Switzerland."
 ```
 

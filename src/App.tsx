@@ -4,7 +4,7 @@ import { GameCanvas } from "./components/game/GameCanvas";
 import gameCanvasStyles from "./components/game/GameCanvas.module.scss";
 import { Scene } from "./components/game/Scene";
 import { Toolbar } from "./components/toolbar/Toolbar";
-import { ContentModal } from "./components/game/ContentModal";
+import { TerminalScreen } from "./components/game/TerminalScreen";
 import { Win95Desktop } from "./components/desktop/Win95Desktop";
 import { WelcomeScreen } from "./components/dialog/WelcomeScreen";
 import { AdventureDialog } from "./components/dialog/AdventureDialog";
@@ -32,9 +32,8 @@ function App() {
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
 
   const {
-    modalOpen,
-    activeAction,
-    closeModal,
+    terminalScreenAction,
+    closeTerminalScreen,
     welcomeShown,
     dismissWelcome,
     dialogOpen,
@@ -68,21 +67,7 @@ function App() {
     }
 
     // After welcome dismissed, show mobile terminal
-    return (
-      <>
-        <MobileTerminal />
-
-        {/* Content modal overlay - shared with desktop */}
-        <ContentModal
-          isOpen={modalOpen}
-          action={activeAction}
-          onClose={closeModal}
-        />
-
-        {/* Adventure dialog overlay - keep for shared types but hidden on mobile */}
-        <AdventureDialog isOpen={false} onClose={closeDialog} />
-      </>
-    );
+    return <MobileTerminal />;
   }
 
   // Desktop experience - always render Win95 Desktop with game window
@@ -95,17 +80,24 @@ function App() {
         onClose={() => {}} // No-op since desktop is always open
         gameContent={
           welcomeShown ? (
-            <GameCanvas>
-              {/* Scene area - 1280x640 */}
-              <div className={gameCanvasStyles.scene}>
-                <Scene />
-              </div>
+            terminalScreenAction ? (
+              <TerminalScreen
+                action={terminalScreenAction}
+                onClose={closeTerminalScreen}
+              />
+            ) : (
+              <GameCanvas>
+                {/* Scene area - 1280x640 */}
+                <div className={gameCanvasStyles.scene}>
+                  <Scene />
+                </div>
 
-              {/* Toolbar area - 1280x160 */}
-              <div className={gameCanvasStyles.toolbar}>
-                <Toolbar />
-              </div>
-            </GameCanvas>
+                {/* Toolbar area - 1280x160 */}
+                <div className={gameCanvasStyles.toolbar}>
+                  <Toolbar />
+                </div>
+              </GameCanvas>
+            )
           ) : undefined
         }
         welcomeContent={
@@ -119,26 +111,17 @@ function App() {
             />
           ) : undefined
         }
-        modalContent={
-          <>
-            {/* Modals always contained in windowed mode */}
-            <ContentModal
-              isOpen={modalOpen}
-              action={activeAction}
-              onClose={closeModal}
-              contained={true}
-            />
-            <AdventureDialog
-              isOpen={dialogOpen}
-              onClose={closeDialog}
-              contained={true}
-            />
-          </>
+        dialogContent={
+          <AdventureDialog
+            isOpen={dialogOpen}
+            onClose={closeDialog}
+            contained={true}
+          />
         }
       />
 
       {/* Copyright footer */}
-      <footer className={styles.copyright}>© 2026 Daniele Tortora</footer>
+      <footer className={styles.copyright}>&copy; 2026 Daniele Tortora</footer>
     </div>
   );
 }

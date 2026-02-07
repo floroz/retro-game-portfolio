@@ -3,11 +3,24 @@ import { useMemo } from "react";
 import { Win95Window } from "./Win95Window";
 import styles from "./Win95GameWindow.module.scss";
 
-/** Aspect ratio for the game window (16:10) */
-const ASPECT_RATIO = 16 / 10;
+/**
+ * Window chrome measurements (borders, margins, title bar).
+ * These must stay in sync with Win95Window.module.scss & Win95GameWindow.module.scss.
+ *
+ * Horizontal (per side): .window border 2px + .content margin 2px + .content border 2px = 6px
+ * Vertical: .window border-top 2px + titleBar ~26px + .content margin-top 2px
+ *         + .content border-top 2px + .content border-bottom 2px
+ *         + .content margin-bottom 2px + .window border-bottom 2px = 38px
+ */
+const CHROME_H = 12; // 6px × 2 sides
+const CHROME_V = 38; // title bar + borders + margins
 
-/** Full-size dimensions including window chrome (borders + title bar) */
-const FULL_WIDTH = 1296;
+/** Full-size outer dimensions so the inner content area is exactly 1280×800 */
+const FULL_WIDTH = 1280 + CHROME_H; // 1292
+const FULL_HEIGHT = 800 + CHROME_V; // 838
+
+/** Outer aspect ratio — accounts for chrome so the game canvas fills perfectly */
+const ASPECT_RATIO = FULL_WIDTH / FULL_HEIGHT;
 
 /** Minimum window width – game should never be smaller than this */
 const MIN_WIDTH = 900;
@@ -19,7 +32,7 @@ interface Win95GameWindowProps {
   isActive: boolean;
   onFocus: () => void;
   zIndex: number;
-  modalContent?: ReactNode; // Modal/dialog content to render inside window
+  dialogContent?: ReactNode; // Dialog content to render inside window
   welcomeContent?: ReactNode; // Welcome screen content to render before game
 }
 
@@ -51,7 +64,7 @@ function computeInitialSize(): { width: number; height: number } {
  * Windows 95 style game window
  * Wraps the game scene in a Win95 window frame
  * Can show welcome screen or game content
- * Modals/dialogs are rendered inside the content area for containment
+ * Dialogs are rendered inside the content area for containment
  */
 export function Win95GameWindow({
   children,
@@ -59,7 +72,7 @@ export function Win95GameWindow({
   isActive,
   onFocus,
   zIndex,
-  modalContent,
+  dialogContent,
   welcomeContent,
 }: Win95GameWindowProps) {
   const initialSize = useMemo(() => computeInitialSize(), []);
@@ -86,8 +99,8 @@ export function Win95GameWindow({
       <div className={styles.innerContent} data-e2e="win95-game-window">
         {/* Show welcome screen if provided, otherwise show game content */}
         {welcomeContent || children}
-        {/* Modals/dialogs rendered inside window for containment */}
-        {modalContent}
+        {/* Dialogs rendered inside window for containment */}
+        {dialogContent}
       </div>
     </Win95Window>
   );

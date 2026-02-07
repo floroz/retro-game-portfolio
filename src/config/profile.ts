@@ -7,7 +7,7 @@ export const PROFILE = {
   // Personal
   name: "Daniele Tortora",
   title: "Senior Software Engineer | Frontend & Full-Stack | AI Focused",
-  location: "Zürich, Switzerland",
+  location: "Switzerland",
 
   // Contact
   email: "danieletortora.contact@gmail.com",
@@ -18,14 +18,8 @@ export const PROFILE = {
     linkedin: "https://www.linkedin.com/in/danieletortora/",
   },
 
-  // Portfolio metadata
-  portfolio: {
-    version: "4.0",
-    title: "DANIELE TORTORA",
-  },
-
   // Bio/About summary
-  bio: `As a software engineer with over 9 years of experience, I've built my career on a core belief: that the most powerful systems are defined by their human experience.
+  bio: `As a software engineer with 10 years of experience, I've built my career on a core belief: that the most powerful systems are defined by their human experience.
 
 This principle, shaped by my background in psychology, drives me to bridge the divide between complex software architecture and elegant, intuitive user interfaces.
 
@@ -40,16 +34,16 @@ When I'm not coding, you can find me:
   skills: {
     frontend: [
       "React",
+      "TypeScript",
       "Vue.js",
       "Next.js",
       "Nuxt",
-      "TypeScript",
       "JavaScript",
       "Tailwind CSS",
       "Design Systems",
       "Component Libraries",
-      "Storybook",
       "Accessibility (WCAG)",
+      "Storybook",
     ],
     backend: [
       "Node.js",
@@ -58,36 +52,34 @@ When I'm not coding, you can find me:
       "GraphQL",
       "REST API",
       "gRPC",
-      "WebSockets",
       "Microservices",
       "Distributed Systems",
     ],
     ai: [
       "AI Integration",
       "Cursor",
-      "Claude AI",
+      "Claude",
       "Gemini",
       "OpenAI APIs",
       "Prompt Engineering",
+      "Context Management",
     ],
     cloud: [
       "AWS",
       "GCP",
       "Kubernetes",
       "Docker",
-      "Terraform",
       "CI/CD",
       "GitHub Actions",
       "Datadog",
-      "OpenTelemetry",
     ],
     data: ["PostgreSQL", "MongoDB", "Redis", "Kafka", "NATS", "Message Queues"],
     testing: [
       "Playwright",
+      "Vitest",
       "Cypress",
       "Testing Library",
       "Jest",
-      "Vitest",
       "Visual Regression Testing",
     ],
     leadership: [
@@ -101,11 +93,11 @@ When I'm not coding, you can find me:
   },
 
   // Experience summary
-  experienceSummary: `Senior Software Engineer with over 9 years building production applications across the full stack.
+  experienceSummary: `Senior Software Engineer with 10 years building production applications across the full stack.
 
 Currently at Snyk:
-• Building AI-powered security features serving 500K+ daily scans
-• Designed worker-thread architecture cutting p95 latency by 65%
+• Building the Frontend Platform and AI-powered security features
+• Providing technical leadership across teams and projects
 • Won 3rd place company-wide for AI adoption initiatives
 
 Previously:
@@ -145,13 +137,13 @@ Core expertise: React, Vue, TypeScript, Node.js, Go, Kubernetes, AI integration`
 
   // Contact section content
   contactInterests: [
-    "Exciting opportunities in AI & developer tools",
+    "Exciting opportunities in AI & and building platforms",
     "Full-stack and frontend challenges",
     "Tech conversations over coffee",
     "Open source collaboration",
   ],
 
-  // Resume link (if available)
+  // Resume link
   resumeUrl: "/resume.pdf",
 
   // Work experience (for SEO/noscript fallback)
@@ -181,6 +173,11 @@ Core expertise: React, Vue, TypeScript, Node.js, Go, Kubernetes, AI integration`
       role: "Senior Frontend Engineer",
       period: "Jan 2021 - Oct 2021",
     },
+    {
+      company: "Past Frontend Roles",
+      role: "Frontend Engineer / Software Engineer",
+      period: "Sep 2016 - Dec 2020",
+    },
   ],
 
   // SEO metadata
@@ -205,7 +202,6 @@ Core expertise: React, Vue, TypeScript, Node.js, Go, Kubernetes, AI integration`
       "Node.js",
       "AI Integration",
       "Design Systems",
-      "Zurich",
       "Switzerland",
     ],
   },
