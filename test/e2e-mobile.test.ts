@@ -110,7 +110,7 @@ test.describe("Mobile Portfolio E2E Tests", () => {
     await expect(terminal).toContainText("Senior Software Engineer");
 
     // Intro dialog should start automatically
-    await expect(page.getByText(/Well, well, well/i)).toBeVisible({
+    await expect(page.getByText(/Hey! Welcome to my portfolio/i)).toBeVisible({
       timeout: 10000,
     });
   });
@@ -190,7 +190,6 @@ test.describe("Mobile Portfolio E2E Tests", () => {
     await expect(desktop.getByText("ABOUT.EXE")).toBeVisible();
     await expect(desktop.getByText("EXPERIENCE.EXE")).toBeVisible();
     await expect(desktop.getByText("SKILLS.EXE")).toBeVisible();
-    await expect(desktop.getByText("PROJECTS.EXE")).toBeVisible();
     await expect(desktop.getByText("CONTACT.EXE")).toBeVisible();
     await expect(desktop.getByText("TALK.EXE")).toBeVisible();
 
@@ -201,7 +200,7 @@ test.describe("Mobile Portfolio E2E Tests", () => {
     await expect(desktop).not.toBeVisible({ timeout: 2000 });
 
     // TALK command should execute - dialog should appear
-    await expect(page.getByText(/Well, well, well/i)).toBeVisible({
+    await expect(page.getByText(/Hey! Welcome to my portfolio/i)).toBeVisible({
       timeout: 15000,
     });
   });
@@ -232,7 +231,7 @@ test.describe("Mobile Portfolio E2E Tests", () => {
     await dismissBiosIfPresent(page);
 
     // Wait for intro dialog message
-    await expect(page.getByText(/Well, well, well/i)).toBeVisible({
+    await expect(page.getByText(/Hey! Welcome to my portfolio/i)).toBeVisible({
       timeout: 10000,
     });
   });
@@ -248,7 +247,7 @@ test.describe("Mobile Portfolio E2E Tests", () => {
     await expect(
       page
         .locator("[data-e2e=dialog-option]")
-        .filter({ hasText: /Nice to meet you!/i }),
+        .filter({ hasText: /Continue\.\.\./i }),
     ).toBeVisible({
       timeout: 15000, // Increased timeout for typewriter
     });
@@ -262,7 +261,7 @@ test.describe("Mobile Portfolio E2E Tests", () => {
     // Wait for first option
     const option = page
       .locator("[data-e2e=dialog-option]")
-      .filter({ hasText: /Nice to meet you!/i });
+      .filter({ hasText: /Continue\.\.\./i });
     await expect(option).toBeVisible({ timeout: 15000 });
 
     // Tap option
@@ -272,7 +271,7 @@ test.describe("Mobile Portfolio E2E Tests", () => {
     await expect(
       page
         .locator("[data-e2e=dialog-agent-message]")
-        .filter({ hasText: /what quest brings you here/i })
+        .filter({ hasText: /What would you like to know/i })
         .last(),
     ).toBeVisible({
       timeout: 10000,
@@ -288,7 +287,7 @@ test.describe("Mobile Portfolio E2E Tests", () => {
     await expect(
       page
         .locator("[data-e2e=dialog-option]")
-        .filter({ hasText: /Nice to meet you!/i }),
+        .filter({ hasText: /Continue\.\.\./i }),
     ).toBeVisible({
       timeout: 15000,
     });
@@ -302,7 +301,7 @@ test.describe("Mobile Portfolio E2E Tests", () => {
     await expect(
       page
         .locator("[data-e2e=dialog-agent-message]")
-        .filter({ hasText: /what quest brings you here/i })
+        .filter({ hasText: /What would you like to know/i })
         .last(),
     ).toBeVisible({
       timeout: 10000,
@@ -317,20 +316,20 @@ test.describe("Mobile Portfolio E2E Tests", () => {
     // Wait for first message
     const firstMsg = page
       .locator("[data-e2e=dialog-agent-message]")
-      .filter({ hasText: /Well, well, well/i });
+      .filter({ hasText: /Hey! Welcome to my portfolio/i });
     await expect(firstMsg.first()).toBeVisible({ timeout: 15000 });
 
     // Select option
     const option = page
       .locator("[data-e2e=dialog-option]")
-      .filter({ hasText: /Nice to meet you!/i });
+      .filter({ hasText: /Continue\.\.\./i });
     await expect(option).toBeVisible({ timeout: 15000 });
     await option.tap();
 
     // Wait for second message
     const secondMsg = page
       .locator("[data-e2e=dialog-agent-message]")
-      .filter({ hasText: /what quest brings you here/i });
+      .filter({ hasText: /What would you like to know/i });
     await expect(secondMsg.first()).toBeVisible({ timeout: 15000 });
 
     // Both messages should still be visible in history
@@ -392,7 +391,7 @@ test.describe("Mobile Visual Regression Tests", () => {
     await dismissBiosIfPresent(page);
 
     // Wait for dialog to appear
-    await expect(page.getByText(/Well, well, well/i)).toBeVisible({
+    await expect(page.getByText(/Hey! Welcome to my portfolio/i)).toBeVisible({
       timeout: 15000,
     });
     await page.waitForTimeout(500);
@@ -413,7 +412,7 @@ test.describe("Mobile Visual Regression Tests", () => {
     await expect(
       page
         .locator("[data-e2e=dialog-option]")
-        .filter({ hasText: /Nice to meet you!/i }),
+        .filter({ hasText: /Continue\.\.\./i }),
     ).toBeVisible({
       timeout: 15000,
     });
@@ -435,20 +434,20 @@ test.describe("Mobile Visual Regression Tests", () => {
     await expect(
       page
         .locator("[data-e2e=dialog-option]")
-        .filter({ hasText: /Nice to meet you!/i }),
+        .filter({ hasText: /Continue\.\.\./i }),
     ).toBeVisible({
       timeout: 15000,
     });
     await page
       .locator("[data-e2e=dialog-option]")
-      .filter({ hasText: /Nice to meet you!/i })
+      .filter({ hasText: /Continue\.\.\./i })
       .tap();
 
     // Wait for second message
     await expect(
       page
         .locator("[data-e2e=dialog-agent-message]")
-        .filter({ hasText: /what quest brings you here/i })
+        .filter({ hasText: /What would you like to know/i })
         .last(),
     ).toBeVisible({ timeout: 15000 });
     await page.waitForTimeout(500);
@@ -514,7 +513,7 @@ tabletTest.describe("Mobile Tablet Tests", () => {
     await expect(terminal).toBeVisible({ timeout: 5000 });
 
     // Wait for intro dialog
-    await expect(page.getByText(/Well, well, well/i)).toBeVisible({
+    await expect(page.getByText(/Hey! Welcome to my portfolio/i)).toBeVisible({
       timeout: 15000,
     });
   });
@@ -541,7 +540,7 @@ test.describe("Mobile Accessibility Tests", () => {
     // Wait for options
     const option = page
       .locator("[data-e2e=dialog-option]")
-      .filter({ hasText: /Nice to meet you!/i });
+      .filter({ hasText: /Continue\.\.\./i });
     await expect(option).toBeVisible({ timeout: 15000 });
 
     // Check accessibility attributes

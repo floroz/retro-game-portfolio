@@ -5,21 +5,26 @@ import { useTypewriter } from "../../hooks/useTypewriter";
 import { useDialogSound } from "../../hooks/useDialogSound";
 import { DialogPortrait } from "./DialogPortrait";
 import { DialogOptions } from "./DialogOptions";
-import { SoundToggleButton } from "../shared/SoundToggleButton";
 import type { DialogOption } from "../../types/game";
 import styles from "./AdventureDialog.module.scss";
 
 interface AdventureDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  contained?: boolean; // NEW: whether dialog is contained within game window
 }
 
 /**
  * Adventure game style dialog box
  * Features typewriter text, portrait, and selectable options
  * The dialog container stays stable - only content changes between nodes
+ * Can be contained within game window or cover full viewport
  */
-export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
+export function AdventureDialog({
+  isOpen,
+  onClose,
+  contained = false,
+}: AdventureDialogProps) {
   const { dialogNode, selectDialogOption } = useGameStore();
 
   // Track the dialogNode that this selection belongs to
@@ -41,12 +46,13 @@ export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
   const options = currentNode?.options;
 
   // Typewriter effect for dialog text
+  // Only pass text to typewriter when dialog is open to prevent premature typing
   const {
     displayedText,
     isTyping,
     skip: skipTypewriter,
     stop: stopTypewriter,
-  } = useTypewriter(currentNode?.text || "", {
+  } = useTypewriter(isOpen && currentNode ? currentNode.text : "", {
     speed: 40,
     onType: playTypingSound,
   });
@@ -139,6 +145,13 @@ export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
     };
   }, [stopTypewriter]);
 
+  // If dialog is open but no valid node exists, close it to prevent empty display
+  useEffect(() => {
+    if (isOpen && !currentNode && dialogNode) {
+      onClose();
+    }
+  }, [isOpen, currentNode, dialogNode, onClose]);
+
   if (!isOpen || !currentNode) {
     return null;
   }
@@ -146,9 +159,12 @@ export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
   const speakerName =
     currentNode.speaker === "daniele" ? "DANIELE" : "NARRATOR";
 
+  // Use contained styles when in windowed mode
+  const overlayClass = contained ? styles.overlayContained : styles.overlay;
+
   return (
     <div
-      className={styles.overlay}
+      className={overlayClass}
       data-e2e="adventure-dialog-overlay"
       onClick={handleClose}
     >
@@ -165,7 +181,6 @@ export function AdventureDialog({ isOpen, onClose }: AdventureDialogProps) {
           <span id="dialog-speaker" className={styles.speaker}>
             {speakerName}
           </span>
-          <SoundToggleButton />
         </div>
 
         {/* Content area with portrait and text */}

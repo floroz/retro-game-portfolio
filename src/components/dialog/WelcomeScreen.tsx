@@ -6,13 +6,18 @@ import styles from "./WelcomeScreen.module.scss";
 
 interface WelcomeScreenProps {
   onDismiss: () => void;
+  contained?: boolean; // When true, renders inside Win95 Game Window instead of full viewport
 }
 
 /**
- * Full-screen welcome intro featuring large portrait
+ * Welcome intro featuring large portrait
+ * Can render full-screen or contained within Win95 Game Window
  * Displays once per session, dismisses only on SPACE key or clicking the prompt
  */
-export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
+export function WelcomeScreen({
+  onDismiss,
+  contained = false,
+}: WelcomeScreenProps) {
   const isMobile = useIsMobile();
 
   // Handle dismiss - only triggered by space key or clicking prompt
@@ -61,7 +66,7 @@ export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
 
   return (
     <div
-      className={styles.screen}
+      className={contained ? styles.screenContained : styles.screen}
       data-e2e="welcome-screen"
       role="dialog"
       aria-modal="true"
@@ -107,12 +112,6 @@ export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
           {isMobile ? "[ Tap to begin ]" : "[ Press SPACE to start ]"}
         </button>
       </div>
-
-      {/* Decorative corner elements */}
-      <div className={`${styles.corner} ${styles.cornerTl}`} />
-      <div className={`${styles.corner} ${styles.cornerTr}`} />
-      <div className={`${styles.corner} ${styles.cornerBl}`} />
-      <div className={`${styles.corner} ${styles.cornerBr}`} />
     </div>
   );
 }

@@ -21,6 +21,7 @@ interface GameState {
   pendingAction: { action: ActionType; targetPos: Position } | null;
   modalOpen: boolean;
   terminalOpen: boolean;
+  gameWindowActive: boolean; // Track if game window is active in Win95 desktop
 
   // Dialog state
   welcomeShown: boolean;
@@ -44,6 +45,7 @@ interface GameState {
   closeModal: () => void;
   toggleTerminal: () => void;
   closeTerminal: () => void;
+  setGameWindowActive: (active: boolean) => void;
 
   // Dialog actions
   dismissWelcome: () => void;
@@ -70,7 +72,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   activeAction: null,
   pendingAction: null,
   modalOpen: false,
-  terminalOpen: false,
+  terminalOpen: true, // Always start in Win95 Desktop mode
+  gameWindowActive: true, // Game window is active by default
 
   // Initial dialog state - always start fresh
   welcomeShown: false,
@@ -182,7 +185,9 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({ terminalOpen: !terminalOpen });
   },
 
-  closeTerminal: () => set({ terminalOpen: false }),
+  closeTerminal: () => set({ terminalOpen: false, gameWindowActive: false }),
+
+  setGameWindowActive: (active: boolean) => set({ gameWindowActive: active }),
 
   // Dialog actions
   dismissWelcome: () => {
@@ -190,12 +195,26 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   openDialog: (startNode = "welcome") => {
+    const { terminalOpen, gameWindowActive } = get();
+
+    // Validate that the dialog node exists
+    if (!DIALOG_TREE[startNode]) {
+      console.error(
+        `Dialog node "${startNode}" not found in DIALOG_TREE. Available nodes:`,
+        Object.keys(DIALOG_TREE),
+      );
+      return;
+    }
+
     // Close other overlays first
+    // Don't close terminal if we're in Win95 desktop mode with game window active
+    const shouldKeepTerminalOpen = terminalOpen && gameWindowActive;
+
     set({
       dialogOpen: true,
       dialogNode: startNode,
       modalOpen: false,
-      terminalOpen: false,
+      terminalOpen: shouldKeepTerminalOpen,
     });
   },
 

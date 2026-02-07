@@ -1,0 +1,541 @@
+import { useEffect, useState, type ReactNode } from "react";
+import { useMobileTerminal } from "../../hooks/useMobileTerminal";
+import { useGameStore } from "../../store/gameStore";
+import { Win95TerminalWindow } from "./Win95TerminalWindow";
+import { Win95GameWindow } from "./Win95GameWindow";
+import { Win95LoadingWidget } from "./Win95LoadingWidget";
+import styles from "./Win95Desktop.module.scss";
+import retroDanieleImg from "../../assets/retro-daniele.png";
+
+interface Win95DesktopProps {
+  isOpen: boolean;
+  onClose: () => void;
+  gameContent?: ReactNode;
+  modalContent?: ReactNode; // Modal content to render inside game window
+  welcomeContent?: ReactNode; // Welcome screen to show before game content
+}
+
+interface DesktopIcon {
+  id: string;
+  label: string;
+  command?: string;
+  action?: "openGame" | "openTerminal";
+  icon: React.ReactNode;
+}
+
+type OpenWindow = "game" | "terminal" | null;
+
+/**
+ * Windows 95 Desktop environment with multiple windowed applications
+ * Manages terminal and game windows with taskbar buttons
+ */
+export function Win95Desktop({
+  isOpen,
+  gameContent,
+  modalContent,
+  welcomeContent,
+}: Win95DesktopProps) {
+  const {
+    history,
+    input,
+    setInput,
+    handleKeyDown,
+    executeInput,
+    inputRef,
+    currentDialogMessage,
+    isTyping,
+    skipTypewriter,
+  } = useMobileTerminal();
+
+  // Loading state for game window
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingComplete, setLoadingComplete] = useState(false);
+
+  const [time, setTime] = useState(new Date());
+  const [openWindows, setOpenWindows] = useState<Set<"game" | "terminal">>(
+    () => new Set(), // Start with no windows open
+  );
+  const [activeWindow, setActiveWindow] = useState<OpenWindow>(null);
+  const [windowZOrder, setWindowZOrder] = useState<("game" | "terminal")[]>([]);
+
+  const {
+    setGameWindowActive,
+    modalOpen,
+    dialogOpen,
+    soundEnabled,
+    toggleSound,
+  } = useGameStore();
+
+  // Update game store when game window becomes active/inactive
+  useEffect(() => {
+    setGameWindowActive(activeWindow === "game");
+  }, [activeWindow, setGameWindowActive]);
+
+  // Update clock every second
+  useEffect(() => {
+    const interval = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Start loading game on mount
+  useEffect(() => {
+    startGameLoading();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Helper function to get z-index for a window
+  const getZIndex = (window: "game" | "terminal"): number => {
+    const index = windowZOrder.indexOf(window);
+    return index === -1 ? 100 : 100 + index;
+  };
+
+  // Bring window to front (highest z-index)
+  const bringWindowToFront = (window: "game" | "terminal") => {
+    setWindowZOrder((prev) => {
+      const filtered = prev.filter((w) => w !== window);
+      return [...filtered, window];
+    });
+  };
+
+  // Start game loading sequence
+  const startGameLoading = () => {
+    setIsLoading(true);
+    setLoadingComplete(false);
+    setOpenWindows((prev) => new Set(prev).add("game"));
+    setActiveWindow("game");
+    bringWindowToFront("game");
+  };
+
+  // Handle loading complete
+  const handleLoadingComplete = () => {
+    setIsLoading(false);
+    setLoadingComplete(true);
+  };
+
+  // Handle loading cancel
+  const handleLoadingCancel = () => {
+    setIsLoading(false);
+    setLoadingComplete(false);
+    handleCloseWindow("game");
+  };
+
+  // Handle Escape key - Only close desktop if no modal/dialog is open
+  // (Modal and dialog components handle their own ESC key)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Don't close desktop on ESC - let modals/dialogs handle it
+      // In windowed mode, ESC should not close the entire desktop
+      if (isOpen && e.key === "Escape" && !modalOpen && !dialogOpen) {
+        // Do nothing - user can click the X button to close if needed
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [isOpen, modalOpen, dialogOpen]);
+
+  // Focus terminal input when terminal is active and user clicks on it
+  // Removed auto-focus to allow keyboard shortcuts to work in windowed mode
+
+  // Prevent body scroll when open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  const handleIconClick = (icon: DesktopIcon) => {
+    if (icon.action === "openGame") {
+      if (!openWindows.has("game")) {
+        // Start loading if game isn't open
+        startGameLoading();
+      } else if (isLoading) {
+        // If loading, just bring it to front
+        bringWindowToFront("game");
+        setActiveWindow("game");
+      } else {
+        // Game already loaded, just bring it to front
+        bringWindowToFront("game");
+        setActiveWindow("game");
+      }
+    } else if (icon.action === "openTerminal") {
+      setOpenWindows((prev) => new Set(prev).add("terminal"));
+      bringWindowToFront("terminal");
+      setActiveWindow("terminal");
+    } else if (icon.command) {
+      // Open terminal if not already open
+      setOpenWindows((prev) => new Set(prev).add("terminal"));
+      bringWindowToFront("terminal");
+      setActiveWindow("terminal");
+      executeInput(icon.command);
+      // Focus input after command
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  };
+
+  const handleCloseWindow = (window: "game" | "terminal") => {
+    setOpenWindows((prev) => {
+      const next = new Set(prev);
+      next.delete(window);
+      return next;
+    });
+
+    // If closing game, also cancel any loading
+    if (window === "game") {
+      setIsLoading(false);
+      setLoadingComplete(false);
+      // Turn off sound when closing the game window
+      if (soundEnabled) {
+        toggleSound();
+      }
+    }
+
+    // If closing active window, switch to the other window or none
+    if (activeWindow === window) {
+      if (window === "game" && openWindows.has("terminal")) {
+        setActiveWindow("terminal");
+      } else if (window === "terminal" && openWindows.has("game")) {
+        setActiveWindow("game");
+      } else {
+        setActiveWindow(null);
+      }
+    }
+  };
+
+  const handleTaskbarClick = (window: "game" | "terminal") => {
+    if (activeWindow === window) {
+      // Clicking active window minimizes it (just changes active state)
+      setActiveWindow(null);
+    } else {
+      // Clicking inactive window brings it to front
+      // Also ensure the window is in the openWindows set
+      setOpenWindows((prev) => new Set(prev).add(window));
+      bringWindowToFront(window);
+      setActiveWindow(window);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className={styles.overlay}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Windows 95 Desktop"
+      data-e2e="win95-desktop"
+    >
+      {/* Desktop background */}
+      <div className={styles.desktop}>
+        {/* Desktop icons */}
+        <div className={styles.desktopIcons}>
+          {DESKTOP_ICONS.map((icon) => (
+            <button
+              key={icon.id}
+              className={styles.iconButton}
+              onClick={() => handleIconClick(icon)}
+              onDoubleClick={() => handleIconClick(icon)}
+              type="button"
+              aria-label={`Execute ${icon.label}`}
+              data-e2e={`desktop-icon-${icon.id}`}
+            >
+              <div className={styles.iconImage}>{icon.icon}</div>
+              <span className={styles.iconLabel}>{icon.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Recycle Bin (bottom-right corner) */}
+        <div className={styles.recycleBinIcon}>
+          <button
+            className={styles.iconButton}
+            onClick={() => handleIconClick(RECYCLE_BIN_ICON)}
+            onDoubleClick={() => handleIconClick(RECYCLE_BIN_ICON)}
+            type="button"
+            aria-label={RECYCLE_BIN_ICON.label}
+            data-e2e="desktop-icon-recycle-bin"
+          >
+            <div className={styles.iconImage}>{RECYCLE_BIN_ICON.icon}</div>
+            <span className={styles.iconLabel}>{RECYCLE_BIN_ICON.label}</span>
+          </button>
+        </div>
+
+        {/* Game loading widget - shown when game is loading */}
+        {openWindows.has("game") && isLoading && (
+          <Win95LoadingWidget
+            onCancel={handleLoadingCancel}
+            onComplete={handleLoadingComplete}
+            onFocus={() => {
+              bringWindowToFront("game");
+              setActiveWindow("game");
+            }}
+            zIndex={getZIndex("game")}
+            isActive={activeWindow === "game"}
+          />
+        )}
+
+        {/* Game window */}
+        {openWindows.has("game") &&
+          !isLoading &&
+          loadingComplete &&
+          (gameContent || welcomeContent) && (
+            <Win95GameWindow
+              onClose={() => handleCloseWindow("game")}
+              isActive={activeWindow === "game"}
+              onFocus={() => {
+                bringWindowToFront("game");
+                setActiveWindow("game");
+              }}
+              zIndex={getZIndex("game")}
+              modalContent={modalContent}
+              welcomeContent={welcomeContent}
+            >
+              {gameContent}
+            </Win95GameWindow>
+          )}
+
+        {/* Terminal window */}
+        {openWindows.has("terminal") && (
+          <Win95TerminalWindow
+            history={history}
+            input={input}
+            setInput={setInput}
+            handleKeyDown={handleKeyDown}
+            executeInput={executeInput}
+            inputRef={inputRef as React.RefObject<HTMLInputElement>}
+            currentDialogMessage={currentDialogMessage}
+            isTyping={isTyping}
+            skipTypewriter={skipTypewriter}
+            onClose={() => handleCloseWindow("terminal")}
+            isActive={activeWindow === "terminal"}
+            onFocus={() => {
+              bringWindowToFront("terminal");
+              setActiveWindow("terminal");
+            }}
+            zIndex={getZIndex("terminal")}
+          />
+        )}
+
+        {/* Taskbar */}
+        <div className={styles.taskbar}>
+          <button
+            className={styles.startButton}
+            type="button"
+            aria-label="Start menu (presentational)"
+            title="Start menu (not functional)"
+          >
+            <WindowsIcon />
+            <span>Start</span>
+          </button>
+
+          <div className={styles.taskbarCenter}>
+            {/* Taskbar buttons for open windows */}
+            {openWindows.has("game") && (
+              <button
+                className={`${styles.taskbarButton} ${activeWindow === "game" ? styles.active : ""}`}
+                onClick={() => handleTaskbarClick("game")}
+                type="button"
+                aria-label="Daniele_Tortora_Portfolio.exe"
+                data-e2e="taskbar-game"
+              >
+                <span>Daniele_Tortora_Portfolio.exe</span>
+              </button>
+            )}
+
+            {openWindows.has("terminal") && (
+              <button
+                className={`${styles.taskbarButton} ${activeWindow === "terminal" ? styles.active : ""}`}
+                onClick={() => handleTaskbarClick("terminal")}
+                type="button"
+                aria-label="MS-DOS Prompt"
+                data-e2e="taskbar-terminal"
+              >
+                <span>MS-DOS Prompt</span>
+              </button>
+            )}
+          </div>
+
+          <div className={styles.clock}>
+            {time.toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Windows logo icon (4 squares)
+function WindowsIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      style={{ marginRight: "4px" }}
+    >
+      <rect x="2" y="2" width="9" height="9" fill="currentColor" />
+      <rect x="13" y="2" width="9" height="9" fill="currentColor" />
+      <rect x="2" y="13" width="9" height="9" fill="currentColor" />
+      <rect x="13" y="13" width="9" height="9" fill="currentColor" />
+    </svg>
+  );
+}
+
+// MS-DOS Prompt Icon (Win95 style)
+function MSDOSPromptIcon() {
+  return (
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      {/* Window frame - dark gray */}
+      <rect x="1" y="1" width="30" height="30" fill="#404040" />
+
+      {/* Title bar - blue */}
+      <rect x="2" y="2" width="28" height="4" fill="#000080" />
+
+      {/* Inner screen - black */}
+      <rect x="2" y="6" width="28" height="24" fill="#000" />
+
+      {/* DOS prompt text "C:\>" in monospace style */}
+      <text
+        x="4"
+        y="14"
+        fill="#c0c0c0"
+        fontSize="6"
+        fontFamily="monospace"
+        fontWeight="bold"
+      >
+        C:\&gt;
+      </text>
+
+      {/* Cursor */}
+      <rect x="16" y="10" width="4" height="6" fill="#c0c0c0" />
+    </svg>
+  );
+}
+
+// Recycle Bin Icon (Empty - Win95 style)
+function RecycleBinEmptyIcon() {
+  return (
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      {/* Bin body - trapezoid shape */}
+      <path
+        d="M 8 12 L 24 12 L 23 29 L 9 29 Z"
+        fill="#808080"
+        stroke="#000"
+        strokeWidth="1"
+      />
+
+      {/* Lid */}
+      <rect
+        x="6"
+        y="9"
+        width="20"
+        height="3"
+        fill="#c0c0c0"
+        stroke="#000"
+        strokeWidth="1"
+      />
+
+      {/* Handle */}
+      <path
+        d="M 11 9 L 11 7 L 12 6 L 20 6 L 21 7 L 21 9"
+        fill="none"
+        stroke="#000"
+        strokeWidth="1.5"
+      />
+      <rect
+        x="12"
+        y="6"
+        width="8"
+        height="3"
+        fill="#c0c0c0"
+        stroke="#000"
+        strokeWidth="1"
+      />
+
+      {/* Basket weave pattern - vertical lines */}
+      <line x1="11" y1="14" x2="10" y2="27" stroke="#000" strokeWidth="1" />
+      <line x1="14" y1="14" x2="13.5" y2="27" stroke="#000" strokeWidth="1" />
+      <line x1="16" y1="14" x2="16" y2="27" stroke="#000" strokeWidth="1" />
+      <line x1="18" y1="14" x2="18.5" y2="27" stroke="#000" strokeWidth="1" />
+      <line x1="21" y1="14" x2="22" y2="27" stroke="#000" strokeWidth="1" />
+
+      {/* Horizontal weave lines */}
+      <line
+        x1="9"
+        y1="17"
+        x2="23"
+        y2="17"
+        stroke="#000"
+        strokeWidth="0.5"
+        opacity="0.5"
+      />
+      <line
+        x1="9.5"
+        y1="21"
+        x2="22.5"
+        y2="21"
+        stroke="#000"
+        strokeWidth="0.5"
+        opacity="0.5"
+      />
+      <line
+        x1="10"
+        y1="25"
+        x2="22"
+        y2="25"
+        stroke="#000"
+        strokeWidth="0.5"
+        opacity="0.5"
+      />
+
+      {/* Highlight on lid */}
+      <rect x="7" y="10" width="18" height="1" fill="#ffffff" opacity="0.6" />
+    </svg>
+  );
+}
+
+// Desktop icons
+const DESKTOP_ICONS: DesktopIcon[] = [
+  {
+    id: "terminal",
+    label: "MS-DOS Prompt",
+    action: "openTerminal",
+    icon: <MSDOSPromptIcon />,
+  },
+  {
+    id: "game",
+    label: "Daniele_Tortora_Portfolio.exe",
+    action: "openGame",
+    icon: (
+      <img
+        src={retroDanieleImg}
+        alt="Daniele"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          imageRendering: "pixelated",
+        }}
+      />
+    ),
+  },
+];
+
+// Recycle Bin as a separate icon (positioned at bottom-right)
+const RECYCLE_BIN_ICON: DesktopIcon = {
+  id: "recycle-bin",
+  label: "Recycle Bin",
+  icon: <RecycleBinEmptyIcon />,
+};

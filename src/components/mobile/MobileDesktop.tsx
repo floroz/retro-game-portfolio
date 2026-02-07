@@ -89,7 +89,7 @@ export function MobileDesktop({
 
         {/* Footer info */}
         <div className={styles.footer}>
-          <span>6 object(s)</span>
+          <span>5 object(s)</span>
           <span>Tap icon to execute</span>
         </div>
       </div>
@@ -149,23 +149,6 @@ const DESKTOP_ICONS: DesktopIcon[] = [
         <rect x="7" y="15" width="4" height="6" fill="#808080" stroke="#000" />
         <circle cx="16" cy="8" r="3" fill="#c0c0c0" stroke="#000" />
         <rect x="15" y="7" width="2" height="2" fill="#000" />
-      </svg>
-    ),
-  },
-  {
-    id: "projects",
-    label: "PROJECTS.EXE",
-    command: "projects",
-    icon: (
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        {/* Folder icon */}
-        <path
-          d="M3 6 L10 6 L12 8 L21 8 L21 19 L3 19 Z"
-          fill="#ffff00"
-          stroke="#000"
-        />
-        <path d="M3 8 L21 8 L21 9 L3 9 Z" fill="#ffd700" />
-        <rect x="3" y="6" width="18" height="2" fill="#ffa500" />
       </svg>
     ),
   },

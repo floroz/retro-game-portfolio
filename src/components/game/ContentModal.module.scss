@@ -4,6 +4,14 @@
   position: fixed;
   inset: 0;
   background: rgb(0 0 0 / 70%);
+  z-index: 1100;
+}
+
+// Contained variant for windowed mode (relative to game window)
+.backdropContained {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 70%);
   z-index: 100;
 }
 
@@ -15,6 +23,31 @@
   inline-size: 90%;
   max-inline-size: to-rem(780px);
   max-block-size: 85vh;
+  background: linear-gradient(180deg, #2a2a4a 0%, #1a1a3a 100%);
+  border: to-rem(5px) solid #4a4a6c;
+  border-radius: to-rem(6px);
+  box-shadow:
+    0 0 0 to-rem(3px) #000,
+    0 to-rem(25px) to-rem(80px) rgb(0 0 0 / 60%);
+  z-index: 1101;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+// Contained variant for windowed mode (relative to game window)
+.modalContained {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  transform: translate(-50%, -50%);
+  inline-size: 90%;
+  max-inline-size: to-rem(780px);
+  max-block-size: 85%;
   background: linear-gradient(180deg, #2a2a4a 0%, #1a1a3a 100%);
   border: to-rem(5px) solid #4a4a6c;
   border-radius: to-rem(6px);

@@ -161,10 +161,16 @@ export function useTypewriter(
     }
 
     const delay = 1000 / speed;
+    const targetLength = state.targetText.length;
+    const targetText = state.targetText;
+
+    // Use a mutable ref to track current character index
+    let currentCharIndex = state.charIndex;
 
     intervalRef.current = window.setInterval(() => {
-      if (state.charIndex < state.targetText.length) {
-        const nextChar = state.targetText[state.charIndex];
+      if (currentCharIndex < targetLength) {
+        const nextChar = targetText[currentCharIndex];
+        currentCharIndex++;
         dispatch({ type: "TYPE_CHAR", payload: nextChar });
         onTypeRef.current?.();
       } else {
@@ -175,14 +181,8 @@ export function useTypewriter(
     }, delay);
 
     return clearTypingInterval;
-  }, [
-    state.isTyping,
-    state.targetText,
-    state.charIndex,
-    speed,
-    isInstant,
-    clearTypingInterval,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.isTyping, state.targetText, speed, isInstant, clearTypingInterval]);
 
   // Skip to full text
   const skip = useCallback(() => {

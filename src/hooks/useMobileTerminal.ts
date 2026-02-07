@@ -8,9 +8,13 @@ import {
   getWhoamiText,
   getSudoJoke,
   getMatrixEffect,
+  getAboutText,
+  getExperienceText,
+  getSkillsText,
+  getContactText,
 } from "../config/commands";
 import { useTypewriter } from "./useTypewriter";
-import type { TerminalLine, ActionType } from "../types/game";
+import type { TerminalLine } from "../types/game";
 
 // ASCII art for terminal welcome
 const TERMINAL_ART = `
@@ -27,8 +31,7 @@ const TERMINAL_ART = `
  * Unified mobile terminal hook that merges dialog and command functionality
  */
 export function useMobileTerminal() {
-  const { dialogNode, selectDialogOption, openModal, closeTerminal } =
-    useGameStore();
+  const { dialogNode, selectDialogOption, closeTerminal } = useGameStore();
   const currentNode = DIALOG_TREE[dialogNode];
 
   // Terminal state
@@ -47,7 +50,8 @@ export function useMobileTerminal() {
   const addedNodesRef = useRef<Set<string>>(new Set());
 
   // Derive dialog message directly from currentNode instead of syncing in effect
-  const dialogText = currentNode?.text || "";
+  // Only show dialog text if we have a valid dialogNode (not empty string from initial state)
+  const dialogText = dialogNode && currentNode?.text ? currentNode.text : "";
 
   // Callback to add dialog to history when typewriter completes
   const handleTypewriterComplete = useCallback(() => {
@@ -139,8 +143,8 @@ export function useMobileTerminal() {
       setCommandHistory((prev) => [...prev, trimmed]);
       setHistoryIndex(-1);
 
-      // Parse command and args
-      const [cmd, ...args] = trimmed.toLowerCase().split(/\s+/);
+      // Parse command
+      const [cmd] = trimmed.toLowerCase().split(/\s+/);
 
       // Check if command exists
       const command = TERMINAL_COMMANDS[cmd];
@@ -159,10 +163,20 @@ export function useMobileTerminal() {
           addOutput(getHelpText());
           break;
 
-        case "openModal":
-          if (command.payload) {
-            openModal(command.payload as ActionType);
-          }
+        case "showAbout":
+          addOutput(getAboutText());
+          break;
+
+        case "showExperience":
+          addOutput(getExperienceText());
+          break;
+
+        case "showSkills":
+          addOutput(getSkillsText());
+          break;
+
+        case "showContact":
+          addOutput(getContactText());
           break;
 
         case "openDialog":
@@ -187,27 +201,6 @@ export function useMobileTerminal() {
           addOutput(getListSections());
           break;
 
-        case "navigate": {
-          if (args.length === 0) {
-            addOutput("Usage: cd <section>\nExample: cd projects", "error");
-          } else {
-            const section = args[0].replace("/", "");
-            const sectionCommand = TERMINAL_COMMANDS[section];
-            if (sectionCommand && sectionCommand.action === "openModal") {
-              addOutput(`Navigating to ${section}...`);
-              setTimeout(() => {
-                openModal(sectionCommand.payload as ActionType);
-              }, 500);
-            } else {
-              addOutput(
-                `Section not found: ${section}\nUse 'ls' to see available sections.`,
-                "error",
-              );
-            }
-          }
-          break;
-        }
-
         case "showWhoami":
           addOutput(getWhoamiText());
           break;
@@ -228,7 +221,7 @@ export function useMobileTerminal() {
           addOutput(`Unknown action: ${command.action}`, "error");
       }
     },
-    [addOutput, openModal, closeTerminal, selectDialogOption],
+    [addOutput, closeTerminal, selectDialogOption],
   );
 
   // Handle input (commands OR dialog option selection)

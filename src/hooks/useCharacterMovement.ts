@@ -32,6 +32,7 @@ export function useCharacterMovement() {
     stopMovement,
     modalOpen,
     terminalOpen,
+    gameWindowActive,
   } = useGameStore();
 
   // Animation loop for smooth movement
@@ -117,8 +118,11 @@ export function useCharacterMovement() {
   // Handle scene click to move character
   const handleSceneClick = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      // Don't handle clicks if modal or terminal is open
-      if (modalOpen || terminalOpen) return;
+      // Don't handle clicks if modal is open
+      if (modalOpen) return;
+
+      // Don't handle clicks if terminal is open UNLESS the game window is active
+      if (terminalOpen && !gameWindowActive) return;
 
       const rect = event.currentTarget.getBoundingClientRect();
       const scaleX = VIEWPORT.width / rect.width;
@@ -136,7 +140,7 @@ export function useCharacterMovement() {
 
       moveTo(clamped);
     },
-    [moveTo, modalOpen, terminalOpen],
+    [moveTo, modalOpen, terminalOpen, gameWindowActive],
   );
 
   // Handle keyboard input for continuous character movement
@@ -207,8 +211,11 @@ export function useCharacterMovement() {
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Don't handle keyboard movement if modal or terminal is open
-      if (modalOpen || terminalOpen) return;
+      // Don't handle keyboard movement if modal is open
+      if (modalOpen) return;
+
+      // Don't handle keyboard movement if terminal is open UNLESS the game window is active
+      if (terminalOpen && !gameWindowActive) return;
 
       // Ignore if typing in an input
       if (
@@ -280,7 +287,7 @@ export function useCharacterMovement() {
         cancelAnimationFrame(keyboardAnimationRef.current);
       }
     };
-  }, [modalOpen, terminalOpen, stopMovement]);
+  }, [modalOpen, terminalOpen, gameWindowActive, stopMovement]);
 
   return {
     characterPosition,

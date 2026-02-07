@@ -18,7 +18,6 @@ export type CharacterState = "idle" | "walking" | "interacting";
 
 export type ActionType =
   | "experience"
-  | "projects"
   | "skills"
   | "about"
   | "contact"
@@ -58,7 +57,10 @@ type TerminalAction =
   | "downloadResume"
   | "clearTerminal"
   | "listSections"
-  | "navigate"
+  | "showAbout"
+  | "showExperience"
+  | "showSkills"
+  | "showContact"
   | "showWhoami"
   | "showSudoJoke"
   | "showMatrixEffect"
