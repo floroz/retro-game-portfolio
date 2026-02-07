@@ -18,6 +18,7 @@ export default mergeConfig(
             name: "unit-tests",
             environment: "happy-dom",
             include: ["src/**/*.test.{ts,tsx}"],
+            exclude: ["src/**/*.browser.test.{ts,tsx}"],
           },
         },
         {
