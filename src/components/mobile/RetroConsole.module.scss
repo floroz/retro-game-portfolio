@@ -1,0 +1,530 @@
+@use "../../styles/variables";
+
+/* ===========================================
+   RetroConsole — Game Boy-inspired handheld
+   Full-viewport shell with CSS-only styling
+   =========================================== */
+
+/* ---- Outer wrapper (themed background) ---- */
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+
+  /* Retro pixel-grid background */
+  background-color: #1a1a2e;
+  background-image:
+    radial-gradient(circle at 50% 50%, #2a2a4e 0%, #1a1a2e 70%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgb(255 255 255 / 2%) 3px,
+      rgb(255 255 255 / 2%) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 3px,
+      rgb(255 255 255 / 2%) 3px,
+      rgb(255 255 255 / 2%) 4px
+    );
+}
+
+/* ---- Shell container ---- */
+.shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 440px;
+  height: 100dvh;
+  max-height: 850px;
+  background: var(--retro-shell);
+  overflow: hidden;
+  position: relative;
+  border-radius: 0.5rem 0.5rem 1.5rem 1.5rem;
+
+  /* 3D plastic bevel effect */
+  background-image: linear-gradient(
+    180deg,
+    var(--retro-shell-light) 0%,
+    var(--retro-shell) 4%,
+    var(--retro-shell) 96%,
+    var(--retro-shell-dark) 100%
+  );
+
+  /* Drop shadow when floating on background */
+  @media (width > 440px) {
+    box-shadow:
+      0 4px 20px rgb(0 0 0 / 50%),
+      0 0 60px rgb(0 0 0 / 30%);
+  }
+}
+
+/* ---- Top bezel (brand label) ---- */
+.topBezel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1rem 0.375rem;
+  flex-shrink: 0;
+}
+
+.bezelLabel {
+  font-family: var(--font-heading);
+  font-size: 8px;
+  color: var(--retro-shell-dark);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+/* ---- Screen inset ---- */
+.screenInset {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0.75rem;
+  padding: 0.5rem;
+  background: var(--retro-shell-inner);
+  border-radius: 0.75rem 0.75rem 2.5rem 2.5rem;
+  flex: 1;
+  min-height: 0;
+
+  /* Inner shadow for recessed look */
+  box-shadow:
+    inset 2px 2px 4px rgb(0 0 0 / 25%),
+    inset -1px -1px 2px rgb(255 255 255 / 15%);
+}
+
+.screenPowerLed {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0 0.25rem 0.375rem;
+}
+
+.led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4a4a4e;
+  border: 1px solid #3a3a3e;
+  transition: background-color 0.3s ease;
+}
+
+.ledOn {
+  background: #d42020;
+  box-shadow: 0 0 6px #d42020;
+}
+
+.lcdScreen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--retro-lcd-bg);
+  border: 2px solid var(--retro-shell-dark);
+  border-radius: 0 0 2rem 2rem;
+  overflow: hidden;
+  min-height: 0;
+
+  /* Subtle LCD pixel grid overlay */
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgb(0 0 0 / 3%) 2px,
+        rgb(0 0 0 / 3%) 3px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgb(0 0 0 / 3%) 2px,
+        rgb(0 0 0 / 3%) 3px
+      );
+    z-index: 1;
+
+    @media (prefers-reduced-motion: reduce) {
+      background-image: none;
+    }
+  }
+}
+
+/* ---- Boot animation ---- */
+.bootScreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  background: var(--retro-lcd-bg);
+}
+
+.bootIdle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: #6a7a4a; /* Darker LCD green (powered-off look) */
+}
+
+.bootPrompt {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  color: #4a5a2a; /* Low-contrast subtle text */
+  letter-spacing: 0.1em;
+  animation: blink 1.5s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.bootOff {
+  width: 100%;
+  height: 100%;
+  background: #8a946a;
+  animation: flicker-on 0.3s ease-out forwards;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes flicker-on {
+  0% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0.6;
+  }
+
+  60% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.bootLogo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+  animation: slide-down 3s ease-out forwards;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes slide-down {
+  0% {
+    transform: translateY(-50vh);
+    opacity: 0;
+  }
+
+  5% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.bootBrand {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  color: var(--retro-lcd-text);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  width: 100%;
+}
+
+.bootSub {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--retro-lcd-mid);
+  text-align: center;
+  width: 100%;
+}
+
+/* ---- Controls area (D-pad + A/B) ---- */
+.controlsArea {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.5rem;
+  flex-shrink: 0;
+}
+
+/* ---- D-pad ---- */
+.dpadContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dpad {
+  position: relative;
+  width: 6.5rem;
+  height: 6.5rem;
+}
+
+.dpadBtn {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--retro-btn-dark);
+  border: 1px solid #1a1a22;
+  cursor: pointer;
+  touch-action: manipulation;
+  color: #808088;
+  padding: 0;
+
+  &:active {
+    background: #1a1a22;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--retro-lcd-text);
+    outline-offset: 2px;
+    z-index: 2;
+  }
+}
+
+/* Cross shape: 4 arms of a plus sign */
+.dpadUp {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.dpadDown {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0 0 0.25rem 0.25rem;
+}
+
+.dpadLeft {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.25rem 0 0 0.25rem;
+}
+
+.dpadRight {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0 0.25rem 0.25rem 0;
+}
+
+.dpadCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2.25rem;
+  height: 2.25rem;
+  background: var(--retro-btn-dark);
+  border: 1px solid #1a1a22;
+  pointer-events: none;
+}
+
+.dpadArrow {
+  font-size: 0.625rem;
+  line-height: 1;
+}
+
+/* ---- A/B buttons ---- */
+.abContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  /* Diagonal layout: B upper-left, A lower-right */
+  transform: rotate(-25deg);
+  margin-top: 0.5rem;
+}
+
+.abBtn {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--retro-btn-dark);
+  border: 1px solid #1a1a22;
+  color: #808088;
+  font-family: var(--font-heading);
+  font-size: variables.$retro-font-size-menu;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Undo parent rotation for label text */
+  > * {
+    transform: rotate(25deg);
+  }
+
+  &:active {
+    background: #1a1a22;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--retro-lcd-text);
+    outline-offset: 2px;
+  }
+}
+
+/* B is upper, A is lower in the diagonal */
+.btnB {
+  align-self: flex-start;
+}
+
+.btnA {
+  align-self: flex-end;
+}
+
+/* ---- Start / Sound meta buttons ---- */
+.metaButtons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.25rem 1rem;
+  flex-shrink: 0;
+}
+
+.metaBtn {
+  padding: 0.375rem 1rem;
+  background: var(--retro-btn-small);
+  border: 1px solid var(--retro-shell-dark);
+  border-radius: 1rem;
+  color: #c0c0c4;
+  font-family: var(--font-heading);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  touch-action: manipulation;
+  min-height: 2rem;
+  min-width: 4rem;
+  /* Slight 3D press effect */
+  box-shadow:
+    0 2px 0 var(--retro-shell-dark),
+    inset 0 1px 0 rgb(255 255 255 / 10%);
+
+  &:active {
+    box-shadow: none;
+    transform: translateY(2px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--retro-lcd-text);
+    outline-offset: 2px;
+  }
+
+  /* Sound button active state */
+  &[data-sound="on"] {
+    background: #2a6a2a;
+    color: #d0f0d0;
+  }
+}
+
+/* ---- Speaker grille (cosmetic) ---- */
+.speakerGrille {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0.375rem 0.75rem;
+  align-self: flex-end;
+  width: 4rem;
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+  transform: rotate(-30deg);
+}
+
+.grilleLine {
+  height: 2px;
+  background: var(--retro-shell-dark);
+  border-radius: 1px;
+  opacity: 0.5;
+}
+
+/* ---- Landscape overlay ---- */
+.landscapeOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--retro-shell);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+
+  @media (orientation: landscape) and (height <= 500px) {
+    display: flex;
+  }
+}
+
+.landscapeMsg {
+  font-family: var(--font-heading);
+  font-size: variables.$retro-font-size-menu;
+  color: var(--retro-shell-dark);
+  text-align: center;
+  letter-spacing: 0.06em;
+  padding: 2rem;
+  line-height: 1.6;
+}

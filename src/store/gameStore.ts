@@ -52,9 +52,7 @@ interface GameState {
   closeDialog: () => void;
   selectDialogOption: (nodeId: string) => void;
   toggleSound: () => void;
-
-  // Mobile actions
-  startMobileDialogSession: () => void;
+  setSoundEnabled: (enabled: boolean) => void;
 }
 
 // Always show welcome on each page load (no persistence)
@@ -245,8 +243,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     set((state) => ({ soundEnabled: !state.soundEnabled }));
   },
 
-  // Mobile actions
-  startMobileDialogSession: () => {
-    set({ dialogNode: "intro", dialogOpen: true });
+  setSoundEnabled: (enabled: boolean) => {
+    set({ soundEnabled: enabled });
   },
 }));

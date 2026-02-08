@@ -1,17 +1,27 @@
 import { useEffect, useRef } from "react";
 import { useGameStore } from "../store/gameStore";
 
+interface UseBackgroundMusicOptions {
+  /** Whether background music is enabled for the current context (default: true) */
+  enabled?: boolean;
+}
+
 /**
  * Background music hook that plays theme.mp3 in a loop
  * Respects user's sound preference from store
- * Works on both mobile and desktop
+ * Can be disabled per-context (e.g. mobile uses retro SFX instead)
  */
-export function useBackgroundMusic() {
+export function useBackgroundMusic({
+  enabled = true,
+}: UseBackgroundMusicOptions = {}) {
   const soundEnabled = useGameStore((state) => state.soundEnabled);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasStartedRef = useRef(false);
 
   useEffect(() => {
+    // Skip if disabled for this context (e.g. mobile)
+    if (!enabled) return;
+
     // Check for prefers-reduced-motion
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
@@ -72,7 +82,7 @@ export function useBackgroundMusic() {
       window.removeEventListener("keydown", startOnInteraction);
       window.removeEventListener("touchstart", startOnInteraction);
     };
-  }, [soundEnabled]);
+  }, [soundEnabled, enabled]);
 
   // Cleanup on unmount
   useEffect(() => {
