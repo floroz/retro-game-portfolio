@@ -1,0 +1,151 @@
+@use "../../styles/variables";
+
+/* ===========================================
+   RetroContent — Game Boy LCD content styles
+   Uses the 4-shade green palette throughout
+   =========================================== */
+
+.heading {
+  font-family: var(--font-heading);
+  font-size: variables.$retro-font-size-menu;
+  color: var(--retro-lcd-text);
+  letter-spacing: 0.06em;
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 2px solid var(--retro-lcd-mid);
+}
+
+.paragraph {
+  font-family: var(--font-body);
+  font-size: variables.$retro-font-size-small;
+  color: var(--retro-lcd-text);
+  margin: 0 0 0.75rem;
+  line-height: 1.5;
+}
+
+.callout {
+  padding: 0.5rem 0.625rem;
+  background: var(--retro-lcd-light);
+  border-left: 3px solid var(--retro-lcd-mid);
+  border-radius: 0;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-body);
+  font-size: variables.$retro-font-size-small;
+}
+
+/* Experience cards */
+.card {
+  padding: 0.5rem 0.625rem;
+  background: var(--retro-lcd-light);
+  border: 2px solid var(--retro-lcd-mid);
+  margin-bottom: 0.5rem;
+}
+
+.cardTitle {
+  font-family: var(--font-heading);
+  font-size: variables.$retro-font-size-menu;
+  color: var(--retro-lcd-text);
+  margin: 0 0 0.25rem;
+  letter-spacing: 0.04em;
+}
+
+.cardMeta {
+  font-family: var(--font-body);
+  font-size: variables.$retro-font-size-small;
+  color: var(--retro-lcd-mid);
+  margin: 0;
+}
+
+.cardBody {
+  font-family: var(--font-body);
+  font-size: variables.$retro-font-size-small;
+  color: var(--retro-lcd-text);
+  margin: 0.25rem 0 0;
+}
+
+/* Skill tags */
+.tagGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-bottom: 0.75rem;
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.1875rem 0.5rem;
+  background: var(--retro-lcd-light);
+  border: 1px solid var(--retro-lcd-mid);
+  font-family: var(--font-body);
+  font-size: variables.$retro-font-size-small;
+  color: var(--retro-lcd-text);
+  white-space: nowrap;
+}
+
+/* Contact link rows — retro list with ">" prefix */
+.linkRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  background: var(--retro-lcd-light);
+  border: 2px solid var(--retro-lcd-mid);
+  margin-bottom: 0.375rem;
+  text-decoration: none;
+  color: var(--retro-lcd-text);
+  font-family: var(--font-body);
+  font-size: variables.$retro-font-size-small;
+  min-height: 2.75rem;
+  touch-action: manipulation;
+  transition: background-color 0.1s ease;
+
+  &:active {
+    background: var(--retro-lcd-mid);
+    color: var(--retro-lcd-bg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--retro-lcd-text);
+    outline-offset: 2px;
+  }
+}
+
+.linkPrefix {
+  font-family: var(--font-heading);
+  font-size: variables.$retro-font-size-menu;
+  color: var(--retro-lcd-text);
+  flex-shrink: 0;
+}
+
+.linkLabel {
+  flex: 1;
+}
+
+/* Resume download button */
+.downloadBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--retro-lcd-text);
+  color: var(--retro-lcd-bg);
+  border: none;
+  font-family: var(--font-heading);
+  font-size: variables.$retro-font-size-menu;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  touch-action: manipulation;
+  min-height: 2.75rem;
+  text-decoration: none;
+  transition: background-color 0.1s ease;
+
+  &:active {
+    background: var(--retro-lcd-mid);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--retro-lcd-text);
+    outline-offset: 2px;
+  }
+}

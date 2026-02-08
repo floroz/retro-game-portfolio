@@ -437,16 +437,4 @@ describe("gameStore", () => {
       expect(useGameStore.getState().soundEnabled).toBe(false);
     });
   });
-
-  describe("Mobile actions", () => {
-    test("should start mobile dialog session", () => {
-      const store = useGameStore.getState();
-
-      store.startMobileDialogSession();
-
-      const state = useGameStore.getState();
-      expect(state.dialogNode).toBe("intro");
-      expect(state.dialogOpen).toBe(true);
-    });
-  });
 });

@@ -45,6 +45,11 @@ $color-action-dark: #2a2535;
 // Win95 Desktop font size
 $win-95-desktop-font-size: 12px;
 
+// RetroPlay Console font sizes
+$retro-font-size: 16px; // Body text (IBM Plex Mono)
+$retro-font-size-small: 14px; // Small labels
+$retro-font-size-menu: 12px; // Menu items (Press Start 2P)
+
 :root {
   /* ============================================
      SPACING SCALE (rem-based)
@@ -192,4 +197,24 @@ $win-95-desktop-font-size: 12px;
   --transition-fast: 0.1s ease;
   --transition-base: 0.2s ease;
   --transition-slow: 0.3s ease;
+
+  /* ============================================
+     RetroPlay Console — Game Boy-inspired handheld
+     ============================================ */
+  /* LCD Screen Colors (authentic Game Boy green) */
+  --retro-lcd-bg: #9bbc0f; /* Lightest green — screen background */
+  --retro-lcd-text: #0f380f; /* Darkest green — text, active elements */
+  --retro-lcd-mid: #306230; /* Medium green — borders, secondary */
+  --retro-lcd-light: #8bac0f; /* Light green — highlights, cursor row */
+
+  /* Console Shell Colors (classic gray plastic) */
+  --retro-shell: #c0c0c4; /* Main body gray */
+  --retro-shell-light: #d8d8dc; /* Highlight edge */
+  --retro-shell-dark: #8a8a8e; /* Shadow edge */
+  --retro-shell-inner: #a0a0a4; /* Inner bezel around screen */
+
+  /* Hardware Button Colors */
+  --retro-btn-dark: #2a2a32; /* D-pad and A/B buttons */
+  --retro-btn-face: #3a3a42; /* Button face color */
+  --retro-btn-small: #5a5a62; /* Start/Sound buttons */
 }

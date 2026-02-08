@@ -40,14 +40,14 @@ export default defineConfig({
     {
       name: "mobile-chrome",
       use: {
-        ...devices["Pixel 5"],
+        ...devices["Galaxy S24"],
       },
       testMatch: /e2e-mobile\.test\.ts/, // Only run mobile tests
     },
     {
       name: "mobile-safari",
       use: {
-        ...devices["iPhone 12"],
+        ...devices["iPhone 14 Pro"],
       },
       testMatch: /e2e-mobile\.test\.ts/, // Only run mobile tests
     },

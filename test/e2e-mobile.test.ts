@@ -1,476 +1,527 @@
 import { test as base, expect, devices, type Page } from "@playwright/test";
 
-// Extend base test with iPhone 12 configuration for mobile tests
+// Extend base test with iPhone 14 Pro configuration for mobile tests
 const test = base.extend({
-  viewport: devices["iPhone 12"].viewport,
-  userAgent: devices["iPhone 12"].userAgent,
-  deviceScaleFactor: devices["iPhone 12"].deviceScaleFactor,
-  isMobile: devices["iPhone 12"].isMobile,
-  hasTouch: devices["iPhone 12"].hasTouch,
+  viewport: devices["iPhone 14 Pro"].viewport,
+  userAgent: devices["iPhone 14 Pro"].userAgent,
+  deviceScaleFactor: devices["iPhone 14 Pro"].deviceScaleFactor,
+  isMobile: devices["iPhone 14 Pro"].isMobile,
+  hasTouch: devices["iPhone 14 Pro"].hasTouch,
 });
 
-// Helper to dismiss BIOS screen if present
-async function dismissBiosIfPresent(page: Page) {
-  const biosOverlay = page.locator("[data-e2e=bios-overlay]");
-  const isVisible = await biosOverlay
-    .isVisible({ timeout: 1000 })
-    .catch(() => false);
-  if (isVisible) {
-    await biosOverlay.tap();
-    await expect(biosOverlay).not.toBeVisible();
-  }
+// Helper: wait for boot animation to complete (~4.5s) or skip if reduced-motion
+async function waitForMenu(page: Page) {
+  await page.goto("/");
+  await page.waitForLoadState("domcontentloaded");
+
+  // Tap START to power on from idle screen
+  const startBtn = page.locator("[data-e2e=retro-btn-start]");
+  await startBtn.tap();
+
+  // Boot plays after power on (~4.5s). Menu appears after boot finishes.
+  // In playwright config, reducedMotion: "reduce" is set globally — boot is skipped automatically.
+  const menu = page.locator("[data-e2e=retro-menu]");
+  await expect(menu).toBeVisible({ timeout: 8000 });
 }
 
-test.describe("Mobile Portfolio E2E Tests", () => {
-  test("should show mobile ASCII welcome screen", async ({ page }) => {
+// ============================================================
+// Boot Animation Tests
+// ============================================================
+test.describe("RetroPlay Boot Animation Tests", () => {
+  // Override reduced motion so boot animation actually plays
+  test.use({ contextOptions: { reducedMotion: "no-preference" } });
+
+  test("should show idle screen on load", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
-    const welcomeScreen = page.locator("[data-e2e=mobile-ascii-welcome]");
-    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
-
-    // Verify name and title are visible
-    await expect(welcomeScreen).toContainText("Daniele Tortora");
-    await expect(welcomeScreen).toContainText("Senior Software Engineer");
-
-    // Verify tap hint
-    await expect(page.getByText("Tap anywhere to continue")).toBeVisible();
+    const idleScreen = page.locator("[data-e2e=retro-boot-idle]");
+    await expect(idleScreen).toBeVisible({ timeout: 3000 });
+    await expect(idleScreen).toContainText("PRESS START");
   });
 
-  test("should show BIOS screen on first load", async ({ page }) => {
-    // Clear session storage to ensure BIOS shows
+  test("tapping screen powers on and shows boot animation", async ({
+    page,
+  }) => {
     await page.goto("/");
-    await page.evaluate(() => sessionStorage.clear());
+    await page.waitForLoadState("domcontentloaded");
+
+    // Tap the screen area to power on
+    const screen = page.locator("[data-e2e=retro-screen]");
+    await screen.tap();
+
+    // Boot logo should appear
+    const bootLogo = page.locator("[data-e2e=retro-boot-logo]");
+    await expect(bootLogo).toBeVisible({ timeout: 5000 });
+  });
+
+  test("pressing START button powers on and shows boot animation", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("domcontentloaded");
+
+    // Press START to power on
+    const startBtn = page.locator("[data-e2e=retro-btn-start]");
+    await startBtn.tap();
+
+    // Boot logo should appear
+    const bootLogo = page.locator("[data-e2e=retro-boot-logo]");
+    await expect(bootLogo).toBeVisible({ timeout: 5000 });
+  });
+
+  test("boot animation shows name and title", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("domcontentloaded");
+
+    // Power on
+    await page.locator("[data-e2e=retro-btn-start]").tap();
+
+    const bootLogo = page.locator("[data-e2e=retro-boot-logo]");
+    await expect(bootLogo).toBeVisible({ timeout: 5000 });
+    await expect(bootLogo).toContainText("Daniele Tortora");
+    await expect(bootLogo).toContainText("Senior Software Engineer");
+  });
+
+  test("boot animation completes and shows menu", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("domcontentloaded");
+
+    // Power on
+    await page.locator("[data-e2e=retro-btn-start]").tap();
+
+    // Boot should be visible first
+    await expect(page.locator("[data-e2e=retro-boot-screen]")).toBeVisible({
+      timeout: 3000,
+    });
+
+    // After ~4.5s, menu should appear
+    const menu = page.locator("[data-e2e=retro-menu]");
+    await expect(menu).toBeVisible({ timeout: 8000 });
+  });
+
+  test("reduced-motion skips boot entirely", async ({ page }) => {
+    // This test runs with no-preference from describe block,
+    // so we create a new context with reduce
+    const reducedContext = await page
+      .context()
+      .browser()!
+      .newContext({
+        ...devices["iPhone 12"],
+        reducedMotion: "reduce",
+      });
+    const reducedPage = await reducedContext.newPage();
+    await reducedPage.goto("/");
+    await reducedPage.waitForLoadState("domcontentloaded");
+
+    // Idle screen should still appear (it's not animated)
+    const idleScreen = reducedPage.locator("[data-e2e=retro-boot-idle]");
+    await expect(idleScreen).toBeVisible({ timeout: 2000 });
+
+    // Tap START to power on
+    await reducedPage.locator("[data-e2e=retro-btn-start]").tap();
+
+    // Menu should appear immediately (no boot animation)
+    const menu = reducedPage.locator("[data-e2e=retro-menu]");
+    await expect(menu).toBeVisible({ timeout: 3000 });
+
+    await reducedContext.close();
+  });
+});
+
+// ============================================================
+// Menu Navigation Tests
+// ============================================================
+test.describe("RetroPlay Menu Navigation Tests", () => {
+  test("should show 5 menu items", async ({ page }) => {
+    await waitForMenu(page);
+
+    await expect(
+      page.locator("[data-e2e=retro-menu-item-about]"),
+    ).toBeVisible();
+    await expect(
+      page.locator("[data-e2e=retro-menu-item-experience]"),
+    ).toBeVisible();
+    await expect(
+      page.locator("[data-e2e=retro-menu-item-skills]"),
+    ).toBeVisible();
+    await expect(
+      page.locator("[data-e2e=retro-menu-item-contact]"),
+    ).toBeVisible();
+    await expect(
+      page.locator("[data-e2e=retro-menu-item-resume]"),
+    ).toBeVisible();
+  });
+
+  test("cursor starts on first item (About)", async ({ page }) => {
+    await waitForMenu(page);
+
+    const aboutItem = page.locator("[data-e2e=retro-menu-item-about]");
+    await expect(aboutItem).toHaveAttribute("aria-current", "true");
+    await expect(page.locator("[data-e2e=retro-cursor]")).toBeVisible();
+  });
+
+  test("D-pad down moves cursor to next item", async ({ page }) => {
+    await waitForMenu(page);
+
+    // Cursor starts on About (index 0)
+    await expect(
+      page.locator("[data-e2e=retro-menu-item-about]"),
+    ).toHaveAttribute("aria-current", "true");
+
+    // Press D-pad down
+    await page.locator("[data-e2e=retro-dpad-down]").tap();
+
+    // Cursor should now be on Experience (index 1)
+    await expect(
+      page.locator("[data-e2e=retro-menu-item-experience]"),
+    ).toHaveAttribute("aria-current", "true");
+  });
+
+  test("D-pad up at top boundary does not wrap", async ({ page }) => {
+    await waitForMenu(page);
+
+    // Press D-pad up at top
+    await page.locator("[data-e2e=retro-dpad-up]").tap();
+
+    // Should stay on About
+    await expect(
+      page.locator("[data-e2e=retro-menu-item-about]"),
+    ).toHaveAttribute("aria-current", "true");
+  });
+
+  test("A button confirms selection and opens section", async ({ page }) => {
+    await waitForMenu(page);
+
+    // Cursor is on About by default
+    await page.locator("[data-e2e=retro-btn-a]").tap();
+
+    const sectionView = page.locator("[data-e2e=retro-section-view]");
+    await expect(sectionView).toBeVisible({ timeout: 3000 });
+    await expect(sectionView).toContainText("ABOUT");
+  });
+
+  test("tapping menu item directly opens section", async ({ page }) => {
+    await waitForMenu(page);
+
+    await page.locator("[data-e2e=retro-menu-item-skills]").tap();
+
+    const sectionView = page.locator("[data-e2e=retro-section-view]");
+    await expect(sectionView).toBeVisible({ timeout: 3000 });
+    await expect(sectionView).toContainText("SKILLS");
+  });
+});
+
+// ============================================================
+// Section Navigation Tests
+// ============================================================
+test.describe("RetroPlay Section Navigation Tests", () => {
+  test("About section has content", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-about]").tap();
+
+    const content = page.locator("[data-e2e=retro-section-content]");
+    await expect(content).toBeVisible({ timeout: 3000 });
+    await expect(content).toContainText("ABOUT ME");
+  });
+
+  test("Experience section has work history", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-experience]").tap();
+
+    const content = page.locator("[data-e2e=retro-section-content]");
+    await expect(content).toBeVisible({ timeout: 3000 });
+    await expect(content).toContainText("WORK HISTORY");
+    await expect(content).toContainText("Snyk");
+  });
+
+  test("Skills section has categories", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-skills]").tap();
+
+    const content = page.locator("[data-e2e=retro-section-content]");
+    await expect(content).toBeVisible({ timeout: 3000 });
+    await expect(content).toContainText("FRONTEND");
+    await expect(content).toContainText("React");
+  });
+
+  test("B button returns to menu from section", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-about]").tap();
+    await expect(page.locator("[data-e2e=retro-section-view]")).toBeVisible();
+
+    // Press B to go back
+    await page.locator("[data-e2e=retro-btn-b]").tap();
+
+    await expect(page.locator("[data-e2e=retro-menu]")).toBeVisible({
+      timeout: 3000,
+    });
+  });
+
+  test("Start button returns to menu from section", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-skills]").tap();
+    await expect(page.locator("[data-e2e=retro-section-view]")).toBeVisible();
+
+    // Press Start to go back
+    await page.locator("[data-e2e=retro-btn-start]").tap();
+
+    await expect(page.locator("[data-e2e=retro-menu]")).toBeVisible({
+      timeout: 3000,
+    });
+  });
+
+  test("D-pad scrolls content in section view", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-experience]").tap();
+
+    const content = page.locator("[data-e2e=retro-section-content]");
+    await expect(content).toBeVisible({ timeout: 3000 });
+
+    // Get initial scroll position
+    const scrollBefore = await content.evaluate((el) => el.scrollTop);
+
+    // Press D-pad down to scroll
+    await page.locator("[data-e2e=retro-dpad-down]").tap();
+    await page.waitForTimeout(400); // wait for smooth scroll
+
+    const scrollAfter = await content.evaluate((el) => el.scrollTop);
+    expect(scrollAfter).toBeGreaterThan(scrollBefore);
+  });
+});
+
+// ============================================================
+// Contact & Resume Tests
+// ============================================================
+test.describe("RetroPlay Contact & Resume Tests", () => {
+  test("contact email link has mailto href", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-contact]").tap();
+
+    const emailLink = page.locator("[data-e2e=retro-contact-email]");
+    await expect(emailLink).toBeVisible();
+    await expect(emailLink).toHaveAttribute("href", /^mailto:/);
+  });
+
+  test("contact LinkedIn link opens in new tab", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-contact]").tap();
+
+    const linkedinLink = page.locator("[data-e2e=retro-contact-linkedin]");
+    await expect(linkedinLink).toBeVisible();
+    await expect(linkedinLink).toHaveAttribute("href", /linkedin/);
+    await expect(linkedinLink).toHaveAttribute("target", "_blank");
+    await expect(linkedinLink).toHaveAttribute("rel", /noopener/);
+  });
+
+  test("contact GitHub link opens in new tab", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-contact]").tap();
+
+    const githubLink = page.locator("[data-e2e=retro-contact-github]");
+    await expect(githubLink).toBeVisible();
+    await expect(githubLink).toHaveAttribute("href", /github/);
+    await expect(githubLink).toHaveAttribute("target", "_blank");
+  });
+
+  test("resume download button exists", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-resume]").tap();
+
+    const downloadBtn = page.locator("[data-e2e=retro-resume-download]");
+    await expect(downloadBtn).toBeVisible();
+    await expect(downloadBtn).toHaveAttribute("href", /resume\.pdf/);
+    await expect(downloadBtn).toHaveAttribute("download", "");
+  });
+});
+
+// ============================================================
+// Desktop Banner Tests
+// ============================================================
+test.describe("RetroPlay Desktop Banner Tests", () => {
+  test("desktop banner is visible on menu", async ({ page }) => {
+    await waitForMenu(page);
+
+    const banner = page.locator("[data-e2e=retro-desktop-banner]");
+    await expect(banner).toBeVisible();
+    await expect(banner).toContainText("desktop");
+  });
+
+  test("desktop banner can be dismissed with X", async ({ page }) => {
+    await waitForMenu(page);
+
+    const banner = page.locator("[data-e2e=retro-desktop-banner]");
+    await expect(banner).toBeVisible();
+
+    await page.locator("[data-e2e=retro-banner-dismiss]").tap();
+
+    await expect(banner).not.toBeVisible({ timeout: 2000 });
+  });
+
+  test("desktop banner re-appears on reload", async ({ page }) => {
+    await waitForMenu(page);
+
+    // Dismiss banner
+    await page.locator("[data-e2e=retro-banner-dismiss]").tap();
+    await expect(
+      page.locator("[data-e2e=retro-desktop-banner]"),
+    ).not.toBeVisible();
+
+    // Reload
     await page.reload();
+    await page.waitForLoadState("domcontentloaded");
 
-    // Dismiss welcome screen
-    const welcomeScreen = page.locator("[data-e2e=mobile-ascii-welcome]");
-    await expect(welcomeScreen).toBeVisible();
-    await welcomeScreen.tap();
+    // Tap START to power on from idle screen after reload
+    await page.locator("[data-e2e=retro-btn-start]").tap();
 
-    // BIOS overlay should appear
-    const biosOverlay = page.locator("[data-e2e=bios-overlay]");
-    await expect(biosOverlay).toBeVisible({ timeout: 2000 });
+    const menu = page.locator("[data-e2e=retro-menu]");
+    await expect(menu).toBeVisible({ timeout: 8000 });
 
-    // Verify BIOS content
-    await expect(biosOverlay).toContainText("SYSTEM INITIALIZATION");
-    await expect(biosOverlay).toContainText("MOBILE EXPERIENCE OPTIMIZED");
-    await expect(biosOverlay).toContainText("Press any key to continue");
-
-    // Dismiss BIOS
-    await biosOverlay.tap();
-    await expect(biosOverlay).not.toBeVisible();
-
-    // Terminal should be visible
-    await expect(page.locator("[data-e2e=mobile-terminal]")).toBeVisible();
+    // Banner should be back
+    await expect(page.locator("[data-e2e=retro-desktop-banner]")).toBeVisible();
   });
+});
 
-  test("should not show BIOS on subsequent loads in same session", async ({
+// ============================================================
+// Sound Button Tests
+// ============================================================
+test.describe("RetroPlay Sound Button Tests", () => {
+  test("sound button exists and toggles", async ({ page }) => {
+    await waitForMenu(page);
+
+    const soundBtn = page.locator("[data-e2e=retro-btn-sound]");
+    await expect(soundBtn).toBeVisible();
+
+    // Sound is enabled by default on mobile (setSoundEnabled(true) on mount)
+    await expect(soundBtn).toHaveAttribute("data-sound", "on");
+    await expect(soundBtn).toHaveAttribute("aria-label", "Sound on");
+
+    // Toggle off
+    await soundBtn.tap();
+    await expect(soundBtn).toHaveAttribute("data-sound", "off");
+    await expect(soundBtn).toHaveAttribute("aria-label", "Sound off");
+
+    // Toggle on
+    await soundBtn.tap();
+    await expect(soundBtn).toHaveAttribute("data-sound", "on");
+  });
+});
+
+// ============================================================
+// Hardware Button Tests
+// ============================================================
+test.describe("RetroPlay Hardware Button Tests", () => {
+  test("all hardware buttons respond to tap", async ({ page }) => {
+    await waitForMenu(page);
+
+    // D-pad buttons
+    await expect(page.locator("[data-e2e=retro-dpad-up]")).toBeVisible();
+    await expect(page.locator("[data-e2e=retro-dpad-down]")).toBeVisible();
+    await expect(page.locator("[data-e2e=retro-dpad-left]")).toBeVisible();
+    await expect(page.locator("[data-e2e=retro-dpad-right]")).toBeVisible();
+
+    // A/B buttons
+    await expect(page.locator("[data-e2e=retro-btn-a]")).toBeVisible();
+    await expect(page.locator("[data-e2e=retro-btn-b]")).toBeVisible();
+
+    // Meta buttons
+    await expect(page.locator("[data-e2e=retro-btn-start]")).toBeVisible();
+    await expect(page.locator("[data-e2e=retro-btn-sound]")).toBeVisible();
+  });
+});
+
+// ============================================================
+// Landscape Overlay Tests
+// ============================================================
+test.describe("RetroPlay Landscape Overlay Tests", () => {
+  test("landscape overlay appears in landscape orientation", async ({
     page,
   }) => {
-    await page.goto("/");
+    await waitForMenu(page);
 
-    // Dismiss welcome
-    const welcomeScreen = page.locator("[data-e2e=mobile-ascii-welcome]");
-    await welcomeScreen.tap();
-
-    // Dismiss BIOS if it appears
-    await dismissBiosIfPresent(page);
-
-    // Navigate away and back
-    await page.goto("/about");
-    await page.goto("/");
-
-    // Dismiss welcome again
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-
-    // BIOS should NOT appear
-    const biosOverlay = page.locator("[data-e2e=bios-overlay]");
-    await expect(biosOverlay).not.toBeVisible({ timeout: 1000 });
-  });
-
-  test("should dismiss ASCII welcome with tap and show terminal", async ({
-    page,
-  }) => {
-    await page.goto("/");
-
-    const welcomeScreen = page.locator("[data-e2e=mobile-ascii-welcome]");
-    await expect(welcomeScreen).toBeVisible();
-    await welcomeScreen.tap();
-
-    // Dismiss BIOS if present
-    await dismissBiosIfPresent(page);
-
-    // Mobile terminal should be visible
-    const terminal = page.locator("[data-e2e=mobile-terminal]");
-    await expect(terminal).toBeVisible({ timeout: 5000 });
-
-    // ASCII art should be in terminal history
-    await expect(terminal).toContainText("DANIELE TORTORA");
-    await expect(terminal).toContainText("Senior Software Engineer");
-
-    // Intro dialog should start automatically
-    await expect(page.getByText(/Hey! Welcome to my portfolio/i)).toBeVisible({
-      timeout: 10000,
-    });
-  });
-
-  test("should show terminal footer with hint and copyright", async ({
-    page,
-  }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Footer should be visible
-    const footer = page.locator("[data-e2e=terminal-footer]");
-    await expect(footer).toBeVisible();
-
-    // Verify hint text
-    await expect(footer).toContainText("Type help for all commands");
-    await expect(footer).toContainText("swipe up");
-
-    // Verify copyright
-    await expect(footer).toContainText("© 2026 Daniele Tortora");
-  });
-
-  test("should open desktop overlay when tapping footer", async ({ page }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Tap footer to open desktop
-    const footer = page.locator("[data-e2e=terminal-footer]");
-    await footer.tap();
-
-    // Desktop overlay should appear
-    const desktop = page.locator("[data-e2e=mobile-desktop]");
-    await expect(desktop).toBeVisible({ timeout: 2000 });
-
-    // Verify desktop title
-    await expect(desktop).toContainText("DANIELE'S DESKTOP");
-  });
-
-  test("should open desktop overlay with swipe up gesture", async ({
-    page,
-  }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Get viewport height
-    const viewportSize = page.viewportSize();
-    const height = viewportSize?.height || 844;
-
-    // Simulate swipe up from bottom
-    await page.touchscreen.tap(200, height - 50); // Touch start near bottom
-    await page.mouse.move(200, height - 50);
-    await page.mouse.down();
-    await page.mouse.move(200, height - 200); // Swipe up 150px
-    await page.mouse.up();
-
-    // Desktop overlay should appear
-    const desktop = page.locator("[data-e2e=mobile-desktop]");
-    await expect(desktop).toBeVisible({ timeout: 2000 });
-  });
-
-  test("should show desktop icons and handle command selection", async ({
-    page,
-  }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Open desktop
-    await page.locator("[data-e2e=terminal-footer]").tap();
-    const desktop = page.locator("[data-e2e=mobile-desktop]");
-    await expect(desktop).toBeVisible();
-
-    // Verify icons are present
-    await expect(desktop.getByText("ABOUT.EXE")).toBeVisible();
-    await expect(desktop.getByText("EXPERIENCE.EXE")).toBeVisible();
-    await expect(desktop.getByText("SKILLS.EXE")).toBeVisible();
-    await expect(desktop.getByText("CONTACT.EXE")).toBeVisible();
-    await expect(desktop.getByText("TALK.EXE")).toBeVisible();
-
-    // Tap an icon (e.g., TALK which outputs to terminal)
-    await desktop.getByText("TALK.EXE").tap();
-
-    // Desktop should close
-    await expect(desktop).not.toBeVisible({ timeout: 2000 });
-
-    // TALK command should execute - dialog should appear
-    await expect(page.getByText(/Hey! Welcome to my portfolio/i)).toBeVisible({
-      timeout: 15000,
-    });
-  });
-
-  test("should close desktop overlay with X button", async ({ page }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Open desktop
-    await page.locator("[data-e2e=terminal-footer]").tap();
-    const desktop = page.locator("[data-e2e=mobile-desktop]");
-    await expect(desktop).toBeVisible();
-
-    // Click close button
-    const closeButton = desktop.locator("button[aria-label*='Close']");
-    await closeButton.tap();
-
-    // Desktop should close
-    await expect(desktop).not.toBeVisible({ timeout: 1000 });
-  });
-
-  test("should start with intro dialog after welcome", async ({ page }) => {
-    await page.goto("/");
-
-    // Dismiss welcome
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Wait for intro dialog message
-    await expect(page.getByText(/Hey! Welcome to my portfolio/i)).toBeVisible({
-      timeout: 10000,
-    });
-  });
-
-  test("should show dialog options after typewriter completes", async ({
-    page,
-  }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Wait for options to appear (text-based options now)
-    await expect(
-      page
-        .locator("[data-e2e=dialog-option]")
-        .filter({ hasText: /Continue\.\.\./i }),
-    ).toBeVisible({
-      timeout: 15000, // Increased timeout for typewriter
-    });
-  });
-
-  test("should navigate dialog via option tap", async ({ page }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Wait for first option
-    const option = page
-      .locator("[data-e2e=dialog-option]")
-      .filter({ hasText: /Continue\.\.\./i });
-    await expect(option).toBeVisible({ timeout: 15000 });
-
-    // Tap option
-    await option.tap();
-
-    // Verify navigation to next dialog node
-    await expect(
-      page
-        .locator("[data-e2e=dialog-agent-message]")
-        .filter({ hasText: /What would you like to know/i })
-        .last(),
-    ).toBeVisible({
-      timeout: 10000,
-    });
-  });
-
-  test("should navigate dialog via numeric input", async ({ page }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Wait for options
-    await expect(
-      page
-        .locator("[data-e2e=dialog-option]")
-        .filter({ hasText: /Continue\.\.\./i }),
-    ).toBeVisible({
-      timeout: 15000,
-    });
-
-    // Type "1" in input and submit
-    const input = page.locator("input[type=text]");
-    await input.fill("1");
-    await input.press("Enter");
-
-    // Verify navigation (check in terminal output)
-    await expect(
-      page
-        .locator("[data-e2e=dialog-agent-message]")
-        .filter({ hasText: /What would you like to know/i })
-        .last(),
-    ).toBeVisible({
-      timeout: 10000,
-    });
-  });
-
-  test("should persist conversation history in terminal", async ({ page }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Wait for first message
-    const firstMsg = page
-      .locator("[data-e2e=dialog-agent-message]")
-      .filter({ hasText: /Hey! Welcome to my portfolio/i });
-    await expect(firstMsg.first()).toBeVisible({ timeout: 15000 });
-
-    // Select option
-    const option = page
-      .locator("[data-e2e=dialog-option]")
-      .filter({ hasText: /Continue\.\.\./i });
-    await expect(option).toBeVisible({ timeout: 15000 });
-    await option.tap();
-
-    // Wait for second message
-    const secondMsg = page
-      .locator("[data-e2e=dialog-agent-message]")
-      .filter({ hasText: /What would you like to know/i });
-    await expect(secondMsg.first()).toBeVisible({ timeout: 15000 });
-
-    // Both messages should still be visible in history
-    await expect(firstMsg.first()).toBeVisible();
-  });
-
-  test("should handle orientation change", async ({ page }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Wait for terminal
-    await expect(page.locator("[data-e2e=mobile-terminal]")).toBeVisible();
-
-    // Simulate orientation change (landscape)
+    // Simulate landscape
     await page.setViewportSize({ width: 844, height: 390 });
 
-    // Terminal should still be visible and functional
-    await expect(page.locator("[data-e2e=mobile-terminal]")).toBeVisible();
+    const overlay = page.locator("[data-e2e=retro-landscape-overlay]");
+    await expect(overlay).toBeVisible({ timeout: 3000 });
+    await expect(overlay).toContainText("Rotate");
   });
 });
 
-test.describe("Mobile Visual Regression Tests", () => {
-  test("mobile ASCII welcome screen", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
-    const welcomeScreen = page.locator("[data-e2e=mobile-ascii-welcome]");
-    await expect(welcomeScreen).toBeVisible();
+// ============================================================
+// Visual Regression Tests
+// ============================================================
+test.describe("RetroPlay Visual Regression Tests", () => {
+  test("retro menu screen", async ({ page }) => {
+    await waitForMenu(page);
     await page.waitForTimeout(500);
 
-    await expect(page).toHaveScreenshot("00-mobile-ascii-welcome.png", {
+    await expect(page).toHaveScreenshot("mobile-00-menu.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
     });
   });
 
-  test("mobile BIOS screen", async ({ page }) => {
-    await page.goto("/");
-    await page.evaluate(() => sessionStorage.clear());
-    await page.reload();
-
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    const biosOverlay = page.locator("[data-e2e=bios-overlay]");
-    await expect(biosOverlay).toBeVisible({ timeout: 2000 });
+  test("retro About section", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-about]").tap();
+    await expect(page.locator("[data-e2e=retro-section-view]")).toBeVisible();
     await page.waitForTimeout(300);
 
-    await expect(page).toHaveScreenshot("01-mobile-bios.png", {
+    await expect(page).toHaveScreenshot("mobile-01-about.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
     });
   });
 
-  test("mobile terminal with intro dialog", async ({ page }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Wait for dialog to appear
-    await expect(page.getByText(/Hey! Welcome to my portfolio/i)).toBeVisible({
-      timeout: 15000,
-    });
-    await page.waitForTimeout(500);
-
-    await expect(page).toHaveScreenshot("02-mobile-terminal-intro.png", {
-      fullPage: true,
-      animations: "disabled",
-      maxDiffPixelRatio: 0.02,
-    });
-  });
-
-  test("mobile terminal with options", async ({ page }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Wait for options
-    await expect(
-      page
-        .locator("[data-e2e=dialog-option]")
-        .filter({ hasText: /Continue\.\.\./i }),
-    ).toBeVisible({
-      timeout: 15000,
-    });
+  test("retro Experience section", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-experience]").tap();
+    await expect(page.locator("[data-e2e=retro-section-view]")).toBeVisible();
     await page.waitForTimeout(300);
 
-    await expect(page).toHaveScreenshot("03-mobile-terminal-options.png", {
+    await expect(page).toHaveScreenshot("mobile-02-experience.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
     });
   });
 
-  test("mobile terminal with conversation history", async ({ page }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Navigate through dialog
-    await expect(
-      page
-        .locator("[data-e2e=dialog-option]")
-        .filter({ hasText: /Continue\.\.\./i }),
-    ).toBeVisible({
-      timeout: 15000,
-    });
-    await page
-      .locator("[data-e2e=dialog-option]")
-      .filter({ hasText: /Continue\.\.\./i })
-      .tap();
-
-    // Wait for second message
-    await expect(
-      page
-        .locator("[data-e2e=dialog-agent-message]")
-        .filter({ hasText: /What would you like to know/i })
-        .last(),
-    ).toBeVisible({ timeout: 15000 });
-    await page.waitForTimeout(500);
-
-    await expect(page).toHaveScreenshot("04-mobile-terminal-history.png", {
-      fullPage: true,
-      animations: "disabled",
-      maxDiffPixelRatio: 0.02,
-    });
-  });
-
-  test("mobile desktop overlay", async ({ page }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
-
-    // Open desktop
-    await page.locator("[data-e2e=terminal-footer]").tap();
-    const desktop = page.locator("[data-e2e=mobile-desktop]");
-    await expect(desktop).toBeVisible();
+  test("retro Skills section", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-skills]").tap();
+    await expect(page.locator("[data-e2e=retro-section-view]")).toBeVisible();
     await page.waitForTimeout(300);
 
-    await expect(page).toHaveScreenshot("05-mobile-desktop-overlay.png", {
+    await expect(page).toHaveScreenshot("mobile-03-skills.png", {
+      fullPage: true,
+      animations: "disabled",
+      maxDiffPixelRatio: 0.02,
+    });
+  });
+
+  test("retro Contact section", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-contact]").tap();
+    await expect(page.locator("[data-e2e=retro-section-view]")).toBeVisible();
+    await page.waitForTimeout(300);
+
+    await expect(page).toHaveScreenshot("mobile-04-contact.png", {
+      fullPage: true,
+      animations: "disabled",
+      maxDiffPixelRatio: 0.02,
+    });
+  });
+
+  test("retro Resume section", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-resume]").tap();
+    await expect(page.locator("[data-e2e=retro-section-view]")).toBeVisible();
+    await page.waitForTimeout(300);
+
+    await expect(page).toHaveScreenshot("mobile-05-resume.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
@@ -478,7 +529,27 @@ test.describe("Mobile Visual Regression Tests", () => {
   });
 });
 
-// Tablet tests with different device configuration
+// Idle screen visual test (static, no animation — reliable for screenshots)
+test.describe("RetroPlay Idle Screen Visual Regression", () => {
+  test("retro idle screen", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("domcontentloaded");
+
+    const idleScreen = page.locator("[data-e2e=retro-boot-idle]");
+    await expect(idleScreen).toBeVisible({ timeout: 3000 });
+    await page.waitForTimeout(500);
+
+    await expect(page).toHaveScreenshot("mobile-06-idle-screen.png", {
+      fullPage: true,
+      animations: "disabled",
+      maxDiffPixelRatio: 0.02,
+    });
+  });
+});
+
+// ============================================================
+// Tablet Tests
+// ============================================================
 const tabletTest = base.extend({
   viewport: devices["iPad Pro 11"].viewport,
   userAgent: devices["iPad Pro 11"].userAgent,
@@ -487,86 +558,144 @@ const tabletTest = base.extend({
   hasTouch: devices["iPad Pro 11"].hasTouch,
 });
 
-tabletTest.describe("Mobile Tablet Tests", () => {
-  tabletTest("tablet ASCII welcome screen", async ({ page }) => {
+tabletTest.describe("RetroPlay Tablet Tests", () => {
+  tabletTest("tablet retro menu screen", async ({ page }) => {
     await page.goto("/");
+    await page.waitForLoadState("domcontentloaded");
 
-    const welcomeScreen = page.locator("[data-e2e=mobile-ascii-welcome]");
-    await expect(welcomeScreen).toBeVisible();
+    // Tap START to power on from idle screen
+    await page.locator("[data-e2e=retro-btn-start]").tap();
 
-    await expect(page).toHaveScreenshot("06-tablet-welcome.png", {
+    const menu = page.locator("[data-e2e=retro-menu]");
+    await expect(menu).toBeVisible({ timeout: 8000 });
+
+    await page.waitForTimeout(500);
+
+    await expect(page).toHaveScreenshot("mobile-07-tablet-menu.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
     });
   });
 
-  tabletTest("tablet terminal functionality", async ({ page }) => {
+  tabletTest("tablet retro section navigation", async ({ page }) => {
     await page.goto("/");
+    await page.waitForLoadState("domcontentloaded");
 
-    // Dismiss welcome
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
+    // Tap START to power on from idle screen
+    await page.locator("[data-e2e=retro-btn-start]").tap();
 
-    // Terminal should be visible
-    const terminal = page.locator("[data-e2e=mobile-terminal]");
-    await expect(terminal).toBeVisible({ timeout: 5000 });
+    const menu = page.locator("[data-e2e=retro-menu]");
+    await expect(menu).toBeVisible({ timeout: 8000 });
 
-    // Wait for intro dialog
-    await expect(page.getByText(/Hey! Welcome to my portfolio/i)).toBeVisible({
-      timeout: 15000,
-    });
+    // Tap About
+    await page.locator("[data-e2e=retro-menu-item-about]").tap();
+    await expect(page.locator("[data-e2e=retro-section-view]")).toBeVisible();
+    await expect(
+      page.locator("[data-e2e=retro-section-content]"),
+    ).toContainText("ABOUT ME");
   });
 });
 
-test.describe("Mobile Accessibility Tests", () => {
-  test("terminal output has proper ARIA attributes", async ({ page }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
+// ============================================================
+// Small Viewport Tests (iPhone SE - 320px)
+// ============================================================
+const smallTest = base.extend({
+  viewport: { width: 320, height: 568 },
+  isMobile: true,
+  hasTouch: true,
+});
 
-    const output = page.locator("[data-e2e=terminal-output]");
-    await expect(output).toHaveAttribute("role", "log");
-    await expect(output).toHaveAttribute("aria-live", "polite");
+smallTest.describe("RetroPlay Small Viewport Tests", () => {
+  smallTest("small viewport retro menu", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("domcontentloaded");
+
+    // Tap START to power on from idle screen
+    await page.locator("[data-e2e=retro-btn-start]").tap();
+
+    const menu = page.locator("[data-e2e=retro-menu]");
+    await expect(menu).toBeVisible({ timeout: 8000 });
+
+    // All menu items should be visible
+    await expect(
+      page.locator("[data-e2e=retro-menu-item-about]"),
+    ).toBeVisible();
+    await expect(
+      page.locator("[data-e2e=retro-menu-item-resume]"),
+    ).toBeVisible();
+  });
+});
+
+// ============================================================
+// Accessibility Tests
+// ============================================================
+test.describe("RetroPlay Accessibility Tests", () => {
+  test("menu items have proper ARIA attributes", async ({ page }) => {
+    await waitForMenu(page);
+
+    // Check menu has list role
+    const menuList = page.locator("[data-e2e=retro-menu] [role=list]");
+    await expect(menuList).toBeVisible();
+
+    // Check About item has listitem role and aria-label
+    const aboutItem = page.locator("[data-e2e=retro-menu-item-about]");
+    await expect(aboutItem).toHaveAttribute("aria-label", "About");
+    await expect(aboutItem).toHaveAttribute("role", "listitem");
   });
 
-  test("dialog options have proper accessibility attributes", async ({
+  test("section content has proper aria-label", async ({ page }) => {
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-about]").tap();
+
+    const region = page.locator(
+      "[data-e2e=retro-section-content][role=region]",
+    );
+    await expect(region).toBeVisible();
+    await expect(region).toHaveAttribute("aria-label", "ABOUT");
+  });
+
+  test("contact links have proper attributes for external links", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
+    await waitForMenu(page);
+    await page.locator("[data-e2e=retro-menu-item-contact]").tap();
 
-    // Wait for options
-    const option = page
-      .locator("[data-e2e=dialog-option]")
-      .filter({ hasText: /Continue\.\.\./i });
-    await expect(option).toBeVisible({ timeout: 15000 });
-
-    // Check accessibility attributes
-    await expect(option).toHaveAttribute("role", "button");
-    await expect(option).toHaveAttribute("tabIndex", "0");
+    const linkedinLink = page.locator("[data-e2e=retro-contact-linkedin]");
+    await expect(linkedinLink).toHaveAttribute("target", "_blank");
+    await expect(linkedinLink).toHaveAttribute("rel", /noopener/);
   });
 
-  test("input field has proper attributes", async ({ page }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
+  test("sound button has proper aria-label", async ({ page }) => {
+    await waitForMenu(page);
 
-    const input = page.locator("[data-e2e=terminal-input]");
-    await expect(input).toHaveAttribute("aria-label", "Terminal input");
-    await expect(input).toHaveAttribute("spellcheck", "false");
-    await expect(input).toHaveAttribute("autocomplete", "off");
+    const soundBtn = page.locator("[data-e2e=retro-btn-sound]");
+    await expect(soundBtn).toBeVisible();
+    await expect(soundBtn).toHaveAttribute("aria-label", /Sound/);
   });
 
-  test("terminal footer has proper accessibility", async ({ page }) => {
-    await page.goto("/");
-    await page.locator("[data-e2e=mobile-ascii-welcome]").tap();
-    await dismissBiosIfPresent(page);
+  test("desktop banner has note role", async ({ page }) => {
+    await waitForMenu(page);
 
-    const footer = page.locator("[data-e2e=terminal-footer]");
-    await expect(footer).toHaveAttribute("role", "button");
-    await expect(footer).toHaveAttribute("tabIndex", "0");
-    await expect(footer).toHaveAttribute("aria-label", "Open desktop overlay");
+    const banner = page.locator("[data-e2e=retro-desktop-banner]");
+    await expect(banner).toHaveAttribute("role", "note");
+  });
+
+  test("hardware buttons have minimum touch target size", async ({ page }) => {
+    await waitForMenu(page);
+
+    // Check D-pad buttons meet 44px minimum
+    const dpadUp = page.locator("[data-e2e=retro-dpad-up]");
+    const box = await dpadUp.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.width).toBeGreaterThanOrEqual(36); // 2.25rem = 36px
+    expect(box!.height).toBeGreaterThanOrEqual(36);
+
+    // Check A/B buttons
+    const btnA = page.locator("[data-e2e=retro-btn-a]");
+    const btnABox = await btnA.boundingBox();
+    expect(btnABox).not.toBeNull();
+    expect(btnABox!.width).toBeGreaterThanOrEqual(44);
+    expect(btnABox!.height).toBeGreaterThanOrEqual(44);
   });
 });

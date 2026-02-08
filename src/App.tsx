@@ -8,8 +8,7 @@ import { TerminalScreen } from "./components/game/TerminalScreen";
 import { Win95Desktop } from "./components/desktop/Win95Desktop";
 import { WelcomeScreen } from "./components/dialog/WelcomeScreen";
 import { AdventureDialog } from "./components/dialog/AdventureDialog";
-import { MobileTerminal } from "./components/mobile/MobileTerminal";
-import { MobileASCIIWelcome } from "./components/mobile/MobileASCIIWelcome";
+import { RetroConsole } from "./components/mobile/RetroConsole";
 import { useGameStore } from "./store/gameStore";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useIsMobile } from "./hooks/useIsMobile";
@@ -25,8 +24,8 @@ function App() {
   // Global keyboard shortcuts (only for desktop)
   useKeyboardShortcuts();
 
-  // Background music (plays throughout the app when sound is enabled)
-  useBackgroundMusic();
+  // Background music (plays throughout the app when sound is enabled, desktop only)
+  useBackgroundMusic({ enabled: !isMobile });
 
   // Track when welcome screen is dismissed to trigger dialog
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
@@ -51,23 +50,9 @@ function App() {
     }
   }, [isMobile, welcomeDismissed, welcomeShown, openDialog]);
 
-  // Mobile experience - show welcome screen first, then terminal
+  // Mobile experience - RetroPlay Game Boy-style console
   if (isMobile) {
-    // Show ASCII welcome screen on mobile
-    if (!welcomeShown) {
-      return (
-        <div className={styles.app}>
-          <MobileASCIIWelcome
-            onDismiss={() => {
-              dismissWelcome();
-            }}
-          />
-        </div>
-      );
-    }
-
-    // After welcome dismissed, show mobile terminal
-    return <MobileTerminal />;
+    return <RetroConsole />;
   }
 
   // Desktop experience - always render Win95 Desktop with game window

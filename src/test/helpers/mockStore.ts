@@ -33,7 +33,6 @@ export function createMockStore(overrides: Partial<GameState> = {}): GameState {
     openTerminalScreen: vi.fn(),
     closeTerminalScreen: vi.fn(),
     setGameWindowActive: vi.fn(),
-    startMobileDialogSession: vi.fn(),
   };
 
   // Apply any overrides
