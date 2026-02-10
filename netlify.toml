@@ -78,7 +78,7 @@
 
 # Open Graph image - cache but allow updates
 [[headers]]
-  for = "/og-image.png"
+  for = "/daniele-og.png"
   [headers.values]
     Cache-Control = "public, max-age=604800"
 

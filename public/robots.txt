@@ -14,7 +14,7 @@ Disallow: /assets/*.js.map
 Disallow: /assets/*.css.map
 
 # Allow important SEO resources
-Allow: /og-image.png
+Allow: /daniele-og.png
 Allow: /favicon.ico
 Allow: /favicon-96x96.png
 Allow: /apple-touch-icon.png

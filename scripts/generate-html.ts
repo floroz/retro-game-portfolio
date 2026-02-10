@@ -35,7 +35,7 @@ function generateStructuredData() {
     description: `${PROFILE.seo.currentRole} with 10 years of experience specializing in React, TypeScript, Vue.js, Node.js, and AI integration. Currently at ${PROFILE.seo.currentCompany} building AI-powered security features.`,
     url: PROFILE.seo.siteUrl,
     email: PROFILE.email,
-    image: `${PROFILE.seo.siteUrl}/og-image.png`,
+    image: `${PROFILE.seo.siteUrl}/daniele-og.png`,
     address: {
       "@type": "PostalAddress",
       addressLocality: "Zürich",
@@ -111,7 +111,7 @@ function generateHTML(): string {
     <meta property="og:url" content="${PROFILE.seo.siteUrl}" />
     <meta property="og:title" content="${PROFILE.name} | ${PROFILE.seo.currentRole}" />
     <meta property="og:description" content="${PROFILE.seo.shortDescription}" />
-    <meta property="og:image" content="${PROFILE.seo.siteUrl}/og-image.png" />
+    <meta property="og:image" content="${PROFILE.seo.siteUrl}/daniele-og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="${PROFILE.name} - ${PROFILE.seo.currentRole} Portfolio" />
@@ -123,7 +123,7 @@ function generateHTML(): string {
     <meta name="twitter:url" content="${PROFILE.seo.siteUrl}" />
     <meta name="twitter:title" content="${PROFILE.name} | ${PROFILE.seo.currentRole}" />
     <meta name="twitter:description" content="${PROFILE.seo.shortDescription}" />
-    <meta name="twitter:image" content="${PROFILE.seo.siteUrl}/og-image.png" />
+    <meta name="twitter:image" content="${PROFILE.seo.siteUrl}/daniele-og.png" />
     <meta name="twitter:image:alt" content="${PROFILE.name} - ${PROFILE.seo.currentRole} Portfolio" />
     <meta name="twitter:site" content="${PROFILE.seo.twitter}" />
     <meta name="twitter:creator" content="${PROFILE.seo.twitter}" />
