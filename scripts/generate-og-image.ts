@@ -2,7 +2,7 @@
  * Generate OG Image using Playwright
  *
  * This script captures a screenshot of the OG image component
- * and saves it to public/og-image.png
+ * and saves it to public/daniele-og.png
  *
  * Usage:
  *   npm run generate:og-image
@@ -70,7 +70,7 @@ async function generateOGImage() {
   await page.waitForTimeout(500);
 
   // Take screenshot
-  const outputPath = join(__dirname, "..", "public", "og-image.png");
+  const outputPath = join(__dirname, "..", "public", "daniele-og.png");
 
   await page.screenshot({
     path: outputPath,
@@ -82,7 +82,7 @@ async function generateOGImage() {
     },
   });
 
-  console.log(`\n✅ OG image saved to: public/og-image.png`);
+  console.log(`\n✅ OG image saved to: public/daniele-og.png`);
   console.log(`   Dimensions: ${OG_IMAGE_WIDTH}x${OG_IMAGE_HEIGHT}px\n`);
 
   await browser.close();
