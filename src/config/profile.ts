@@ -191,6 +191,7 @@ Core expertise: React, Vue, TypeScript, Node.js, Go, Kubernetes, AI integration`
     currentCompany: "Snyk",
     twitter: "@floroz87",
     themeColor: "#1a1a2e",
+    ogImage: "og-image.png",
     keywords: [
       "Daniele Tortora",
       "floroz",

@@ -10,7 +10,8 @@
  * This runs automatically before build via the prebuild script.
  */
 
-import { writeFileSync } from "fs";
+import { writeFileSync, readFileSync, existsSync } from "fs";
+import { createHash } from "crypto";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { PROFILE } from "../src/config/profile.js";
@@ -18,15 +19,32 @@ import { PROFILE } from "../src/config/profile.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Compute content hash of OG image for cache busting
+function getOGImageHash(): string {
+  const ogImagePath = join(__dirname, "..", "public", PROFILE.seo.ogImage);
+
+  if (!existsSync(ogImagePath)) {
+    console.warn(`⚠️  Warning: OG image not found at ${ogImagePath}`);
+    return "no-image";
+  }
+
+  const imageBuffer = readFileSync(ogImagePath);
+  const hash = createHash("md5").update(imageBuffer).digest("hex");
+  return hash.substring(0, 8); // Use first 8 characters
+}
+
 // Derived SEO values
 const SEO = {
   title: `${PROFILE.name} | ${PROFILE.title}`,
-  description: `Senior Software Engineer with 10 years of experience in React, TypeScript, Node.js. Specializing in AI integration and scalable architectures.`,
+  description: PROFILE.seo.shortDescription,
   topSkills:
     "React, Vue.js, TypeScript, Node.js, Go, Kubernetes, AWS, GCP, AI Integration, Design Systems",
 };
 
 function generateStructuredData() {
+  const ogImageHash = getOGImageHash();
+  const ogImageUrl = `${PROFILE.seo.siteUrl}/${PROFILE.seo.ogImage}?v=${ogImageHash}`;
+
   const personSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -35,7 +53,7 @@ function generateStructuredData() {
     description: `${PROFILE.seo.currentRole} with 10 years of experience specializing in React, TypeScript, Vue.js, Node.js, and AI integration. Currently at ${PROFILE.seo.currentCompany} building AI-powered security features.`,
     url: PROFILE.seo.siteUrl,
     email: PROFILE.email,
-    image: `${PROFILE.seo.siteUrl}/daniele-og-v1.png`,
+    image: ogImageUrl,
     address: {
       "@type": "PostalAddress",
       addressLocality: "Zürich",
@@ -82,6 +100,8 @@ function generateStructuredData() {
 
 function generateHTML(): string {
   const { personSchema, websiteSchema } = generateStructuredData();
+  const ogImageHash = getOGImageHash();
+  const ogImageUrl = `${PROFILE.seo.siteUrl}/${PROFILE.seo.ogImage}?v=${ogImageHash}`;
 
   return `<!doctype html>
 <html lang="en">
@@ -111,7 +131,7 @@ function generateHTML(): string {
     <meta property="og:url" content="${PROFILE.seo.siteUrl}" />
     <meta property="og:title" content="${PROFILE.name} | ${PROFILE.seo.currentRole}" />
     <meta property="og:description" content="${PROFILE.seo.shortDescription}" />
-    <meta property="og:image" content="${PROFILE.seo.siteUrl}/daniele-og-v1.png" />
+    <meta property="og:image" content="${ogImageUrl}" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -124,7 +144,7 @@ function generateHTML(): string {
     <meta name="twitter:url" content="${PROFILE.seo.siteUrl}" />
     <meta name="twitter:title" content="${PROFILE.name} | ${PROFILE.seo.currentRole}" />
     <meta name="twitter:description" content="${PROFILE.seo.shortDescription}" />
-    <meta name="twitter:image" content="${PROFILE.seo.siteUrl}/daniele-og-v1.png" />
+    <meta name="twitter:image" content="${ogImageUrl}" />
     <meta name="twitter:image:alt" content="${PROFILE.name} - ${PROFILE.seo.currentRole} Portfolio" />
     <meta name="twitter:site" content="${PROFILE.seo.twitter}" />
     <meta name="twitter:creator" content="${PROFILE.seo.twitter}" />
