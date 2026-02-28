@@ -145,7 +145,7 @@ Core expertise: React, Vue, TypeScript, Node.js, Go, Kubernetes, AI integration`
 
   // Resume link
   resumeUrl:
-    "https://danieletortora.netlify.app/pdf/Daniele_Tortora_Resume.pdf",
+    "https://danieletortora.netlify.app/pdf/Daniele_Tortora_Fullstack_Resume.pdf",
 
   // Work experience (for SEO/noscript fallback)
   workExperience: [
