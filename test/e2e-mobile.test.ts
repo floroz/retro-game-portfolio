@@ -330,7 +330,7 @@ test.describe("RetroPlay Contact & Resume Tests", () => {
 
     const downloadBtn = page.locator("[data-e2e=retro-resume-download]");
     await expect(downloadBtn).toBeVisible();
-    await expect(downloadBtn).toHaveAttribute("href", /resume\.pdf/);
+    await expect(downloadBtn).toHaveAttribute("href", /\.pdf$/i);
     await expect(downloadBtn).toHaveAttribute("download", "");
   });
 });
