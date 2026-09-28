@@ -641,12 +641,8 @@ test.describe("Visual Regression Tests", () => {
     // Status bar has infinity KB - use first() to select the status section
     await expect(recycleBinWindow.getByText("∞ KB").last()).toBeVisible();
 
-    // Allow time for rendering to stabilize
-    await page.waitForTimeout(1000);
-
     // Take screenshot of the recycle bin window
-    await expect(page).toHaveScreenshot("07-recycle-bin.png", {
-      fullPage: true,
+    await expect(recycleBinWindow).toHaveScreenshot("07-recycle-bin.png", {
       animations: "disabled",
       maxDiffPixelRatio: 0.02,
       timeout: 30000,
