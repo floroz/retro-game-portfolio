@@ -62,11 +62,10 @@ This project was built with significant help from AI — not as a replacement fo
 
 ## Run Locally
 
-Node.js is managed via **fnm**; the project expects the version in `.nvmrc`.
+Use the Node.js version in `.node-version` and the npm version in `package.json` (`packageManager`). Install them with your preferred version manager, then run:
 
 ```bash
-fnm use
-npm install
+npm ci
 npm run dev
 ```
 
