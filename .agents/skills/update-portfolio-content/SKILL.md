@@ -27,13 +27,14 @@ PROFILE = {
   location, // Current location
   email, // Contact email
   social, // { github, linkedin }
-  portfolio, // { version, title }
   bio, // About section text
   skills, // { frontend, backend, ai, cloud, data, testing, leadership }
   experienceSummary, // Work experience summary
   projects, // Array of { emoji, name, description, tech }
   contactInterests, // Array of discussion topics
   resumeUrl, // Path to resume PDF
+  workExperience, // Work history for mobile and SEO
+  seo, // Search and social metadata
 };
 ```
 
@@ -55,16 +56,13 @@ Edit `src/config/dialogTrees.ts` to reflect the updated information. Key nodes t
 
 ### Step 3: Verify No Hardcoded Content
 
-Check that `src/components/game/ContentModal.tsx` only reads from `PROFILE`:
-
-- Projects section uses `PROFILE.projects`
-- Contact section uses `PROFILE.contactInterests`
-- All other sections reference `PROFILE` properties
+Check the actual consumers of each changed field, especially `src/components/mobile/RetroContent.tsx`, `src/config/terminalScreenContent.ts`, `src/config/commands.ts`, and `scripts/generate-html.ts`. Keep personal details in `PROFILE` and dialogue in `DIALOG_TREE` rather than duplicating them in components.
 
 ### Step 4: Format and Lint
 
 ```bash
-fnm use && npm run format
+npm run format
+npm run lint
 ```
 
 ## Dialogue Tone Guidelines
@@ -91,6 +89,6 @@ currently employed at Snyk in Zürich, Switzerland."
 
 - [ ] Updated `src/config/profile.ts` with new information
 - [ ] Updated relevant nodes in `src/config/dialogTrees.ts`
-- [ ] Verified `ContentModal.tsx` has no hardcoded personal content
+- [ ] Verified affected desktop, mobile, terminal, and SEO views
 - [ ] Ran `npm run format`
 - [ ] Tested the site with `npm run dev`

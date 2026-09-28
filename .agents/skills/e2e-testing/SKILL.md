@@ -1,6 +1,6 @@
 ---
 name: e2e-testing
-description: Run E2E tests, update visual regression snapshots, and verify features with Playwright. Use when the user wants to run tests, update screenshots, fix failing tests, add new E2E tests, or verify changes after modifying features. CRITICAL - visual regression snapshots must always be generated in Docker.
+description: Run E2E tests, update visual regression snapshots, and verify features with Playwright in Docker. Use when the user wants to run tests, update screenshots, fix failing tests, add new E2E tests, or verify changes after modifying features.
 ---
 
 # E2E Testing with Playwright
@@ -9,18 +9,20 @@ This skill guides running E2E tests and updating visual regression snapshots for
 
 ## Critical Rule
 
-**NEVER run `--update-snapshots` outside Docker.** Screenshots generated locally will differ from CI due to font rendering, anti-aliasing, and platform differences. Always use the Docker commands.
+**Run E2E tests and snapshot updates in Docker.** Screenshots generated locally will differ from CI due to font rendering, anti-aliasing, and platform differences. Use the Docker commands below.
 
 ## Quick Reference
 
-| Task                           | Command                                         |
-| ------------------------------ | ----------------------------------------------- |
-| Run all tests (local)          | `npm run test:e2e`                              |
-| Run tests in Docker            | `npm run test:e2e:docker`                       |
-| Update snapshots (Docker only) | `npm run test:e2e:docker:update`                |
-| Run specific browser           | `npm run test:e2e:docker -- --project=chromium` |
-| Run specific test              | `npm run test:e2e:docker -- -g "test name"`     |
-| Open test UI                   | `npm run test:e2e:ui`                           |
+| Task                           | Command                                                                     |
+| ------------------------------ | --------------------------------------------------------------------------- |
+| Run all tests                  | `npm run test:e2e:docker`                                                   |
+| Update snapshots (Docker only) | `npm run test:e2e:docker:update`                                            |
+| Run one test file              | `./scripts/playwright-docker.sh test/e2e-mobile.test.ts`                    |
+| Update one test file           | `./scripts/playwright-docker.sh test/e2e-mobile.test.ts --update-snapshots` |
+| Run specific browser           | `npm run test:e2e:docker -- --project=chromium`                             |
+| Run specific test              | `npm run test:e2e:docker -- -g "test name"`                                 |
+
+The Docker script and Playwright web server set `VITE_TYPEWRITER_SPEED=0` so typewriter text appears immediately during tests. CI runs `npm run test:e2e` inside the Playwright container; the local Docker wrapper provides the same Linux environment.
 
 ## Workflow: After Modifying a Feature
 
@@ -29,7 +31,7 @@ When changes affect the UI, follow this workflow:
 ### Step 1: Run Tests to See Failures
 
 ```bash
-fnm use && npm run test:e2e:docker
+npm run test:e2e:docker
 ```
 
 Review which visual regression tests fail. The test output shows pixel differences.
@@ -37,7 +39,7 @@ Review which visual regression tests fail. The test output shows pixel differenc
 ### Step 2: Update Snapshots in Docker
 
 ```bash
-fnm use && npm run test:e2e:docker:update
+npm run test:e2e:docker:update
 ```
 
 This regenerates all snapshots using the Docker container, ensuring consistency with CI.
@@ -45,7 +47,7 @@ This regenerates all snapshots using the Docker container, ensuring consistency 
 ### Step 3: Verify Tests Pass
 
 ```bash
-fnm use && npm run test:e2e:docker
+npm run test:e2e:docker
 ```
 
 All tests should now pass.
@@ -53,16 +55,16 @@ All tests should now pass.
 ### Step 4: Review Changes
 
 ```bash
-git diff test/e2e.test.ts-snapshots/
+git status --short test/
 ```
 
-Visually inspect the updated screenshots to confirm they look correct.
+Visually inspect the updated desktop and mobile screenshots to confirm they look correct.
 
 ## Workflow: Adding New E2E Tests
 
 ### Step 1: Write the Test
 
-Add tests to `test/e2e.test.ts`. Follow existing patterns:
+Add desktop tests to `test/e2e.test.ts` or mobile tests to `test/e2e-mobile.test.ts`. Follow existing patterns:
 
 ```typescript
 test("new feature test", async ({ page }) => {
@@ -82,10 +84,10 @@ test("new feature test", async ({ page }) => {
 ### Step 2: Generate Initial Snapshots
 
 ```bash
-fnm use && npm run test:e2e:docker:update
+npm run test:e2e:docker:update
 ```
 
-New snapshots are created in `test/e2e.test.ts-snapshots/` with browser-specific suffixes.
+New snapshots are created beside the test file in a `-snapshots/` directory with browser-specific Linux suffixes.
 
 ### Step 3: Verify and Commit
 
@@ -93,14 +95,14 @@ Review the generated screenshots, then commit both the test and snapshots.
 
 ## Test Structure
 
-The test file is organized into two describe blocks:
+The desktop test file is organized into two describe blocks:
 
 1. **Portfolio E2E Tests** - Functional tests (page loads, elements visible)
 2. **Visual Regression Tests** - Screenshot comparisons
 
 ### Browser Coverage
 
-Tests run on three browsers (configured in `playwright.config.ts`):
+Desktop tests run on three browsers (configured in `playwright.config.ts`):
 
 - Chromium (Chrome)
 - Firefox
@@ -108,9 +110,11 @@ Tests run on three browsers (configured in `playwright.config.ts`):
 
 Snapshots are generated per-browser with suffixes like:
 
-- `01-welcome-screen-chromium-darwin.png`
-- `01-welcome-screen-firefox-darwin.png`
-- `01-welcome-screen-webkit-darwin.png`
+- `01-welcome-screen-chromium-linux.png`
+- `01-welcome-screen-firefox-linux.png`
+- `01-welcome-screen-webkit-linux.png`
+
+Mobile tests run on mobile Chrome, mobile Safari, and tablet projects.
 
 ## Docker Configuration
 
@@ -149,7 +153,7 @@ docker info
 This happens when snapshots were generated outside Docker. Fix:
 
 ```bash
-fnm use && npm run test:e2e:docker:update
+npm run test:e2e:docker:update
 ```
 
 ### Test Timeout
