@@ -32,6 +32,7 @@ export function getEngine(): SceneEngine {
           useGameStore.getState().openTerminalScreen(section),
         sceneChanged: (scene) => useGameStore.getState().setCurrentScene(scene),
         skippableChanged: (skippable) => useGameStore.setState({ skippable }),
+        flightChanged: (flyingTo) => useGameStore.setState({ flyingTo }),
         sound: (name) => sceneAudio.play(name),
       },
     });

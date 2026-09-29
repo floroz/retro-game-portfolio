@@ -1,6 +1,6 @@
 /**
- * Section icons, 14x14 pixel art. The toolbar, the gate signs, the
- * departures board, and speech all draw the same icon: text writes one as
+ * Section icons, 14x14 pixel art. The toolbar and any engine text draw the
+ * same icon: text writes one as
  * `{skills}` and so on (font.ts draws it inline at display resolution), and
  * the toolbar draws it as an SVG (PixelIcon). Each icon is a header line,
  * `{<section>} <width>`, then its rows, `#` for ink and `.` for paper.
@@ -103,7 +103,7 @@ const ICONS: ReadonlyMap<string, readonly string[]> = new Map(
 export const ICON_TOKEN = /\{(experience|skills|about|contact|resume)\}/y;
 
 /** The token that draws a section's icon, e.g. `{skills}`. */
-export function iconToken(section: SectionId): string {
+function iconToken(section: SectionId): string {
   return `{${section}}`;
 }
 

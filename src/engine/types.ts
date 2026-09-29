@@ -205,9 +205,8 @@ export interface SlotRow {
  * What an engine-drawn label says:
  * - `section:<id>`: the section name, "RESUME"
  * - `scene:<id>`: the scene name, "LONDON"
- * - `gate:<country>`: "GATE 1", the country, and its sections, with icons
- * - `departures`: one departures-board row per gate
- * - `skills:menu`: the chalkboard menu, one line per skill group
+ * - `gate:<country>`: "GATE 1" and the city, nothing more
+ * - `departures`: one departures-board row per gate: the city only
  * - `text:<literal>`: fixed text, for signs that never change
  */
 export type LabelSource =
@@ -215,7 +214,6 @@ export type LabelSource =
   | `scene:${SceneId}`
   | `gate:${CountrySceneId}`
   | "departures"
-  | "skills:menu"
   | `text:${string}`;
 
 /** Text drawn by the engine at display resolution (font.ts). Never paint text into art. */

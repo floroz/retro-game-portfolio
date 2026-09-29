@@ -1,15 +1,13 @@
 /**
- * Text for engine-drawn labels, resolved from config so renaming a section,
- * a skill group, or a country never touches an image.
+ * Text for engine-drawn labels, resolved from config so renaming a section
+ * or a country never touches an image.
+ *
+ * In-world text is minimal (docs/expansion-plan.md, "How visitors know where
+ * each section is"): a gate sign is its number and city, the departures
+ * board lists cities, and a primary object carries one word. The status line
+ * and the toolbar say which sections are where.
  */
-import { PROFILE } from "../config/profile";
-import {
-  COUNTRIES,
-  COUNTRY_ORDER,
-  SECTIONS,
-  sectionsIn,
-} from "../config/sections";
-import { iconToken } from "./icons";
+import { COUNTRIES, COUNTRY_ORDER, SECTIONS } from "../config/sections";
 import type { CountrySceneId, LabelSource, Rect, SceneId } from "./types";
 
 const SCENE_NAMES: Record<SceneId, string> = {
@@ -18,11 +16,6 @@ const SCENE_NAMES: Record<SceneId, string> = {
   zurich: COUNTRIES.zurich.name,
   sorrento: COUNTRIES.sorrento.name,
 };
-
-/** "{skills} Skills", one per section of the country. */
-function sectionLines(country: CountrySceneId): string[] {
-  return sectionsIn(country).map((s) => `${iconToken(s)} ${SECTIONS[s].label}`);
-}
 
 /** Lines of text for a label source. */
 export function resolveLabel(source: LabelSource): string[] {
@@ -39,28 +32,13 @@ export function resolveLabel(source: LabelSource): string[] {
     case "gate":
       if (arg in COUNTRIES) {
         const c = arg as CountrySceneId;
-        return [
-          `Gate ${COUNTRIES[c].gate}`,
-          COUNTRIES[c].name,
-          ...sectionLines(c),
-        ];
+        // Two lines on today's tall signs; the HD Hall's small signs will
+        // read "GATE 1 · LONDON" on one.
+        return [`Gate ${COUNTRIES[c].gate}`, COUNTRIES[c].name];
       }
       break;
     case "departures":
-      return COUNTRY_ORDER.map(
-        (c) =>
-          `${COUNTRIES[c].gate} ${COUNTRIES[c].name} ${sectionLines(c).join(" ")}`,
-      );
-    case "skills":
-      if (arg === "menu") {
-        return [
-          "On tap",
-          ...(
-            Object.keys(PROFILE.skills) as (keyof typeof PROFILE.skills)[]
-          ).map((g) => PROFILE.skillGroupLabels[g]),
-        ];
-      }
-      break;
+      return COUNTRY_ORDER.map((c) => COUNTRIES[c].name);
     case "text":
       return arg.split("\n");
   }

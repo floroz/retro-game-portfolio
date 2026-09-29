@@ -12,8 +12,8 @@ interface PixelIconProps {
 }
 
 /**
- * A section icon from the engine (icons.ts), so the toolbar, the gate
- * signs, and the departures board all show the same icon.
+ * A section icon from the engine (icons.ts), so the toolbar and engine text
+ * show the same icon.
  */
 export function PixelIcon({ section, scale = 1, className }: PixelIconProps) {
   const rows = iconRows(section);
