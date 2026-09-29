@@ -37,6 +37,16 @@ export function sceneWarnings(
     if (!o.sprite && !o.hotspot)
       out.push(`${o.id}: needs a sprite or a hotspot`);
   }
+  for (const p of scene.props ?? []) {
+    const ats = p.path.map((k) => k.at);
+    if (
+      ats[0] !== 0 ||
+      ats.at(-1) !== 1 ||
+      ats.some((a, i) => i && a < ats[i - 1])
+    ) {
+      out.push(`${p.id}: path keys need to run in order from at 0 to at 1`);
+    }
+  }
   for (const e of scene.exits) {
     if (!walkable(e.interactionPoint)) {
       out.push(`${e.id}: interaction point is off the walkbox`);

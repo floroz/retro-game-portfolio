@@ -8,7 +8,7 @@ import { RigAnimator, mouthFor } from "../rig/animator";
 import { blendPoses, catmullRom, sampleClip, type PoseClip } from "../rig/clip";
 import { placeholderRig } from "../rig/placeholder";
 import { POSE_CLIPS, type ClipName } from "../rig/poses";
-import { hardenAlpha } from "../rig/draw";
+import { hardenAlpha } from "../raster";
 import { heelOf, parseRig, placeRig, poseFor } from "../rig/rig";
 import {
   REST_POSE,
