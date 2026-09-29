@@ -1,0 +1,10 @@
+{
+  "id": "sorrento-obj-chair-left",
+  "output": "src/assets/scenes/sorrento/obj-chair-left.png",
+  "task": "B4",
+  "source": "opus",
+  "derivedFrom": "sorrento-bg",
+  "palette": "v1",
+  "cleanup": "Rush-seated ladder-back chair after candidate 02's, side-on in 3/4 view with its back on the left: two back posts with slats, a checked rush seat, front legs and a stretcher.",
+  "date": "2026-09-29"
+}

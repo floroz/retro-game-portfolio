@@ -1,9 +1,10 @@
 {
   "id": "sorrento-fg",
   "output": "src/assets/scenes/sorrento/fg.png",
-  "task": "F1",
+  "task": "B4",
   "source": "opus",
-  "palette": "v0",
-  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Replaced in the sorrento build task.",
+  "derivedFrom": "sorrento-bg",
+  "palette": "v1",
+  "cleanup": "Potted lemon tree in the bottom-right corner, cropped by the frame edge: terracotta pot with a lit rim, trunk, a dark canopy covered in single leaves (lit on the window side) and seven lemons. Redrawn by hand after candidate 02's tree.",
   "date": "2026-09-29"
 }

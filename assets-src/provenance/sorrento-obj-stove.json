@@ -1,0 +1,10 @@
+{
+  "id": "sorrento-obj-stove",
+  "output": "src/assets/scenes/sorrento/obj-stove.png",
+  "task": "B4",
+  "source": "opus",
+  "derivedFrom": "sorrento-bg",
+  "palette": "v1",
+  "cleanup": "Cream enamel stove after candidate 02's, redrawn smaller and moved forward onto the floor (baseline 119): thin cooktop in 3/4 view with two grates, five knobs, an oven door with a dark window, a gingham tea towel on the handle, kick plate and feet; lit from the window side. An aluminium moka pot with a black handle sits on the right burner.",
+  "date": "2026-09-29"
+}

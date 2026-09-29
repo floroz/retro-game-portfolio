@@ -1,0 +1,10 @@
+{
+  "id": "sorrento-anim-glints",
+  "output": "src/assets/scenes/sorrento/anim-glints.png",
+  "task": "B4",
+  "source": "opus",
+  "derivedFrom": "sorrento-bg",
+  "palette": "v1",
+  "cleanup": "4 opaque frames (26x11) of the patch of gulf under the sun: short hard-edged glint dashes blinking on and off and shifting a pixel. Frame 0 matches bg.",
+  "date": "2026-09-29"
+}
