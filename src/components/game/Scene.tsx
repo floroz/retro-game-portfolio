@@ -1,69 +1,149 @@
+import { useEffect, useRef, useSyncExternalStore } from "react";
+import type { MouseEvent } from "react";
 import styles from "./Scene.module.scss";
-
-// Hooks
-import { useCharacterMovement } from "../../hooks/useCharacterMovement";
-import { useSceneClick } from "../../hooks/useSceneClick";
 import { useGameStore } from "../../store/gameStore";
-import { getScaleForY, getZIndexForY, HOTSPOTS } from "../../config/scene";
+import { useSceneKeyboard } from "../../hooks/useSceneKeyboard";
+import { CHARACTER_SHEET } from "../../engine/assets";
+import { NATIVE_H, NATIVE_W } from "../../engine/constants";
+import { renderFrame } from "../../engine/render";
+import { allImages, getEngine, images } from "../../engine/runtime";
+import { interactablesFor, type Hit } from "../../engine/SceneEngine";
+import { SCENES, TRAVEL_MAP_DATA } from "../../engine/scenes";
+import type { Rect } from "../../engine/types";
+import { SceneDebugOverlay } from "./SceneDebugOverlay";
+import { SCENE_DEBUG } from "./sceneDebug";
 
-// Character
-import { CharacterCSS } from "../renderers/character/CharacterCSS";
+const pct = (r: Rect) => ({
+  left: `${(r.x / NATIVE_W) * 100}%`,
+  top: `${(r.y / NATIVE_H) * 100}%`,
+  width: `${(r.w / NATIVE_W) * 100}%`,
+  height: `${(r.h / NATIVE_H) * 100}%`,
+});
 
-// Background - Image-based
-import { ImageBackground } from "../renderers/background/ImageBackground";
+const hitKey = (hit: Hit) =>
+  hit.target.kind === "object"
+    ? `object:${hit.target.object.id}`
+    : hit.target.kind === "exit"
+      ? `exit:${hit.target.exit.id}`
+      : `slot:${hit.target.item.id}`;
 
-// Hotspot overlay
-import { Hotspot } from "./Hotspot";
+/** Native px under the pointer. */
+function nativePoint(e: MouseEvent<HTMLElement>): [number, number] {
+  const r = e.currentTarget.getBoundingClientRect();
+  return [
+    ((e.clientX - r.left) / r.width) * NATIVE_W,
+    ((e.clientY - r.top) / r.height) * NATIVE_H,
+  ];
+}
 
 /**
- * Main scene composition - Image-based background with hotspot overlays
- * Uses custom pixel art background with interactive hotspot areas
+ * The game scene: a 320x160 canvas drawn by the engine every frame, with
+ * invisible buttons over each hotspot for the pointer, the keyboard, and
+ * screen readers. Left click walks or uses; right click looks.
  */
 export function Scene() {
-  // Character state from store
-  const { characterPosition, characterDirection, characterState } =
-    useGameStore();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const currentScene = useGameStore((s) => s.currentScene);
+  const sceneRequest = useGameStore((s) => s.sceneRequest);
+  const contentOpen = useGameStore((s) => s.terminalScreenAction !== null);
+  const setHoveredObject = useGameStore((s) => s.setHoveredObject);
+  const spriteInfo = useSyncExternalStore(images.subscribe, images.getInfo);
+  const scene = SCENES[currentScene];
+  const hits = interactablesFor(scene, spriteInfo);
 
-  // Movement handling
-  const { handleSceneClick } = useCharacterMovement();
+  useSceneKeyboard();
 
-  // Object interaction
-  const { handleObjectClick, handleObjectHover, hoveredObject } =
-    useSceneClick();
+  // Preload everything once, so no scene change ever flashes.
+  useEffect(() => {
+    void images.loadAll(allImages());
+    useGameStore.getState().setCurrentScene(getEngine().scene.id);
+  }, []);
 
-  const characterScale = getScaleForY(characterPosition.y);
-  const characterZIndex = getZIndexForY();
+  // The frame loop pauses while the content screen covers the scene.
+  useEffect(() => {
+    if (contentOpen) return;
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
+    const engine = getEngine();
+    engine.contentClosed();
+    let last = performance.now();
+    let raf = 0;
+    const frame = (t: number) => {
+      engine.update(t - last);
+      last = t;
+      renderFrame({
+        ctx,
+        engine,
+        images,
+        sheet: CHARACTER_SHEET,
+        map: TRAVEL_MAP_DATA,
+      });
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, [contentOpen]);
+
+  // Toolbar and terminal shortcuts arrive through the store.
+  useEffect(() => {
+    if (!sceneRequest) return;
+    const request = useGameStore.getState().takeSceneRequest();
+    if (!request) return;
+    const engine = getEngine();
+    if (request.kind === "section") engine.goToSection(request.section);
+    else engine.travelTo(request.scene);
+  }, [sceneRequest]);
+
+  const onFloorClick = (e: MouseEvent<HTMLDivElement>) => {
+    const [x, y] = nativePoint(e);
+    getEngine().walkTo(x, y);
+  };
 
   return (
-    <div className={styles.scene} data-e2e="scene" onClick={handleSceneClick}>
-      {/* Background layer - custom artwork */}
-      <ImageBackground />
-
-      {/* Interactive hotspot overlays */}
+    <div
+      className={styles.scene}
+      data-e2e="scene"
+      data-scene={currentScene}
+      onClick={onFloorClick}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onFloorClick(e);
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        className={styles.canvas}
+        width={NATIVE_W}
+        height={NATIVE_H}
+        aria-hidden="true"
+      />
       <div className={styles.hotspots}>
-        {HOTSPOTS.map((hotspot) => (
-          <Hotspot
-            key={hotspot.id}
-            config={hotspot}
-            isHovered={hoveredObject === hotspot.id}
-            onClick={handleObjectClick}
-            onHover={handleObjectHover}
+        {hits.map((hit) => (
+          <button
+            key={hitKey(hit)}
+            type="button"
+            className={styles.hotspot}
+            style={pct(hit.rect)}
+            data-e2e="hotspot"
+            data-hotspot={hitKey(hit)}
+            aria-label={hit.text}
+            onClick={(e) => {
+              e.stopPropagation();
+              getEngine().activate(hit.target);
+            }}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              getEngine().look(hit.target);
+            }}
+            onMouseEnter={() => setHoveredObject(hit.text)}
+            onMouseLeave={() => setHoveredObject(null)}
+            onFocus={() => setHoveredObject(hit.text)}
+            onBlur={() => setHoveredObject(null)}
           />
         ))}
       </div>
-
-      {/* Character layer - positioned with X/Y and scale for depth */}
-      <div
-        className={styles.character}
-        style={{
-          left: `${characterPosition.x}px`,
-          bottom: `${characterPosition.y}px`,
-          transform: `scale(${characterScale})`,
-          zIndex: characterZIndex,
-        }}
-      >
-        <CharacterCSS direction={characterDirection} state={characterState} />
-      </div>
+      {SCENE_DEBUG && <SceneDebugOverlay scene={scene} hits={hits} />}
     </div>
   );
 }

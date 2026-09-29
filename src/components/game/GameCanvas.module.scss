@@ -24,18 +24,6 @@
   flex-shrink: 0;
 }
 
-/* Safari-specific: Use auto rendering with integer scaling */
-@supports (-webkit-hyphens: none) {
-  .canvas,
-  .canvas *,
-  :global(.scene),
-  :global(.scene *),
-  :global(.scene img),
-  :global(.scene [class*="__"]) {
-    image-rendering: auto;
-  }
-}
-
 /* Scene area - top 640px (80% of 800px) */
 .scene {
   position: relative;

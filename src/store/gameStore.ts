@@ -1,23 +1,25 @@
 import { create } from "zustand";
-import type {
-  Position,
-  Direction,
-  CharacterState,
-  ActionType,
-} from "../types/game";
-import { SCENE_CONFIG, clampToWalkableArea } from "../config/scene";
+import type { ActionType } from "../types/game";
+import type { SceneId, SectionId } from "../engine/types";
 import { DIALOG_TREE } from "../config/dialogTrees";
 
+/**
+ * A trip for the scene engine to run. The toolbar and the terminal post
+ * requests here; the mounted scene takes them (see `takeSceneRequest`).
+ */
+type SceneRequest =
+  | { id: number; kind: "section"; section: SectionId }
+  | { id: number; kind: "travel"; scene: SceneId };
+
 interface GameState {
-  // Character state
-  characterPosition: Position;
-  characterDirection: Direction;
-  characterState: CharacterState;
-  targetPosition: Position | null;
+  // World state. Daniele's position and animation live in the scene engine
+  // (src/engine/SceneEngine.ts), which runs every frame outside React.
+  currentScene: SceneId;
+  sceneRequest: SceneRequest | null;
 
   // Interaction state
+  /** Status-line text for whatever the pointer is over. */
   hoveredObject: string | null;
-  pendingAction: { action: ActionType; targetPos: Position } | null;
   terminalScreenAction: ActionType | null;
   terminalOpen: boolean;
   gameWindowActive: boolean; // Track if game window is active in Win95 desktop
@@ -29,17 +31,17 @@ interface GameState {
   visitedNodes: Set<string>;
   soundEnabled: boolean;
 
-  // Character actions
-  setCharacterPosition: (position: Position) => void;
-  setCharacterDirection: (direction: Direction) => void;
-  setCharacterState: (state: CharacterState) => void;
-  moveTo: (position: Position) => void;
-  stopMovement: () => void;
-  onArrival: () => void;
+  // World actions
+  setCurrentScene: (scene: SceneId) => void;
+  /** Toolbar and terminal shortcut: walk, fly, and open a section. */
+  goToSection: (section: SectionId) => void;
+  /** Fly to a scene without opening anything (terminal `fly`). */
+  travelTo: (scene: SceneId) => void;
+  /** Returns the pending request, if any, and clears it. */
+  takeSceneRequest: () => SceneRequest | null;
 
   // Interaction actions
   setHoveredObject: (id: string | null) => void;
-  triggerAction: (action: ActionType, targetPos: Position) => void;
   openTerminalScreen: (action: ActionType) => void;
   closeTerminalScreen: () => void;
   toggleTerminal: () => void;
@@ -55,18 +57,16 @@ interface GameState {
   setSoundEnabled: (enabled: boolean) => void;
 }
 
+let requestId = 0;
+
 // Always show welcome on each page load (no persistence)
 
 export const useGameStore = create<GameState>((set, get) => ({
-  // Initial character state
-  characterPosition: SCENE_CONFIG.characterStart,
-  characterDirection: "right",
-  characterState: "idle",
-  targetPosition: null,
+  currentScene: "hall",
+  sceneRequest: null,
 
   // Initial interaction state
   hoveredObject: null,
-  pendingAction: null,
   terminalScreenAction: null,
   terminalOpen: true, // Always start in Win95 Desktop mode
   gameWindowActive: true, // Game window is active by default
@@ -78,76 +78,37 @@ export const useGameStore = create<GameState>((set, get) => ({
   visitedNodes: new Set<string>(),
   soundEnabled: false,
 
-  // Character actions
-  setCharacterPosition: (position) => {
-    const clamped = clampToWalkableArea(position.x, position.y);
-    set({ characterPosition: clamped });
-  },
+  // World actions
+  // The pointer is over nothing in the new scene yet.
+  setCurrentScene: (scene) => set({ currentScene: scene, hoveredObject: null }),
 
-  setCharacterDirection: (direction) => set({ characterDirection: direction }),
-
-  setCharacterState: (state) => set({ characterState: state }),
-
-  moveTo: (position) => {
-    const clamped = clampToWalkableArea(position.x, position.y);
-    const { characterPosition } = get();
-
-    // Determine direction based on target
-    const direction: Direction =
-      clamped.x >= characterPosition.x ? "right" : "left";
-
+  goToSection: (section) => {
+    requestId += 1;
     set({
-      targetPosition: clamped,
-      characterDirection: direction,
-      characterState: "walking",
+      sceneRequest: { id: requestId, kind: "section", section },
+      // Get the content screen and dialog out of the way, so the trip plays.
+      terminalScreenAction: null,
+      dialogOpen: false,
     });
   },
 
-  stopMovement: () => {
+  travelTo: (scene) => {
+    requestId += 1;
     set({
-      targetPosition: null,
-      characterState: "idle",
+      sceneRequest: { id: requestId, kind: "travel", scene },
+      terminalScreenAction: null,
+      dialogOpen: false,
     });
   },
 
-  onArrival: () => {
-    const { pendingAction, openDialog } = get();
-
-    set({
-      targetPosition: null,
-      characterState: "idle",
-    });
-
-    // If there was a pending action, execute it
-    if (pendingAction) {
-      // "talk" action opens the adventure dialog
-      if (pendingAction.action === "talk") {
-        set({ pendingAction: null });
-        openDialog("intro");
-      } else {
-        set({
-          terminalScreenAction: pendingAction.action,
-          pendingAction: null,
-          characterState: "interacting",
-        });
-      }
-    }
+  takeSceneRequest: () => {
+    const request = get().sceneRequest;
+    if (request) set({ sceneRequest: null });
+    return request;
   },
 
   // Interaction actions
   setHoveredObject: (id) => set({ hoveredObject: id }),
-
-  triggerAction: (action, targetPos) => {
-    const clamped = clampToWalkableArea(targetPos.x, targetPos.y);
-
-    // Set pending action and start walking to target
-    set({
-      pendingAction: { action, targetPos: clamped },
-    });
-
-    // Start moving to the interaction point
-    get().moveTo(clamped);
-  },
 
   openTerminalScreen: (action: ActionType) => {
     // "talk" action opens the adventure dialog instead
@@ -156,18 +117,11 @@ export const useGameStore = create<GameState>((set, get) => ({
       return;
     }
 
-    set({
-      terminalScreenAction: action,
-      characterState: "interacting",
-    });
+    set({ terminalScreenAction: action, hoveredObject: null });
   },
 
   closeTerminalScreen: () => {
-    set({
-      terminalScreenAction: null,
-      pendingAction: null,
-      characterState: "idle",
-    });
+    set({ terminalScreenAction: null });
   },
 
   toggleTerminal: () => {
@@ -212,10 +166,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   closeDialog: () => {
-    set({
-      dialogOpen: false,
-      characterState: "idle",
-    });
+    set({ dialogOpen: false });
   },
 
   selectDialogOption: (nodeId: string) => {
