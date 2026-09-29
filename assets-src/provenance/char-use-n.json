@@ -1,0 +1,14 @@
+{
+  "id": "char-use-n",
+  "output": "assets-src/character/char-use-n.png",
+  "task": "B7",
+  "source": "codex",
+  "prompt": "assets-src/prompts/character/use-n.md",
+  "candidate": "02",
+  "references": ["assets-src/refs/char-turnaround@8x.png"],
+  "approvedRaw": "assets-src/approved/char-use-n.webp",
+  "palette": "v1",
+  "cleanup": "Hybrid: the turnaround's back-view body at full body height (57 px, not scaled to the raised hand as the review sheet was), with candidate 02's reach redrawn in the anchor's style: the image-right arm removed below the shoulder and redrawn as a sleeve going out and up (half reach, hand beside the head) and then straight up (hand above the head, rows 1-4). Candidate 02's extra white back collar is not used; the anchor's back view has none. Candidate pixels were used only as a pose reference.",
+  "approvedBy": "opus-orchestrator (delegated)",
+  "date": "2026-09-29"
+}

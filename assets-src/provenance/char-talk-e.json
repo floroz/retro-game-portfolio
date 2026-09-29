@@ -1,0 +1,11 @@
+{
+  "id": "char-talk-e",
+  "output": "assets-src/character/char-talk-e.png",
+  "task": "B7",
+  "source": "opus",
+  "derivedFrom": "char-turnaround",
+  "palette": "v1",
+  "cleanup": "Three 16x16 mouth frames cut from the turnaround's side head, at the same talkHeadOffset (8,3): closed (6), the anchor's grin, and open (1 under the teeth).",
+  "approvedBy": "opus-orchestrator (delegated)",
+  "date": "2026-09-29"
+}

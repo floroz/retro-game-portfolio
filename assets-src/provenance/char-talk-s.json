@@ -1,0 +1,11 @@
+{
+  "id": "char-talk-s",
+  "output": "assets-src/character/char-talk-s.png",
+  "task": "B7",
+  "source": "opus",
+  "derivedFrom": "char-turnaround",
+  "palette": "v1",
+  "cleanup": "Three 16x16 mouth frames cut from the turnaround's front head (rows 5-14, drawn at talkHeadOffset 8,3): closed (the grin replaced by a dark wood 6 line), the anchor's grin, and open (a sole-black 1 row under the teeth). Everything outside the head is transparent so the body frame shows through.",
+  "approvedBy": "opus-orchestrator (delegated)",
+  "date": "2026-09-29"
+}

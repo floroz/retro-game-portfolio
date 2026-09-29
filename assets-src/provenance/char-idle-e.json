@@ -1,0 +1,11 @@
+{
+  "id": "char-idle-e",
+  "output": "assets-src/character/char-idle-e.png",
+  "task": "B7",
+  "source": "opus",
+  "derivedFrom": "char-turnaround",
+  "palette": "v1",
+  "cleanup": "The turnaround's side view (neutral), a breath frame that lifts the collar and shoulders 1 px while the head stays put (so the talk-head overlay stays aligned), and a blink frame with the eye pixel closed to skin D. Frame order matches the engine's idle cycle: neutral, breath, blink.",
+  "approvedBy": "opus-orchestrator (delegated)",
+  "date": "2026-09-29"
+}
