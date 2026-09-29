@@ -1,11 +1,18 @@
 {
   "id": "zurich-obj-door@open",
   "output": "src/assets/scenes/zurich/obj-door@open.png",
-  "task": "RB1",
-  "source": "opus",
-  "derivedFrom": "zurich-obj-door",
-  "palette": "v2",
+  "task": "HB1",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/layers-zurich.md",
+  "candidate": "02",
+  "references": [
+    "assets-src/refs/hd/style-anchor.png",
+    "assets-src/refs/hd/scale-sheet.png"
+  ],
+  "approvedRaw": "assets-src/approved/zurich-door-open@hd.webp",
   "density": 2,
-  "cleanup": "RB1: open state of obj-door, redrawn at 2x: the closed door's outline kept, a dark head jamb and a lit left jamb, a lit corridor in one-point perspective in core greys (ceiling, lit left wall with a highlight at the corner, back wall with a doorway, floor with a dark line at the back wall's foot), and the leaf swung into the corridor on its right-hand hinge (foreshortened, lit free edge, recessed panel line, brass knob).",
+  "style": "painted",
+  "cleanup": "HB1: candidate 02 of zurich-door-open@hd, the same door standing open into a corridor. Its frame is 9% shorter than the closed candidate's, so the cutout was stretched vertically at raw resolution to the closed frame's size before preparing, giving the same 74x140 canvas and origin (281, 31) logical px. Prepared with assets:prepare --painted --no-quantize (Lanczos, hard alpha) at the size given, registered to the style-anchor layout with --align, then quantized with the other eight Zurich layers to one shared 256-colour palette with assets:quantize (no dither); pixels still within 0.08 OKLab of a rig colour after quantizing were remapped inside the palette. The frame is retinted red like the closed door; the dim plum corridor is recoloured with the wall's plum (C 0.115-0.15) and lifted 0.14 L so a torso in the doorway stays clear of the sweater.",
+  "approvedBy": "daniele",
   "date": "2026-09-29"
 }

@@ -1,15 +1,18 @@
 {
   "id": "zurich-obj-cabinet",
   "output": "src/assets/scenes/zurich/obj-cabinet.png",
-  "task": "RB1",
+  "task": "HB1",
   "source": "codex",
-  "prompt": "assets-src/prompts/remaster/zurich.md",
-  "candidate": "04",
-  "references": ["assets-src/refs/remaster/zurich-current@4x.png"],
-  "approvedRaw": "assets-src/approved/zurich-bg@2x.webp",
-  "palette": "v2",
+  "prompt": "assets-src/prompts/hd/layers-zurich.md",
+  "candidate": "01",
+  "references": [
+    "assets-src/refs/hd/style-anchor.png",
+    "assets-src/refs/hd/scale-sheet.png"
+  ],
+  "approvedRaw": "assets-src/approved/zurich-cabinet@hd.webp",
   "density": 2,
-  "cleanup": "RB1: the anchor's grey filing cabinet cut at 2x (lit top in perspective, the paper card for the engine's RESUME label, three drawers with pulls, the shaded side, a floor contact shadow). A wallpaper-coloured gap in the top edge filled. The sprite is 34 logical px wide at (245, 79), with transparent margins either side for the open drawer.",
-  "approvedBy": "opus-orchestrator (delegated RG1a)",
+  "style": "painted",
+  "cleanup": "HB1: candidate 01 of zurich-cabinet@hd, the grey filing cabinet with every drawer closed and a blank card on the top drawer. Prepared with assets:prepare --painted --no-quantize (Lanczos, hard alpha) at the size given, registered to the style-anchor layout with --align, then quantized with the other eight Zurich layers to one shared 256-colour palette with assets:quantize (no dither); pixels still within 0.08 OKLab of a rig colour after quantizing were remapped inside the palette. Resized to 56x84 and placed on a 66x84 canvas shared with the open state (origin (242, 76) logical px), the body registered to the style anchor's cabinet; base on y 118. Mid and dark cool greys (L 0.26-0.52, C < 0.07) were lifted to L 0.5-0.62 so the side face is no longer within 0.08 OKLab of the sweater, jeans or hair; the ink stays dark.",
+  "approvedBy": "daniele",
   "date": "2026-09-29"
 }
