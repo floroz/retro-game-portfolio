@@ -1,18 +1,18 @@
 {
   "id": "travel-map-bg",
   "output": "src/assets/scenes/travel-map/bg.png",
-  "task": "RB5",
+  "task": "HB5",
   "source": "codex",
-  "prompt": "assets-src/prompts/remaster/travel-map.md",
-  "candidate": "04",
+  "prompt": "assets-src/prompts/hd/travel-map.md",
+  "candidate": "03",
   "references": [
-    "assets-src/refs/remaster/travel-map-current@4x.png",
-    "assets-src/refs/remaster/style-anchor@4x.png"
+    "assets-src/refs/hd/travel-map-current.png",
+    "assets-src/refs/hd/style-anchor.png"
   ],
-  "approvedRaw": "assets-src/approved/travel-map-bg@2x.webp",
-  "palette": "v2",
+  "approvedRaw": "assets-src/approved/travel-map-bg@hd.webp",
   "density": 2,
-  "cleanup": "RB5 rebuild at 2x (640x320), core palette only, from candidate 04 of travel-map-bg@2x. Registration: every candidate came back vertically squashed and shifted against the current map, so the raw was fitted to the shipped B5 land/sea mask (nearest-neighbour upscaled to 640x320) by a scale-and-offset search, which found x 0.995, y 0.9425, offset (-3.5, -9.5) px at 640 wide; the raw was then cropped to 1765x836 at (-5, -1) (edge-padded on the left) and area-averaged to 640x320, so the coastline lands where the markers, routes and label placement expect it (1.98% of pixels disagree with the B5 mask after the fit, against 3.1-4.3% for the other candidates). Rebuilt from a land/sea mask so every fill is flat: OKLab lightness split the image into paper land, sea and the dark coastline band, and each coastline pixel went to whichever of land or sea was nearer, putting the coast on the centre of the drawn line. The generated mountain triangles and any enclosed dark marks were filled as land, sea pockets under 120 px or not matching B5's sea were filled, specks and islets under 24 px or not matching B5's land were removed, and 1 px notches were smoothed; no markers, labels, borders or speckles remain. B5's contrast is kept: land E (#e7bd98), sea C (#9a7860), and a crisp 1 px coastline in 8 (#6d3f31) on the land side. The Strait of Gibraltar is open (the Atlantic and the Mediterranean are one sea region). London [75,37], Zurich [157,70] and Sorrento [202,120] each sit on 9x9 native px of solid land, so travel-map.ts is unchanged. Redrew B5's 19 hand-placed peaks at 2x (6 rows by 11 px and 8 rows by 15 px): a lit 9 flank, a ) lit face, a D shaded face and an 8 shaded flank, at B5's positions; the Apennine peak just above Sorrento's label band (B5 185,102) moved up 1 logical px to keep a 2 px margin from 'Sorrento: About, Contact'. Every label band stays clear. No text.",
-  "approvedBy": "opus-orchestrator (delegated RB pick)",
+  "style": "painted",
+  "cleanup": "HB5: candidate 03 of travel-map-bg@hd (1774x887, exactly 2:1) prepared with assets:prepare --painted to 640x320: Lanczos resize, hard alpha, quantized to 256 colours with no dithering. No hand cleanup: the candidate is a bare two-tone sepia map with a dark inked coastline and painted mountain ranges, with no markers, borders, route lines or text. The coastline differs from the earlier maps, so the markers, Hall start point and bezier routes in src/config/scenes/travel-map.ts were re-registered by eye and checked against a land/sea mask: London (70,33) in south-east England west of the Thames estuary, Zurich (158,58) north of the Alps, Sorrento (204,114) on the Italian west coast south of Naples, Hall start (110,76) in central France (logical px). Each marker has at least 4 logical px of land around it. The routes bow north and keep at least 18 px from every marker they don't join.",
+  "approvedBy": "daniele",
   "date": "2026-09-29"
 }
