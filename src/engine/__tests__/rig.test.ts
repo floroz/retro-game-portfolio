@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, test, vi } from "vitest";
 import { CHARACTER_SHEET } from "../assets";
 import { HD_WORLD_SCALE } from "../constants";
@@ -448,9 +447,12 @@ describe("the engine with a rig", () => {
 });
 
 describe("the shipped rig (HB7)", () => {
-  const json: unknown = JSON.parse(
-    readFileSync("src/assets/character/daniele-rig.json", "utf8"),
-  );
+  const json = Object.values(
+    import.meta.glob<unknown>("../../assets/character/daniele-rig.json", {
+      eager: true,
+      import: "default",
+    }),
+  )[0];
   const shipped = parseRig(json, "daniele-rig.png");
 
   test("is painted at density 2, 72 logical px tall in every facing", () => {
