@@ -36,7 +36,8 @@
     "assets:placeholders": "tsx scripts/assets/placeholders.ts",
     "assets:music": "tsx scripts/assets/music.ts",
     "assets:sfx": "tsx scripts/assets/sfx.ts",
-    "prepare": "[ -n \"$CI\" ] && exit 0 || husky"
+    "prepare": "[ -n \"$CI\" ] && exit 0 || husky",
+    "assets:rig": "tsx scripts/assets/rig.ts"
   },
   "dependencies": {
     "framer-motion": "^12.29.2",
