@@ -102,11 +102,15 @@ Each country owns named sections, and every step of the journey repeats that pai
 | Experience, Resume | Zurich: the office    | CRT, filing cabinet | Where the career grew                              |
 | About, Contact     | Sorrento: the kitchen | Fridge, wall phone  | Who Daniele is now, and where to find him next     |
 
-1. **Gate signs** name the country and its sections, for example "Gate 1 · London · Skills", with the same icons the toolbar uses. Hovering shows "Fly to London: Skills".
-2. **The travel map** labels the destination with its sections.
-3. **On arrival,** Daniele names the section and its object, for example "London, where I learned the trade. The skills are on the chalkboard."
-4. **In the scene,** the primary object is the most prominent thing in the room, and hovering it names the section ("Open Skills: chalkboard menu").
-5. **The toolbar and the duty-free shop** list sections, not countries, so the mapping is never required knowledge.
+**Minimal in-world text (Agreed, 2026-09-29, after Daniele's review of the Hall).** The scene art is for atmosphere, and the **toolbar carries the mapping**. In-world text is at most **one word or a city name per object**, and spoken lines are short (about 12 words or fewer). Lists never appear in the scene. They belong in the content screens.
+
+1. **The toolbar teaches the mapping.** Each section button carries a small country badge (London, Zurich, Sorrento), and hovering it says, for example, "Skills, in London". In a country scene, the buttons for that scene's sections are highlighted. Every button still reaches its section in one click from anywhere.
+2. **Gate signs** show the gate number and the city only, for example "GATE 1 · LONDON", plus at most a small section icon. The hover text in the status line gives the rest: "Fly to London: Skills".
+3. **The departures board** shows city names only (and may flip), with no section lists.
+4. **Duty-free products** carry no labels. Hovering names the section ("Open Resume: Eau de Résumé").
+5. **Primary objects** keep a single-word section label (SKILLS, EXPERIENCE, RESUME, ABOUT, CONTACT), and hovering names the section. The London chalkboard shows its "SKILLS" header, not a list of groups; the taps name their groups on hover.
+6. **The travel map** labels only the destination city, with its sections in the status line.
+7. **Arrival and greeting lines** are one short sentence: for example, in the Hall, "Welcome aboard! Pick a gate, or use the toolbar."
 
 ### Moving between scenes (Agreed)
 
