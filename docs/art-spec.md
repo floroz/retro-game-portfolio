@@ -28,7 +28,7 @@ No task calls a model API. Image generation happens only inside Codex sessions, 
 
 ```
 Opus writes      Codex runs it,      Opus pixelizes     Daniele    Opus cleans up,    validate
-prompt file  ─▶  saves candidates ─▶  all candidates ─▶  picks  ─▶  cuts layers,   ─▶  (CI)
+prompt file  ─▶  saves candidates ─▶  all candidates ─▶  picks  ─▶  cuts layers,   ─▶  (local lint)
                  into exchange/       + review sheet     one        writes scene data
 ```
 
@@ -494,9 +494,9 @@ flowchart LR
 Start each orchestrator with a fresh session and this prompt:
 
 - **Opus orchestrator:** "You are the Opus orchestrator for `docs/art-spec.md`. Work in your own worktree, `../rgp-opus/`, detached at `origin/v2`: create it with `git fetch origin && git worktree add --detach ../rgp-opus origin/v2` if it doesn't exist, otherwise refresh it with `git fetch origin && git checkout --detach origin/v2`. Never write to the main checkout. Before spawning anything, fetch `origin` and read the plan from `origin/v2` (see Keeping the plan in sync in the expansion plan). Run every task in the Opus lane whose Status is `todo` and whose dependencies are met (merged to `v2`, `DONE` files present, or gate passed). Run independent tasks in parallel, one sub-agent per task, each in its own task worktree (`../rgp-<task-id>/`, see Where to work in the plan) and told: 'Execute task {ID} from `docs/art-spec.md`. Follow Rules for Opus tasks.' Relay every gate and pick to Daniele, and never approve one yourself. When nothing is runnable, report what each blocked task is waiting for, and stop."
-- **Codex orchestrator:** "You are the Codex orchestrator for `docs/art-spec.md`. Work only in your own worktree, `../rgp-codex/`, detached at `origin/v2`: create it with `git fetch origin && git worktree add --detach ../rgp-codex origin/v2` if it doesn't exist, otherwise refresh it with `git fetch origin && git checkout --detach origin/v2`. Never write to the main checkout, and never commit. Before starting each batch, fetch `origin` and refresh the worktree if `docs/` or `assets-src/prompts/` changed. Then run every task in the Codex lane whose Status is `todo` and whose dependencies are met, in parallel sessions inside `../rgp-codex/` as far as plan usage allows, each writing only its own `assets-src/exchange/raw/<asset-id>/` folders and each following Rules for Codex tasks exactly. When nothing is runnable, report what is waiting and stop."
+- **Codex orchestrator:** "You are the Codex orchestrator for `docs/art-spec.md`. Work only in your own worktree, `../rgp-codex/`, detached at `origin/v2`: create it with `git fetch origin && git worktree add --detach ../rgp-codex origin/v2` if it doesn't exist, otherwise refresh it with `git fetch origin && git checkout --detach origin/v2`. Never write to the main checkout, and never commit. Before starting each batch, fetch `origin` and refresh the worktree if `docs/` or `assets-src/prompts/` changed. Then run every task in the Codex lane whose Status is `todo` and whose dependencies are met, in parallel sessions inside `../rgp-codex/` as far as plan usage allows, each writing only its own `assets-src/exchange/raw/<asset-id>/` folders and each following Rules for Codex tasks exactly. When nothing is runnable, keep polling: check `origin/v2` and the Status column every few minutes, and start each task as soon as it becomes runnable."
 
-Daniele restarts an orchestrator after each gate, or when the other lane has produced something it needs.
+The Codex orchestrator polls, so it picks up new prompt files and passed gates by itself. The Opus orchestrator is the main Claude Code session, which runs continuously while gates are delegated.
 
 ### Gate log
 
@@ -510,7 +510,7 @@ Every gate and pick, newest last. The Opus orchestrator appends to it in `docs:`
 - **Isolation.** Work in your own worktree, `../rgp-<task-id>/`, on a branch named `assets/<task-id>` (for example `assets/b3-london`; `engine/e1-...` for the engine lane), created with `git fetch origin && git worktree add ../rgp-<task-id> -b <branch> origin/v2`. Never write to the main checkout or to another task's worktree. Write only to the paths in your card's **Owns** line. The palette, this spec, and `scripts/assets/lib.ts` are read-only after F1. If one needs to change, stop and propose the change to Daniele through the orchestrator.
 - **Codex output.** Read it from `../rgp-codex/assets-src/exchange/` by absolute path, only once the folder has a `DONE` file. Never write there.
 - **Never touch `main`.** No branches from it, commits to it, PRs against it, or merges into it.
-- **Merging.** Merge your own PR into `v2`, following the merge steps and conflict rules in [Where to work](expansion-plan.md#where-to-work): rebase onto `origin/v2`, re-test, push, wait for green CI, then `gh pr merge --squash --delete-branch`. Retry up to 3 times, then report to the orchestrator. Never resolve a conflict by editing another task's paths.
+- **Merging.** Merge your own PR into `v2`, following the merge steps and conflict rules in [Where to work](expansion-plan.md#where-to-work): rebase onto `origin/v2`, re-run your card's Done when checks locally, push, then merge straight away with `gh pr merge --squash --delete-branch`. **Never wait for CI or run E2E tests:** GitHub checks are advisory for v2. Retry up to 3 times, then report to the orchestrator. Never resolve a conflict by editing another task's paths.
 - **Choosing candidates.** Run `assets:review`, send Daniele the review sheet through the orchestrator, and wait for his choice. Never choose for him.
 - **Reviewing images.** Large raw images are downsampled when you view them. Judge detail from 8× crops made with `assets:preview`.
 - **Plan sync.** Read the plan with `git fetch origin && git show origin/v2:docs/art-spec.md` (and `docs/expansion-plan.md`) at the start of the task, before every gate, and before opening the PR. If `docs/` changed since you started, read the diff and rebase if it affects your task. Never edit `docs/`: propose plan changes to Daniele through the orchestrator.
@@ -541,7 +541,7 @@ Every gate and pick, newest last. The Opus orchestrator appends to it in `docs:`
 - **Steps:** add a job that runs on pull requests to `v2` and fails when either:
   1. the PR changes anything in `docs/`, unless its branch is named `docs/*` (reserved for Daniele); or
   2. the latest commit on `origin/v2` that touched `docs/` isn't an ancestor of the PR's head, meaning the branch predates a plan change. The failure message tells the agent to rebase onto `origin/v2` and re-read the plan.
-- **Done when:** the job is merged, and a test PR shows it failing in both cases and passing after a rebase.
+- **Done when:** the job is merged. It's advisory: no one waits for it.
 
 ### Phase 1 — Foundations
 
@@ -682,7 +682,7 @@ Everything in this phase starts once its dependencies are met, and runs in paral
   3. Check the signposting rules from the plan: gate signs, map labels, arrival lines, and primary objects all name their sections.
   4. Check that preloading stops scene changes and the travel map from flashing.
   5. Regenerate the OG image with `npm run generate:og-image`. Confirm the Game Boy view and the SEO HTML are unchanged.
-  6. Update the E2E baselines with `npm run test:e2e:docker:update`, adding one per scene, and inspect every changed `*-linux.png`.
+  6. Walk every scene by hand and check that each section is reachable in two clicks or fewer. E2E tests and baselines are out of scope for v2.
   7. **G4:** final review by Daniele.
 
 ## Done when

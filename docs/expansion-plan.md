@@ -22,8 +22,8 @@ Every agent works in its own git worktree, so parallel work never collides. Work
 - **Open every pull request against `v2`, never `main`.**
 - **Agents merge their own work,** with no approval step:
   1. When the task is finished, and after any gate it needs, `git fetch origin && git rebase origin/v2`, resolving any conflicts (below).
-  2. Re-run `npm run lint`, `npm run test:unit`, and `npm run build`, then `git push --force-with-lease` to the task's own branch.
-  3. Wait for CI on the PR. When it's green, merge with `gh pr merge --squash --delete-branch`.
+  2. Re-run the task card's **Done when** checks locally (for example `npm run lint`, `npm run test:unit`, `npm run build`), then `git push --force-with-lease` to the task's own branch.
+  3. Merge straight away with `gh pr merge --squash --delete-branch`. **Don't wait for CI:** GitHub checks are advisory for v2, and the card's local checks are the verification.
   4. If the merge is refused because `v2` moved or a conflict appeared, go back to step 1. After 3 failed attempts, stop and report to the orchestrator.
 - **Resolving conflicts:** each task writes only the paths in its **Owns** line, so conflicts should be rare.
   - **In the task's own paths:** resolve so that both sides' intent survives, then re-test.
@@ -43,7 +43,7 @@ The plan (this file and [the art spec](art-spec.md)) exists only on **`origin/v2
 3. **When the plan changes mid-task,** the agent reads the diff (`git diff <sha it started from> origin/v2 -- docs/`), rebases onto `origin/v2` if the change affects its task, and says so in its PR.
 4. **Every PR states the plan it followed:** "Plan read at `<sha>`", the `origin/v2` commit it last read the plan from.
 5. **Orchestrators refresh before every spawn.** Before starting any task or session, an orchestrator fetches `origin` and refreshes its worktree if `docs/` changed.
-6. **CI enforces it** (task T0.3 in the art spec). A pull request to `v2` fails if it edits `docs/` from a task branch, or if `v2` has doc commits the branch doesn't include yet. Every open PR must rebase after a plan change before it can merge.
+6. **A CI job reports it** (task T0.3 in the art spec): it flags a PR that edits `docs/` from a task branch, or that predates a doc commit on `v2`. It's advisory, so nobody waits for it. The rebase in the merge steps is what actually keeps branches current.
 
 ## Creative direction
 
@@ -149,7 +149,7 @@ Skills and jobs will change, so **the art provides containers and `profile.ts` f
 3. **Each job records its country** (`london`, `switzerland`, or `italy`) in `profile.ts`, and that decides which scene shows its memento.
 4. **Full rows fold, oldest first.** When a row is full, the oldest entries fold into one "and more" object, such as a shoebox of old badges, like the existing "Past roles" entry.
 5. **No text in the art.** Signs, the chalkboard, the departures board, and all labels are drawn by the engine in the pixel font, so renaming a job or a skill never touches an image.
-6. **CI catches overflow.** A unit test checks that every job has a country and that no row exceeds its capacity without folding.
+6. **A unit test catches overflow.** It checks that every job has a country and that no row exceeds its capacity without folding.
 
 **What still needs new art:** a new country (a whole new scene), a larger capacity for a row, or a custom memento for one specific job.
 
@@ -231,9 +231,9 @@ Every creative decision has been settled with Daniele:
 
 ## Testing
 
-- A visual regression baseline for each scene.
+- Each task's **Done when** criteria, checked locally by its agent, are the verification for v2. **GitHub CI and the E2E suite are ignored:** they belong to v1 on `main`, and no orchestrator or agent waits for them.
 - A unit test that every job has a country and every slot row fits its capacity.
-- E2E tests for exit navigation, and for reaching each section in two clicks or fewer from any room.
+- Reaching each section in two clicks or fewer from any scene is checked by hand in the integration task.
 
 ## Out of scope for the MVP
 
