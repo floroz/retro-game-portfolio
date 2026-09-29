@@ -114,7 +114,7 @@ Each country owns named sections, and every step of the journey repeats that pai
 4. **Duty-free products** carry no labels. Hovering names the section ("Open Resume: Eau de Résumé").
 5. **Primary objects** keep a single-word section label (SKILLS, EXPERIENCE, RESUME, ABOUT, CONTACT), and hovering names the section. The London chalkboard shows its "SKILLS" header, not a list of groups; the taps name their groups on hover.
 6. **The travel map** labels only the destination city, with its sections in the status line.
-7. **Arrival and greeting lines** are one short sentence: for example, in the Hall, "Welcome aboard! Pick a gate, or use the toolbar."
+7. **Arrival and greeting lines** are one short sentence: for example, in the Hall, "Welcome aboard! Pick a gate, or rummage through the trunk below."
 
 ### Moving between scenes (Agreed)
 
