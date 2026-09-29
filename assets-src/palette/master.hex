@@ -1,7 +1,7 @@
 # Master palette for the v2 scenes (docs/art-spec.md, Palette).
 # One "idx hex group" per line. "." is transparent and #ff00ff is the chroma key.
 # Append-only after v1: never renumber or recolour an index.
-# palette: v0
+# palette: v1
 
 # Core: shared by everything, including the character. Seeded from v1 art.
 # Neutral

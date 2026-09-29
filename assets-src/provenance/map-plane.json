@@ -1,0 +1,10 @@
+{
+  "id": "map-plane",
+  "output": "src/assets/shared/map-plane.png",
+  "task": "B6",
+  "source": "opus",
+  "palette": "v1",
+  "cleanup": "Drawn by hand at native size as a palette-index grid (core palette only), matching the style anchor's density, flat 2-4 step shading and selective 1px outline (local ramp's darkest on the lit top-left side, 0 on the shadow side). 136x17 strip of eight 17x17 frames, top-down airliner in the order the engine expects for headings: 8 (E, SE, S, SW, W, NW, N, NE). E and NE are hand-drawn; the other six are exact 90 degree rotations of them, with the selective outline re-resolved per frame (navy F where the outside is up or left, 0 elsewhere) so the light stays top-left. Cream fuselage, navy swept wings with engine pods, red tail fin. Frames are drawn centred on the flight point.",
+  "approvedBy": "opus-orchestrator (delegated)",
+  "date": "2026-09-29"
+}

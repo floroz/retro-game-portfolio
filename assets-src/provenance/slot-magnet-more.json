@@ -1,9 +1,10 @@
 {
   "id": "slot-magnet-more",
   "output": "src/assets/shared/slots/slot-magnet-more.png",
-  "task": "F1",
+  "task": "B6",
   "source": "opus",
-  "palette": "v0",
-  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Replaced in B6.",
+  "palette": "v1",
+  "cleanup": "Drawn by hand at native size as a palette-index grid (core palette only), matching the style anchor's density, flat 2-4 step shading and selective 1px outline (local ramp's darkest on the lit top-left side, 0 on the shadow side). 12x11 fold object for the fridge: a pile of overlapping magnets (a blue-and-cream majolica tile, a lemon, a red heart).",
+  "approvedBy": "opus-orchestrator (delegated)",
   "date": "2026-09-29"
 }
