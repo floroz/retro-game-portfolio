@@ -18,8 +18,8 @@
  * polygon with keyhole slits from its back edge (the seats' bench and each
  * post of the arch, feet only) and a notch for the plant pot, so Daniele
  * walks behind them, in front of them, and through the arch. The scale is the
- * Phase H world scale: 58 logical px tall at the back of the floor (y 91),
- * 72 at the front (y 158).
+ * Hall's own perspective (`HALL_DEPTH`), not the shared Phase H world scale:
+ * this plate is a much wider, deeper shot than the other rooms.
  *
  * Colour rule: no large surface behind Daniele is within 0.08 OKLab of his
  * sweater, jeans or hair. That is why the seats are vermilion, the sign
@@ -30,13 +30,36 @@
  */
 import { PROFILE } from "../profile";
 import { COUNTRIES } from "../sections";
-import { HD_WORLD_SCALE } from "../../engine/constants";
 import type { SceneData } from "../../engine/types";
 import hallBg from "../../assets/scenes/hall/bg.png";
 import hallObjSeats from "../../assets/scenes/hall/obj-seats.png";
 import hallObjArch from "../../assets/scenes/hall/obj-arch.png";
 import hallObjPlant from "../../assets/scenes/hall/obj-plant.png";
 import hallAnimPlane from "../../assets/scenes/hall/anim-plane.png";
+
+/**
+ * The Hall's perspective, measured from the art (HB2b), in logical px.
+ * Daniele is 1.8 m; the engine interpolates his height linearly in y, which is
+ * what a ground plane in perspective does.
+ *
+ * - Back edge (y 91), 34 px: the gate doors stand on the wall at y 85.5 and
+ *   are 41 px tall with their frame (38.8 px for the glass leaves). Taking
+ *   the door as 2.2 m, that is 18.6 px/m, so 1.8 m is 33 px at the wall, and
+ *   34 at the walk-to points a step in front of it (0.83 of the door).
+ * - Seats and arch (y 123), 48 px: the seats (27 px, about 0.85 m) come up
+ *   to just over half of him, and at the arch's posts (y 114) he is 44 px,
+ *   which fits under the arch's beam (44 px clear).
+ * - Front edge (y 158), 64 px. The carpet triangles widen 2.6x from the back
+ *   to the front (fit: width = 0.261 * (y - 49.5)), but the seats, arch and
+ *   doors don't scale that steeply, so the object cues set the value; it
+ *   also keeps him at 0.89 of the rig, under its native size.
+ */
+const HALL_DEPTH = {
+  farY: 91,
+  nearY: 158,
+  farHeight: 34,
+  nearHeight: 64,
+} as const;
 
 /** Front feet of the free-standing objects: the depth-sort lines. */
 const SEATS_BASELINE = 123;
@@ -98,12 +121,12 @@ export const HALL_SCENE: SceneData = {
     [4, 101],
     [80, 101],
   ],
-  depth: { farY: 91, nearY: 158, ...HD_WORLD_SCALE },
+  depth: HALL_DEPTH,
   entryPoints: {
     start: { x: 128, y: 134, facing: "s" },
-    fromLondon: { x: 189, y: 96, facing: "s" },
-    fromZurich: { x: 234, y: 96, facing: "s" },
-    fromSorrento: { x: 285, y: 96, facing: "s" },
+    fromLondon: { x: 189, y: 93, facing: "s" },
+    fromZurich: { x: 234, y: 93, facing: "s" },
+    fromSorrento: { x: 284, y: 93, facing: "s" },
   },
   entryLine: "Welcome aboard! Pick a gate, or rummage through the trunk below.",
   // Topmost last: nearer things come after the things behind them.
@@ -321,7 +344,7 @@ export const HALL_SCENE: SceneData = {
       // hotspot (x 170-208, y 12-36).
       hotspot: { x: 176, y: 36, w: 26, h: 51 },
       extraHotspots: [{ x: 170, y: 12, w: 38, h: 24 }],
-      interactionPoint: { x: 189, y: 95, facing: "n" },
+      interactionPoint: { x: 189, y: 93, facing: "n" },
       look: `Gate ${COUNTRIES.london.gate}: ${COUNTRIES.london.name}, where I learned the trade.`,
     },
     {
@@ -333,7 +356,7 @@ export const HALL_SCENE: SceneData = {
       // its full width.
       hotspot: { x: 222, y: 36, w: 19, h: 51 },
       extraHotspots: [{ x: 209, y: 12, w: 50, h: 24 }],
-      interactionPoint: { x: 234, y: 95, facing: "n" },
+      interactionPoint: { x: 234, y: 93, facing: "n" },
       look: `Gate ${COUNTRIES.zurich.gate}: ${COUNTRIES.zurich.name}, where the career grew.`,
     },
     {
@@ -344,7 +367,7 @@ export const HALL_SCENE: SceneData = {
       // and the sign board is clickable across its full width (x 261-307).
       hotspot: { x: 277, y: 36, w: 20, h: 51 },
       extraHotspots: [{ x: 261, y: 12, w: 46, h: 24 }],
-      interactionPoint: { x: 285, y: 95, facing: "n" },
+      interactionPoint: { x: 284, y: 93, facing: "n" },
       look: `Gate ${COUNTRIES.sorrento.gate}: ${COUNTRIES.sorrento.name}, for now and next.`,
     },
   ],
