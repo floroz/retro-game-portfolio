@@ -758,10 +758,10 @@ Everything in this phase starts once its dependencies are met, and runs in paral
 
 ### Decisions
 
-- **Resolution:** art is authored at **1280×640**, which is density 4 over the unchanged 320×160 logical grid, and displayed 1:1. There's no palette limit and no palette remap. Partial alpha is allowed.
+- **Resolution (revised after Daniele's second review, 2026-09-29):** match MI3's pixel density exactly. MI3 is 640×480 hand-painted art on a crisp pixel grid, shown at 2×. So art is authored at **640×320** (density 2 over the 320×160 logical grid) and **displayed at 2× with nearest-neighbour: hard, visible pixels, never smooth.** It's painted full colour, quantized to **256 colours or fewer per scene with no dithering noise**, and there's no master-palette limit. Sprite edges are hard (fully opaque or fully transparent), as in MI3. The density-4 smooth path isn't used.
 - **Style:** MI3-like hand-painted cartoon. Bold, confident dark ink outlines, saturated but tasteful colour, painted shading with soft light, and slightly exaggerated, rounded forms. The moods per country are unchanged. **No text anywhere in the art**, as before.
 - **World scale (the "scale sheet"):** one scale for every scene.
-  - Daniele's standing height is **72 logical px (288 display px) at the front of the walkbox**, and 58 logical px at the back.
+  - Daniele's standing height is **72 logical px (144 art px, 288 display px) at the front of the walkbox**, and 58 logical px at the back.
   - Relative to his back-of-room height: doors are about **1.3×**, a fridge or filing cabinet about 0.95×, a desk or table about 0.45×, a chair back about 0.55×, and a bar counter about 0.6×.
   - H1 draws a scale-sheet reference, and every prompt includes it.
   - Depth scaling runs from 0.8 to 1.0.
@@ -778,7 +778,7 @@ Everything in this phase starts once its dependencies are met, and runs in paral
   Opus crops, keys, aligns, and writes the scene data. It doesn't paint pixels.
 
 - **Effects are procedural in the engine:** rain, steam, stars, sea glints, the split-flap flutter, and the fruit-machine lights. Moving props slide along paths.
-- **Text:** every speech line, label, sign, menu, and board is drawn as **crisp text at display resolution** in a bold, legible, openly licensed font with a clean outline (task T1, which lands before the art).
+- **Text (revised):** as in MI3, a **serif bitmap font on the same 640×320 pixel grid**: white (or per-speaker) letters with a hard 1px black outline and no anti-aliasing, displayed at 2× nearest-neighbour. It's rasterized from an openly licensed serif typeface (task T3, which replaces T1's smooth Fredoka rendering; T1's overlay and layout plumbing can stay).
 - **Notes from H1:**
   - **Hall layout:** its gate doors become about 1.3× Daniele's height, with smaller signs raised above them. HB2 moves the gate-sign hotspots to match.
   - **Depth range:** every HB build sets its scene's `depth` block to 0.8–1.0.
@@ -801,10 +801,12 @@ As before: a task is runnable when everything under **After** is `done` in this 
 
 | Task       | Status | After                            | What                                                                                                                                                                                                           |
 | ---------- | ------ | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| T1         | todo   | —                                | Crisp display-resolution text for speech, labels, signs, menus, and boards (works on the current art)                                                                                                          |
-| H0         | todo   | —                                | HD tooling: `prepare` (crop and resize with high-quality resampling, no remap), a soft key and alpha, validator rules for density 4, a rig packer                                                              |
+| T1         | done   | —                                | Crisp display-resolution text for speech, labels, signs, menus, and boards (works on the current art)                                                                                                          |
+| H0         | done   | —                                | HD tooling: `prepare` (crop and resize with high-quality resampling, no remap), a soft key and alpha, validator rules for density 4, a rig packer                                                              |
 | E4         | todo   | —                                | Engine: density-4 scenes rendered smoothly, the cut-out rig, procedural effects, moving props, the new world scale                                                                                             |
 | T2         | todo   | —                                | Minimal in-world text and a toolbar that teaches the mapping (see "How visitors know where each section is" in the plan), plus the Hall HD prompt with small signs, a city-only board, and an unlabelled shelf |
+| T3         | todo   | T1                               | MI3-style serif bitmap text on the 640×320 grid, with hard outlines and 2× nearest-neighbour display; replaces T1's smooth font                                                                                |
+| H0b        | todo   | H0                               | Tooling for painted density-2 art: `prepare` to 640×320 with ≤256-colour quantization (no dither) and hard alpha; validator rules for painted density-2 assets (no master palette)                             |
 | H1         | done   | —                                | The scale sheet and references, plus the HD prompt files for HC1–HC4                                                                                                                                           |
 | HA         | todo   | HC1, H0                          | Pick the HD Zurich and turnaround anchors, then gate **HG1** (Daniele's checkpoint)                                                                                                                            |
 | HL-<scene> | todo   | that scene's composite is picked | Write that scene's `layers-<scene>.md` prompt (plate edit, objects, props)                                                                                                                                     |
