@@ -13,7 +13,7 @@ items:
 
 Two head sheets for the talk and blink variants, one per facing that talks (side and front). Each has its own prompt below; the references and settings are the same for both.
 
-## Prompt: char-heads-side@hd
+## Prompt: char-heads-side@hd Compose for a final size of 640×320 pixels: bold, clearly readable shapes and silhouettes, and no tiny detail that would turn to mush at that size.
 
 Hand-painted cartoon adventure-game art in the style of The Curse of Monkey Island (LucasArts, 1997): bold confident dark ink outlines, rich saturated but tasteful colour, painted shading with soft light, slightly exaggerated rounded cartoon forms, high detail, crisp and clean. Not pixel art, not 3D, not photographic. No text, letters, numbers, signage, logos, or watermarks; signs and boards are blank. A head sheet for a cut-out puppet, on a transparent background: exactly five copies of the head of the man in the reference turnaround, in side view facing right, in one row, evenly spaced, never touching. Exactly the same man, painting style, colours, and scale as the side view's head in the reference, each head with the beard and the same short neck stub. The five heads are identical in size, outline, hair, beard, and position, and differ only in the mouth and eyes, left to right: mouth closed in a relaxed neutral expression; mouth open, talking; mouth wide open, as in an excited shout; mouth rounded into an O; and a blink, with the eyes closed and the mouth closed. The mouth shapes are clearly readable through the beard. No bodies, no speech marks, no guides, no shadows.
 
