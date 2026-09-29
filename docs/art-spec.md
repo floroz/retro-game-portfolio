@@ -800,7 +800,7 @@ RC2 to RC7 can all run in parallel sessions.
 | Task | Status | After              | What                                                                                            |
 | ---- | ------ | ------------------ | ----------------------------------------------------------------------------------------------- |
 | R0   | done   | —                  | Palette v2, and tooling at 2× density                                                           |
-| E3   | todo   | —                  | Engine density support and a 2× pixel font                                                      |
+| E3   | done   | —                  | Engine density support and a 2× pixel font                                                      |
 | R1   | done   | —                  | Export the remaster references, and write all 14 remaster prompt files                          |
 | RA   | todo   | RC1, R0            | Pick and clean up both remaster anchors (ends at gates **RG1a** Zurich and **RG1b** turnaround) |
 | RB1  | todo   | RG1a, E3           | Rebuild `zurich` at 2× from the remaster anchor                                                 |
@@ -835,13 +835,13 @@ RC2 to RC7 can all run in parallel sessions.
   - Review, pick, and clean up at 2×.
   - Export `refs/remaster/style-anchor@4x.png` and `refs/remaster/char-turnaround@4x.png`, the latter on magenta.
   - The orchestrator passes RG1a and RG1b and records them in the Gate log.
-- **RB1–RB5 Rebuild a scene at 2×.** Same shape as B1–B5.
+- **RB1–RB5 Rebuild a scene at 2×.** Same shape as B1–B5. **A scene switches density in one PR:** its bg, fg, objects, states, and animation strips all move to 2× together, because the engine takes object density from the scene's background (E3, PR #33). No scene-data changes are needed for density.
   - Review, pick, pixelize at density 2, run the cleanup brief, and cut objects out at 2×.
   - Keep **every logical position the current scene data uses**, adjusting the data only where the new art needs it.
   - Keep every label, slot, sound, and line. **Redraw every animation strip at 2×** as well (fruit machine lights, moka steam, the CRT cursor, the stars, and so on); the remaster references don't include them.
   - Replace the files in place, and walk the real character through the scene to check for contrast.
-- **RB6 Shared sprites at 2×.** Redraw every file in `src/assets/shared/` at double size, keeping the same logical footprint, the core palette only, and matching the remaster anchor.
-- **RB7 Character at 2×.** Pass the measured talk-head offset to `pack` (the 2× default is (16, 8); v1 shipped (8, 3)).
+- **RB6 Shared sprites at 2×.** Redraw every file in `src/assets/shared/` at **exactly** double its current size (the engine detects density from a size table in `src/engine/density.ts`), keeping the same logical footprint, the core palette only, and matching the remaster anchor.
+- **RB7 Character at 2×.** Pass the measured talk-head offset to `pack` (the 2× default is (16, 8); v1 shipped (8, 3)), and pass `--stride 52`: `pack` writes the stride in sheet pixels, so 2× is twice today's logical 26.
   - Rebuild all 31 body frames and 6 talk heads at 64×128.
   - Use the current frames as the pose and timing templates: nearest-upscale them, then redraw at full detail. Use the Codex sheets (RC6, RC7) and the remastered turnaround for detail and likeness.
   - Keep the timing and the stride (in logical px), then repack.
