@@ -171,6 +171,7 @@ function alphaBox(img: HTMLImageElement): Rect | null {
 export class ImageStore {
   private entries = new Map<string, Entry>();
   private pending = new Map<string, Promise<void>>();
+  private failed = new Set<string>();
   private listeners = new Set<() => void>();
   private readonly rules: ReadonlyMap<string, DensityRule>;
 
@@ -215,6 +216,7 @@ export class ImageStore {
       };
       img.onerror = () => {
         this.pending.delete(url);
+        this.failed.add(url);
         console.warn(`Couldn't load ${url}`);
         resolve();
       };
@@ -222,6 +224,15 @@ export class ImageStore {
     });
     this.pending.set(url, promise);
     return promise;
+  }
+
+  /**
+   * True once every URL has loaded (or failed, so a missing file never
+   * freezes the game). The renderer holds its last frame until then, so a
+   * scene or the travel map never shows up half drawn.
+   */
+  ready(urls: readonly string[]): boolean {
+    return urls.every((u) => this.entries.has(u) || this.failed.has(u));
   }
 
   loadAll(urls: string[]): Promise<void> {

@@ -148,6 +148,8 @@ export class SceneEngine {
   /** Object shown in its `open` state while its content is on screen. */
   private opened: string | null = null;
   private wasSkippable = false;
+  private readonly start: SceneId;
+  private greeted = false;
   speech: Speech | null = null;
   transition: Transition | null = null;
 
@@ -157,6 +159,7 @@ export class SceneEngine {
     this.host = opts.host;
     this.animator = new CharacterAnimator(opts.sheet, opts.rng);
     const start = opts.start ?? "hall";
+    this.start = start;
     this.current = this.scenes[start];
     const ep = this.entryPoint(this.current, "start");
     this.actor = { ...ep, path: [], speed: WALK_SPEED, onArrive: null };
@@ -353,6 +356,21 @@ export class SceneEngine {
         this.fly(to, finish);
       }
     });
+  }
+
+  /**
+   * Daniele greets the visitor with the start scene's `entryLine`, once per
+   * page load, when the game is first on screen. The start scene counts as
+   * visited from the constructor, so `enter()` never says it. Skipped if a
+   * trip is already under way or Daniele has already left the start scene.
+   */
+  greet() {
+    if (this.greeted) return;
+    this.greeted = true;
+    const line = this.current.entryLine;
+    if (!line || this.current.id !== this.start) return;
+    if (this.skipFn || this.transition || this.speech) return;
+    this.say(line);
   }
 
   /** Dev overlay: appear in a scene at once, at its default entry. */
@@ -748,6 +766,8 @@ export interface Hit {
   rect: Rect;
   /** Status-line text. */
   text: string;
+  /** 0 for the main hotspot, 1 and up for an exit's `extraHotspots`. */
+  part: number;
 }
 
 /**
@@ -756,8 +776,8 @@ export interface Hit {
  */
 export function interactablesFor(scene: SceneData, info: SpriteInfo): Hit[] {
   const out: Hit[] = [];
-  const push = (target: Interactable, rect: Rect | undefined) => {
-    if (rect) out.push({ target, rect, text: hoverText(target) });
+  const push = (target: Interactable, rect: Rect | undefined, part = 0) => {
+    if (rect) out.push({ target, rect, text: hoverText(target), part });
   };
   for (const object of scene.objects) {
     push({ kind: "object", object }, object.hotspot ?? spriteBox(object, info));
@@ -771,7 +791,11 @@ export function interactablesFor(scene: SceneData, info: SpriteInfo): Hit[] {
       );
     }
   }
-  for (const exit of scene.exits) push({ kind: "exit", exit }, exit.hotspot);
+  for (const exit of scene.exits) {
+    const target = { kind: "exit", exit } as const;
+    push(target, exit.hotspot);
+    exit.extraHotspots?.forEach((rect, i) => push(target, rect, i + 1));
+  }
   return out;
 }
 

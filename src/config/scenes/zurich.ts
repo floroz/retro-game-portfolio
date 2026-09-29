@@ -192,6 +192,7 @@ export const ZURICH_SCENE: SceneData = {
       y: 15,
       frameMs: 180,
       everyMs: 20000,
+      sound: "cuckoo",
     },
     {
       id: "pendulum",
@@ -230,6 +231,19 @@ export const ZURICH_SCENE: SceneData = {
     },
   ],
   labels: [
+    {
+      // "EXPERIENCE" scrolls across the CRT's screen (x 152-168, y 83-94)
+      // in phosphor green, under the prompt cursor: the word is too long for
+      // a 17 px screen, so it runs like the Windows marquee screensaver.
+      id: "crt",
+      source: "section:experience",
+      x: 152,
+      y: 88,
+      font: "small",
+      color: "#7fae52",
+      marquee: { clip: { x: 152, y: 83, w: 17, h: 12 }, pxPerSec: 12 },
+      baselineY: DESK_BASELINE,
+    },
     {
       // Lettered on the card on the cabinet's top drawer.
       id: "cabinet",
