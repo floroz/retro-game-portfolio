@@ -1,13 +1,15 @@
 {
   "id": "zurich-fg",
   "output": "src/assets/scenes/zurich/fg.png",
-  "task": "B1",
+  "task": "RB1",
   "source": "codex",
-  "prompt": "assets-src/prompts/scenes/zurich.md",
-  "candidate": "01",
-  "references": ["assets-src/refs/zurich-layout@8x.png"],
-  "approvedRaw": "assets-src/approved/zurich-bg.webp",
-  "palette": "v1",
-  "cleanup": "The anchor's rubber plant and terracotta pot, cut out onto a transparent layer (every pixel that differs from the procedural wall and floor). No redraw.",
+  "prompt": "assets-src/prompts/remaster/zurich.md",
+  "candidate": "04",
+  "references": ["assets-src/refs/remaster/zurich-current@4x.png"],
+  "approvedRaw": "assets-src/approved/zurich-bg@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB1: the remaster anchor's rubber plant and terracotta pot, cut onto a transparent layer at 2x: every leaf, stem and pot pixel plus the leaves' dark outlines (2 px on the sides), the pot as whole rows to its right edge. No redraw.",
+  "approvedBy": "opus-orchestrator (delegated RG1a)",
   "date": "2026-09-29"
 }

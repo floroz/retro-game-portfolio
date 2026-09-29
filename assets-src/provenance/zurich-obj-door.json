@@ -1,13 +1,15 @@
 {
   "id": "zurich-obj-door",
   "output": "src/assets/scenes/zurich/obj-door.png",
-  "task": "B1",
+  "task": "RB1",
   "source": "codex",
-  "prompt": "assets-src/prompts/scenes/zurich.md",
-  "candidate": "01",
-  "references": ["assets-src/refs/zurich-layout@8x.png"],
-  "approvedRaw": "assets-src/approved/zurich-bg.webp",
-  "palette": "v1",
-  "cleanup": "The anchor's door, frame and frosted pane, cut unchanged.",
+  "prompt": "assets-src/prompts/remaster/zurich.md",
+  "candidate": "04",
+  "references": ["assets-src/refs/remaster/zurich-current@4x.png"],
+  "approvedRaw": "assets-src/approved/zurich-bg@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB1: the anchor's door cut at 2x (leaf, lit edge, flat frosted pane, recessed panel, brass knob, and its drop shadow on the wall); the frame's top edge, broken by wallpaper stripes, redrawn as one dark line.",
+  "approvedBy": "opus-orchestrator (delegated RG1a)",
   "date": "2026-09-29"
 }

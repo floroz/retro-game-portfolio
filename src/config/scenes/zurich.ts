@@ -1,7 +1,9 @@
 /**
  * Zurich: the office at night, overlooking Lake Zurich and the Alps
  * (docs/art-spec.md, scene card `zurich`). Built in task B1 from the F5 style
- * anchor. Every coordinate is in native pixels (320x160), top-left origin.
+ * anchor and rebuilt at 2x density in RB1 from the remaster anchor. Every
+ * coordinate is in logical pixels (320x160), top-left origin; the art is
+ * 640x320 and the engine scales positions by its density.
  *
  * Walking depth: the desk (with the CRT and lamp), the chair, and the filing
  * cabinet stand out on the floor, each with a `baselineY` on its front feet.
@@ -115,9 +117,9 @@ export const ZURICH_SCENE: SceneData = {
       id: "desk",
       name: "desk",
       sprite: zurichObjDesk,
-      x: 134,
-      y: 79,
-      hotspot: { x: 134, y: 102, w: 66, h: 25 },
+      x: 135,
+      y: 78,
+      hotspot: { x: 135, y: 102, w: 65, h: 25 },
       interactionPoint: { x: 192, y: 131, facing: "n" },
       baselineY: DESK_BASELINE,
       look: "A proper Swiss desk. Perfectly level since the day it arrived, unlike my first pull request.",
@@ -134,7 +136,7 @@ export const ZURICH_SCENE: SceneData = {
     {
       id: "crt",
       name: "CRT workstation",
-      hotspot: { x: 145, y: 79, w: 29, h: 23 },
+      hotspot: { x: 145, y: 78, w: 29, h: 24 },
       interactionPoint: { x: 184, y: 131, facing: "n" },
       action: "experience",
       look: `A beige CRT with my whole career on it, newest first. ${LATEST_JOB.company} is at the top of the stack.`,
@@ -145,7 +147,7 @@ export const ZURICH_SCENE: SceneData = {
       name: "office chair",
       sprite: zurichObjChair,
       x: 145,
-      y: 106,
+      y: 105,
       interactionPoint: { x: 157, y: 141, facing: "n" },
       baselineY: CHAIR_BASELINE,
       look: "An office chair with five wheels and no opinions. The ideal code reviewer.",
@@ -156,8 +158,8 @@ export const ZURICH_SCENE: SceneData = {
       name: "filing cabinet",
       sprite: zurichObjCabinet,
       states: { open: zurichObjCabinetOpen },
-      x: 246,
-      y: 80,
+      x: 245,
+      y: 79,
       interactionPoint: { x: 261, y: 132, facing: "n" },
       baselineY: CABINET_BASELINE,
       action: "resume",
@@ -179,7 +181,7 @@ export const ZURICH_SCENE: SceneData = {
       strip: zurichAnimLake,
       frames: 4,
       x: 174,
-      y: 64,
+      y: 63,
       frameMs: 420,
     },
     {

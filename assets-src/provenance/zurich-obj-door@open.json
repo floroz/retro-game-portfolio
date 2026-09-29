@@ -1,10 +1,11 @@
 {
   "id": "zurich-obj-door@open",
   "output": "src/assets/scenes/zurich/obj-door@open.png",
-  "task": "B1",
+  "task": "RB1",
   "source": "opus",
-  "derivedFrom": "zurich-bg",
-  "palette": "v1",
-  "cleanup": "Open state of obj-door: the leaf swung away into the corridor on its right-hand hinge (foreshortened, lit free edge, knob), showing a lit corridor in one-point perspective in core greys.",
+  "derivedFrom": "zurich-obj-door",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB1: open state of obj-door, redrawn at 2x: the closed door's outline kept, a dark head jamb and a lit left jamb, a lit corridor in one-point perspective in core greys (ceiling, lit left wall with a highlight at the corner, back wall with a doorway, floor with a dark line at the back wall's foot), and the leaf swung into the corridor on its right-hand hinge (foreshortened, lit free edge, recessed panel line, brass knob).",
   "date": "2026-09-29"
 }
