@@ -62,7 +62,7 @@ export const COUNTRIES: Record<CountrySceneId, CountryInfo> = {
 export const COUNTRY_ORDER: CountrySceneId[] = ["london", "zurich", "sorrento"];
 
 /** Words the terminal's `fly` accepts for each scene. */
-export const DESTINATIONS: Record<SceneId, string[]> = {
+const DESTINATIONS: Record<SceneId, string[]> = {
   hall: ["hall", "airport", "home"],
   london: ["london", "england", "uk", "pub"],
   zurich: ["zurich", "switzerland", "office"],
