@@ -6,8 +6,10 @@
  *     [--exchange <dir>]       defaults to ../rgp-codex/assets-src/exchange if it
  *                              exists, else assets-src/exchange in this worktree
  *     [--scene <id>|core]      defaults to the scene named by the asset id
- *     [--size 320x160] [--crop auto|x,y,w,h] [--key ff00ff] [--key-tolerance 90]
- *     [--sprites 32x64]        for character sheets (implies --key ff00ff)
+ *     [--size 320x160] [--crop auto|x,y,w,h]
+ *     [--key auto|ff00ff] [--key-tolerance 0.08] [--fringe-tolerance 0.22] [--min-hole 64]
+ *                              OKLab flood-fill keying (see key.ts and pixelize.ts)
+ *     [--sprites 32x64]        for character sheets (implies --key auto)
  *     [--scale 4]              review sheet scale
  *
  * Writes assets-src/review/<asset-id>/NN.png (native) and sheet@4x.png.
@@ -16,18 +18,18 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
+import { codexSizeWarning } from "./codex";
+import { floodKey, parseKeyArg } from "./key";
 import {
   REPO_ROOT,
   REVIEW_DIR,
   allowedColours,
-  chromaKey,
   cliPath,
   contactSheet,
   fail,
   figuresToCells,
   findFigures,
   loadPalette,
-  parseKeyOption,
   parseRect,
   parseSceneOption,
   parseSize,
@@ -36,8 +38,11 @@ import {
   sceneForAssetId,
   upscale,
   writePng,
-  CHROMA_KEY,
 } from "./lib";
+
+function numberOption(value: string | undefined): number | undefined {
+  return value === undefined ? undefined : Number(value);
+}
 
 function defaultExchange(): string {
   const codex = resolve(REPO_ROOT, "../rgp-codex/assets-src/exchange");
@@ -54,6 +59,8 @@ async function main() {
       crop: { type: "string", default: "auto" },
       key: { type: "string" },
       "key-tolerance": { type: "string" },
+      "fringe-tolerance": { type: "string" },
+      "min-hole": { type: "string" },
       sprites: { type: "string" },
       scale: { type: "string", default: "4" },
     },
@@ -81,20 +88,30 @@ async function main() {
     ? parseSceneOption(values.scene)
     : sceneForAssetId(assetId);
   const colours = allowedColours(loadPalette(), scene);
-  const key =
-    parseKeyOption(values.key) ?? (values.sprites ? CHROMA_KEY : undefined);
-  const keyTolerance = values["key-tolerance"]
-    ? Number(values["key-tolerance"])
-    : undefined;
+  const key = parseKeyArg(values.key) ?? (values.sprites ? "auto" : undefined);
   const outDir = join(REVIEW_DIR, assetId);
 
   const natives = [];
   for (const file of files) {
     const raw = await readImage(join(rawDir, file));
+    const sizeWarning = codexSizeWarning(
+      values.sprites ? "sheet" : "composite",
+      raw.width,
+      raw.height,
+    );
+    if (sizeWarning) console.warn(`warning: ${file}: ${sizeWarning}`);
+    const src = key
+      ? floodKey(raw, {
+          key,
+          tolerance: numberOption(values["key-tolerance"]),
+          fringeTolerance: numberOption(values["fringe-tolerance"]),
+          minHole: numberOption(values["min-hole"]),
+        }).image
+      : raw;
     let native;
     if (values.sprites) {
       const cell = parseSize(values.sprites);
-      const sheet = key ? chromaKey(raw, key, keyTolerance) : raw;
+      const sheet = src;
       native = figuresToCells(sheet, findFigures(sheet), {
         cellW: cell.w,
         cellH: cell.h,
@@ -104,13 +121,11 @@ async function main() {
       });
     } else {
       const size = parseSize(values.size);
-      native = pixelize(raw, {
+      native = pixelize(src, {
         width: size.w,
         height: size.h,
         colours,
         crop: values.crop === "auto" ? "auto" : parseRect(values.crop),
-        key,
-        keyTolerance,
       });
     }
     await writePng(join(outDir, file), native);
