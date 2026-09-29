@@ -12,6 +12,7 @@ function setup(
     openSection: vi.fn<(s: SectionId) => void>(),
     sceneChanged: vi.fn(),
     sound: vi.fn(),
+    flightChanged: vi.fn(),
   } satisfies EngineHost;
   const engine = new SceneEngine({
     scenes,
@@ -99,7 +100,7 @@ describe("SceneEngine", () => {
     const { engine } = setup();
     const before = engine.position;
     engine.look(object(SCENES.hall, "seats"));
-    expect(engine.speech?.lines.join(" ")).toContain("Airport seating");
+    expect(engine.speech?.lines.join(" ")).toContain("armrest");
     run(engine, 100);
     expect(engine.position.x).toBe(before.x);
   });
@@ -155,8 +156,20 @@ describe("SceneEngine", () => {
     runUntil(engine, () => engine.scene.id === "london");
     expect(host.sceneChanged).toHaveBeenCalledWith("london");
     expect(engine.position).toMatchObject(SCENES.london.entryPoints.fromHall);
-    // First arrival names the section and its object.
-    expect(engine.speech?.lines.join(" ")).toContain("chalkboard");
+    // First arrival names the section.
+    expect(engine.speech?.lines.join(" ")).toContain("Skills");
+  });
+
+  test("tells the host where the travel map is flying, then that it landed", () => {
+    const { engine, host } = setup();
+    engine.activate(exit(SCENES.hall, "zurich"));
+    runUntil(engine, () => engine.transition?.kind === "map");
+    engine.update(16);
+    expect(host.flightChanged).toHaveBeenLastCalledWith("zurich");
+    runUntil(engine, () => engine.scene.id === "zurich");
+    engine.update(16);
+    expect(host.flightChanged).toHaveBeenLastCalledWith(null);
+    expect(host.flightChanged).toHaveBeenCalledTimes(2);
   });
 
   test("a click skips the travel map", () => {

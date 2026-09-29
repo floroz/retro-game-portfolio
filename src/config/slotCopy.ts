@@ -11,22 +11,13 @@ interface JobLike {
 }
 
 const TAP_JOKES: Record<string, string> = {
-  frontend:
-    "The house pour. Smooth, well typed, and served with accessible glassware.",
-  backend:
-    "Brewed in Go and Node. Strong enough to hold up a distributed system.",
-  ai: "Experimental. The barman swears it writes its own tasting notes.",
-  cloud: "Served in containers. Scales to any size of round.",
+  frontend: "The house pour: smooth, well typed, accessible glassware.",
+  backend: "Strong enough to hold up a distributed system.",
+  ai: "It writes its own tasting notes.",
+  cloud: "Served in containers. Scales to any round.",
   data: "Aged in Postgres casks, with a Kafka chaser.",
-  testing:
-    "Every pint is checked twice before it leaves the bar. Flaky pints are sent back.",
-  leadership: "A pint for the whole team, and one for the new starter.",
-};
-
-const listOf = (items: readonly string[], max = 3) => {
-  const shown = items.slice(0, max);
-  const more = items.length - shown.length;
-  return more > 0 ? `${shown.join(", ")} and ${more} more` : shown.join(", ");
+  testing: "Checked twice. Flaky pints are sent back.",
+  leadership: "A round for the team, new starter included.",
 };
 
 const FOLD_NAMES: Record<SlotKind, string> = {
@@ -36,13 +27,14 @@ const FOLD_NAMES: Record<SlotKind, string> = {
 };
 
 export const SLOT_COPY = {
-  tap(group: string, label: string, skills: readonly string[]) {
+  /** No skill list: lists belong in the Skills screen, not the scene. */
+  tap(group: string, label: string) {
     const joke = TAP_JOKES[group] ?? "A guest ale. Ask the barman about it.";
-    return `The ${label} tap: ${listOf(skills)}. ${joke}`;
+    return `${label} on tap. ${joke}`;
   },
 
   job(job: JobLike) {
-    return `${job.company}: ${job.role}, ${job.period}. I look younger in this one.`;
+    return `${job.company}, ${job.period}. I look younger in this one.`;
   },
 
   foldName(kind: SlotKind) {
@@ -50,6 +42,7 @@ export const SLOT_COPY = {
   },
 
   fold(kind: SlotKind, names: string[]) {
-    return `A ${FOLD_NAMES[kind]}: ${listOf(names, 4)}. The full story is in Experience.`;
+    const where = kind === "tap" ? "Skills" : "Experience";
+    return `A ${FOLD_NAMES[kind]}: ${names.length} more in there. The full story is in ${where}.`;
   },
 };

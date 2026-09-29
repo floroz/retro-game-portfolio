@@ -23,7 +23,7 @@
  * 5. speech, then the iris
  * The travel map replaces all of it while it plays.
  */
-import { sectionList, COUNTRIES } from "../config/sections";
+import { COUNTRIES } from "../config/sections";
 import type { ImageStore } from "./assets";
 import { sceneImages, slotSpriteUrl, travelMapImages } from "./assets";
 import { placeCell, type CharacterSheet } from "./character";
@@ -591,8 +591,8 @@ function drawTravelMap(
     }
   }
 
-  // Destination label: the city and its sections.
-  const label = `${COUNTRIES[tr.to].name}: ${sectionList(tr.to)}`;
+  // Destination label: the city only. The status line names its sections.
+  const label = COUNTRIES[tr.to].name;
   const [bx, by] = tr.route.b;
   const lw = measureText(label, "small");
   const lx = Math.max(3, Math.min(NATIVE_W - lw - 3, bx - lw / 2));

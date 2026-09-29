@@ -86,7 +86,7 @@ export const ZURICH_SCENE: SceneData = {
   ],
   depth: { farY: 102, nearY: 158, farScale: 0.7, nearScale: 1.0 },
   entryPoints: { fromHall: { x: 298, y: 114, facing: "w" } },
-  entryLine: `Zurich, where the career grew. ${EXPERIENCE} is on the CRT, and my ${RESUME} is in the filing cabinet.`,
+  entryLine: `Zurich, where I grew. ${EXPERIENCE} on the CRT, ${RESUME} in the cabinet.`,
   // Topmost last: nearer things come after the things behind them.
   objects: [
     {
@@ -94,24 +94,24 @@ export const ZURICH_SCENE: SceneData = {
       name: "window",
       hotspot: { x: 106, y: 13, w: 95, h: 66 },
       interactionPoint: { x: 150, y: 110, facing: "n" },
-      look: "Lake Zurich by moonlight, and the Alps pretending they're not showing off.",
-      use: "It doesn't open. The Alps are strictly look, don't touch.",
+      look: "Lake Zurich by moonlight, and the Alps showing off.",
+      use: "The Alps are strictly look, don't touch.",
     },
     {
       id: "cuckoo",
       name: "cuckoo clock",
       hotspot: { x: 212, y: 11, w: 24, h: 44 },
       interactionPoint: { x: 223, y: 106, facing: "n" },
-      look: "A cuckoo clock, accurate to the second. The bird is the most punctual colleague I ever had.",
-      use: "I'd wind it, but it's Swiss. It winds itself, out of a sense of duty.",
+      look: "Accurate to the second. The most punctual colleague I ever had.",
+      use: "It's Swiss. It winds itself, out of a sense of duty.",
     },
     {
       id: "plant",
       name: "rubber plant",
       hotspot: { x: 0, y: 97, w: 35, h: 63 },
       interactionPoint: { x: 44, y: 140, facing: "w" },
-      look: "A rubber plant. The only thing in this office with better uptime than production.",
-      use: "I water it every sprint. It has never missed a retro.",
+      look: "The only thing here with better uptime than production.",
+      use: "Watered every sprint. It has never missed a retro.",
     },
     {
       id: "desk",
@@ -122,7 +122,7 @@ export const ZURICH_SCENE: SceneData = {
       hotspot: { x: 135, y: 102, w: 65, h: 25 },
       interactionPoint: { x: 192, y: 131, facing: "n" },
       baselineY: DESK_BASELINE,
-      look: "A proper Swiss desk. Perfectly level since the day it arrived, unlike my first pull request.",
+      look: "Perfectly level since day one, unlike my first pull request.",
       use: "I'd tidy it, but then I'd never find anything.",
     },
     {
@@ -130,8 +130,8 @@ export const ZURICH_SCENE: SceneData = {
       name: "desk lamp",
       hotspot: { x: 177, y: 84, w: 14, h: 18 },
       interactionPoint: { x: 188, y: 131, facing: "n" },
-      look: "A green banker's lamp. In Zurich, even the lamps look like they manage a portfolio.",
-      use: "Click. Click. Yes, it works. No, I won't do that all night.",
+      look: "In Zurich, even the lamps look like they manage a portfolio.",
+      use: "Click. Click. Yes, it works.",
     },
     {
       id: "crt",
@@ -139,8 +139,8 @@ export const ZURICH_SCENE: SceneData = {
       hotspot: { x: 145, y: 78, w: 29, h: 24 },
       interactionPoint: { x: 184, y: 131, facing: "n" },
       action: "experience",
-      look: `A beige CRT with my whole career on it, newest first. ${LATEST_JOB.company} is at the top of the stack.`,
-      use: "Booting up the experience. Please do not turn off your recruiter.",
+      look: `My whole career, newest first. ${LATEST_JOB.company} is on top.`,
+      use: "Booting up. Please do not turn off your recruiter.",
     },
     {
       id: "chair",
@@ -150,8 +150,8 @@ export const ZURICH_SCENE: SceneData = {
       y: 105,
       interactionPoint: { x: 157, y: 141, facing: "n" },
       baselineY: CHAIR_BASELINE,
-      look: "An office chair with five wheels and no opinions. The ideal code reviewer.",
-      use: "Later. Sitting down is how deadlines sneak up on you.",
+      look: "Five wheels, no opinions. The ideal code reviewer.",
+      use: "Sitting down is how deadlines sneak up on you.",
     },
     {
       id: "cabinet",
@@ -164,7 +164,7 @@ export const ZURICH_SCENE: SceneData = {
       baselineY: CABINET_BASELINE,
       action: "resume",
       look: "Filed under R, for Resume. Also for Really well organised.",
-      use: "Everything in here fits on one page. Well, two.",
+      use: "It all fits on one page. Well, two.",
     },
   ],
   animations: [
@@ -269,7 +269,7 @@ export const ZURICH_SCENE: SceneData = {
       y: 32,
       hotspot: { x: 286, y: 32, w: 30, h: 69 },
       interactionPoint: { x: 300, y: 105, facing: "n" },
-      look: "The way back to the airport. In Zurich, even the doors leave on time.",
+      look: "Back to the airport. In Zurich, even the doors leave on time.",
     },
   ],
 };

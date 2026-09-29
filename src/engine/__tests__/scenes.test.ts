@@ -139,6 +139,31 @@ describe("scene data contract", () => {
     }
   });
 
+  // docs/expansion-plan.md, "Minimal in-world text": labels are one word or
+  // a city, and spoken lines are about 12 words or fewer.
+  const words = (line: string) => line.split(/\s+/).filter(Boolean).length;
+
+  test.each(scenes)("%s: in-world labels are a word or two", (id, scene) => {
+    for (const label of scene.labels ?? []) {
+      for (const line of resolveLabel(label.source)) {
+        expect(words(line), `${id}/${label.id}: ${line}`).toBeLessThanOrEqual(
+          2,
+        );
+      }
+    }
+  });
+
+  test.each(scenes)("%s: spoken lines are short", (id, scene) => {
+    const lines = [
+      scene.entryLine ?? "",
+      ...scene.objects.flatMap((o) => [o.look, o.use ?? ""]),
+      ...scene.exits.map((e) => e.look ?? ""),
+    ];
+    for (const line of lines) {
+      expect(words(line), `${id}: ${line}`).toBeLessThanOrEqual(12);
+    }
+  });
+
   test.each(scenes)(
     "%s: every line and label can be drawn in the world font",
     (id, scene) => {

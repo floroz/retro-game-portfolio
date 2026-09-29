@@ -87,7 +87,7 @@ export const SORRENTO_SCENE: SceneData = {
   ],
   depth: { farY: 103, nearY: 158, farScale: 0.7, nearScale: 1.0 },
   entryPoints: { fromHall: { x: 28, y: 114, facing: "e" } },
-  entryLine: `Sorrento: the next chapter. ${ABOUT} me is on the fridge, and the phone is for ${CONTACT}.`,
+  entryLine: `Sorrento, the next chapter. ${ABOUT} on the fridge, ${CONTACT} by the phone.`,
   // Topmost last: nearer things come after the things behind them.
   objects: [
     {
@@ -95,23 +95,23 @@ export const SORRENTO_SCENE: SceneData = {
       name: "window",
       hotspot: { x: 105, y: 9, w: 105, h: 64 },
       interactionPoint: { x: 157, y: 108, facing: "n" },
-      look: "The Gulf of Naples: Naples on the far shore, Vesuvius pretending to be asleep, and Ischia catching the sunset.",
-      use: "I'd lean out and shout 'Buonasera!' at the ferry, but it never shouts back.",
+      look: "Naples, Vesuvius pretending to sleep, and Ischia catching the sunset.",
+      use: "I shout 'Buonasera!' at the ferry. It never shouts back.",
     },
     {
       id: "sill",
       name: "lemons and limoncello",
       hotspot: { x: 150, y: 57, w: 39, h: 16 },
       interactionPoint: { x: 175, y: 108, facing: "n" },
-      look: "Sorrento lemons and a bottle of limoncello. One is breakfast, the other is a digestif, and I'm not saying which.",
-      use: "Not before the call. Limoncello has never once improved a technical interview.",
+      look: "One is breakfast, one is a digestif. I'm not saying which.",
+      use: "Limoncello has never once improved a technical interview.",
     },
     {
       id: "plate",
       name: "majolica plate",
       hotspot: { x: 57, y: 13, w: 18, h: 18 },
       interactionPoint: { x: 70, y: 106, facing: "n" },
-      look: "A hand-painted majolica plate. Too nice to eat off, so it lives on the wall, like my side projects.",
+      look: "Too nice to eat off, so it lives on the wall.",
       use: "It's load-bearing. Nonna said so.",
     },
     {
@@ -120,15 +120,15 @@ export const SORRENTO_SCENE: SceneData = {
       hotspot: { x: 46, y: 40, w: 40, h: 63 },
       interactionPoint: { x: 66, y: 108, facing: "n" },
       action: "about",
-      look: `Postcards, a note that says ${ABOUT.toUpperCase()}, and plenty of room for magnets. Everything worth knowing about ${FIRST_NAME} ends up on this fridge.`,
+      look: `Everything worth knowing about ${FIRST_NAME} ends up on this fridge.`,
     },
     {
       id: "pans",
       name: "copper pans",
       hotspot: { x: 262, y: 14, w: 53, h: 35 },
       interactionPoint: { x: 288, y: 106, facing: "n" },
-      look: "Copper pans, polished to a mirror. They've seen more sauce than a code review.",
-      use: "They're decorative. The real cooking happens in one dented pot nobody photographs.",
+      look: "Polished to a mirror. They've seen more sauce than a code review.",
+      use: "Decorative. The real cooking happens in one dented pot.",
     },
     {
       id: "phone",
@@ -137,7 +137,7 @@ export const SORRENTO_SCENE: SceneData = {
       interactionPoint: { x: 234, y: 108, facing: "n" },
       action: "contact",
       sound: "phone-ring",
-      look: "A wall phone with a curly cord, and a note that says CONTACT. It only rings for good news. Be the good news.",
+      look: "It only rings for good news. Be the good news.",
     },
     {
       id: "stove",
@@ -147,7 +147,7 @@ export const SORRENTO_SCENE: SceneData = {
       y: 84,
       interactionPoint: { x: 268, y: 126, facing: "n" },
       baselineY: STOVE_BASELINE,
-      look: "An enamel stove older than the internet, and more reliable.",
+      look: "Older than the internet, and more reliable.",
       use: "It has two settings: off, and Neapolitan grandmother.",
     },
     {
@@ -156,7 +156,7 @@ export const SORRENTO_SCENE: SceneData = {
       hotspot: { x: 271, y: 84, w: 11, h: 10 },
       interactionPoint: { x: 272, y: 126, facing: "n" },
       sound: "moka-gurgle",
-      look: "A moka pot, gurgling away. In this house, it's the only thing allowed to be under pressure.",
+      look: "The only thing in this house allowed to be under pressure.",
       use: "That gurgle means it's ready. Two cups, as always.",
     },
     {
@@ -167,8 +167,8 @@ export const SORRENTO_SCENE: SceneData = {
       y: 107,
       interactionPoint: { x: 193, y: 146, facing: "n" },
       baselineY: TABLE_BASELINE,
-      look: `Two espresso cups: one for me, one for you. Let's talk. The phone is right there, under the ${CONTACT.toUpperCase()} note.`,
-      use: "Sit down, have a coffee. Nobody in Italy has ever discussed business without one.",
+      look: "Two espresso cups: one for me, one for you. Let's talk.",
+      use: "Nobody in Italy discusses business without a coffee.",
     },
     {
       id: "chair-left",
@@ -178,8 +178,8 @@ export const SORRENTO_SCENE: SceneData = {
       y: 104,
       interactionPoint: { x: 150, y: 142, facing: "e" },
       baselineY: CHAIR_BASELINE,
-      look: "A rush-seated chair. Handmade, slightly wonky, full of character. We have a lot in common.",
-      use: "It creaks in a friendly way. That's the Italian welcome.",
+      look: "Handmade, slightly wonky, full of character. Like me.",
+      use: "It creaks in a friendly way. The Italian welcome.",
     },
     {
       id: "chair-right",
@@ -189,7 +189,7 @@ export const SORRENTO_SCENE: SceneData = {
       y: 104,
       interactionPoint: { x: 236, y: 142, facing: "w" },
       baselineY: CHAIR_BASELINE,
-      look: "The guest chair. It's been waiting for you. No pressure. Well, a little pressure.",
+      look: "The guest chair. It's been waiting for you. No pressure.",
       use: "Save it for the visitor. That's you, by the way.",
     },
     {
@@ -197,8 +197,8 @@ export const SORRENTO_SCENE: SceneData = {
       name: "lemon tree",
       hotspot: { x: 284, y: 75, w: 36, h: 85 },
       interactionPoint: { x: 282, y: 142, facing: "e" },
-      look: "A Sorrento lemon tree. When life gives you lemons, you make limoncello and move to the coast.",
-      use: "I'd pick one, but they're for the limoncello. Priorities.",
+      look: "Life gave me lemons, so I made limoncello and moved here.",
+      use: "They're for the limoncello. Priorities.",
     },
   ],
   animations: [
@@ -284,7 +284,7 @@ export const SORRENTO_SCENE: SceneData = {
       y: 30,
       hotspot: { x: 5, y: 27, w: 30, h: 76 },
       interactionPoint: { x: 20, y: 107, facing: "n" },
-      look: "The way back to the airport. Down the steps, past the lemon trees, and try not to stop for gelato.",
+      look: "Back to the airport. Try not to stop for gelato.",
     },
   ],
 };
