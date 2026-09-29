@@ -418,34 +418,36 @@ Audio is written entirely as code by Opus. It needs no generated images and no m
 
 **Status.** Task status comes from git, not from this table. An Opus task is `done` once a PR from its branch is merged into `v2` (orchestrators check with `gh pr list --base v2 --state merged`), and a Codex task is `done` once its `DONE` files exist. The Status column records **gates only**: Daniele marks each gate `done` in a `docs:` commit on `v2`. Orchestrators and agents never edit it.
 
-| Task   | Status | Lane    | Phase | After         | What                                                                     |
-| ------ | ------ | ------- | ----- | ------------- | ------------------------------------------------------------------------ |
-| T0.1   | done   | Daniele | 0     | —             | Housekeeping: `v2` exists and is pushed, Codex signed in                 |
-| T0.2   | todo   | Opus    | 0     | —             | Park the prototype and export the Zurich layout reference                |
-| T0.3   | todo   | Opus    | 0     | —             | CI guard that keeps every task PR in sync with the plan on `v2`          |
-| F1     | todo   | Opus    | 1     | T0.2, T0.3    | Tooling, palette v0, placeholders, all dependencies and npm scripts      |
-| F2     | todo   | Codex   | 1     | T0.1          | Probe the image tool                                                     |
-| E1     | todo   | Opus    | 1–2   | T0.3          | Engine lane (expansion plan MVP features), on placeholders               |
-| **G1** | done   | Daniele | 1     | F1, F2        | Freeze palette v1, read probe findings                                   |
-| F3     | todo   | Opus    | 1     | G1            | Adjust tooling to the findings, write every prompt file                  |
-| F4     | todo   | Codex   | 1     | F3            | Anchor candidates: `zurich-bg` and `char-turnaround`, in parallel        |
-| F5     | todo   | Opus    | 1     | F4            | Pick, clean up, and export both anchors (ends at **G2**)                 |
-| A1     | todo   | Opus    | 1     | F1            | Audio tools, the motif, and the Hall theme (ends at **GA**)              |
-| C1     | todo   | Codex   | 2     | G2            | `hall-bg` candidates                                                     |
-| C2     | todo   | Codex   | 2     | G2            | `london-bg` candidates                                                   |
-| C3     | todo   | Codex   | 2     | G2            | `sorrento-bg` candidates                                                 |
-| C4     | todo   | Codex   | 2     | G2            | `travel-map-bg` candidates                                               |
-| C5     | todo   | Codex   | 2     | G2            | Walk sheets: `walk-e`, `walk-s`, `walk-n`                                |
-| C6     | todo   | Codex   | 2     | G2            | Idle and use sheets: `idle-e`, `idle-s`, `idle-n`, `use-e`, `use-n`      |
-| B1     | todo   | Opus    | 2     | G2            | Build `zurich` from the style anchor                                     |
-| B2     | todo   | Opus    | 2     | C1            | Build `hall`                                                             |
-| B3     | todo   | Opus    | 2     | C2            | Build `london`                                                           |
-| B4     | todo   | Opus    | 2     | C3            | Build `sorrento`                                                         |
-| B5     | todo   | Opus    | 2     | C4            | Build `travel-map`                                                       |
-| B6     | todo   | Opus    | 2     | G2            | Shared sprites: slot sprites, fold objects, the plane, map markers       |
-| B7     | todo   | Opus    | 2     | C5, C6        | Character frames, talk heads, packing                                    |
-| A2     | todo   | Opus    | 2     | GA            | Three country tracks, the travel sting, four ambience loops, all effects |
-| I1     | todo   | Opus    | 3     | B1–B7, A2, E1 | Cohesion, integration, baselines (ends at **G4**)                        |
+| Task    | Status | Lane    | Phase | After         | What                                                                     |
+| ------- | ------ | ------- | ----- | ------------- | ------------------------------------------------------------------------ |
+| T0.1    | done   | Daniele | 0     | —             | Housekeeping: `v2` exists and is pushed, Codex signed in                 |
+| T0.2    | todo   | Opus    | 0     | —             | Park the prototype and export the Zurich layout reference                |
+| T0.3    | todo   | Opus    | 0     | —             | CI guard that keeps every task PR in sync with the plan on `v2`          |
+| F1      | todo   | Opus    | 1     | T0.2, T0.3    | Tooling, palette v0, placeholders, all dependencies and npm scripts      |
+| F2      | todo   | Codex   | 1     | T0.1          | Probe the image tool                                                     |
+| E1      | todo   | Opus    | 1–2   | T0.3          | Engine lane (expansion plan MVP features), on placeholders               |
+| **G1**  | done   | Daniele | 1     | F1, F2        | Freeze palette v1, read probe findings                                   |
+| F3      | todo   | Opus    | 1     | G1            | Adjust tooling to the findings, write every prompt file                  |
+| F4      | todo   | Codex   | 1     | F3            | Anchor candidates: `zurich-bg` and `char-turnaround`, in parallel        |
+| F5      | todo   | Opus    | 1     | F4            | Pick, clean up, and export both anchors (ends at **G2a** and **G2b**)    |
+| **G2a** | todo   | Daniele | 1     | F5            | Zurich style anchor approved (delegated)                                 |
+| **G2b** | done   | Daniele | 1     | F5            | Character turnaround approved (delegated)                                |
+| A1      | todo   | Opus    | 1     | F1            | Audio tools, the motif, and the Hall theme (ends at **GA**)              |
+| C1      | todo   | Codex   | 2     | G2a           | `hall-bg` candidates                                                     |
+| C2      | todo   | Codex   | 2     | G2a           | `london-bg` candidates                                                   |
+| C3      | todo   | Codex   | 2     | G2a           | `sorrento-bg` candidates                                                 |
+| C4      | todo   | Codex   | 2     | G2a           | `travel-map-bg` candidates                                               |
+| C5      | todo   | Codex   | 2     | G2b           | Walk sheets: `walk-e`, `walk-s`, `walk-n`                                |
+| C6      | todo   | Codex   | 2     | G2b           | Idle and use sheets: `idle-e`, `idle-s`, `idle-n`, `use-e`, `use-n`      |
+| B1      | todo   | Opus    | 2     | G2a           | Build `zurich` from the style anchor                                     |
+| B2      | todo   | Opus    | 2     | C1            | Build `hall`                                                             |
+| B3      | todo   | Opus    | 2     | C2            | Build `london`                                                           |
+| B4      | todo   | Opus    | 2     | C3            | Build `sorrento`                                                         |
+| B5      | todo   | Opus    | 2     | C4            | Build `travel-map`                                                       |
+| B6      | todo   | Opus    | 2     | G2a           | Shared sprites: slot sprites, fold objects, the plane, map markers       |
+| B7      | todo   | Opus    | 2     | C5, C6        | Character frames, talk heads, packing                                    |
+| A2      | todo   | Opus    | 2     | GA            | Three country tracks, the travel sting, four ambience loops, all effects |
+| I1      | todo   | Opus    | 3     | B1–B7, A2, E1 | Cohesion, integration, baselines (ends at **G4**)                        |
 
 ```mermaid
 flowchart LR
@@ -458,7 +460,8 @@ flowchart LR
     G1 --> F3[F3 all prompt files]
     F3 --> F4[F4 Codex anchors]
     F4 --> F5[F5 anchors cleanup]
-    F5 --> G2{G2 anchors approved}
+    F5 --> G2a{G2a Zurich anchor}
+    F5 --> G2b{G2b turnaround}
     F1 --> A1[A1 motif, Hall theme]
     A1 --> GA{GA motif approved}
   end
@@ -480,8 +483,9 @@ flowchart LR
     B7[B7 character]
     A2[A2 audio]
   end
-  G2 --> C1 & C2 & C3 & C4 & C5 & C6
-  G2 --> B1 & B6
+  G2a --> C1 & C2 & C3 & C4
+  G2b --> C5 & C6
+  G2a --> B1 & B6
   C1 --> B2
   C2 --> B3
   C3 --> B4
@@ -516,6 +520,7 @@ Every gate and pick, newest last. The Opus orchestrator appends to it in `docs:`
 | F5 pick `zurich-bg`       | Opus orchestrator | 2026-09-29 | Candidate **01**                                           | It has the cleanest flat fills and floor of the six, which matters most for a style anchor. It keeps the grey filing cabinet, green lamp, and green plant, and it's the only one with the cabinet standing out from the wall. It leaves bare wallpaper where the photo slots go. Runner-up 04 has less noise, but it sits in the CRT case and moon reflection. Cleanup: a flat door pane, a clock face, a calmer lake reflection, softer planks.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | F5 pick `char-turnaround` | Opus orchestrator | 2026-09-29 | Candidate **06**                                           | It has the cleanest remap: the least brass on the skin, the lowest noise, a strong silhouette with arms clear of the torso, and consistent heights. The jeans are recoloured to denim during cleanup, to separate them from the sweater, which is cheaper than cleaning 02's noise to get its denim. 03 (back view 1 px short) and 04 (a "7"-like mark on the back) were ruled out.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | GA motif                  | Opus orchestrator | 2026-09-29 | Approved **on objective evidence only**: Daniele to listen | The orchestrator can't hear audio. The evidence: the "boarding call" motif in F major (3 5 1 7 5 3, then 4 3 2), and a 76.8 s AABA bossa Hall theme (vibraphone, flute, fretless bass, Rhodes, strings, brushes, tubular-bell chime). It measures −20.0 LUFS integrated, flat across sections, and the loop is seamless: sample-identical in WAV, with no click in the MP3 in ffmpeg or CoreAudio.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| G2b turnaround            | Opus orchestrator | 2026-09-29 | **Approved** (PR #17)                                      | Clean and on-model at native size: the beard, the navy crew-neck with a white collar, denim that separates from the sweater, brown shoes, all consistent across the three views at 57 px. The 8× reference sits on flat magenta, matching the animation prompts. G2 is split into G2a (Zurich) and G2b (turnaround), so the character sheets C5 and C6 start without waiting for the Zurich cleanup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 ### Rules for Opus tasks
 
