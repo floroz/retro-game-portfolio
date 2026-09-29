@@ -11,8 +11,12 @@ import {
   sceneImages,
   travelMapImages,
 } from "./assets";
+import { SceneAudio } from "./audio";
 import { SceneEngine } from "./SceneEngine";
 import { SCENES, TRAVEL_MAP_DATA } from "./scenes";
+
+/** Music, ambience, and effects for the scene engine (desktop only). */
+export const sceneAudio = new SceneAudio();
 
 let engine: SceneEngine | null = null;
 
@@ -27,6 +31,7 @@ export function getEngine(): SceneEngine {
           useGameStore.getState().openTerminalScreen(section),
         sceneChanged: (scene) => useGameStore.getState().setCurrentScene(scene),
         skippableChanged: (skippable) => useGameStore.setState({ skippable }),
+        sound: (name) => sceneAudio.play(name),
       },
     });
   }

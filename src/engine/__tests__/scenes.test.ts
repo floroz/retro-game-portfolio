@@ -4,6 +4,7 @@ import { unknownChars } from "../font";
 import { pointInPolygon } from "../geometry";
 import { resolveLabel } from "../labels";
 import { SCENES, TRAVEL_MAP_DATA } from "../scenes";
+import { sceneWarnings } from "../validate";
 import type { SceneId, SectionId, StandPoint } from "../types";
 
 const inside = (scene: SceneId, p: StandPoint) =>
@@ -128,4 +129,23 @@ describe("scene data contract", () => {
       }
     },
   );
+});
+
+describe("dev overlay warnings", () => {
+  test("every scene is clean", () => {
+    for (const scene of Object.values(SCENES)) {
+      expect(sceneWarnings(scene, SCENES), scene.id).toEqual([]);
+    }
+  });
+
+  test("flags a stand point off the walkbox and a missing entry", () => {
+    const broken = {
+      ...SCENES.london,
+      entryPoints: { fromHall: { x: 160, y: 10, facing: "s" as const } },
+      exits: SCENES.london.exits.map((e) => ({ ...e, entry: "fromNowhere" })),
+    };
+    const warnings = sceneWarnings(broken, SCENES);
+    expect(warnings).toContain("entry fromHall is off the walkbox");
+    expect(warnings.some((w) => w.includes("fromNowhere"))).toBe(true);
+  });
 });

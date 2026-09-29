@@ -41,3 +41,11 @@
     cursor: pointer;
   }
 }
+
+.bottom {
+  inset-block: auto to-rem(8px);
+}
+
+.warning {
+  color: #ff8080;
+}
