@@ -255,6 +255,7 @@ export const SORRENTO_SCENE: SceneData = {
       // Lettered on the note stuck to the upper fridge door.
       id: "fridge",
       source: "section:about",
+      maxWidth: 22,
       x: 66,
       y: 57,
       align: "center",
@@ -262,9 +263,10 @@ export const SORRENTO_SCENE: SceneData = {
       color: "#2a2328",
     },
     {
-      // Lettered on the note pinned above the phone.
+      // Lettered on the note pinned above the phone (x 219-248).
       id: "phone",
       source: "section:contact",
+      maxWidth: 27,
       x: 233,
       y: 43,
       align: "center",

@@ -26,8 +26,10 @@
   }
 }
 
-/* Text at display resolution over the art, never pixelated (font.ts) */
+/* The bitmap serif text, on the art's 640x320 grid and scaled 2x (font.ts) */
 .text {
+  @include pixelated;
+
   position: absolute;
   inset: 0;
   inline-size: 100%;

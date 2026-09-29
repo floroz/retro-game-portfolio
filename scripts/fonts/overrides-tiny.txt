@@ -1,0 +1,33 @@
+// Hand-tuned glyphs for serif-tiny (scripts/fonts/rasterize.py). Same
+// format as the atlas: glyph <code point> <advance> <left> <rows above
+// baseline>, then rows, "#" for ink. Advance is the ink width plus 1.
+
+// A: the apex broke into a stray pixel above the capitals.
+glyph 0041 8 0 7 A
+...#...
+..###..
+..###..
+.#.###.
+.#####.
+#...##.
+##.####
+
+// S: the spine broke at 7 px.
+glyph 0053 6 0 7 S
+.####
+##..#
+.##..
+..##.
+...##
+#..##
+####.
+
+// I: the serifs were lopsided, so it read as a J.
+glyph 0049 5 0 7 I
+####
+.##.
+.##.
+.##.
+.##.
+.##.
+####

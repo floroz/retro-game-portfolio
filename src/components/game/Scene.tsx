@@ -5,7 +5,6 @@ import { useGameStore } from "../../store/gameStore";
 import { useSceneKeyboard } from "../../hooks/useSceneKeyboard";
 import { CHARACTER_RIG, CHARACTER_SHEET } from "../../engine/assets";
 import { CANVAS_H, CANVAS_W, NATIVE_H, NATIVE_W } from "../../engine/constants";
-import { FONT_FAMILY, type TextLayer } from "../../engine/font";
 import { renderFrame } from "../../engine/render";
 import { allImages, getEngine, images } from "../../engine/runtime";
 import { interactablesFor, type Hit } from "../../engine/SceneEngine";
@@ -37,38 +36,15 @@ function nativePoint(e: MouseEvent<HTMLElement>): [number, number] {
   ];
 }
 
-/** Widest text canvas, in pixels: 4x the 1280 px scene on a 2x screen. */
-const MAX_TEXT_W = 5120;
-
-/**
- * Sizes the text canvas to the scene's on-screen size times the device
- * pixel ratio (never below 1280x640), so text is drawn 1:1 with the
- * screen's pixels. The window's CSS scaling shows in the bounding rect, so
- * this runs every frame; it only resizes when the size changes.
- */
-function fitTextLayer(
-  canvas: HTMLCanvasElement,
-  ctx: CanvasRenderingContext2D,
-): TextLayer {
-  const rect = canvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  const w = Math.min(
-    MAX_TEXT_W,
-    Math.max(NATIVE_W * 4, Math.round(rect.width * dpr)),
-  );
-  const h = Math.round((w * NATIVE_H) / NATIVE_W);
-  if (canvas.width !== w || canvas.height !== h) {
-    canvas.width = w;
-    canvas.height = h;
-  }
-  return { ctx, scale: w / NATIVE_W };
-}
+/** Canvas px per logical px on the 640x320 text layer. */
+const TEXT_SCALE = CANVAS_W / NATIVE_W;
 
 /**
  * The game scene: a canvas drawn by the engine every frame in 320x160
  * logical px (render.ts), 640x320 and pixelated for pixel-art scenes and at
- * display resolution for HD ones (backing.ts), a display-resolution text
- * canvas over it (font.ts), and invisible buttons over each hotspot for the
+ * display resolution for HD ones (backing.ts), a 640x320 text canvas over
+ * it in the bitmap serif font, pixelated like the art (font.ts), and
+ * invisible buttons over each hotspot for the
  * pointer, the keyboard, and screen readers. Left click walks or uses;
  * right click looks.
  */
@@ -90,7 +66,6 @@ export function Scene() {
   // posted while the game was closed (a terminal command) are dropped.
   useEffect(() => {
     void images.loadAll(allImages());
-    void document.fonts?.load(`600 16px ${FONT_FAMILY}`);
     useGameStore.getState().takeSceneRequest();
     useGameStore.getState().setCurrentScene(getEngine().scene.id);
   }, []);
@@ -107,9 +82,9 @@ export function Scene() {
   useEffect(() => {
     if (contentOpen) return;
     const ctx = canvasRef.current?.getContext("2d");
-    const textCanvas = textRef.current;
-    const textCtx = textCanvas?.getContext("2d");
-    if (!ctx || !textCanvas || !textCtx) return;
+    const textCtx = textRef.current?.getContext("2d");
+    if (!ctx || !textCtx) return;
+    const text = { ctx: textCtx, scale: TEXT_SCALE };
     const engine = getEngine();
     engine.contentClosed();
     let last = performance.now();
@@ -121,7 +96,7 @@ export function Scene() {
       const box = ctx.canvas.getBoundingClientRect();
       renderFrame({
         ctx,
-        text: fitTextLayer(textCanvas, textCtx),
+        text,
         engine,
         images,
         sheet: CHARACTER_SHEET,
@@ -168,7 +143,13 @@ export function Scene() {
         height={CANVAS_H}
         aria-hidden="true"
       />
-      <canvas ref={textRef} className={styles.text} aria-hidden="true" />
+      <canvas
+        ref={textRef}
+        className={styles.text}
+        width={CANVAS_W}
+        height={CANVAS_H}
+        aria-hidden="true"
+      />
       <div className={styles.hotspots}>
         {hits.map((hit) => (
           <button

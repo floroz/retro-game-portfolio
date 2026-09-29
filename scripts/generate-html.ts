@@ -181,7 +181,7 @@ ${JSON.stringify(websiteSchema, null, 2)
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- The game's world text (src/engine/font.ts), self-hosted -->
+    <!-- The toolbar's status line font, self-hosted -->
     <link rel="preload" href="/fonts/fredoka-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
   </head>
   <body>

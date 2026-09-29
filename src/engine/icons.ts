@@ -1,7 +1,7 @@
 /**
  * Section icons, 14x14 pixel art. The toolbar and any engine text draw the
  * same icon: text writes one as
- * `{skills}` and so on (font.ts draws it inline at display resolution), and
+ * `{skills}` and so on (font.ts draws it inline on the art grid), and
  * the toolbar draws it as an SVG (PixelIcon). Each icon is a header line,
  * `{<section>} <width>`, then its rows, `#` for ink and `.` for paper.
  */

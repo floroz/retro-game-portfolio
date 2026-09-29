@@ -239,10 +239,13 @@ export const HALL_SCENE: SceneData = {
     },
   ],
   labels: [
-    // Hanging gate signs: "GATE 1" and the city, centred on each panel.
+    // Hanging gate signs: "GATE 1" and the city, centred on each panel and
+    // set to fit inside it (London's panel is x 176-210, Zurich's 215-264,
+    // Sorrento's 269-307).
     {
       id: "gate-london",
       source: "gate:london",
+      maxWidth: 32,
       x: 193,
       y: 22,
       align: "center",
@@ -251,6 +254,7 @@ export const HALL_SCENE: SceneData = {
     {
       id: "gate-zurich",
       source: "gate:zurich",
+      maxWidth: 46,
       x: 239,
       y: 22,
       align: "center",
@@ -259,6 +263,7 @@ export const HALL_SCENE: SceneData = {
     {
       id: "gate-sorrento",
       source: "gate:sorrento",
+      maxWidth: 36,
       x: 287,
       y: 22,
       align: "center",
