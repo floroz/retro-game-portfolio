@@ -1,0 +1,9 @@
+{
+  "id": "london-fg",
+  "output": "src/assets/scenes/london/fg.png",
+  "task": "F1",
+  "source": "opus",
+  "palette": "v0",
+  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Replaced in the london build task.",
+  "date": "2026-09-29"
+}

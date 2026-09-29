@@ -1,0 +1,87 @@
+# Master palette for the v2 scenes (docs/art-spec.md, Palette).
+# One "idx hex group" per line. "." is transparent and #ff00ff is the chroma key.
+# Append-only after v1: never renumber or recolour an index.
+# palette: v0
+
+# Core: shared by everything, including the character. Seeded from v1 art.
+# Neutral
+0 #0f0d12 core
+1 #2a2328 core
+2 #4a4046 core
+3 #7a6e6c core
+4 #b0a49a core
+5 #e8dcc8 core
+# Wood
+6 #3a2220 core
+7 #49322d core
+8 #6d3f31 core
+9 #90583d core
+A #a1603f core
+# Skin
+B #5c3b33 core
+C #9a7860 core
+D #bf987d core
+E #e7bd98 core
+# Navy
+F #161c2f core
+G #21283c core
+H #2f3f66 core
+I #466394 core
+# Brass
+J #8a6420 core
+K #e0b040 core
+# Red
+L #5a1e1e core
+M #9b3d34 core
+N #c8483a core
+# Green
+O #4f7a3a core
+P #7fae52 core
+
+# Hall (proposed): 1990s terminal in daylight. Apron and aluminium greys,
+# beige plastic, teal patterned carpet with a plum fleck, daylight sky.
+Q #5a5c66 hall
+R #9ea2aa hall
+S #b4a47c hall
+T #d6caa0 hall
+U #1f5458 hall
+V #3a8a86 hall
+W #6a3a62 hall
+X #74acd8 hall
+Y #c6e4f0 hall
+
+# London (proposed): rainy evening. Wet slate grey-blues outside, rain
+# highlights, phone-box and bus red, bottle-green upholstery, amber lamplight.
+Z #2a3a4a london
+a #3c4c5e london
+b #62788c london
+c #a2b6c4 london
+d #c41e24 london
+e #23402e london
+f #a8641a london
+g #eea03a london
+h #ffdc8e london
+
+# Zurich (proposed): clear night. Plum walls, night-sky and lake navies,
+# moonlit snow, a warm desk lamp.
+i #2c1a3c zurich
+j #3a2c48 zurich
+k #5c4670 zurich
+l #0c1230 zurich
+m #1c2c62 zurich
+n #5876b0 zurich
+o #b8c8e8 zurich
+p #f2f4ff zurich
+q #f8d880 zurich
+
+# Sorrento (proposed): late afternoon into sunset. Terracotta, lemon
+# yellows, majolica blue, Mediterranean sea and sky, sunset coral.
+r #7c3220 sorrento
+s #c45e36 sorrento
+t #eea46c sorrento
+u #f2c828 sorrento
+v #fff1a0 sorrento
+w #1c3a8c sorrento
+x #2c7cc4 sorrento
+y #7ccaea sorrento
+z #f06a52 sorrento

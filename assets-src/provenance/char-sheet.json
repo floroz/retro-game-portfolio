@@ -1,0 +1,9 @@
+{
+  "id": "char-sheet",
+  "output": "src/assets/character/daniele.png",
+  "task": "F1",
+  "source": "opus",
+  "palette": "v0",
+  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Box figure; replaced in B7.",
+  "date": "2026-09-29"
+}

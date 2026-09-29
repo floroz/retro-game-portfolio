@@ -1,0 +1,9 @@
+{
+  "id": "zurich-obj-placeholder",
+  "output": "src/assets/scenes/zurich/obj-placeholder.png",
+  "task": "F1",
+  "source": "opus",
+  "palette": "v0",
+  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Deleted in the zurich build task.",
+  "date": "2026-09-29"
+}
