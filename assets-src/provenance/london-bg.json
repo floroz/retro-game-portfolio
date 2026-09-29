@@ -1,18 +1,15 @@
 {
   "id": "london-bg",
   "output": "src/assets/scenes/london/bg.png",
-  "task": "RB3",
+  "task": "HB3",
   "source": "codex",
-  "prompt": "assets-src/prompts/remaster/london.md",
-  "candidate": "02",
-  "references": [
-    "assets-src/refs/remaster/london-current@4x.png",
-    "assets-src/refs/remaster/style-anchor@4x.png"
-  ],
-  "approvedRaw": "assets-src/approved/london-bg@2x.webp",
-  "palette": "v2",
+  "prompt": "assets-src/prompts/hd/layers-london.md",
   "density": 2,
-  "cleanup": "RB3: candidate 02 of london-bg@2x, re-registered to the finished B3 layout before pixelizing: a scale of 0.970 vertically (it drew about 3% more floor) and a piecewise horizontal map (offsets from -2 px at the door to -13 px past the right shelf, measured band by band against london-current@4x.png at 640x320), then assets:pixelize --scene london --density 2; the dartboard and fruit machine come from the same raw at a flat -3 px offset, where the candidate already had them. After that every region aligns within 0-2 px (1 logical px). Cleanup in palette-index grids: rain streaks painted out of the window (bg has no rain; anim-rain draws it), keeping the Gherkin's lattice and the Shard's lit windows, and the transom clouds calmed with a 3x3 majority; the right-hand wall repainted as clean boards (L with a 2 px 6 seam every 16 px), which removes the candidate's pendant cords and red light cones; three brass picture lights restamped from one symmetric sprite at the B3 positions (no cords, no cones) above bare boards for the 3 x 2 job photos; the dartboard redrawn as a hard-edged 16-segment board (bull, treble and double rings, black surround, a drop shadow below) inside its hotspot and clear of the photo slots, with the candidate's stray dart kept in the wallpaper; the door's leaf lifted from e to , (0.095 OKLab from the hair browns instead of 0.073); single-pixel speckle cleaned from the walls, wainscot, floor and bar. The chalkboard's header and chalk surface stay blank for the engine's SKILLS lettering and skills:menu, the bar top stays bare for the tap row, and the wall under the picture lights stays bare. Clean plate: the bar, table and stools, fruit machine, door and corner stool are cut out; behind them the wainscot is tiled from one clean 44 px period of its own panels (phase-matched), the baseboard and floor planks continue with their seam rows and staggered joints, the wall boards and dado run on behind the door, and the fruit machine's floor shadow stays on the floor. Core plus London ramp only; no text.",
-  "approvedBy": "opus-orchestrator (delegated RB3 pick)",
-  "date": "2026-09-29"
+  "style": "painted",
+  "approvedBy": "orchestrator",
+  "date": "2026-09-29",
+  "candidate": "02",
+  "references": ["assets-src/refs/hd/london-chosen.png"],
+  "approvedRaw": "assets-src/approved/london-plate@hd.webp",
+  "cleanup": "HB3: candidate 02 of london-plate@hd (1774x887, the chosen composite edited to an empty pub), prepared to painted density 2 with assets:prepare --painted --no-quantize (Lanczos to 640x320, hard alpha), then quantized jointly with the rest of the London folder (assets:quantize, one palette of at most 244 colours (243 used), no dither) so the scene stays under 256 colours with room for the bus. No hand cleanup. It registers pixel for pixel with london-chosen.png (measured offset 0,0 in the window, shelves, chalkboard, dartboard and lamps). Bare bar top and bare wall for the slot rows; the window, chalkboard header, dartboard and shelves stay painted; no text. The rain, the fruit machine lamps, the eight taps and the six photo frames are drawn by the engine."
 }
