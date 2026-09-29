@@ -1,10 +1,18 @@
 {
   "id": "sorrento-obj-door",
   "output": "src/assets/scenes/sorrento/obj-door.png",
-  "task": "B4",
-  "source": "opus",
-  "derivedFrom": "sorrento-bg",
-  "palette": "v1",
-  "cleanup": "Closed door leaf, sea green as the prompt asked (02's pixelized door came out slate grey), 24x72: four glazed panes showing sky and a lemon grove, two recessed lower panels, a brass knob and keyhole. Lit edge on the right, shadow edge on the hinge side.",
+  "task": "RB4",
+  "source": "codex",
+  "prompt": "assets-src/prompts/remaster/sorrento.md",
+  "candidate": "01",
+  "references": [
+    "assets-src/refs/remaster/sorrento-current@4x.png",
+    "assets-src/refs/remaster/style-anchor@4x.png"
+  ],
+  "approvedRaw": "assets-src/approved/sorrento-bg@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB4: candidate 01's sea-green door leaf, cut from the re-laid bg at 2x (48x144 at logical 8,30): four glazed panes with sunset and lemons, two recessed lower panels, a brass knob, the dark rebate. The frame and jambs stay in bg.",
+  "approvedBy": "opus-orchestrator (delegated RB pick)",
   "date": "2026-09-29"
 }

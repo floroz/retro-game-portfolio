@@ -1,10 +1,11 @@
 {
   "id": "sorrento-obj-chair-left",
   "output": "src/assets/scenes/sorrento/obj-chair-left.png",
-  "task": "B4",
+  "task": "RB4",
   "source": "opus",
   "derivedFrom": "sorrento-bg",
-  "palette": "v1",
-  "cleanup": "Rush-seated ladder-back chair after candidate 02's, side-on in 3/4 view with its back on the left: two back posts with slats, a checked rush seat, front legs and a stretcher.",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB4: drawn at 2x after candidate 01's chairs: a ladder-back chair seen side-on, facing the table, with lit turned posts and three curved slats, a rush seat woven in K/J/-, a dark apron, front legs and stretchers. 28x68 at logical 159,104, front feet on the baseline (137).",
   "date": "2026-09-29"
 }

@@ -1,10 +1,11 @@
 {
   "id": "sorrento-anim-ferry",
   "output": "src/assets/scenes/sorrento/anim-ferry.png",
-  "task": "B4",
+  "task": "RB4",
   "source": "opus",
   "derivedFrom": "sorrento-bg",
-  "palette": "v1",
-  "cleanup": "2 frames (16x6) of a small white ferry heading east, with a red funnel, a row of windows and a navy hull stripe; the wake flickers at the stern. Moved across the window by the engine (motion, clipped to the view).",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB4: 2 frames of 32x12 at 2x: a white ferry heading east, with a red funnel and flag, a band of cabin windows, a cobalt hull stripe and a dark waterline; the stern wash and bow wave alternate between frames, and the flag flutters.",
   "date": "2026-09-29"
 }

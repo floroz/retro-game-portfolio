@@ -1,10 +1,11 @@
 {
   "id": "sorrento-obj-door@open",
   "output": "src/assets/scenes/sorrento/obj-door@open.png",
-  "task": "B4",
+  "task": "RB4",
   "source": "opus",
-  "derivedFrom": "sorrento-bg",
-  "palette": "v1",
-  "cleanup": "Open state of obj-door: the leaf swung in on its left hinge, foreshortened to 6 px, with its pane and panel edges, showing the sunny lane in bg behind it.",
+  "derivedFrom": "sorrento-obj-door",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB4: open state redrawn at 2x: the leaf swung in against the left jamb, foreshortened to 12 px, with its dark hinge edge, a stepped top edge in perspective, the glazed panes and panel rails, a lit free edge and the knob side-on, showing the sunny lane in bg.",
   "date": "2026-09-29"
 }
