@@ -1,0 +1,10 @@
+{
+  "id": "london-obj-door@open",
+  "output": "src/assets/scenes/london/obj-door@open.png",
+  "task": "B3",
+  "source": "opus",
+  "derivedFrom": "london-bg",
+  "palette": "v1",
+  "cleanup": "Open state of obj-door: the same frame and fanlight, the leaf swung in against the left of the frame, showing the rainy street outside (overcast sky, a building with lit windows, a street lamp, a wet pavement with reflections, a few rain streaks).",
+  "date": "2026-09-29"
+}

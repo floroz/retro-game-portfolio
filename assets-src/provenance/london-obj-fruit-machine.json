@@ -1,0 +1,10 @@
+{
+  "id": "london-obj-fruit-machine",
+  "output": "src/assets/scenes/london/obj-fruit-machine.png",
+  "task": "B3",
+  "source": "opus",
+  "derivedFrom": "london-bg",
+  "palette": "v1",
+  "cleanup": "Candidate 05's 1990s fruit machine, redrawn and moved forward onto the floor (baseline 133): navy cabinet lit from the left, a blank red topper, nine round lamps (unlit here; anim-lights flashes them), three reels with a cherry, a lemon and an orange, control buttons, coin slot, payout tray, and a pull handle. No text or numbers.",
+  "date": "2026-09-29"
+}

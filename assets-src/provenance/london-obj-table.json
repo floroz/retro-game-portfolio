@@ -1,0 +1,10 @@
+{
+  "id": "london-obj-table",
+  "output": "src/assets/scenes/london/obj-table.png",
+  "task": "B3",
+  "source": "opus",
+  "derivedFrom": "london-bg",
+  "palette": "v1",
+  "cleanup": "The round pub table with its two red-topped stools from candidate 05, redrawn as one sprite and moved clear of the door (front feet at baseline 121): a lit round top with its rim, a pedestal on a cast-iron foot, stools with 3 legs and brass foot rings, two pints on the table, and contact shadows.",
+  "date": "2026-09-29"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "london-anim-lights",
+  "output": "src/assets/scenes/london/anim-lights.png",
+  "task": "B3",
+  "source": "opus",
+  "derivedFrom": "london-bg",
+  "palette": "v1",
+  "cleanup": "4 frames over the fruit machine's nine lamps (16x29, at the sprite's lamp positions): the lamps chase in threes (left, middle, right column), then all flash. Depth-sorted with the machine.",
+  "date": "2026-09-29"
+}
