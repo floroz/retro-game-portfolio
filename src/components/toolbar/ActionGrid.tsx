@@ -1,22 +1,15 @@
-import { Briefcase, Wrench, User, Phone, FileText } from "lucide-react";
 import styles from "./ActionGrid.module.scss";
 import { useGameStore } from "../../store/gameStore";
 import type { SectionId } from "../../engine/types";
 import { COUNTRIES, SECTIONS } from "../../config/sections";
-import type { LucideIcon } from "lucide-react";
+import { PixelIcon } from "../shared/PixelIcon";
 
-interface ActionButton {
-  action: SectionId;
-  label: string;
-  icon: LucideIcon;
-}
-
-const ACTIONS: ActionButton[] = [
-  { action: "experience", label: "Experience", icon: Briefcase },
-  { action: "skills", label: "Skills", icon: Wrench },
-  { action: "about", label: "About", icon: User },
-  { action: "contact", label: "Contact", icon: Phone },
-  { action: "resume", label: "Resume", icon: FileText },
+const ACTIONS: SectionId[] = [
+  "experience",
+  "skills",
+  "about",
+  "contact",
+  "resume",
 ];
 
 /**
@@ -39,26 +32,29 @@ export function ActionGrid() {
 
   return (
     <div className={styles.grid}>
-      {ACTIONS.map(({ action, label, icon: Icon }) => (
-        <button
-          key={action}
-          className={styles.button}
-          data-e2e="toolbar-button"
-          onClick={() => handleActionClick(action)}
-          onMouseEnter={() =>
-            setHoveredObject(
-              `View ${label} (${COUNTRIES[SECTIONS[action].home].name})`,
-            )
-          }
-          onMouseLeave={() => setHoveredObject(null)}
-          type="button"
-          title={label}
-          tabIndex={0}
-        >
-          <Icon className={styles.icon} size={12} strokeWidth={2} />
-          <span className={styles.label}>{label}</span>
-        </button>
-      ))}
+      {ACTIONS.map((action) => {
+        const label = SECTIONS[action].label;
+        return (
+          <button
+            key={action}
+            className={styles.button}
+            data-e2e="toolbar-button"
+            onClick={() => handleActionClick(action)}
+            onMouseEnter={() =>
+              setHoveredObject(
+                `View ${label} (${COUNTRIES[SECTIONS[action].home].name})`,
+              )
+            }
+            onMouseLeave={() => setHoveredObject(null)}
+            type="button"
+            title={label}
+            tabIndex={0}
+          >
+            <PixelIcon section={action} className={styles.icon} />
+            <span className={styles.label}>{label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -21,6 +21,7 @@ type TerminalAction =
   | "showWhoami"
   | "showSudoJoke"
   | "showMatrixEffect"
+  | "travel"
   | "closeTerminal";
 
 export interface TerminalCommand {
