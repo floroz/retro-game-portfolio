@@ -1,10 +1,18 @@
 {
   "id": "london-obj-fruit-machine",
   "output": "src/assets/scenes/london/obj-fruit-machine.png",
-  "task": "B3",
-  "source": "opus",
-  "derivedFrom": "london-bg",
-  "palette": "v1",
-  "cleanup": "Candidate 05's 1990s fruit machine, redrawn and moved forward onto the floor (baseline 133): navy cabinet lit from the left, a blank red topper, nine round lamps (unlit here; anim-lights flashes them), three reels with a cherry, a lemon and an orange, control buttons, coin slot, payout tray, and a pull handle. No text or numbers.",
+  "task": "RB3",
+  "source": "codex",
+  "prompt": "assets-src/prompts/remaster/london.md",
+  "candidate": "02",
+  "references": [
+    "assets-src/refs/remaster/london-current@4x.png",
+    "assets-src/refs/remaster/style-anchor@4x.png"
+  ],
+  "approvedRaw": "assets-src/approved/london-bg@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB3: the candidate's fruit machine (header, cabinet, reels, lamps, coin slot, payout tray, plinth, and the lever with its red knob), cut at 2x (logical 290, 81). The cabinet was navy (core F, G, *, H), the sweater's own colours, so it is recoloured to a pub-red cabinet (M body, = shadow, N highlights, L deepest) with the header and the band above the tray in brass (-, J, K) and the header lamps on black; the reels, lamps and lever keep their colours. The body's remap speckle is cleaned. Its floor shadow stays in bg.",
+  "approvedBy": "opus-orchestrator (delegated RB3 pick)",
   "date": "2026-09-29"
 }

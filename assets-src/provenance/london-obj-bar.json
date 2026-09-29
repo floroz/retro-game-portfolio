@@ -1,10 +1,18 @@
 {
   "id": "london-obj-bar",
   "output": "src/assets/scenes/london/obj-bar.png",
-  "task": "B3",
-  "source": "opus",
-  "derivedFrom": "london-bg",
-  "palette": "v1",
-  "cleanup": "The bar counter, redrawn from candidate 05 and moved forward onto the floor (front feet at baseline 126) so Daniele can walk behind it. Lit top (the taps' bottom row sits on y 96) with a front lip and shadow, a face of raised panels in the core wood ramp, a brass foot rail on brackets, a plinth, and a 1-row contact shadow. Bare along its whole top for the tap slot row. No stools in front of it.",
+  "task": "RB3",
+  "source": "codex",
+  "prompt": "assets-src/prompts/remaster/london.md",
+  "candidate": "02",
+  "references": [
+    "assets-src/refs/remaster/london-current@4x.png",
+    "assets-src/refs/remaster/style-anchor@4x.png"
+  ],
+  "approvedRaw": "assets-src/approved/london-bg@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB3: cut from the re-registered candidate at 2x as whole rows, x 200-519 and native rows 188-253 (logical 100, 94): the lit top with its lip and front edge, the raised panels, the brass foot rail on its brackets, the kick plate and its contact shadow. The top is bare for the tap slot row; the back lip's single row (native 187) stays in bg.",
+  "approvedBy": "opus-orchestrator (delegated RB3 pick)",
   "date": "2026-09-29"
 }

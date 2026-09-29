@@ -1,10 +1,11 @@
 {
   "id": "london-anim-rain",
   "output": "src/assets/scenes/london/anim-rain.png",
-  "task": "B3",
+  "task": "RB3",
   "source": "opus",
   "derivedFrom": "london-bg",
-  "palette": "v1",
-  "cleanup": "4 transparent frames over the window glass (x 37-110, y 13-77): 16 sparse, hard-edged rain streaks, 2-3 px long with a slight slant, falling 16 px a frame so the cycle wraps. Pixels on the transom bar and the glazing bars are left clear, so the rain stays on the glass.",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB3: redrawn at 2x: 4 transparent 148 x 130 frames over the window glass (logical 37, 13): 46 sparse, hard-edged drops, 1 x 4 px (b over c), falling a quarter of the pane per frame so the cycle wraps. Pixels on the frame, the transom bar and the glazing bars are left clear, so the rain stays on the glass.",
   "date": "2026-09-29"
 }

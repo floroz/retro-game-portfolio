@@ -1,10 +1,18 @@
 {
   "id": "london-obj-door",
   "output": "src/assets/scenes/london/obj-door.png",
-  "task": "B3",
-  "source": "opus",
-  "derivedFrom": "london-bg",
-  "palette": "v1",
-  "cleanup": "The pub door to the Hall, redrawn from candidate 05 (which was nearly black at native size) and scaled to 64 px so it sits right with the character: a bottle-green leaf in the London ramp with a glazed upper panel, two lower panels, brass letterbox, knob and kick plate, in a lit wooden architrave with a radiating fanlight and a stone step.",
+  "task": "RB3",
+  "source": "codex",
+  "prompt": "assets-src/prompts/remaster/london.md",
+  "candidate": "02",
+  "references": [
+    "assets-src/refs/remaster/london-current@4x.png",
+    "assets-src/refs/remaster/style-anchor@4x.png"
+  ],
+  "approvedRaw": "assets-src/approved/london-bg@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB3: the green front door with its fanlight, jambs, glazed upper panel, brass letterbox and kick plate, and the stone step, cut at 2x as a 48 x 128 rectangle (logical 6, 44). The leaf's green is lifted from e to , so the hair browns separate from it; the frame's top edge row stays in bg.",
+  "approvedBy": "opus-orchestrator (delegated RB3 pick)",
   "date": "2026-09-29"
 }
