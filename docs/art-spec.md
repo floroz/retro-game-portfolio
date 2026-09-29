@@ -18,7 +18,7 @@ It's written for **two orchestrators**, one per model family. Each one runs ever
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
 | **Opus orchestrator** (Claude Code, Opus)    | Every task marked Opus: tooling, palette, prompt files, pixelizing, cleanup, cutouts, hand-drawn sprites, animations, scene data, audio, engine, integration | Generate images                                                     |
 | **Codex orchestrator** (Codex, ChatGPT plan) | Every task marked Codex: runs prompt files with its built-in image tool (`image_gen` / `$imagegen`) and saves candidates                                     | Edit code, docs, `src/`, or anything outside `assets-src/exchange/` |
-| **Daniele**                                  | Gates: picking candidates, approving anchors and audio, the final review. Merging PRs. Keeping the Status column up to date                                  | —                                                                   |
+| **Daniele**                                  | Gates: picking candidates, approving anchors and audio, the final review. Recording each passed gate in the Status column                                    | —                                                                   |
 
 No task calls a model API. Image generation happens only inside Codex sessions, billed to the ChatGPT plan, as a one-off batch of about 50 images. The scripts exist to turn each generated image into real pixel art and keep it that way.
 
@@ -167,7 +167,7 @@ scripts/assets/                 # tooling
 
 All paths below are relative to the worktrees in the plan's [Where to work](expansion-plan.md#where-to-work).
 
-- **`v2` is the trunk.** Every Opus task branches from `origin/v2` in its own worktree and ends with one PR against `v2`. Daniele merges.
+- **`v2` is the trunk, and agents never touch `main`.** Every Opus task branches from `origin/v2` in its own worktree, and its agent merges its own PR back into `v2` (see the merge steps in [Where to work](expansion-plan.md#where-to-work)).
 - **Codex works only in `../rgp-codex/`**, detached at `origin/v2`, and writes only to `assets-src/exchange/` there. That folder is gitignored, so candidates never enter git history and the Codex lane never needs reconciling. A candidate reaches `v2` only as the approved WebP that an Opus task commits.
 - **Opus → Codex:** prompt files and references are merged to `v2` before the Codex task that needs them starts. The Codex orchestrator then refreshes its worktree to `origin/v2`.
 - **Codex → Opus:** a Codex task is finished when every one of its `raw/<asset-id>/` folders contains a `DONE` file. Opus agents read candidates from `../rgp-codex/assets-src/exchange/` by absolute path, never write there, and copy the chosen one into their own worktree as `assets-src/approved/<asset-id>.webp`.
@@ -407,7 +407,7 @@ Audio is written entirely as code by Opus. It needs no generated images and no m
 
 ### Execution map
 
-**Status** is one of `todo`, `in progress`, or `done`. A task is `done` once its PR is merged to `v2`, its `DONE` files exist (Codex), or Daniele has passed the gate. Daniele keeps this column up to date on `v2`. Orchestrators and agents read it but never edit it, so parallel PRs don't conflict on this table.
+**Status.** Task status comes from git, not from this table. An Opus task is `done` once a PR from its branch is merged into `v2` (orchestrators check with `gh pr list --base v2 --state merged`), and a Codex task is `done` once its `DONE` files exist. The Status column records **gates only**: Daniele marks each gate `done` in a `docs:` commit on `v2`. Orchestrators and agents never edit it.
 
 | Task   | Status | Lane    | Phase | After         | What                                                                     |
 | ------ | ------ | ------- | ----- | ------------- | ------------------------------------------------------------------------ |
@@ -500,11 +500,12 @@ Daniele restarts an orchestrator after each gate, or when the other lane has pro
 
 - **Isolation.** Work in your own worktree, `../rgp-<task-id>/`, on a branch named `assets/<task-id>` (for example `assets/b3-london`; `engine/e1-...` for the engine lane), created with `git fetch origin && git worktree add ../rgp-<task-id> -b <branch> origin/v2`. Never write to the main checkout or to another task's worktree. Write only to the paths in your card's **Owns** line. The palette, this spec, and `scripts/assets/lib.ts` are read-only after F1. If one needs to change, stop and propose the change to Daniele through the orchestrator.
 - **Codex output.** Read it from `../rgp-codex/assets-src/exchange/` by absolute path, only once the folder has a `DONE` file. Never write there.
-- **Reconciling.** If your PR conflicts with something merged since you branched, rebase onto `origin/v2`, re-run `npm run lint`, and push again. Never resolve a conflict by editing another task's paths.
+- **Never touch `main`.** No branches from it, commits to it, PRs against it, or merges into it.
+- **Merging.** Merge your own PR into `v2`, following the merge steps and conflict rules in [Where to work](expansion-plan.md#where-to-work): rebase onto `origin/v2`, re-test, push, wait for green CI, then `gh pr merge --squash --delete-branch`. Retry up to 3 times, then report to the orchestrator. Never resolve a conflict by editing another task's paths.
 - **Choosing candidates.** Run `assets:review`, send Daniele the review sheet through the orchestrator, and wait for his choice. Never choose for him.
 - **Reviewing images.** Large raw images are downsampled when you view them. Judge detail from 8× crops made with `assets:preview`.
 - **Plan sync.** Read the plan with `git fetch origin && git show origin/v2:docs/art-spec.md` (and `docs/expansion-plan.md`) at the start of the task, before every gate, and before opening the PR. If `docs/` changed since you started, read the diff and rebase if it affects your task. Never edit `docs/`: propose plan changes to Daniele through the orchestrator.
-- **Before handing off:** `npm run lint` passes (it includes `lint:assets`), every new asset has a provenance record, and Daniele has seen the final previews. Run `npm run format`, check the diff, and open one PR for the task against `v2`. Its description says "Plan read at `<sha>`".
+- **Before handing off:** `npm run lint` passes (it includes `lint:assets`), every new asset has a provenance record, and Daniele has seen the final previews. Run `npm run format`, check the diff, and open one PR for the task against `v2`. Its description says "Plan read at `<sha>`". Then merge it yourself (see Merging), and remove your worktree once it's merged.
 - **Gates.** Stop at a gate and ask. Never approve your own gate.
 
 ### Phase 0 — Prep
