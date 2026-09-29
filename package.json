@@ -28,6 +28,7 @@
     "dev:hd-placeholder": "tsx scripts/dev-hd-placeholder.ts",
     "assets:pixelize": "tsx scripts/assets/pixelize.ts",
     "assets:prepare": "tsx scripts/assets/prepare.ts",
+    "assets:quantize": "tsx scripts/assets/quantize.ts",
     "assets:review": "tsx scripts/assets/review.ts",
     "assets:grid": "tsx scripts/assets/grid.ts",
     "assets:preview": "tsx scripts/assets/preview.ts",

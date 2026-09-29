@@ -27,12 +27,33 @@ export function isAssetDensity(value: unknown): value is AssetDensity {
 }
 
 /**
- * HD (density 4) art is painted, with no palette and soft edges, so it skips
- * the palette, ramp, and hard-alpha rules. Naming, provenance, sizes, and
- * one density per scene folder still apply.
+ * How a density-2 asset was made: "pixel" (Phase R's pixel art on the master
+ * palette; the default when a record has no "style") or "painted" (Phase H
+ * at MI3 pixel density: painted full colour, quantized to at most 256 colours
+ * per scene with no dither, hard alpha). Only density 2 takes a style.
  */
-export function usesPixelRules(density: AssetDensity): boolean {
-  return density !== 4;
+export const ASSET_STYLES = ["pixel", "painted"] as const;
+export type AssetStyle = (typeof ASSET_STYLES)[number];
+
+/** The most colours one scene folder's painted files may use together. */
+export const MAX_SCENE_COLOURS = 256;
+
+/**
+ * HD (density 4) art and painted density-2 art have no master palette, so
+ * they skip the palette and ramp rules (and density 4, with soft edges, the
+ * hard-alpha rule too). Naming, provenance, sizes, and one density per scene
+ * folder still apply.
+ */
+export function usesPixelRules(
+  density: AssetDensity,
+  style: AssetStyle = "pixel",
+): boolean {
+  return density !== 4 && !isPainted(density, style);
+}
+
+/** True for Phase H's painted density-2 art. */
+export function isPainted(density: AssetDensity, style: AssetStyle): boolean {
+  return density === 2 && style === "painted";
 }
 
 /** Native scene size at a density: 320x160, 640x320, or 1280x640. */
@@ -137,17 +158,20 @@ export function classifyAsset(path: string): ShippedAsset | string | null {
 }
 
 /**
- * Size rules per kind, at the asset's density (from its provenance record;
- * 1 when it has none). Returns error strings.
+ * Size rules per kind, at the asset's density and style (from its provenance
+ * record; density 1 and "pixel" when it has none). Returns error strings.
  */
 export function checkAssetSize(
   asset: ShippedAsset,
   width: number,
   height: number,
   density: AssetDensity = 1,
+  style: AssetStyle = "pixel",
 ): string[] {
   const scene = nativeSceneSize(density);
-  const at = density === 1 ? "" : ` at density ${density}`;
+  const painted = isPainted(density, style);
+  const at =
+    density === 1 ? "" : ` at density ${density}${painted ? " (painted)" : ""}`;
   if (
     (asset.kind === "bg" || asset.kind === "fg") &&
     (width !== scene.w || height !== scene.h)
@@ -164,34 +188,110 @@ export function checkAssetSize(
       `${asset.path}: larger than the ${scene.w}x${scene.h} scene${at} (${width}x${height})`,
     ];
   }
-  if (asset.kind === "rig" && density !== 4)
-    return [`${asset.path}: the cut-out rig is HD art, density 4`];
-  if (asset.kind === "character" && density === 4)
+  if (asset.kind === "rig" && density !== 4 && !painted)
     return [
-      `${asset.path}: the HD character is the cut-out rig (daniele-rig.png), not a density 4 sheet`,
+      `${asset.path}: the cut-out rig is painted art: density 2 with "style": "painted", or density 4`,
     ];
+  if (asset.kind === "character" && (density === 4 || painted))
+    return [
+      `${asset.path}: the HD character is the cut-out rig (daniele-rig.png), not a density ${density}${painted ? " painted" : ""} sheet`,
+    ];
+  if (
+    painted &&
+    ["obj", "anim", "slot", "shared"].includes(asset.kind) &&
+    (width % 2 !== 0 || height % 2 !== 0)
+  ) {
+    return [
+      `${asset.path}: painted density-2 sprites have even sides, a whole number of logical px (is ${width}x${height})`,
+    ];
+  }
   return [];
 }
 
 /**
- * Every image in one scene folder shares a density: a scene switches to 2x
- * (Phase R) or HD (Phase H) all at once. Takes each asset with its density.
+ * Painted density-2 images have hard alpha: every pixel fully opaque or
+ * fully transparent. Returns error strings.
+ */
+export function checkPaintedAlpha(
+  asset: ShippedAsset,
+  img: { data: ArrayLike<number> },
+): string[] {
+  let partial = 0;
+  for (let i = 3; i < img.data.length; i += 4)
+    if (img.data[i] > 0 && img.data[i] < 255) partial++;
+  return partial
+    ? [
+        `${asset.path}: ${partial} pixels have partial alpha; painted density-2 art has hard alpha (assets:prepare --painted)`,
+      ]
+    : [];
+}
+
+/**
+ * The colour group a painted file counts toward: its scene folder, the
+ * shared sprites together, or the file itself (the rig).
+ */
+export function colourGroup(asset: ShippedAsset): string {
+  if (asset.path.startsWith("src/assets/scenes/") && asset.scene)
+    return `src/assets/scenes/${asset.scene}`;
+  if (asset.kind === "slot" || asset.kind === "shared")
+    return "src/assets/shared";
+  return asset.path;
+}
+
+/**
+ * At most 256 colours per scene folder across all its painted files (and
+ * across the shared sprites, and per rig atlas). `colours` holds each file's
+ * distinct visible colours, packed 0xRRGGBB. Returns error strings.
+ */
+export function checkPaintedColours(
+  entries: readonly { asset: ShippedAsset; colours: ReadonlySet<number> }[],
+  max = MAX_SCENE_COLOURS,
+): string[] {
+  const groups = new Map<string, { colours: Set<number>; files: number }>();
+  for (const { asset, colours } of entries) {
+    const key = colourGroup(asset);
+    const g = groups.get(key) ?? { colours: new Set<number>(), files: 0 };
+    for (const c of colours) g.colours.add(c);
+    g.files++;
+    groups.set(key, g);
+  }
+  const errors: string[] = [];
+  for (const [key, g] of groups) {
+    if (g.colours.size > max)
+      errors.push(
+        `${key}: its ${g.files} painted file(s) use ${g.colours.size} colours together, more than ${max}; quantize them to one palette (assets:quantize)`,
+      );
+  }
+  return errors;
+}
+
+/**
+ * Every image in one scene folder shares a density and a style: a scene
+ * switches to 2x (Phase R) or to painted art (Phase H) all at once. Takes
+ * each asset with its density and style ("pixel" when absent).
  */
 export function checkSceneDensities(
-  assets: readonly { asset: ShippedAsset; density: AssetDensity }[],
+  assets: readonly {
+    asset: ShippedAsset;
+    density: AssetDensity;
+    style?: AssetStyle;
+  }[],
 ): string[] {
-  const byScene = new Map<string, Map<AssetDensity, string[]>>();
-  for (const { asset, density } of assets) {
+  const byScene = new Map<string, Map<string, string[]>>();
+  for (const { asset, density, style } of assets) {
     if (!asset.path.startsWith("src/assets/scenes/") || !asset.scene) continue;
-    const scene = byScene.get(asset.scene) ?? new Map<AssetDensity, string[]>();
-    scene.set(density, [...(scene.get(density) ?? []), asset.path]);
+    const mode = isPainted(density, style ?? "pixel")
+      ? `${density} painted`
+      : String(density);
+    const scene = byScene.get(asset.scene) ?? new Map<string, string[]>();
+    scene.set(mode, [...(scene.get(mode) ?? []), asset.path]);
     byScene.set(asset.scene, scene);
   }
   const errors: string[] = [];
   for (const [scene, densities] of byScene) {
     if (densities.size < 2) continue;
     const parts = [...densities]
-      .sort(([a], [b]) => a - b)
+      .sort(([a], [b]) => a.localeCompare(b, "en", { numeric: true }))
       .map(([d, paths]) => `density ${d}: ${paths.join(", ")}`);
     errors.push(
       `src/assets/scenes/${scene}: mixes densities; move the whole scene at once (${parts.join("; ")})`,
@@ -217,6 +317,8 @@ export interface ProvenanceRecord {
   approvedBy?: string;
   /** Absent means 1. Remastered (Phase R) assets have 2, HD (Phase H) ones 4. */
   density?: AssetDensity;
+  /** Density 2 only: "painted" for Phase H at MI3 pixel density. Absent means "pixel". */
+  style?: AssetStyle;
   date: string;
 }
 
@@ -228,6 +330,17 @@ export function provenanceDensity(record: unknown): AssetDensity {
   if (typeof record !== "object" || record === null) return 1;
   const d = (record as { density?: unknown }).density;
   return isAssetDensity(d) ? d : 1;
+}
+
+/**
+ * The style a provenance record declares: "painted" when its "style" field
+ * says so, else "pixel" (checkProvenance reports invalid values).
+ */
+export function provenanceStyle(record: unknown): AssetStyle {
+  if (typeof record !== "object" || record === null) return "pixel";
+  return (record as { style?: unknown }).style === "painted"
+    ? "painted"
+    : "pixel";
 }
 
 const isString = (v: unknown): v is string =>
@@ -294,7 +407,24 @@ export function checkProvenance(
     );
   }
   if (
+    r.style !== undefined &&
+    !(ASSET_STYLES as readonly unknown[]).includes(r.style)
+  ) {
+    errors.push(`${where}: style must be "pixel" or "painted"`);
+  }
+  if (r.style === "painted" && r.density !== 2) {
+    errors.push(
+      `${where}: "style": "painted" is density 2 art; add "density": 2`,
+    );
+  }
+  if (r.style === "painted" && r.palette !== undefined) {
+    errors.push(
+      `${where}: painted art has no master palette; leave out "palette"`,
+    );
+  }
+  if (
     r.density === 2 &&
+    r.style !== "painted" &&
     r.source === "codex" &&
     isString(r.approvedRaw) &&
     !r.approvedRaw.endsWith("@2x.webp")

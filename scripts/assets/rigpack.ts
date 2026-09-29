@@ -13,6 +13,11 @@
  * contract with the engine's rig renderer). Each part's image is trimmed to
  * its alpha bounds, and its pivot and attach point are made relative, so
  * drawing every part on its joint reproduces the drawing exactly.
+ *
+ * At density 2 (painted art at MI3 pixel density, on the same 640x320 grid
+ * as the scenes) every part gets hard alpha before it's trimmed, and the
+ * finished atlas is quantized to at most 256 colours with no dither if it
+ * has more (painted.ts), so it passes lint:assets as painted art.
  */
 import {
   RIG_FACINGS,
@@ -20,12 +25,19 @@ import {
   type RigFacing,
   type RigFacingData,
   type RigFrame,
+  type RigDensity,
   type RigJson,
   type RigPart,
   type RigPartId,
   type RigPoint,
 } from "../../src/engine/rigTypes";
 import { alphaBounds, blit, createImage, crop, type Image } from "./lib";
+import {
+  MAX_PAINTED_COLOURS,
+  hardAlpha,
+  quantizeJointly,
+  visibleColours,
+} from "./painted";
 
 // --- Source format ---------------------------------------------------------------------
 
@@ -260,22 +272,40 @@ const sub = (a: RigPoint, b: RigPoint): RigPoint => ({
   y: a.y - b.y,
 });
 
+export interface PackRigOptions {
+  /** The atlas file name written into the JSON. Default "daniele-rig.png". */
+  image?: string;
+  padding?: number;
+  /** 4 (smooth HD, the default) or 2 (painted, hard alpha, ≤256 colours). */
+  density?: RigDensity;
+  /** Density 2: soft alpha at or above this becomes opaque. Default 128. */
+  alphaThreshold?: number;
+}
+
 /**
  * Pack a rig. `images` maps each source `file` to its decoded image; the
- * source must pass `checkRigSource`. `image` is the atlas file name written
- * into the JSON.
+ * source must pass `checkRigSource`. Source coordinates are in the parts'
+ * own px, which are atlas px at `density`.
  */
 export function packRig(
   source: RigSource,
   images: ReadonlyMap<string, Image>,
-  opts: { image?: string; padding?: number } = {},
+  opts: PackRigOptions = {},
 ): { atlas: Image; json: RigJson } {
   const problems = checkRigSource(source);
   if (problems.length) throw new Error(problems.join("\n"));
+  const density: RigDensity = opts.density ?? 4;
+  const hard = new Map<string, Image>();
   const load = (file: string): Image => {
     const img = images.get(file);
     if (!img) throw new Error(`rig source: no image for "${file}"`);
-    return img;
+    if (density !== 2) return img;
+    let h = hard.get(file);
+    if (!h) {
+      h = hardAlpha(img, { threshold: opts.alphaThreshold }).image;
+      hard.set(file, h);
+    }
+    return h;
   };
 
   const pieces: Piece[] = [];
@@ -313,7 +343,7 @@ export function packRig(
     pieces.map((p) => ({ w: p.image.width, h: p.image.height })),
     padding,
   );
-  const atlas = createImage(packed.w, packed.h);
+  let atlas = createImage(packed.w, packed.h);
   pieces.forEach((piece, i) => {
     const at = packed.positions[i];
     blit(atlas, piece.image, at.x, at.y);
@@ -326,6 +356,8 @@ export function packRig(
     };
   });
   const frameOf = (p: Piece): RigFrame => p.frame as RigFrame;
+  if (density === 2 && visibleColours([atlas]).size > MAX_PAINTED_COLOURS)
+    atlas = quantizeJointly([atlas]).images[0];
 
   const facings = {} as Record<RigFacing, RigFacingData>;
   for (const { facing, feet, parts } of layout) {
@@ -370,7 +402,7 @@ export function packRig(
     json: {
       version: 1,
       image: opts.image ?? "daniele-rig.png",
-      density: 4,
+      density,
       size: { w: atlas.width, h: atlas.height },
       facings,
     },
@@ -389,18 +421,22 @@ const isFrame = (v: unknown): v is RigFrame =>
 
 /**
  * Check daniele-rig.json against its atlas (lint:assets): the version and
- * density, every facing and part, the hierarchy, and every frame inside the
- * atlas.
+ * density (the atlas's provenance density, 4 by default), every facing and
+ * part, the hierarchy, and every frame inside the atlas.
  */
 export function checkRigJson(
   value: unknown,
   atlas: { width: number; height: number },
+  density: RigDensity = 4,
 ): string[] {
   const where = "src/assets/character/daniele-rig.json";
   if (!isRecord(value)) return [`${where}: not a JSON object`];
   const errors: string[] = [];
   if (value.version !== 1) errors.push(`${where}: version must be 1`);
-  if (value.density !== 4) errors.push(`${where}: density must be 4`);
+  if (value.density !== density)
+    errors.push(
+      `${where}: density must be ${density}, as daniele-rig.png's provenance record says`,
+    );
   if (value.image !== "daniele-rig.png")
     errors.push(`${where}: image must be "daniele-rig.png"`);
   const size = value.size;

@@ -39,9 +39,28 @@
  *   [--scales 0.9:1.1:0.02]     also try these scales of the sprite ("a,b,c" or from:to:step)
  *   [--overlay <review.png>]    the composite with the aligned sprite drawn over it
  *
+ *   [--resample lanczos|area]   the resize filter (default lanczos: crisper ink lines)
+ *
+ * Painted density 2 (Phase H at MI3 pixel density; see painted.ts):
+ *   --painted                   scenes default to 640x320, and --size is in art px at
+ *                               density 2; after the resize (and --align), hard alpha,
+ *                               then at most 256 colours with no dithering. A sprite is
+ *                               padded right and bottom to even sides
+ *   [--colours 256]             this file's colour budget, --palette-from's included
+ *   [--palette-from a.png[,b.png]]
+ *                               keep every colour of these (already painted) files, e.g.
+ *                               the scene's bg.png, and add new ones only up to --colours,
+ *                               so a scene's layers share one palette. Give the bg a smaller
+ *                               budget (e.g. --colours 224) to leave room for its objects
+ *   [--no-quantize]             hard alpha only; quantize the scene's layers together
+ *                               later with assets:quantize
+ *   [--alpha-threshold 128]     soft alpha at or above this becomes opaque
+ *   [--despeckle 1]             opaque pixels with fewer opaque 8-neighbours are cleared
+ *
  * Prints a JSON summary: the output size, the crop, the key, and, with
  * --align, the sprite's position in display px and in logical px (display
- * px / 4), ready for the scene data. There is no palette remap.
+ * px / 4, or art px / 2 with --painted), ready for the scene data. Without
+ * --painted there is no palette remap.
  */
 import { parseArgs } from "node:util";
 import {
@@ -52,11 +71,19 @@ import {
   alignmentOverlay,
   keyOptions,
   parseLevels,
+  parseResample,
   parseScales,
   parseTargetSize,
   prepare,
   type PrepareKind,
 } from "./hd";
+import {
+  PAINTED_DENSITY,
+  PAINTED_SCENE_SIZE,
+  finishPainted,
+  fixedColoursFrom,
+  padToEven,
+} from "./painted";
 import {
   alphaBounds,
   cliPath,
@@ -72,11 +99,11 @@ import {
 const num = (v: string | undefined) =>
   v === undefined ? undefined : Number(v);
 
-const logical = (r: Rect): Rect => ({
-  x: r.x / HD_DENSITY,
-  y: r.y / HD_DENSITY,
-  w: r.w / HD_DENSITY,
-  h: r.h / HD_DENSITY,
+const logical = (r: Rect, density: number): Rect => ({
+  x: r.x / density,
+  y: r.y / density,
+  w: r.w / density,
+  h: r.h / density,
 });
 
 async function main() {
@@ -97,6 +124,13 @@ async function main() {
       radius: { type: "string" },
       scales: { type: "string" },
       overlay: { type: "string" },
+      resample: { type: "string" },
+      painted: { type: "boolean" },
+      colours: { type: "string" },
+      "palette-from": { type: "string" },
+      "no-quantize": { type: "boolean" },
+      "alpha-threshold": { type: "string" },
+      despeckle: { type: "string" },
     },
   });
   const [input] = positionals;
@@ -112,17 +146,35 @@ async function main() {
           : "scene";
   if (kind === "scene" && values.align)
     fail("--align registers sprites; use --kind sprite");
+  const painted = values.painted === true;
+  const paintedOnly = [
+    "colours",
+    "palette-from",
+    "no-quantize",
+    "alpha-threshold",
+    "despeckle",
+  ] as const;
+  for (const flag of paintedOnly)
+    if (values[flag] !== undefined && !painted)
+      fail(`--${flag} needs --painted`);
+  const density = painted ? PAINTED_DENSITY : HD_DENSITY;
+  const sceneSize = painted ? PAINTED_SCENE_SIZE : HD_SCENE_SIZE;
 
   const raw = await readImage(cliPath(input));
   const result = await prepare(raw, {
     kind,
     crop: values.crop === "auto" ? "auto" : parseRect(values.crop),
-    size: values.size ? parseTargetSize(values.size) : undefined,
+    size: values.size
+      ? parseTargetSize(values.size)
+      : kind === "scene"
+        ? sceneSize
+        : undefined,
     scale: num(values.scale),
     pad: num(values.pad),
     key: keyOptions(values, kind === "sprite" ? "auto" : "none"),
     levels: values.levels ? parseLevels(values.levels) : undefined,
     saturation: num(values.saturation),
+    resample: parseResample(values.resample),
   });
   for (const w of result.warnings) console.warn(`warning: ${w}`);
 
@@ -143,12 +195,9 @@ async function main() {
 
   if (values.align) {
     const composite = await readImage(cliPath(values.align));
-    if (
-      composite.width !== HD_SCENE_SIZE.w ||
-      composite.height !== HD_SCENE_SIZE.h
-    ) {
+    if (composite.width !== sceneSize.w || composite.height !== sceneSize.h) {
       console.warn(
-        `warning: the composite is ${composite.width}x${composite.height}, not ${HD_SCENE_SIZE.w}x${HD_SCENE_SIZE.h}; prepare it first`,
+        `warning: the composite is ${composite.width}x${composite.height}, not ${sceneSize.w}x${sceneSize.h}; prepare it first`,
       );
     }
     const aligned = await alignSprite(image, composite, {
@@ -171,7 +220,10 @@ async function main() {
       score: Math.round(aligned.score * 10) / 10,
       ...position,
       bounds,
-      logical: { ...logical(position), bounds: bounds && logical(bounds) },
+      logical: {
+        ...logical(position, density),
+        bounds: bounds && logical(bounds, density),
+      },
     });
     if (values.overlay) {
       await writePng(
@@ -180,6 +232,37 @@ async function main() {
       );
       summary.overlay = values.overlay;
     }
+  }
+
+  if (painted) {
+    const budget =
+      values.colours === undefined ? undefined : num(values.colours);
+    const fixed = values["palette-from"]
+      ? fixedColoursFrom(
+          await Promise.all(
+            values["palette-from"]
+              .split(",")
+              .map((p) => readImage(cliPath(p.trim()))),
+          ),
+          budget,
+        )
+      : undefined;
+    const done = finishPainted(image, {
+      threshold: num(values["alpha-threshold"]),
+      minNeighbours: num(values.despeckle),
+      colours: budget,
+      fixed,
+      quantize: values["no-quantize"] !== true,
+    });
+    image = kind === "sprite" ? padToEven(done.image) : done.image;
+    Object.assign(summary, {
+      painted: true,
+      colours: done.colours,
+      ...(fixed
+        ? { paletteFrom: values["palette-from"], fixed: fixed.length }
+        : {}),
+      hardAlpha: { wasPartial: done.partial, specks: done.specks },
+    });
   }
 
   await writePng(cliPath(values.out), image);

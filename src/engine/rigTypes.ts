@@ -5,8 +5,10 @@
  * renderer reads. Change it only together with both sides.
  *
  * Daniele is one HD drawing per facing, split into parts that hang off each
- * other at joints. Every coordinate is in atlas pixels, which are display px
- * at density 4 (four per logical px) with the character at depth scale 1.0.
+ * other at joints. Every coordinate is in atlas pixels, `density` per
+ * logical px with the character at depth scale 1.0: 2 for painted art at MI3
+ * pixel density (hard alpha, shown at 2x nearest-neighbour), or 4 for the
+ * smooth HD path.
  *
  * To draw the rest pose, which reproduces the facing's drawing exactly:
  *
@@ -37,6 +39,9 @@ export const RIG_PART_IDS = [
   "shin-r",
 ] as const;
 export type RigPartId = (typeof RIG_PART_IDS)[number];
+
+/** Atlas px per logical px: 2 (painted, MI3 pixel density) or 4 (smooth HD). */
+export type RigDensity = 2 | 4;
 
 export interface RigPoint {
   x: number;
@@ -86,7 +91,7 @@ export interface RigJson {
   /** The atlas file name beside the JSON: "daniele-rig.png". */
   image: string;
   /** Atlas px per logical px at depth scale 1.0. */
-  density: 4;
+  density: RigDensity;
   /** The atlas size. */
   size: { w: number; h: number };
   facings: Record<RigFacing, RigFacingData>;

@@ -22,8 +22,9 @@
  * HD candidates (Phase H), with no palette remap:
  *
  *   npm run assets:review -- <asset-id> --hd
- *     --hd                     on by default for an "<id>@hd" folder: each candidate
- *                              goes through assets:prepare (hd.ts) instead of pixelize
+ *     --hd                     each candidate goes through assets:prepare (hd.ts)
+ *                              instead of pixelize (an "<id>@hd" folder defaults to
+ *                              --painted below, since Phase H moved to density 2)
  *     [--kind scene|sprite]    default scene for a -bg, -fg, or -plate id, else sprite
  *     [--crop auto|x,y,w,h] [--size WxH|Wx|xH] [--pad 2]
  *     [--key none|auto|alpha|ff00ff] [--key-tolerance] [--softness] [--band]
@@ -37,6 +38,20 @@
  *     [--overlay-opacity 0.35] [--tile 640] (tile width in px) [--cols 2]
  *
  *   Writes assets-src/review/<asset-id>/NN.png (full HD) and sheet-hd.png.
+ *
+ * Painted density-2 candidates (Phase H at MI3 pixel density; painted.ts):
+ *
+ *   npm run assets:review -- <asset-id> --painted
+ *     --painted                on by default for an "<id>@hd" folder (pass --hd for the
+ *                              density-4 sheet): each candidate goes through
+ *                              assets:prepare --painted, so scenes are 640x320 with at
+ *                              most 256 colours, no dither, and hard alpha
+ *     [--colours 256] [--alpha-threshold 128] [--despeckle 1] [--resample lanczos|area]
+ *     plus every --hd option above except --tile (tiles are never resampled)
+ *
+ *   Writes assets-src/review/<asset-id>/NN.png (640x320 or the sprite's native size)
+ *   and sheet-painted@2x.png: every tile at native size, the whole sheet scaled 2x
+ *   with nearest-neighbour, exactly as the engine will show it.
  */
 import { existsSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -47,11 +62,18 @@ import {
   hdContactSheet,
   keyOptions,
   parseLevels,
+  parseResample,
   parseTargetSize,
   prepare,
   type PrepareKind,
 } from "./hd";
 import { floodKey, parseKeyArg } from "./key";
+import {
+  PAINTED_SCENE_SIZE,
+  padToEven,
+  paintedContactSheet,
+  preparePainted,
+} from "./painted";
 import {
   REFS_DIR,
   REPO_ROOT,
@@ -109,6 +131,11 @@ async function main() {
       "overlay-opacity": { type: "string" },
       tile: { type: "string" },
       cols: { type: "string" },
+      painted: { type: "boolean" },
+      colours: { type: "string" },
+      "alpha-threshold": { type: "string" },
+      despeckle: { type: "string" },
+      resample: { type: "string" },
     },
   });
   const [assetId] = positionals;
@@ -130,8 +157,13 @@ async function main() {
     .sort();
   if (files.length === 0) fail(`No NN.png candidates in ${rawDir}`);
 
-  if (values.hd ?? assetId.endsWith("@hd")) {
-    await reviewHd(assetId, rawDir, files, values);
+  if (values.painted && values.hd) fail("--painted and --hd are exclusive");
+  if (values.painted || (!values.hd && assetId.endsWith("@hd"))) {
+    await reviewHd(assetId, rawDir, files, values, true);
+    return;
+  }
+  if (values.hd) {
+    await reviewHd(assetId, rawDir, files, values, false);
     return;
   }
 
@@ -218,6 +250,7 @@ async function reviewHd(
   rawDir: string,
   files: string[],
   values: Record<string, string | boolean | undefined>,
+  painted: boolean,
 ) {
   const str = (k: string) =>
     typeof values[k] === "string" ? (values[k] as string) : undefined;
@@ -234,24 +267,43 @@ async function reviewHd(
     kind === "sprite" ? "auto" : "none",
   );
   const outDir = join(REVIEW_DIR, assetId);
+  const resample = parseResample(str("resample"));
 
   const prepared: Image[] = [];
   for (const file of files) {
     const raw = await readImage(join(rawDir, file));
-    const result = await prepare(raw, {
+    const opts = {
       kind,
-      crop: crop === "auto" ? "auto" : parseRect(crop),
+      crop: crop === "auto" ? ("auto" as const) : parseRect(crop),
       size: str("size") ? parseTargetSize(str("size") as string) : undefined,
       pad: num("pad"),
       key,
       levels: str("levels") ? parseLevels(str("levels") as string) : undefined,
       saturation: num("saturation"),
-    });
-    for (const w of result.warnings) console.warn(`warning: ${file}: ${w}`);
-    await writePng(join(outDir, file), result.image);
-    prepared.push(result.image);
+      resample,
+    };
+    let image: Image;
+    let note = "";
+    if (painted) {
+      const result = await preparePainted(raw, {
+        ...opts,
+        size: opts.size ?? (kind === "scene" ? PAINTED_SCENE_SIZE : undefined),
+        colours: num("colours"),
+        threshold: num("alpha-threshold"),
+        minNeighbours: num("despeckle"),
+      });
+      for (const w of result.warnings) console.warn(`warning: ${file}: ${w}`);
+      image = kind === "sprite" ? padToEven(result.image) : result.image;
+      note = `, ${result.painted.colours} colours`;
+    } else {
+      const result = await prepare(raw, opts);
+      for (const w of result.warnings) console.warn(`warning: ${file}: ${w}`);
+      image = result.image;
+    }
+    await writePng(join(outDir, file), image);
+    prepared.push(image);
     console.log(
-      `${file}: ${raw.width}x${raw.height} -> ${result.image.width}x${result.image.height}`,
+      `${file}: ${raw.width}x${raw.height} -> ${image.width}x${image.height}${note}`,
     );
   }
 
@@ -259,6 +311,23 @@ async function reviewHd(
   const overlay = overlayFlag
     ? await readImage(overlayPath(overlayFlag, assetId))
     : undefined;
+  if (painted) {
+    const sheetPath = join(outDir, "sheet-painted@2x.png");
+    await writePng(
+      sheetPath,
+      await paintedContactSheet(prepared, {
+        cols: num("cols"),
+        labels: files.map((f) => f.replace(/\.png$/i, "")),
+        overlay,
+        overlayOpacity: num("overlay-opacity"),
+        reference: overlay,
+      }),
+    );
+    console.log(
+      `Painted review sheet: ${sheetPath} (${kind}, density 2, shown at 2x nearest)`,
+    );
+    return;
+  }
   const sheetPath = join(outDir, "sheet-hd.png");
   await writePng(
     sheetPath,
