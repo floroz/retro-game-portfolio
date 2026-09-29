@@ -1,0 +1,13 @@
+{
+  "id": "zurich-obj-desk",
+  "output": "src/assets/scenes/zurich/obj-desk.png",
+  "task": "B1",
+  "source": "codex",
+  "prompt": "assets-src/prompts/scenes/zurich.md",
+  "candidate": "01",
+  "references": ["assets-src/refs/zurich-layout@8x.png"],
+  "approvedRaw": "assets-src/approved/zurich-bg.webp",
+  "palette": "v1",
+  "cleanup": "Cut from the anchor with the CRT, lamp, pen cup and books; the window sill left in bg. Wall pixels around the props made transparent. The chair was removed from the knee hole: modesty panel filled in (rows 27-39), the gap below it left open so the floor shows through, the floor under the desk kept as a 2-row contact shadow, and the drawer pedestal's left edge restored where the seat covered it. Moved 58 px left and 23 px forward in the scene.",
+  "date": "2026-09-29"
+}

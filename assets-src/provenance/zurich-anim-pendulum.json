@@ -1,0 +1,10 @@
+{
+  "id": "zurich-anim-pendulum",
+  "output": "src/assets/scenes/zurich/anim-pendulum.png",
+  "task": "B1",
+  "source": "opus",
+  "derivedFrom": "zurich-bg",
+  "palette": "v1",
+  "cleanup": "4 frames of the brass pendulum swinging a pixel each way between the two weights. Frame 0 matches bg.",
+  "date": "2026-09-29"
+}
