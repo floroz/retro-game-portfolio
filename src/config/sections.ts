@@ -81,8 +81,13 @@ export function isCountryScene(id: SceneId): id is CountrySceneId {
 }
 
 /** Sections whose primary object is in this country, in toolbar order. */
-export function sectionsIn(country: CountrySceneId): SectionId[] {
+function sectionsIn(country: CountrySceneId): SectionId[] {
   return SECTION_ORDER.filter((s) => SECTIONS[s].home === country);
+}
+
+/** "Skills, in London": a toolbar button's hover and status text. */
+export function sectionWhere(section: SectionId): string {
+  return `${SECTIONS[section].label}, in ${COUNTRIES[SECTIONS[section].home].name}`;
 }
 
 /** "Skills" or "Experience, Resume". */

@@ -91,8 +91,9 @@ describe("slot rows (docs/expansion-plan.md, Extensibility)", () => {
     expect(fold.fold).toBe(true);
     expect(fold.sprite).toBe("slot-photo-frame-more");
     expect(fold.x).toBe(20);
-    expect(fold.look).toContain("Job 2");
-    expect(fold.look).toContain("Job 4");
+    // No list in the scene: the fold says how many, the content screen who.
+    expect(fold.look).toContain("3 more");
+    expect(fold.look).not.toContain("Job 2");
   });
 
   test("an exactly full row doesn't fold", () => {

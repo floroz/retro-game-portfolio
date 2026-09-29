@@ -66,23 +66,16 @@ describe("world text", () => {
 });
 
 describe("labels", () => {
-  test("gate signs name the gate, the country, and its sections", () => {
-    expect(resolveLabel("gate:zurich")).toEqual([
-      "Gate 2",
+  test("gate signs show the gate number and the city only", () => {
+    expect(resolveLabel("gate:zurich")).toEqual(["Gate 2", "Zurich"]);
+  });
+
+  test("the departures board lists the cities only", () => {
+    expect(resolveLabel("departures")).toEqual([
+      "London",
       "Zurich",
-      "{experience} Experience",
-      "{resume} Resume",
+      "Sorrento",
     ]);
-  });
-
-  test("the departures board has a row per gate", () => {
-    expect(resolveLabel("departures")).toHaveLength(3);
-  });
-
-  test("the chalkboard lists the skill groups", () => {
-    const menu = resolveLabel("skills:menu");
-    expect(menu).toContain("Frontend");
-    expect(menu).toContain("Leadership");
   });
 
   test("fixed text passes through", () => {

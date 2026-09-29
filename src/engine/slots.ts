@@ -55,7 +55,7 @@ export function entriesFor(source: SlotSource): SlotEntry[] {
       return {
         key: `skills:${group}`,
         name: label,
-        look: SLOT_COPY.tap(group, label, PROFILE.skills[group]),
+        look: SLOT_COPY.tap(group, label),
       };
     });
   }

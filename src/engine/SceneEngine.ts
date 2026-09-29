@@ -75,6 +75,8 @@ export interface EngineHost {
   sound?(name: SoundName): void;
   /** A click would now skip something (a trip, or the travel map), or not. */
   skippableChanged?(skippable: boolean): void;
+  /** The travel map started flying to a country, or finished (null). */
+  flightChanged?(to: CountrySceneId | null): void;
 }
 
 /** Size and alpha bounding box of a loaded sprite, for default hotspots. */
@@ -149,6 +151,7 @@ export class SceneEngine {
   /** Object shown in its `open` state while its content is on screen. */
   private opened: string | null = null;
   private wasSkippable = false;
+  private wasFlying: CountrySceneId | null = null;
   private readonly start: SceneId;
   private greeted = false;
   speech: Speech | null = null;
@@ -461,6 +464,11 @@ export class SceneEngine {
     if (skippable !== this.wasSkippable) {
       this.wasSkippable = skippable;
       this.host.skippableChanged?.(skippable);
+    }
+    const flying = this.transition?.kind === "map" ? this.transition.to : null;
+    if (flying !== this.wasFlying) {
+      this.wasFlying = flying;
+      this.host.flightChanged?.(flying);
     }
   }
 

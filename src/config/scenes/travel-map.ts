@@ -5,7 +5,8 @@
  *
  * Markers sit on the real cities: London on the Thames, Zurich north of the
  * Alps, Sorrento on the Tyrrhenian coast south of Naples. The engine draws
- * "City: Sections" centred 12 px above each marker, so the bands above them
+ * the city's name centred 12 px above each marker (its sections go in the
+ * toolbar's status line), so the bands above them
  * are kept free of mountains. The Hall has no marker: flights start from
  * southern France, roughly equidistant from all three.
  *

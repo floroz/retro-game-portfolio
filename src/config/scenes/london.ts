@@ -6,9 +6,10 @@
  * origin; the 640x320 art is drawn at twice that density.
  *
  * The chalkboard behind the bar opens Skills: the engine letters "SKILLS" on
- * its header and chalks the menu (one line per skill group) below it. The
- * taps on the bar top are a slot row with one tap per skill group, each with
- * its own hotspot and "look at" joke (src/config/slotCopy.ts). The London job
+ * its header and nothing else, since lists belong in the content screen
+ * (docs/expansion-plan.md, "Minimal in-world text"). The taps on the bar top
+ * are a slot row with one tap per skill group, each naming its group on
+ * hover, with its own "look at" joke (src/config/slotCopy.ts). The London job
  * photos hang as a 3 x 2 slot row on the bare wallpaper by the dartboard.
  *
  * Walking depth: the bar counter, the table with its two stools, and the
@@ -94,7 +95,7 @@ export const LONDON_SCENE: SceneData = {
   ],
   depth: { farY: 109, nearY: 158, farScale: 0.7, nearScale: 1.0 },
   entryPoints: { fromHall: { x: 22, y: 115, facing: "e" } },
-  entryLine: `London, where I learned the trade. ${SKILLS} are on the chalkboard, and every one of them is on tap.`,
+  entryLine: `London, where I learned the trade. ${SKILLS} are on tap.`,
   // Topmost last: nearer things come after the things behind them.
   objects: [
     {
@@ -102,16 +103,16 @@ export const LONDON_SCENE: SceneData = {
       name: "window",
       hotspot: { x: 37, y: 13, w: 74, h: 65 },
       interactionPoint: { x: 72, y: 111, facing: "n" },
-      look: "The City in the rain: St Paul's, the Gherkin and the Shard, all queueing politely for a sunny day.",
-      use: "If I open it, the weather comes in and orders a pint.",
+      look: "St Paul's, the Gherkin and the Shard, queueing politely for sun.",
+      use: "Open it, and the weather comes in and orders a pint.",
     },
     {
       id: "phone-box",
       name: "phone box",
       hotspot: { x: 39, y: 56, w: 8, h: 21 },
       interactionPoint: { x: 46, y: 111, facing: "n" },
-      look: "A red phone box. Nobody has made a call from it since 1998, but it's still the best-dressed thing on the street.",
-      use: `Out of reach, and out of order. ${CONTACT} lives in Sorrento these days.`,
+      look: "Unused since 1998, and still the best-dressed thing on the street.",
+      use: `Out of order. ${CONTACT} lives in Sorrento these days.`,
     },
     {
       id: "bottles",
@@ -119,15 +120,15 @@ export const LONDON_SCENE: SceneData = {
       hotspot: { x: 112, y: 16, w: 27, h: 78 },
       interactionPoint: { x: 125, y: 113, facing: "n" },
       look: "Spirits, sorted by colour, then by regret.",
-      use: "Not while I'm working. And this portfolio is always working.",
+      use: "Not while I'm working. This portfolio is always working.",
     },
     {
       id: "glasses",
       name: "pint glasses",
       hotspot: { x: 206, y: 16, w: 27, h: 78 },
       interactionPoint: { x: 219, y: 113, facing: "n" },
-      look: "Pint glasses, polished and stacked. Each one holds exactly one pint and one strong opinion about tabs versus spaces.",
-      use: "They're clean. Somebody has to be the first to ruin that, and it won't be me.",
+      look: "Each holds one pint and one strong opinion on tabs versus spaces.",
+      use: "They're clean. I won't be the one to ruin that.",
     },
     {
       id: "chalkboard",
@@ -135,15 +136,15 @@ export const LONDON_SCENE: SceneData = {
       hotspot: { x: 140, y: 6, w: 65, h: 75 },
       interactionPoint: { x: 172, y: 131, facing: "n" },
       action: "skills",
-      look: "Tonight's menu, chalked up fresh: every skill I've got, and all of them on tap.",
+      look: "Tonight's menu: every skill I've got, all on tap.",
     },
     {
       id: "dartboard",
       name: "dartboard",
       hotspot: { x: 300, y: 33, w: 20, h: 18 },
       interactionPoint: { x: 282, y: 120, facing: "e" },
-      look: "A dartboard. The dart in the wallpaper is from my first sprint estimate.",
-      use: "Thunk. Treble twenty! Or the wallpaper. Let's call it treble twenty.",
+      look: "The dart in the wallpaper is from my first sprint estimate.",
+      use: "Thunk. Treble twenty! Or the wallpaper. Let's say treble twenty.",
       sound: "dart-thunk",
     },
     {
@@ -154,7 +155,7 @@ export const LONDON_SCENE: SceneData = {
       y: 88,
       interactionPoint: { x: 63, y: 127, facing: "n" },
       baselineY: TABLE_BASELINE,
-      look: "A pub table with a permanent wobble. The beer mat under the leg is load-bearing.",
+      look: "A permanent wobble. The beer mat under the leg is load-bearing.",
       use: "I'd sit down, but the chalkboard won't read itself.",
     },
     {
@@ -165,8 +166,8 @@ export const LONDON_SCENE: SceneData = {
       y: 94,
       interactionPoint: { x: 140, y: 131, facing: "n" },
       baselineY: BAR_BASELINE,
-      look: "Polished by a century of elbows. Every tap on it pours a different skill.",
-      use: "I lean on it with the confidence of a regular. The barman pretends not to know me.",
+      look: "Polished by a century of elbows. Every tap pours a skill.",
+      use: "Leaning like a regular. The barman pretends not to know me.",
     },
     {
       id: "fruit-machine",
@@ -176,15 +177,15 @@ export const LONDON_SCENE: SceneData = {
       y: 81,
       interactionPoint: { x: 282, y: 132, facing: "e" },
       baselineY: FRUIT_MACHINE_BASELINE,
-      look: "A fruit machine: the old vending machine's rowdier cousin. Three lemons pays out nothing, just like my first side project.",
-      use: "Cherry, lemon, orange. Nothing. The house always wins, and the house is a very small pub.",
+      look: "The old vending machine's rowdier cousin. Three lemons pays nothing.",
+      use: "Cherry, lemon, orange. Nothing. The house always wins.",
       sound: "fruit-machine",
     },
     {
       id: "stool",
       name: "bar stool",
       hotspot: { x: 0, y: 126, w: 30, h: 34 },
-      look: "A bar stool, right where you'll trip over it. Traditional.",
+      look: "Right where you'll trip over it. Traditional.",
       use: "I'll stand, thanks. Standing is how you get served.",
     },
   ],
@@ -225,8 +226,8 @@ export const LONDON_SCENE: SceneData = {
     {
       // One tap per skill group, standing on the bar top; sorts with the bar.
       // No caption: at 9 px spacing every name overlaps its neighbours (the
-      // small font is 4 px a character), so the chalkboard menu lists the
-      // groups and each tap names its group on hover.
+      // small font is 4 px a character), so each tap names its group on
+      // hover.
       id: "taps",
       kind: "tap",
       source: "skills:groups",
@@ -264,15 +265,6 @@ export const LONDON_SCENE: SceneData = {
       font: "small",
       color: "#e0b040",
     },
-    {
-      // Chalked on the board: "On tap", then one line per skill group.
-      id: "menu",
-      source: "skills:menu",
-      x: 172,
-      y: 17,
-      align: "center",
-      font: "small",
-    },
   ],
   exits: [
     {
@@ -286,7 +278,7 @@ export const LONDON_SCENE: SceneData = {
       y: 44,
       hotspot: { x: 6, y: 44, w: 24, h: 64 },
       interactionPoint: { x: 18, y: 111, facing: "n" },
-      look: "The way back to the airport. Mind the gap, and the puddle on the step.",
+      look: "Back to the airport. Mind the gap, and the puddle.",
     },
   ],
 };

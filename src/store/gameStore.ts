@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { ActionType } from "../types/game";
-import type { SceneId, SectionId } from "../engine/types";
+import type { CountrySceneId, SceneId, SectionId } from "../engine/types";
 import { DIALOG_TREE } from "../config/dialogTrees";
 
 /**
@@ -18,6 +18,8 @@ interface GameState {
   sceneRequest: SceneRequest | null;
   /** A trip or the travel map is playing, and a click skips it. */
   skippable: boolean;
+  /** Where the travel map is flying to, while it plays. */
+  flyingTo: CountrySceneId | null;
 
   // Interaction state
   /** Status-line text for whatever the pointer is over. */
@@ -67,6 +69,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   currentScene: "hall",
   sceneRequest: null,
   skippable: false,
+  flyingTo: null,
 
   // Initial interaction state
   hoveredObject: null,
