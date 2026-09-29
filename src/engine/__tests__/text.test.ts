@@ -1,61 +1,67 @@
 import { describe, expect, test } from "vitest";
 import {
-  iconRows,
+  fitScale,
   lineHeight,
   measureText,
-  parseGlyphs,
   unknownChars,
   wrapText,
 } from "../font";
+import { iconRows } from "../icons";
 import { MARQUEE_GAP, marqueeX, resolveLabel } from "../labels";
 import { hoverText } from "../hover";
 import { SCENES } from "../scenes";
 import { routeFor, pointOnRoute, headingIndex } from "../travelMap";
 import { TRAVEL_MAP_DATA } from "../scenes";
 
-describe("pixel font", () => {
-  test("measures proportional glyphs with 1 px spacing", () => {
-    expect(measureText("i")).toBe(1);
-    expect(measureText("ii")).toBe(3);
-    expect(measureText("AB", "small")).toBe(7);
+describe("world text", () => {
+  test("measures proportional text in logical px", () => {
+    expect(measureText("")).toBe(0);
+    expect(measureText("ii")).toBeGreaterThan(measureText("i"));
+    expect(measureText("Hello, sailor!")).toBeGreaterThan(40);
+    expect(measureText("Hello, sailor!")).toBeLessThan(80);
   });
 
-  test("wraps to a pixel width and keeps newlines", () => {
+  test("signs are in capitals", () => {
+    expect(measureText("gate", "small")).toBe(measureText("GATE", "small"));
+  });
+
+  test("wraps to a width and keeps newlines", () => {
     const lines = wrapText("one two three four five six", 40);
     expect(lines.length).toBeGreaterThan(1);
     for (const l of lines) expect(measureText(l)).toBeLessThanOrEqual(40);
     expect(wrapText("a\nb", 100)).toEqual(["a", "b"]);
   });
 
-  test("draws section icons as single glyphs", () => {
-    expect(measureText("{skills}")).toBe(7);
-    expect(unknownChars("{resume} Eau de Résumé")).toEqual([]);
+  test("shrinks a line to fit, but not past legibility", () => {
+    const w = measureText("EXPERIENCE", "small");
+    expect(fitScale("EXPERIENCE", w + 1, "small")).toBe(1);
+    const fit = fitScale("EXPERIENCE", w * 0.8, "small");
+    expect(fit).toBeCloseTo(0.8);
+    expect(measureText("EXPERIENCE", "small", fit)).toBeCloseTo(w * 0.8);
+    expect(fitScale("EXPERIENCE", 1, "small")).toBe(0.6);
   });
 
-  test("reports characters it can't draw", () => {
+  test("draws section icons inline, as one glyph each", () => {
+    expect(measureText("{skills}")).toBe(measureText("{resume}"));
+    expect(measureText("{skills} Skills")).toBeGreaterThan(
+      measureText(" Skills"),
+    );
+    expect(unknownChars("{resume} Eau de Résumé — “quoted”…")).toEqual([]);
+  });
+
+  test("reports characters the font can't draw", () => {
     expect(unknownChars("snowman ☃")).toEqual(["☃"]);
   });
 
-  test("keeps the 1x fonts' metrics, so labels fit where they did", () => {
-    expect(measureText("Hello, sailor!")).toBe(54);
-    expect(measureText("GATE 1 LONDON", "small")).toBe(51);
-    expect(measureText("{resume} RESUME", "small")).toBe(33);
-    expect(lineHeight("regular")).toBe(10);
+  test("keeps the line heights the layout was built on", () => {
+    expect(lineHeight("regular")).toBe(11);
     expect(lineHeight("small")).toBe(7);
   });
 
-  test("section icons are drawn at canvas resolution", () => {
+  test("section icons are 14x14 pixel art", () => {
     const rows = iconRows("skills");
     expect(rows).toHaveLength(14);
     for (const row of rows) expect(row).toHaveLength(14);
-  });
-
-  test("glyphs are parsed at two canvas pixels per logical px", () => {
-    const glyphs = parseGlyphs("A 4\n.##.\n#..#\n\nspace 2", 2);
-    expect(glyphs.get("A")?.rows).toEqual([".##.", "#..#", "....", "...."]);
-    expect(glyphs.get(" ")?.w).toBe(2);
-    expect(() => parseGlyphs("A 3\n###", 2)).toThrow(/header/);
-    expect(() => parseGlyphs("A 2\n###", 2)).toThrow(/bigger/);
   });
 });
 

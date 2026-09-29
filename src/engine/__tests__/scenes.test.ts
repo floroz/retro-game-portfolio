@@ -140,7 +140,7 @@ describe("scene data contract", () => {
   });
 
   test.each(scenes)(
-    "%s: every line and label can be drawn in the pixel font",
+    "%s: every line and label can be drawn in the world font",
     (id, scene) => {
       const lines = [
         scene.entryLine ?? "",
@@ -150,12 +150,8 @@ describe("scene data contract", () => {
       for (const line of lines)
         expect(unknownChars(line), `${id}: ${line}`).toEqual([]);
       for (const label of scene.labels ?? []) {
-        const font = label.font ?? "regular";
         for (const line of resolveLabel(label.source)) {
-          expect(
-            unknownChars(line, font),
-            `${id}/${label.id}: ${line}`,
-          ).toEqual([]);
+          expect(unknownChars(line), `${id}/${label.id}: ${line}`).toEqual([]);
         }
       }
     },

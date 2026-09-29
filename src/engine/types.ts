@@ -218,7 +218,7 @@ export type LabelSource =
   | "skills:menu"
   | `text:${string}`;
 
-/** Text drawn by the engine in the pixel font. Never paint text into art. */
+/** Text drawn by the engine at display resolution (font.ts). Never paint text into art. */
 export interface SceneLabel {
   id: string;
   source: LabelSource;
@@ -226,13 +226,16 @@ export interface SceneLabel {
   x: number;
   y: number;
   align?: "left" | "center" | "right";
-  /** "small" is 3x5 capitals, for signs. "regular" is the speech font. */
+  /** "small" is capitals, for signs. "regular" is the speech font. */
   font?: "small" | "regular";
   /** Hex colour. Defaults to the core palette's lightest neutral. */
   color?: string;
   /** Hex outline colour, or false for none. Defaults to none. */
   outline?: string | false;
-  /** Wraps lines longer than this many native px. */
+  /**
+   * Wraps lines longer than this many native px, and shrinks a single word
+   * that is still too long to fit.
+   */
   maxWidth?: number;
   /**
    * Scrolls the text right to left through `clip`, like the Windows
