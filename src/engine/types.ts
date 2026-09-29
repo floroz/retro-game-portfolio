@@ -221,6 +221,13 @@ export interface SceneLabel {
   outline?: string | false;
   /** Wraps lines longer than this many native px. */
   maxWidth?: number;
+  /**
+   * Scrolls the text right to left through `clip`, like the Windows
+   * "Scrolling Marquee" screensaver, at `pxPerSec` native px a second. For a
+   * word too long for its sign, such as the Zurich CRT's "EXPERIENCE". `x`
+   * is ignored; `y` still sets the line.
+   */
+  marquee?: { clip: Rect; pxPerSec: number };
   baselineY?: number;
 }
 
@@ -241,6 +248,11 @@ export interface SceneExit {
   x?: number;
   y?: number;
   hotspot: Rect;
+  /**
+   * More areas that act as this exit, such as a gate's hanging sign, where
+   * one rectangle can't cover both without blocking something in between.
+   */
+  extraHotspots?: Rect[];
   interactionPoint: StandPoint;
   look?: string;
   baselineY?: number;

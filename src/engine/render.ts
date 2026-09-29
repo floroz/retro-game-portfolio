@@ -16,14 +16,14 @@
  */
 import { sectionList, COUNTRIES } from "../config/sections";
 import type { ImageStore } from "./assets";
-import { slotSpriteUrl } from "./assets";
+import { sceneImages, slotSpriteUrl, travelMapImages } from "./assets";
 import { placeCell, type CharacterSheet } from "./character";
 import { animationFrame } from "./animation";
 import { paintOrder, type Paintable } from "./depth";
 import { CORE, IRIS_MS, NATIVE_H, NATIVE_W, RENDER_SCALE } from "./constants";
 import { snap } from "./density";
 import { drawText, lineHeight, measureText, wrapText } from "./font";
-import { resolveLabel } from "./labels";
+import { marqueeX, resolveLabel } from "./labels";
 import type { SceneEngine, Transition } from "./SceneEngine";
 import type { SlotItem } from "./slots";
 import {
@@ -34,6 +34,7 @@ import {
 } from "./travelMap";
 import type {
   SceneAnimation,
+  SceneData,
   SceneLabel,
   SlotRow,
   TravelMapData,
@@ -54,11 +55,32 @@ export interface RenderContext {
   map: TravelMapData;
 }
 
+/** What a frame needs loaded before it's drawn, per scene and for the map. */
+const neededCache = new WeakMap<object, string[]>();
+function needed(key: SceneData | TravelMapData, urls: () => string[]) {
+  let list = neededCache.get(key);
+  if (!list) {
+    list = urls();
+    neededCache.set(key, list);
+  }
+  return list;
+}
+
 export function renderFrame(rc: RenderContext) {
   const { ctx, engine } = rc;
   ctx.setTransform(RENDER_SCALE, 0, 0, RENDER_SCALE, 0, 0);
   ctx.imageSmoothingEnabled = false;
   const tr = engine.transition;
+  // Hold the last frame (black before the first) until everything this one
+  // draws has loaded, so nothing flashes in half drawn.
+  const urls =
+    tr?.kind === "map"
+      ? needed(rc.map, () => travelMapImages(rc.map))
+      : needed(engine.scene, () => [
+          ...sceneImages(engine.scene),
+          rc.sheet.image,
+        ]);
+  if (!rc.images.ready(urls)) return;
   if (tr?.kind === "map") {
     drawTravelMap(rc, tr);
     return;
@@ -88,7 +110,7 @@ export function renderFrame(rc: RenderContext) {
     add(row.baselineY, () => drawSlotRow(rc, row, rowItems));
   }
   for (const label of scene.labels ?? []) {
-    add(label.baselineY, () => drawLabel(ctx, label));
+    add(label.baselineY, () => drawLabel(ctx, label, engine.now));
   }
   const actor = engine.position;
   add(actor.y, () => drawCharacter(rc), true);
@@ -163,7 +185,7 @@ function drawSlotRow(rc: RenderContext, row: SlotRow, items: SlotItem[]) {
   }
 }
 
-function drawLabel(ctx: Ctx, label: SceneLabel) {
+function drawLabel(ctx: Ctx, label: SceneLabel, now: number) {
   const font = label.font ?? "regular";
   const lines = resolveLabel(label.source).flatMap((l) =>
     label.maxWidth ? wrapText(l, label.maxWidth, font) : [l],
@@ -173,6 +195,18 @@ function drawLabel(ctx: Ctx, label: SceneLabel) {
     color: label.color ?? CORE.paper,
     outline: label.outline ?? false,
   };
+  if (label.marquee) {
+    const { clip } = label.marquee;
+    const text = lines.join(" ");
+    const x = marqueeX(label.marquee, measureText(text, font), now);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(clip.x, clip.y, clip.w, clip.h);
+    ctx.clip();
+    drawText(ctx, text, x, label.y, style);
+    ctx.restore();
+    return;
+  }
   lines.forEach((line, i) => {
     const w = measureText(line, font);
     const x =

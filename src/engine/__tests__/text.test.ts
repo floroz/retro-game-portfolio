@@ -7,7 +7,7 @@ import {
   unknownChars,
   wrapText,
 } from "../font";
-import { resolveLabel } from "../labels";
+import { MARQUEE_GAP, marqueeX, resolveLabel } from "../labels";
 import { hoverText } from "../hover";
 import { SCENES } from "../scenes";
 import { routeFor, pointOnRoute, headingIndex } from "../travelMap";
@@ -82,6 +82,27 @@ describe("labels", () => {
   test("fixed text passes through", () => {
     expect(resolveLabel("text:Duty free")).toEqual(["Duty free"]);
     expect(resolveLabel("section:resume")).toEqual(["Resume"]);
+  });
+});
+
+describe("marquee labels", () => {
+  const marquee = { clip: { x: 152, y: 83, w: 17, h: 12 }, pxPerSec: 12 };
+
+  test("enters at the clip's right edge and scrolls left 1 px at a time", () => {
+    expect(marqueeX(marquee, 39, 0)).toBe(169);
+    expect(marqueeX(marquee, 39, 1000)).toBe(157);
+    expect(marqueeX(marquee, 39, 1040)).toBe(157);
+  });
+
+  test("starts again once the text and the gap have passed", () => {
+    const cycleMs = ((17 + 39 + MARQUEE_GAP) / 12) * 1000;
+    expect(marqueeX(marquee, 39, cycleMs)).toBe(169);
+  });
+
+  test("the Zurich CRT names its section on screen", () => {
+    const crt = SCENES.zurich.labels?.find((l) => l.id === "crt");
+    expect(crt?.source).toBe("section:experience");
+    expect(crt?.marquee).toBeDefined();
   });
 });
 
