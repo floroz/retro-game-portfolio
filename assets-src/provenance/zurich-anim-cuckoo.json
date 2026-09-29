@@ -1,10 +1,11 @@
 {
   "id": "zurich-anim-cuckoo",
   "output": "src/assets/scenes/zurich/anim-cuckoo.png",
-  "task": "B1",
+  "task": "RB1",
   "source": "opus",
   "derivedFrom": "zurich-bg",
-  "palette": "v1",
-  "cleanup": "10 opaque frames of the clock's gable: the little door opens, the cuckoo pops out and calls twice (beak open), then goes back in. Frame 0 matches bg.",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB1: 10 opaque 26x16 frames of the clock's gable at 2x: the little arched door opens on its left hinge, the cuckoo peeks out, leans out and calls twice (beak open), then goes back in and the door shuts. Frame 0 matches bg.",
   "date": "2026-09-29"
 }

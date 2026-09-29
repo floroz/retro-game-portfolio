@@ -1,10 +1,11 @@
 {
   "id": "zurich-anim-pendulum",
   "output": "src/assets/scenes/zurich/anim-pendulum.png",
-  "task": "B1",
+  "task": "RB1",
   "source": "opus",
   "derivedFrom": "zurich-bg",
-  "palette": "v1",
-  "cleanup": "4 frames of the brass pendulum swinging a pixel each way between the two weights. Frame 0 matches bg.",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB1: 4 frames of the brass pendulum at 2x swinging 2 px each way from its pivot: the rod leans a pixel at a time, with its wall shadow either side, and the bob moves with it. Frame 0 matches bg.",
   "date": "2026-09-29"
 }

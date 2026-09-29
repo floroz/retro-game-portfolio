@@ -1,13 +1,15 @@
 {
   "id": "zurich-obj-desk",
   "output": "src/assets/scenes/zurich/obj-desk.png",
-  "task": "B1",
+  "task": "RB1",
   "source": "codex",
-  "prompt": "assets-src/prompts/scenes/zurich.md",
-  "candidate": "01",
-  "references": ["assets-src/refs/zurich-layout@8x.png"],
-  "approvedRaw": "assets-src/approved/zurich-bg.webp",
-  "palette": "v1",
-  "cleanup": "Cut from the anchor with the CRT, lamp, pen cup and books; the window sill left in bg. Wall pixels around the props made transparent. The chair was removed from the knee hole: modesty panel filled in (rows 27-39), the gap below it left open so the floor shows through, the floor under the desk kept as a 2-row contact shadow, and the drawer pedestal's left edge restored where the seat covered it. Moved 58 px left and 23 px forward in the scene.",
+  "prompt": "assets-src/prompts/remaster/zurich.md",
+  "candidate": "04",
+  "references": ["assets-src/refs/remaster/zurich-current@4x.png"],
+  "approvedRaw": "assets-src/approved/zurich-bg@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB1: cut from the remaster anchor at 2x with the CRT, keyboard, pen cup, lamp and books; the sill and its drop shadow, the props' shadows on the wall and baseboard, and the lamp's light on the baseboard stay in bg. The chair was removed from the knee hole: the dark-wood back panel (6) filled in behind the chair back down to row 80 of the sprite, the floor below it left open, and the pedestal's left edge under the seat repainted from the same rows of the drawer above. The floor contact shadow is kept below the baseline. Position (135, 78), half a logical px higher and to the right of B1's, where the anchor has it.",
+  "approvedBy": "opus-orchestrator (delegated RG1a)",
   "date": "2026-09-29"
 }
