@@ -802,16 +802,16 @@ Everything in this phase starts once its dependencies are met, and runs in paral
 
 As before: a task is runnable when everything under **After** is `done` in this section's tables. Follow [Rules for Codex tasks](#rules-for-codex-tasks). Prompt files are in `assets-src/prompts/hd/`. Output goes to `assets-src/exchange/raw/<asset-id>@hd/` in `../rgp-codex/`, with `DONE` written last. Codex never commits. Prompt files may set `transparent_background: true` for separate sprites (the probe showed the option exists).
 
-| Task         | Status  | After       | Prompt files (`assets-src/prompts/hd/`)                                                                | Candidates |
-| ------------ | ------- | ----------- | ------------------------------------------------------------------------------------------------------ | ---------- |
-| HC1          | done    | H1          | `zurich.md`, `char-turnaround.md`                                                                      | 4 each     |
-| HC2          | done    | HG1         | `hall.md`, `london.md`, `sorrento.md`, `travel-map.md`                                                 | 4 each     |
-| HC3          | done    | HG1         | `char-parts.md` (the parts sheets for side, front, and back), `char-heads.md` (mouth shapes and blink) | 3 each     |
-| HC4          | done    | HG1         | `shared.md` (tap, photo frame, magnet, their fold objects, map plane, marker)                          | 3          |
-| HC5-zurich   | done    | HL-zurich   | `layers-zurich.md` (the plate edit, object sprites, and moving props for zurich)                       | 3 per item |
-| HC5-hall     | done    | HL-hall     | `layers-hall.md` (the plate edit, object sprites, and moving props for hall)                           | 3 per item |
-| HC5-london   | partial | HL-london   | `layers-london.md` (the plate edit, object sprites, and moving props for london)                       | 3 per item |
-| HC5-sorrento | done    | HL-sorrento | `layers-sorrento.md` (the plate edit, object sprites, and moving props for sorrento)                   | 3 per item |
+| Task         | Status | After       | Prompt files (`assets-src/prompts/hd/`)                                                                | Candidates |
+| ------------ | ------ | ----------- | ------------------------------------------------------------------------------------------------------ | ---------- |
+| HC1          | done   | H1          | `zurich.md`, `char-turnaround.md`                                                                      | 4 each     |
+| HC2          | done   | HG1         | `hall.md`, `london.md`, `sorrento.md`, `travel-map.md`                                                 | 4 each     |
+| HC3          | done   | HG1         | `char-parts.md` (the parts sheets for side, front, and back), `char-heads.md` (mouth shapes and blink) | 3 each     |
+| HC4          | done   | HG1         | `shared.md` (tap, photo frame, magnet, their fold objects, map plane, marker)                          | 3          |
+| HC5-zurich   | done   | HL-zurich   | `layers-zurich.md` (the plate edit, object sprites, and moving props for zurich)                       | 3 per item |
+| HC5-hall     | done   | HL-hall     | `layers-hall.md` (the plate edit, object sprites, and moving props for hall)                           | 3 per item |
+| HC5-london   | done   | HL-london   | `layers-london.md` (the plate edit, object sprites, and moving props for london)                       | 3 per item |
+| HC5-sorrento | done   | HL-sorrento | `layers-sorrento.md` (the plate edit, object sprites, and moving props for sorrento)                   | 3 per item |
 
 **Codex, HC5 remainder (2026-09-29):** the orchestrator picked from the candidates already delivered and started HB2–HB4. Skip `london-stool@hd` and `sorrento-chair-right@hd` (no longer needed). Still wanted: `london-bus@hd`, `sorrento-lemon-tree@hd`, `sorrento-ferry@hd`; write `DONE` for each as usual.
 
@@ -837,7 +837,7 @@ As before: a task is runnable when everything under **After** is `done` in this 
 | HB1b        | in progress | HB1                                          | Zurich polish after the orchestrator's review of #66: posterized window view, red fringes on the frame and desk objects, clipped CRT text, and the RESUME label overhanging its card                                                                                                                 |
 | HB2         | done        | HC5-hall, E4                                 | The Hall assembled (#68)                                                                                                                                                                                                                                                                             |
 | HB2b        | done        | HB2                                          | The Hall's own measured perspective, 34→64 px (#70); checked in the orchestrator's QA                                                                                                                                                                                                                |
-| HB3         | in progress | HC5-london (partial), E4                     | Assemble London from the layers that exist; `london-stool` is dropped (the table sprite carries its stools); `london-bus` joins when Codex delivers it                                                                                                                                               |
+| HB3         | done        | HC5-london, E4                               | London assembled (#71), with the bus (03). Measured perspective 55→66 px. Checked in the orchestrator's QA. Hair browns sit near the wood, and the rig's ink outline carries the contrast (see HR1)                                                                                                  |
 | HB4         | done        | HC5-sorrento, E4                             | Sorrento assembled (#67), including the lemon tree (02) and ferry (01), which Codex delivered in time. Open for I3: the terracotta wall is 0.053–0.062 OKLab from the three brightest hair shades (the ink outline keeps the head readable)                                                          |
 | HB5         | done        | HC2, E4                                      | The HD travel map (candidate 03), markers and routes re-registered (#64)                                                                                                                                                                                                                             |
 | HB6         | done        | HC4, E4                                      | Shared sprites in HD                                                                                                                                                                                                                                                                                 |
