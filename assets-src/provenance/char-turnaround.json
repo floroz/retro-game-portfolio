@@ -1,0 +1,17 @@
+{
+  "id": "char-turnaround",
+  "output": "assets-src/refs/char-turnaround@8x.png",
+  "task": "F5",
+  "source": "codex",
+  "prompt": "assets-src/prompts/character/turnaround.md",
+  "candidate": "06",
+  "references": [
+    "src/assets/retro-daniele.png",
+    "src/assets/daniele-static.png"
+  ],
+  "approvedRaw": "assets-src/approved/char-turnaround.webp",
+  "palette": "v1",
+  "cleanup": "Sliced into three 32x64 frames (front, right, back), 57 px tall, feet on row 61, core palette only. Redrew every frame in the grid over the sliced silhouette with light from the upper left: faces on skin B-E only (removed the brass banding), with eyes, nose, a smile and a full dark-brown beard; hair and beard on wood 6-9; jeans lifted to denim (base H, highlight I broken at knee and hem, shadow G) against an F/G sweater with one shoulder highlight; white T-shirt collar (5) restored in front and hinted in the side view; dark-red key residue on hair tops and ears removed; selective outline (local ramp's darkest on the lit side, 0 on the shadow side); arms separated from the torso by an F line; clean brown shoes with 1 soles. The 8x reference is flattened onto pure magenta (#FF00FF) to match the animation prompts; the native frames stay transparent.",
+  "approvedBy": "opus-orchestrator (delegated G2)",
+  "date": "2026-09-29"
+}
