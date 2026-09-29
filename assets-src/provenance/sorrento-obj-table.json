@@ -1,10 +1,11 @@
 {
   "id": "sorrento-obj-table",
   "output": "src/assets/scenes/sorrento/obj-table.png",
-  "task": "B4",
+  "task": "RB4",
   "source": "opus",
   "derivedFrom": "sorrento-bg",
-  "palette": "v1",
-  "cleanup": "The table for two, redrawn from candidate 02 and moved forward onto the floor (baseline 138): yellow gingham cloth (top face and drape), four legs, two espresso cups on saucers and a sugar bowl.",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB4: drawn at 2x after candidate 01's table (its gingham pixelized into noise): a yellow gingham cloth with a foreshortened top face and a front drape with four soft folds, a shaded right end and a wavy hem, four dark-wood legs (the back pair shorter), two espresso cups on saucers with crema, and a little majolica sugar bowl. 84x64 at logical 172,107, front feet on the baseline (138).",
   "date": "2026-09-29"
 }

@@ -1,10 +1,11 @@
 {
   "id": "sorrento-obj-chair-right",
   "output": "src/assets/scenes/sorrento/obj-chair-right.png",
-  "task": "B4",
+  "task": "RB4",
   "source": "opus",
-  "derivedFrom": "sorrento-bg",
-  "palette": "v1",
-  "cleanup": "obj-chair-left mirrored, for the guest's side of the table.",
+  "derivedFrom": "sorrento-obj-chair-left",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB4: obj-chair-left mirrored, facing the table from the right. 28x68 at logical 213,104.",
   "date": "2026-09-29"
 }
