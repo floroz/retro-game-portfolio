@@ -78,6 +78,52 @@ export function sceneForAssetId(assetId: string): SceneId | null {
   );
 }
 
+// --- Density -------------------------------------------------------------------
+
+/**
+ * Pixel density (docs/art-spec.md, Phase R). Scene data stays in logical
+ * 320x160 px; density 1 art is drawn at that size and density 2 art (the
+ * remaster) at twice it, so a native size is the logical size times the
+ * density. The transition runs one scene at a time, so both are valid.
+ */
+export const DENSITIES = [1, 2] as const;
+export type Density = (typeof DENSITIES)[number];
+
+export function isDensity(value: unknown): value is Density {
+  return (DENSITIES as readonly unknown[]).includes(value);
+}
+
+/** Parse a --density value; undefined means 1. */
+export function parseDensity(value: string | undefined): Density {
+  if (value === undefined) return 1;
+  const n = Number(value);
+  if (!isDensity(n)) {
+    throw new Error(
+      `Unknown density "${value}". Use one of ${DENSITIES.join(", ")}`,
+    );
+  }
+  return n;
+}
+
+/** The logical scene size every coordinate in the scene data uses. */
+export const LOGICAL_SCENE_SIZE = { w: 320, h: 160 } as const;
+
+/** Native scene size at a density: 320x160 at 1, 640x320 at 2. */
+export function sceneSize(density: Density = 1): { w: number; h: number } {
+  return {
+    w: LOGICAL_SCENE_SIZE.w * density,
+    h: LOGICAL_SCENE_SIZE.h * density,
+  };
+}
+
+/**
+ * A preview scale that shows density-`density` art at the same physical size
+ * as density-1 art at `base`: an 8x preview of density-2 art is 4x.
+ */
+export function previewScale(base: number, density: Density = 1): number {
+  return Math.max(1, Math.round(base / density));
+}
+
 // --- Colour ------------------------------------------------------------------
 
 export type Rgb = readonly [number, number, number];
@@ -163,8 +209,14 @@ export function parsePalette(text: string): Palette {
       throw new Error(`${where}: expected "idx hex group", got "${line}"`);
     }
     const [index, hex, group] = parts;
-    if ([...index].length !== 1 || index === TRANSPARENT_INDEX) {
-      throw new Error(`${where}: index must be one character other than "."`);
+    if (
+      [...index].length !== 1 ||
+      index === TRANSPARENT_INDEX ||
+      !/^[!-~]$/.test(index)
+    ) {
+      throw new Error(
+        `${where}: index must be one printable ASCII character other than "."`,
+      );
     }
     if (!isPaletteGroup(group)) {
       throw new Error(`${where}: unknown group "${group}"`);
@@ -845,8 +897,20 @@ export interface Cutout {
 /**
  * Cut the pixels whose centres fall inside `poly` out of a composite. The
  * sprite keeps the composite's colours and transparency.
+ *
+ * `align` (default 1) grows the sprite's rectangle outwards, with transparent
+ * padding, until its position and size are multiples of `align`. Pass the
+ * density, so a 2x sprite sits on a whole logical pixel.
  */
-export function cutPolygon(img: Image, poly: readonly Point[]): Cutout {
+export function cutPolygon(
+  img: Image,
+  poly: readonly Point[],
+  opts: { align?: number } = {},
+): Cutout {
+  const align = opts.align ?? 1;
+  if (!Number.isInteger(align) || align < 1) {
+    throw new Error(`Alignment must be a positive integer, got ${align}`);
+  }
   const inside = (x: number, y: number) =>
     pointInPolygon(x + 0.5, y + 0.5, poly);
   let minX = img.width;
@@ -863,6 +927,10 @@ export function cutPolygon(img: Image, poly: readonly Point[]): Cutout {
     }
   }
   if (maxX < 0) throw new Error("The polygon covers no pixels");
+  minX = Math.floor(minX / align) * align;
+  minY = Math.floor(minY / align) * align;
+  maxX = Math.min(img.width, Math.ceil((maxX + 1) / align) * align) - 1;
+  maxY = Math.min(img.height, Math.ceil((maxY + 1) / align) * align) - 1;
   const position = { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
   const sprite = createImage(position.w, position.h);
   const hole: Image = { ...img, data: new Uint8ClampedArray(img.data) };
@@ -1101,6 +1169,29 @@ const GLYPHS: Record<string, string> = {
   ".": "000000000000010",
   ":": "000010000010000",
   " ": "000000000000000",
+  // Punctuation, for the palette v2 indices on review swatches.
+  "!": "010010010000010",
+  "%": "101001010100101",
+  "&": "010101010101011",
+  "(": "001010010010001",
+  ")": "100010010010100",
+  "*": "000101010101000",
+  "+": "000010111010000",
+  ",": "000000000010100",
+  "/": "001001010100100",
+  ";": "000010000010100",
+  "<": "001010100010001",
+  "=": "000111000111000",
+  ">": "100010001010100",
+  "?": "111001010000010",
+  "@": "010101111100011",
+  "[": "110100100100110",
+  "]": "011001001001011",
+  "^": "010101000000000",
+  _: "000000000000111",
+  "{": "011010110010011",
+  "}": "110010011010110",
+  "~": "000011110000000",
 };
 
 /**
@@ -1199,6 +1290,56 @@ export const HEAD_CELL = { w: 16, h: 16 } as const;
 /** Feet rest on row 61; the origin is bottom centre. */
 export const CHARACTER_ORIGIN = { x: 16, y: 61 } as const;
 
+/** Cell sizes, feet row, and default pack settings for the character at one density. */
+export interface CharacterMetrics {
+  body: { w: number; h: number };
+  head: { w: number; h: number };
+  /** Bottom centre of the body cell, on the feet row. */
+  origin: { x: number; y: number };
+  /** Row the feet rest on (0-indexed). */
+  feetRow: number;
+  /** Default height of the tallest figure when slicing a sheet. */
+  figureHeight: number;
+  /** Default top-left of the talk head cell, relative to the body cell. */
+  talkHeadOffset: { x: number; y: number };
+}
+
+/**
+ * The character at each density (docs/art-spec.md, Character and Phase R):
+ * 32x64 cells with feet on row 61 at density 1, and 64x128 cells with feet on
+ * row 123 (the bottom row of logical row 61) and a 114–116 px figure at 2.
+ */
+const CHARACTER_METRICS: Record<Density, CharacterMetrics> = {
+  1: {
+    body: { ...BODY_CELL },
+    head: { ...HEAD_CELL },
+    origin: { ...CHARACTER_ORIGIN },
+    feetRow: 61,
+    figureHeight: 57,
+    talkHeadOffset: { x: 8, y: 4 },
+  },
+  2: {
+    body: { w: 64, h: 128 },
+    head: { w: 32, h: 32 },
+    origin: { x: 32, y: 123 },
+    feetRow: 123,
+    figureHeight: 115,
+    talkHeadOffset: { x: 16, y: 8 },
+  },
+};
+
+export function characterMetrics(density: Density = 1): CharacterMetrics {
+  const m = CHARACTER_METRICS[density];
+  return {
+    body: { ...m.body },
+    head: { ...m.head },
+    origin: { ...m.origin },
+    feetRow: m.feetRow,
+    figureHeight: m.figureHeight,
+    talkHeadOffset: { ...m.talkHeadOffset },
+  };
+}
+
 export type CharacterTiming =
   /** Advance one frame every stride / frames native px moved. */
   | { mode: "distance" }
@@ -1255,12 +1396,32 @@ export const CHARACTER_TAGS: Record<string, CharacterTagSpec> = {
 };
 
 /**
+ * CHARACTER_TAGS at a density: the same tags, frame counts, and timing, with
+ * the cells scaled. Timing is unchanged; the stride doubles in native px.
+ */
+export function characterTags(
+  density: Density = 1,
+): Record<string, CharacterTagSpec> {
+  return Object.fromEntries(
+    Object.entries(CHARACTER_TAGS).map(([tag, spec]) => [
+      tag,
+      {
+        ...spec,
+        cell: { w: spec.cell.w * density, h: spec.cell.h * density },
+      },
+    ]),
+  );
+}
+
+/**
  * `daniele.json`, the contract between the character assets and the engine.
  * West is east mirrored at runtime. Talk heads are drawn over the body at
  * `talkHeadOffset` (top-left of the head cell, relative to the body cell).
  */
 export interface CharacterSheetJson {
   image: string;
+  /** Present only at density 2 and above; absent means density 1. */
+  density?: Density;
   size: { w: number; h: number };
   origin: { x: number; y: number };
   /** Native px one foot travels during one walk-e cycle. */
@@ -1272,7 +1433,8 @@ export interface CharacterSheetJson {
 
 /**
  * Pack one strip per tag into a sheet: one row per tag, in CHARACTER_TAGS
- * order. Every tag must be present with its exact frame count and cell size.
+ * order. Every tag must be present with its exact frame count and cell size
+ * at `density` (default 1).
  */
 export function packCharacter(
   strips: Record<string, Image>,
@@ -1280,9 +1442,12 @@ export function packCharacter(
     stride: number;
     talkHeadOffset: { x: number; y: number };
     image?: string;
+    density?: Density;
   },
 ): { sheet: Image; json: CharacterSheetJson } {
-  const tags = Object.entries(CHARACTER_TAGS);
+  const density = opts.density ?? 1;
+  const specs = characterTags(density);
+  const tags = Object.entries(specs);
   for (const [tag, spec] of tags) {
     const strip = strips[tag];
     if (!strip) throw new Error(`Missing tag ${tag}`);
@@ -1293,7 +1458,7 @@ export function packCharacter(
       );
     }
   }
-  const extra = Object.keys(strips).filter((t) => !(t in CHARACTER_TAGS));
+  const extra = Object.keys(strips).filter((t) => !(t in specs));
   if (extra.length) throw new Error(`Unknown tags: ${extra.join(", ")}`);
 
   const width = Math.max(...tags.map(([, s]) => s.frames * s.cell.w));
@@ -1302,8 +1467,9 @@ export function packCharacter(
   const frames: Rect[] = [];
   const json: CharacterSheetJson = {
     image: opts.image ?? "daniele.png",
+    ...(density === 1 ? {} : { density }),
     size: { w: width, h: height },
-    origin: { ...CHARACTER_ORIGIN },
+    origin: characterMetrics(density).origin,
     stride: opts.stride,
     talkHeadOffset: opts.talkHeadOffset,
     frames,

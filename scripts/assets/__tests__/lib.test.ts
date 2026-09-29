@@ -5,7 +5,9 @@ import { join } from "node:path";
 import { afterAll, describe, expect, test } from "vitest";
 import {
   CHARACTER_TAGS,
+  PALETTE_GROUPS,
   PALETTE_PATH,
+  SCENE_IDS,
   alphaBounds,
   allowedColours,
   areaDownscale,
@@ -21,6 +23,7 @@ import {
   imageToGrid,
   loadPalette,
   nearestColour,
+  oklabDistance,
   packCharacter,
   parseGrid,
   parsePalette,
@@ -39,6 +42,19 @@ import {
   writeWebp,
   type Image,
 } from "../lib";
+
+/** Palette v1 as frozen at G1, in index order: v2 must never change these. */
+const V1_HEX = [
+  "#0f0d12 #2a2328 #4a4046 #7a6e6c #b0a49a #e8dcc8",
+  "#3a2220 #49322d #6d3f31 #90583d #a1603f",
+  "#5c3b33 #9a7860 #bf987d #e7bd98",
+  "#161c2f #21283c #2f3f66 #466394",
+  "#8a6420 #e0b040 #5a1e1e #9b3d34 #c8483a #4f7a3a #7fae52",
+  "#5a5c66 #9ea2aa #b4a47c #d6caa0 #1f5458 #3a8a86 #6a3a62 #74acd8 #c6e4f0",
+  "#2a3a4a #3c4c5e #62788c #a2b6c4 #c41e24 #23402e #a8641a #eea03a #ffdc8e",
+  "#2c1a3c #3a2c48 #5c4670 #0c1230 #1c2c62 #5876b0 #b8c8e8 #f2f4ff #f8d880",
+  "#7c3220 #c45e36 #eea46c #f2c828 #fff1a0 #1c3a8c #2c7cc4 #7ccaea #f06a52",
+].join(" ");
 
 const PALETTE = parsePalette(`
 # palette: v9
@@ -101,17 +117,74 @@ describe("palette", () => {
     expect(sceneForAssetId("slot-tap")).toBeNull();
   });
 
-  test("the committed master palette is valid, with 26 core colours and 9 per ramp", () => {
+  test("rejects indices the grid format can't hold", () => {
+    expect(() => parsePalette("\u00e9 #000000 core")).toThrow(
+      /printable ASCII/,
+    );
+    expect(() => parsePalette("ab #000000 core")).toThrow(/one printable/);
+  });
+
+  test("the committed master palette is v2: v1 unchanged, plus 24 appended colours", () => {
     const master = loadPalette(PALETTE_PATH);
-    const count = (g: string) =>
-      master.colours.filter((c) => c.group === g).length;
-    expect(count("core")).toBe(26);
-    for (const g of ["hall", "london", "zurich", "sorrento"])
-      expect(count(g)).toBe(9);
-    expect(master.colours.map((c) => c.index).join("")).toBe(
+    expect(master.version).toBe("v2");
+    // Append-only: v1's 62 indices keep their colours and groups.
+    const v1 = master.colours.slice(0, 62);
+    expect(v1.map((c) => c.index).join("")).toBe(
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
     );
+    expect(v1.map((c) => c.hex).join(" ")).toBe(V1_HEX);
+    const groups = (cs: typeof master.colours) =>
+      Object.fromEntries(
+        PALETTE_GROUPS.map((g) => [g, cs.filter((c) => c.group === g).length]),
+      );
+    expect(groups(v1)).toEqual({
+      core: 26,
+      hall: 9,
+      london: 9,
+      zurich: 9,
+      sorrento: 9,
+    });
+    // v2 appends 24 grid-safe punctuation indices.
+    const v2 = master.colours.slice(62);
+    expect(v2).toHaveLength(24);
+    expect(groups(v2)).toEqual({
+      core: 9,
+      hall: 4,
+      london: 3,
+      zurich: 4,
+      sorrento: 4,
+    });
+    for (const c of v2) {
+      expect(c.index).toMatch(/^[!-~]$/);
+      expect(c.index).not.toMatch(/[0-9A-Za-z.#"'`\\|$]/);
+    }
     expect(toGpl(master).split("\n")[0]).toBe("GIMP Palette");
+  });
+
+  test("the Hall carpet teal sits well above the character's navy in value", () => {
+    const master = loadPalette(PALETTE_PATH);
+    const L = (i: string) => master.byIndex.get(i)?.lab[0] ?? NaN;
+    const character = Math.max(L("F"), L("G"), L("H"), L("I"), L("*"), L("+"));
+    // The carpet base and highlight, at least 0.15 OKLab L above the jeans.
+    expect(master.byIndex.get("/")?.group).toBe("hall");
+    expect(L("/") - character).toBeGreaterThanOrEqual(0.15);
+    expect(L(":") - L("/")).toBeGreaterThan(0.05);
+  });
+
+  test("every appended colour is distinct from what its scenes can already use", () => {
+    const master = loadPalette(PALETTE_PATH);
+    for (const scene of SCENE_IDS) {
+      const allowed = allowedColours(master, scene);
+      for (const c of allowed.filter((a) => master.colours.indexOf(a) >= 62)) {
+        for (const o of allowed) {
+          if (o === c) continue;
+          expect(
+            oklabDistance(c.lab, o.lab),
+            `${c.index} vs ${o.index} in ${scene}`,
+          ).toBeGreaterThan(0.034);
+        }
+      }
+    }
   });
 });
 

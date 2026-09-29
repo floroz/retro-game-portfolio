@@ -14,8 +14,12 @@
  *   npm run assets:preview -- --palette [--scene <id>]
  *       swatches for the master palette, labelled with their indices.
  *
+ * --density 2 halves every default scale, so density-2 (remaster) art previews
+ * at the same physical size as density-1 art: 8x becomes 4x, and 4x becomes
+ * 2x. An HTML spec may set "density" instead. Explicit --scale always wins.
+ *
  * HTML spec (paths relative to the spec file):
- *   { "title": "zurich", "scale": 4,
+ *   { "title": "zurich", "scale": 4, "density": 1,
  *     "layers": [{ "src": "bg.png", "x": 0, "y": 0 }],
  *     "animations": [{ "src": "anim-stars.png", "x": 114, "y": 18, "frames": 4, "frameMs": 300 }],
  *     "slots": [{ "src": "slot-photo-frame.png", "positions": [[20, 24], [46, 24]] }],
@@ -35,13 +39,17 @@ import {
   fail,
   fillRect,
   getPixel,
+  isDensity,
   loadPalette,
+  parseDensity,
   parseRect,
   parseSceneOption,
+  previewScale,
   readImage,
   setPixel,
   upscale,
   writePng,
+  type Density,
   type Image,
 } from "./lib";
 
@@ -105,6 +113,8 @@ function paletteSwatches(scene: string | undefined): Image {
 interface HtmlSpec {
   title?: string;
   scale?: number;
+  /** Density of the art; sets the default scale (4, or 2 at density 2). */
+  density?: number;
   layers?: { src: string; x?: number; y?: number }[];
   animations?: {
     src: string;
@@ -121,11 +131,14 @@ function dataUri(path: string): string {
   return `data:image/png;base64,${readFileSync(path).toString("base64")}`;
 }
 
-function buildHtml(specPath: string): string {
+function buildHtml(specPath: string, cliDensity?: Density): string {
   const spec = JSON.parse(readFileSync(specPath, "utf8")) as HtmlSpec;
+  if (spec.density !== undefined && !isDensity(spec.density)) {
+    throw new Error(`${specPath}: unknown density ${String(spec.density)}`);
+  }
   const base = dirname(specPath);
   const at = (p: string) => resolve(base, p);
-  const scale = spec.scale ?? 4;
+  const scale = spec.scale ?? previewScale(4, cliDensity ?? spec.density ?? 1);
   const payload = {
     scale,
     layers: (spec.layers ?? []).map((l) => ({ ...l, src: dataUri(at(l.src)) })),
@@ -218,9 +231,13 @@ async function main() {
       html: { type: "string" },
       palette: { type: "boolean" },
       scene: { type: "string" },
+      density: { type: "string" },
       out: { type: "string" },
     },
   });
+  const density = parseDensity(values.density);
+  const scaleOr = (base: number) =>
+    values.scale ? Number(values.scale) : previewScale(base, density);
 
   if (values.html) {
     const spec = cliPath(values.html);
@@ -228,7 +245,7 @@ async function main() {
       ? cliPath(values.out)
       : join(PREVIEW_DIR, `${basename(spec, ".json")}.html`);
     mkdirSync(dirname(out), { recursive: true });
-    writeFileSync(out, buildHtml(spec));
+    writeFileSync(out, buildHtml(spec, values.density ? density : undefined));
     console.log(out);
     return;
   }
@@ -257,7 +274,7 @@ async function main() {
 
   if (values.onion) {
     if (images.length !== 2) fail("--onion takes exactly two images");
-    const scale = Number(values.scale ?? 8);
+    const scale = scaleOr(8);
     const out = values.out
       ? cliPath(values.out)
       : join(
@@ -270,7 +287,7 @@ async function main() {
   }
 
   if (values.sheet) {
-    const scale = Number(values.scale ?? 4);
+    const scale = scaleOr(4);
     const out = values.out
       ? cliPath(values.out)
       : join(PREVIEW_DIR, `sheet@${scale}x.png`);
@@ -282,7 +299,7 @@ async function main() {
     return;
   }
 
-  const scale = Number(values.scale ?? 8);
+  const scale = scaleOr(8);
   for (const [i, img] of images.entries()) {
     const region = values.region ? parseRect(values.region) : undefined;
     const name = basename(positionals[i], ".png");

@@ -6,6 +6,10 @@
  * record. Also checks the palette files, every provenance record, and the
  * character sheet JSON, and that every file in public/audio/ is named by the
  * art spec's rules and has a provenance record (with loop points for loops).
+ *
+ * Sizes follow each asset's density, from its provenance record's "density"
+ * field (absent means 1), so density-1 and remastered density-2 scenes pass
+ * side by side while the remaster lands one scene at a time.
  */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
@@ -25,7 +29,9 @@ import {
   checkAssetSize,
   checkCharacterJson,
   checkProvenance,
+  checkSceneDensities,
   classifyAsset,
+  provenanceDensity,
   type ShippedAsset,
 } from "./checks";
 
@@ -156,10 +162,15 @@ async function main() {
   }
 
   const sizes = new Map<string, { w: number; h: number }>();
+  const densityOf = (path: string) => {
+    const file = byOutput.get(path);
+    return provenanceDensity(file ? records.get(file) : undefined);
+  };
   for (const asset of assets) {
     const img = await readImage(resolve(REPO_ROOT, asset.path));
+    const density = densityOf(asset.path);
     sizes.set(asset.path, { w: img.width, h: img.height });
-    errors.push(...checkAssetSize(asset, img.width, img.height));
+    errors.push(...checkAssetSize(asset, img.width, img.height, density));
     const report = checkImagePalette(img, palette, asset.scene);
     const ramp = asset.scene ?? "core only";
     if (report.offPalette.length) {
@@ -195,11 +206,18 @@ async function main() {
           ...checkCharacterJson(
             JSON.parse(readFileSync(jsonPath, "utf8")) as unknown,
             img,
+            density,
           ),
         );
       }
     }
   }
+
+  errors.push(
+    ...checkSceneDensities(
+      assets.map((asset) => ({ asset, density: densityOf(asset.path) })),
+    ),
+  );
 
   // An @state sprite has the same size as its default.
   for (const asset of assets.filter(
