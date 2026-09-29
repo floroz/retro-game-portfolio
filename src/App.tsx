@@ -12,7 +12,7 @@ import { RetroConsole } from "./components/mobile/RetroConsole";
 import { useGameStore } from "./store/gameStore";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useIsMobile } from "./hooks/useIsMobile";
-import { useBackgroundMusic } from "./hooks/useBackgroundMusic";
+import { useSceneAudio } from "./hooks/useSceneAudio";
 
 /**
  * Day of the Tentacle inspired portfolio
@@ -24,8 +24,9 @@ function App() {
   // Global keyboard shortcuts (only for desktop)
   useKeyboardShortcuts();
 
-  // Background music (plays throughout the app when sound is enabled, desktop only)
-  useBackgroundMusic({ enabled: !isMobile });
+  // Scene music, ambience, and effects when sound is on (desktop only; the
+  // Game Boy has its own sounds)
+  useSceneAudio({ enabled: !isMobile });
 
   // Track when welcome screen is dismissed to trigger dialog
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
