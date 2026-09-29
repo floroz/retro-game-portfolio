@@ -1,13 +1,11 @@
 /**
  * Draws one frame in logical px (320x160), scaled by the canvas transform.
- * Pixel-art frames (density 1 and 2) draw on a 640x320 canvas that CSS
- * scales 2x with `image-rendering: pixelated`, so every pixel stays on the
- * grid: density-1 art at 2x nearest-neighbour, pixel for pixel as it looked
- * on the old 320x160 canvas, and density-2 art 1:1. HD frames (density 4)
- * draw on a canvas backed at display resolution (backing.ts), with
- * high-quality smoothing for HD images only; anything still pixel art in
- * an HD frame (the sprite-sheet character, shared sprites) stays
- * nearest-neighbour. The frame's density is its scene background's.
+ * Frames draw on a 640x320 canvas that CSS scales 2x with
+ * `image-rendering: pixelated`, so every pixel stays on the grid: density-1
+ * art at 2x nearest-neighbour, pixel for pixel as it looked on the old
+ * 320x160 canvas, and density-2 art (the shipped painted art) 1:1.
+ * Smoothing is off throughout (docs/art-spec.md, "Phase H": hard pixels,
+ * never smooth).
  *
  * Text (labels, captions, speech, the map label) draws on a separate
  * 640x320 layer in the bitmap serif font (font.ts), laid over the art and
@@ -34,9 +32,15 @@ import { stampOnGrid } from "./raster";
 import type { Rig } from "./rig/rig";
 import { animationFrame } from "./animation";
 import { paintOrder, type Paintable } from "./depth";
-import { backingSize, type Display } from "./backing";
-import { CANVAS_W, CORE, IRIS_MS, NATIVE_H, NATIVE_W } from "./constants";
-import { isSmooth, snap, type Density } from "./density";
+import {
+  CANVAS_H,
+  CANVAS_W,
+  CORE,
+  IRIS_MS,
+  NATIVE_H,
+  NATIVE_W,
+} from "./constants";
+import { snap } from "./density";
 import {
   drawText,
   fitText,
@@ -84,60 +88,21 @@ export interface RenderContext {
   /** The cut-out rig, if there is one (assets.ts, `CHARACTER_RIG`). */
   rig?: Rig | null;
   map: TravelMapData;
-  /**
-   * Where the canvas is on screen, for an HD frame's backing store. Without
-   * it, HD frames are backed at 1280x640.
-   */
-  display?: Display;
 }
 
 /**
- * The density of what's on screen: the travel map's background while it
- * plays, the scene's otherwise. It decides between pixel art and HD.
+ * Sizes the canvas to 640x320 and sets its transform to logical px. Resizing
+ * clears the canvas, so it only happens when the size is wrong, right before
+ * a full redraw.
  */
-function frameDensity(
-  rc: Pick<RenderContext, "engine" | "images" | "map">,
-): Density {
-  const bg =
-    rc.engine.transition?.kind === "map"
-      ? rc.map.background
-      : rc.engine.scene.background;
-  return rc.images.density(bg);
-}
-
-/**
- * Sizes the canvas for this frame (backing.ts) and sets its transform to
- * logical px. Resizing clears the canvas, so it only happens right before
- * a full redraw. Returns true for an HD frame.
- */
-function prepareCanvas(rc: RenderContext): boolean {
+function prepareCanvas(rc: RenderContext) {
   const { ctx } = rc;
   const canvas = ctx.canvas;
-  const b = backingSize(isSmooth(frameDensity(rc)), rc.display);
-  if (canvas.width !== b.w || canvas.height !== b.h) {
-    canvas.width = b.w;
-    canvas.height = b.h;
+  if (canvas.width !== CANVAS_W || canvas.height !== CANVAS_H) {
+    canvas.width = CANVAS_W;
+    canvas.height = CANVAS_H;
   }
-  const flag = String(b.smooth);
-  if (canvas.dataset.smooth !== flag) canvas.dataset.smooth = flag;
-  ctx.setTransform(b.w / NATIVE_W, 0, 0, b.h / NATIVE_H, 0, 0);
-  ctx.imageSmoothingEnabled = false;
-  return b.smooth;
-}
-
-/**
- * Draws with smoothing for an HD image (density 4) and nearest-neighbour
- * for pixel art, then leaves smoothing off, which the pixel-art layers
- * rely on.
- */
-function drawSmoothIf(ctx: Ctx, d: Density, draw: () => void) {
-  if (!isSmooth(d)) {
-    draw();
-    return;
-  }
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
-  draw();
+  ctx.setTransform(CANVAS_W / NATIVE_W, 0, 0, CANVAS_H / NATIVE_H, 0, 0);
   ctx.imageSmoothingEnabled = false;
 }
 
@@ -190,12 +155,21 @@ export function renderFrame(rc: RenderContext) {
           ...(rc.rig ? [rc.rig.image] : []),
         ]);
   if (!rc.images.ready(urls)) return;
-  const hd = prepareCanvas(rc);
+  prepareCanvas(rc);
+  // Test hooks for the E2E suite and the OG image script, which wait on the
+  // page rather than on a timer: `data-drawn` is the scene on screen (set
+  // once every image it needs has loaded), `data-speaking` is whether a line
+  // of speech is up.
+  const { dataset } = ctx.canvas;
+  const shown = tr?.kind === "map" ? "map" : engine.scene.id;
+  if (dataset.drawn !== shown) dataset.drawn = shown;
+  const speaking = String(engine.speech !== null);
+  if (dataset.speaking !== speaking) dataset.speaking = speaking;
   const t = rc.text.ctx;
   t.setTransform(1, 0, 0, 1, 0, 0);
   t.clearRect(0, 0, t.canvas.width, t.canvas.height);
   if (tr?.kind === "map") {
-    drawTravelMap(rc, tr, hd);
+    drawTravelMap(rc, tr);
     return;
   }
 
@@ -222,16 +196,15 @@ export function renderFrame(rc: RenderContext) {
   for (const anim of scene.animations ?? []) {
     add(anim.baselineY, (r) => drawAnimation(r, anim));
   }
-  const grid = gridOf(rc);
   for (const effect of scene.effects ?? []) {
     add(effect.baselineY, (r) =>
       withClip(r.ctx, effect.clip, () =>
-        drawShapes(r.ctx, effectShapes(effect, engine.now), grid),
+        drawShapes(r.ctx, effectShapes(effect, engine.now), GRID),
       ),
     );
   }
   for (const prop of scene.props ?? []) {
-    add(prop.baselineY, (r) => drawProp(r, prop, grid));
+    add(prop.baselineY, (r) => drawProp(r, prop, GRID));
   }
   for (const row of scene.slots ?? []) {
     const rowItems = engine.slots.filter((i) => i.rowId === row.id);
@@ -271,8 +244,8 @@ export function renderFrame(rc: RenderContext) {
 
   drawSpeech(rc);
   if (tr?.kind === "iris") {
-    drawIris(ctx, tr, hd);
-    onText(rc, (t) => drawIris(t, tr, hd));
+    drawIris(ctx, tr);
+    onText(rc, (t) => drawIris(t, tr));
   }
 }
 
@@ -281,21 +254,17 @@ function drawImageAt(rc: RenderContext, url: string, x: number, y: number) {
   const img = rc.images.get(url);
   if (!img) return;
   const d = rc.images.density(url);
-  drawSmoothIf(rc.ctx, d, () =>
-    rc.ctx.drawImage(
-      img,
-      snap(x, d),
-      snap(y, d),
-      img.naturalWidth / d,
-      img.naturalHeight / d,
-    ),
+  rc.ctx.drawImage(
+    img,
+    snap(x, d),
+    snap(y, d),
+    img.naturalWidth / d,
+    img.naturalHeight / d,
   );
 }
 
-/** The art's pixels per logical px: 2 on the 640x320 canvas. */
-function gridOf(rc: RenderContext): number {
-  return Math.max(CANVAS_W / NATIVE_W, frameDensity(rc));
-}
+/** Canvas px per logical px: 2 on the 640x320 canvas. */
+const GRID = CANVAS_W / NATIVE_W;
 
 function withClip(ctx: Ctx, clip: Rect | undefined, draw: () => void) {
   if (!clip) return draw();
@@ -381,19 +350,7 @@ function drawProp(rc: RenderContext, prop: MovingProp, grid: number) {
   const sx = f.frame * w;
   withClip(ctx, prop.clip, () => {
     if (f.scale === 1 && !f.flip) {
-      drawSmoothIf(ctx, d, () =>
-        ctx.drawImage(
-          img,
-          sx,
-          0,
-          w,
-          h,
-          snap(f.x, d),
-          snap(f.y, d),
-          w / d,
-          h / d,
-        ),
-      );
+      ctx.drawImage(img, sx, 0, w, h, snap(f.x, d), snap(f.y, d), w / d, h / d);
       return;
     }
     // Grid px per image px, and the box it lands in.
@@ -427,18 +384,16 @@ function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
     ctx.rect(anim.clip.x, anim.clip.y, anim.clip.w, anim.clip.h);
     ctx.clip();
   }
-  drawSmoothIf(ctx, d, () =>
-    ctx.drawImage(
-      img,
-      f.frame * w,
-      0,
-      w,
-      h,
-      snap(f.x, d),
-      snap(f.y, d),
-      w / d,
-      h / d,
-    ),
+  ctx.drawImage(
+    img,
+    f.frame * w,
+    0,
+    w,
+    h,
+    snap(f.x, d),
+    snap(f.y, d),
+    w / d,
+    h / d,
   );
   if (anim.clip) ctx.restore();
 }
@@ -548,9 +503,8 @@ function drawCharacter(rc: RenderContext) {
     // Rasterized on the art's pixel grid: 2 px per logical px for the
     // 640x320 art (and density-1 art, drawn 2x on the same canvas).
     const atlas = rc.images.get(figure.rig.image);
-    const grid = gridOf(rc);
     if (atlas) {
-      drawRig(ctx, atlas, figure.rig, figure.state, x, y, figure.scale, grid);
+      drawRig(ctx, atlas, figure.rig, figure.state, x, y, figure.scale, GRID);
     }
     return;
   }
@@ -634,14 +588,9 @@ function drawSpeech(rc: RenderContext) {
 }
 
 /**
- * The iris wipe: stepped a logical px at a time over pixel art, as in the
- * SCUMM games, and a smooth circle over HD art.
+ * The iris wipe: stepped a logical px at a time, as in the SCUMM games.
  */
-function drawIris(
-  ctx: Ctx,
-  tr: Extract<Transition, { kind: "iris" }>,
-  hd: boolean,
-) {
+function drawIris(ctx: Ctx, tr: Extract<Transition, { kind: "iris" }>) {
   const reach = Math.hypot(NATIVE_W, NATIVE_H);
   const p =
     tr.phase === "close"
@@ -650,13 +599,6 @@ function drawIris(
   const closed = tr.phase === "close" && tr.t >= IRIS_MS;
   const [cx, cy] = tr.center;
   ctx.fillStyle = CORE.black;
-  if (hd) {
-    ctx.beginPath();
-    ctx.rect(0, 0, NATIVE_W, NATIVE_H);
-    if (!closed) ctx.arc(cx, cy, reach * p, 0, Math.PI * 2);
-    ctx.fill("evenodd");
-    return;
-  }
   const r = closed ? 0 : Math.round(reach * p);
   for (let y = 0; y < NATIVE_H; y++) {
     const d = y - cy;
@@ -708,7 +650,6 @@ function fallbackPlane(): HTMLCanvasElement {
 function drawTravelMap(
   rc: RenderContext,
   tr: Extract<Transition, { kind: "map" }>,
-  hd: boolean,
 ) {
   const { ctx, map, images } = rc;
   ctx.fillStyle = CORE.paper;
@@ -728,27 +669,11 @@ function drawTravelMap(
   const progress = flightProgress(tr.t);
   const routeColor = map.routeColor ?? CORE.red;
   const steps = 240;
-  if (hd) {
-    // Over HD art: a smooth dashed stroke, with the pixel route's rhythm.
-    ctx.save();
-    ctx.strokeStyle = routeColor;
-    ctx.lineWidth = 1;
-    ctx.lineCap = "round";
-    ctx.setLineDash([3, 2]);
-    ctx.beginPath();
-    for (let i = 0; i <= steps * progress; i++) {
-      const [x, y] = pointOnRoute(tr.route, i / steps);
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    ctx.restore();
-  }
   ctx.fillStyle = routeColor;
   // Dashes: 3 px on, 2 px off, sampled every native px along the curve.
   let last: Vec | null = null;
   let travelled = 0;
-  for (let i = 0; !hd && i <= steps * progress; i++) {
+  for (let i = 0; i <= steps * progress; i++) {
     const p = pointOnRoute(tr.route, i / steps);
     if (last) travelled += Math.hypot(p[0] - last[0], p[1] - last[1]);
     last = p;
@@ -790,18 +715,16 @@ function drawPlane(
     const w = Math.floor(sprite.naturalWidth / 8);
     const h = sprite.naturalHeight;
     const i = headingIndex(angle);
-    drawSmoothIf(ctx, d, () =>
-      ctx.drawImage(
-        sprite,
-        i * w,
-        0,
-        w,
-        h,
-        -Math.floor(w / 2) / d,
-        -Math.floor(h / 2) / d,
-        w / d,
-        h / d,
-      ),
+    ctx.drawImage(
+      sprite,
+      i * w,
+      0,
+      w,
+      h,
+      -Math.floor(w / 2) / d,
+      -Math.floor(h / 2) / d,
+      w / d,
+      h / d,
     );
   } else {
     const img = sprite ?? fallbackPlane();
@@ -810,14 +733,12 @@ function drawPlane(
     ctx.rotate(Math.round(angle / step) * step);
     const w = img instanceof HTMLImageElement ? img.naturalWidth : img.width;
     const h = img instanceof HTMLImageElement ? img.naturalHeight : img.height;
-    drawSmoothIf(ctx, d, () =>
-      ctx.drawImage(
-        img,
-        -Math.floor(w / 2) / d,
-        -Math.floor(h / 2) / d,
-        w / d,
-        h / d,
-      ),
+    ctx.drawImage(
+      img,
+      -Math.floor(w / 2) / d,
+      -Math.floor(h / 2) / d,
+      w / d,
+      h / d,
     );
   }
   ctx.restore();

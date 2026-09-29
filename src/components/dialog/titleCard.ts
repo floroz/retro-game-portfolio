@@ -53,6 +53,8 @@ export interface CardView {
   pressed: boolean;
   soundEnabled: boolean;
   soundLit: boolean;
+  /** Started, but the art is still loading: the stub says so. */
+  waiting?: boolean;
 }
 
 const INK_TEXT = "#2a1812";
@@ -426,9 +428,19 @@ export function paintCard(ctx: Ctx, view: CardView) {
   const put = (s: string, y: number, font: FontId, color: string) =>
     words(ctx, s, Math.round(cx - widthOf(s, font) / 2), y, font, { color });
   put("ADMIT ONE", PASS.y + 20, "tiny", GREY);
-  put("PRESS", PASS.y + 58, "small", view.lit ? PLUM : NAVY);
+  put(
+    view.waiting ? "HOLD ON" : "PRESS",
+    PASS.y + 58,
+    "small",
+    view.lit ? PLUM : NAVY,
+  );
   paintKey(ctx, view.pressed);
-  put("to start", PASS.y + 122, "regular", view.lit ? PLUM : INK_TEXT);
+  put(
+    view.waiting ? "loading..." : "to start",
+    PASS.y + 122,
+    "regular",
+    view.lit ? PLUM : INK_TEXT,
+  );
 
   // The sound fitting, on the wood below the pass.
   const r = SOUND_FITTING;
