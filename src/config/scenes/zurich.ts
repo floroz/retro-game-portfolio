@@ -238,13 +238,13 @@ export const ZURICH_SCENE: SceneData = {
       sprite: zurichAnimCuckoo,
       path: [
         { at: 0, x: 221.9, y: 17.1, scale: 0.35 },
-        { at: 0.1, x: 215.5, y: 14.5, scale: 1 },
-        { at: 0.2, x: 214.5, y: 13, scale: 1 },
-        { at: 0.3, x: 215.5, y: 14.5, scale: 1 },
-        { at: 0.4, x: 214.5, y: 13, scale: 1 },
-        { at: 0.5, x: 215.5, y: 14.5, scale: 1 },
-        { at: 0.8, x: 215.5, y: 14.5, scale: 1 },
-        { at: 0.9, x: 217.5, y: 15.5, scale: 0.7 },
+        { at: 0.1, x: 217.5, y: 14, scale: 1 },
+        { at: 0.2, x: 217, y: 13, scale: 1 },
+        { at: 0.3, x: 217.5, y: 14, scale: 1 },
+        { at: 0.4, x: 217, y: 13, scale: 1 },
+        { at: 0.5, x: 217.5, y: 14, scale: 1 },
+        { at: 0.8, x: 217.5, y: 14, scale: 1 },
+        { at: 0.9, x: 219.3, y: 15.5, scale: 0.7 },
         { at: 1, x: 221.9, y: 17.1, scale: 0.35 },
       ],
       durationMs: 2800,
@@ -285,14 +285,16 @@ export const ZURICH_SCENE: SceneData = {
       baselineY: DESK_BASELINE,
     },
     {
-      // Lettered on the card on the cabinet's top drawer (x 250-269).
+      // Lettered on the card on the cabinet's top drawer (x 250-269). The
+      // word at the smallest size is 23 px, so it overhangs the card by two
+      // px each side, onto the drawer's grey face.
       id: "cabinet",
       source: "section:resume",
       x: 259.5,
       y: 81.5,
       align: "center",
       font: "small",
-      maxWidth: 18,
+      maxWidth: 23,
       color: "#2a2328",
       baselineY: CABINET_BASELINE,
     },

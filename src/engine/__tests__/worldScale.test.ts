@@ -11,6 +11,9 @@ import sheetJson from "../../assets/character/daniele.json";
 
 const HD_DEPTH = { farY: 100, nearY: 156, ...HD_WORLD_SCALE };
 
+/** Scenes rebuilt from the Phase H layers (the HB tasks). */
+const HD_SCENES = ["zurich"];
+
 describe("world scale", () => {
   test("the Phase H defaults are 58 px at the back and 72 at the front", () => {
     expect(heightAt(HD_DEPTH, 100, 72)).toBe(58);
@@ -41,11 +44,21 @@ describe("world scale", () => {
     expect(heightAt({ ...depth, ...HD_WORLD_SCALE }, 158, 57.5)).toBe(72);
   });
 
-  test("every current scene still uses its pixel-art scales", () => {
+  test("scenes not yet rebuilt in Phase H keep their pixel-art scales", () => {
     for (const scene of Object.values(SCENES)) {
+      if (HD_SCENES.includes(scene.id)) continue;
       expect(scene.depth.farScale).toBeDefined();
       expect(scene.depth.nearScale).toBeDefined();
       expect(scene.depth.farHeight).toBeUndefined();
+    }
+  });
+
+  test("the rebuilt scenes use the world scale", () => {
+    for (const id of HD_SCENES) {
+      const { depth } = SCENES[id as keyof typeof SCENES];
+      expect(depth.farHeight).toBe(HD_WORLD_SCALE.farHeight);
+      expect(depth.nearHeight).toBe(HD_WORLD_SCALE.nearHeight);
+      expect(depth.farScale).toBeUndefined();
     }
   });
 
@@ -56,20 +69,17 @@ describe("world scale", () => {
   });
 
   test("the engine scales Daniele to the scene's world scale", () => {
-    const zurich: SceneData = {
-      ...SCENES.zurich,
-      depth: { farY: 102, nearY: 158, ...HD_WORLD_SCALE },
-    };
     const engine = new SceneEngine({
-      scenes: { ...SCENES, zurich },
+      scenes: SCENES,
       travelMap: TRAVEL_MAP_DATA,
       sheet: CHARACTER_SHEET,
       host: { openSection: vi.fn(), sceneChanged: vi.fn() },
       start: "zurich",
     });
-    // fromHall is at y 114: 58 + 14 * 12/56 = 61 px tall.
-    expect(engine.position.y).toBe(114);
-    expect(engine.scale * CHARACTER_SHEET.figureHeight).toBeCloseTo(61);
+    // fromHall is at y 112, on a floor from y 101 to 158:
+    // 58 + 14 * 11/57 = 60.7 px tall.
+    expect(engine.position.y).toBe(112);
+    expect(engine.scale * CHARACTER_SHEET.figureHeight).toBeCloseTo(60.7, 1);
   });
 
   test("the dev overlay warns about half a world scale", () => {
