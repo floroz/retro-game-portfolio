@@ -4,6 +4,8 @@ import { COUNTRY_ORDER } from "../../config/sections";
 import { NATIVE_H, NATIVE_W } from "../../engine/constants";
 import { getEngine, images } from "../../engine/runtime";
 import type { Hit } from "../../engine/SceneEngine";
+import { SCENES } from "../../engine/scenes";
+import { sceneWarnings } from "../../engine/validate";
 import type {
   Rect,
   SceneData,
@@ -99,6 +101,8 @@ interface Props {
 export function SceneDebugOverlay({ scene, hits }: Props) {
   const [visible, setVisible] = useState(true);
   const [cursor, setCursor] = useState<Vec | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+  const [hudAtBottom, setHudAtBottom] = useState(false);
   const [actor, setActor] = useState<{ p: StandPoint; scale: number } | null>(
     null,
   );
@@ -128,8 +132,24 @@ export function SceneDebugOverlay({ scene, hits }: Props) {
           : null,
       );
     };
+    // Shift-click copies the point as "[x, y]", ready for a walkbox.
+    const onClick = (e: MouseEvent) => {
+      const svg = svgRef.current;
+      if (!e.shiftKey || !svg) return;
+      const r = svg.getBoundingClientRect();
+      const x = Math.floor(((e.clientX - r.left) / r.width) * NATIVE_W);
+      const y = Math.floor(((e.clientY - r.top) / r.height) * NATIVE_H);
+      if (x < 0 || y < 0 || x >= NATIVE_W || y >= NATIVE_H) return;
+      const text = `[${x}, ${y}]`;
+      void navigator.clipboard?.writeText(text).catch(() => {});
+      setCopied(text);
+    };
     window.addEventListener("pointermove", onMove);
-    return () => window.removeEventListener("pointermove", onMove);
+    window.addEventListener("click", onClick, true);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("click", onClick, true);
+    };
   }, []);
 
   const baselines: { id: string; y: number; x0: number; x1: number }[] = [];
@@ -165,6 +185,7 @@ export function SceneDebugOverlay({ scene, hits }: Props) {
   }
 
   const { depth } = scene;
+  const warnings = sceneWarnings(scene, SCENES);
 
   return (
     <>
@@ -314,7 +335,10 @@ export function SceneDebugOverlay({ scene, hits }: Props) {
         </svg>
       )}
 
-      <div className={styles.hud} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`${styles.hud} ${hudAtBottom ? styles.bottom : ""}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div>
           <strong>{scene.id}</strong>
           {cursor ? ` · cursor ${cursor[0]},${cursor[1]}` : ""}
@@ -322,6 +346,14 @@ export function SceneDebugOverlay({ scene, hits }: Props) {
             ? ` · feet ${Math.round(actor.p.x)},${Math.round(actor.p.y)} ${actor.p.facing} ×${actor.scale.toFixed(2)}`
             : ""}
         </div>
+        <div>
+          shift-click copies [x, y]{copied ? ` · copied ${copied}` : ""}
+        </div>
+        {warnings.map((w) => (
+          <div key={w} className={styles.warning}>
+            ⚠ {w}
+          </div>
+        ))}
         <div className={styles.buttons}>
           {SCENE_IDS.map((id) => (
             <button
@@ -343,6 +375,9 @@ export function SceneDebugOverlay({ scene, hits }: Props) {
           ))}
           <button type="button" onClick={() => setVisible((v) => !v)}>
             {visible ? "hide" : "show"} overlay
+          </button>
+          <button type="button" onClick={() => setHudAtBottom((b) => !b)}>
+            move HUD
           </button>
         </div>
       </div>

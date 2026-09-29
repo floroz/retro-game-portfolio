@@ -65,6 +65,8 @@ export type SoundName =
   | "door-open"
   | "door-close"
   | "travel-sting"
+  | "map-plane"
+  | "boarding-chime"
   | "ui-blip";
 
 export interface EngineHost {
@@ -611,8 +613,14 @@ export class SceneEngine {
 
   private goThrough(exit: SceneExit) {
     this.openDoor(exit);
+    if (this.current.id === "hall" && isCountryScene(exit.to)) {
+      this.host.sound?.("boarding-chime");
+    }
     const to = exit.to;
-    const enter = () => this.enter(to, exit.entry, { arrivalLine: true });
+    const enter = () => {
+      this.enter(to, exit.entry, { arrivalLine: true });
+      if (exit.states?.open) this.host.sound?.("door-close");
+    };
     this.after(exit.states?.open ? 200 : 0, () => {
       if (this.current.id === "hall" && isCountryScene(to)) this.fly(to, enter);
       else this.iris(enter);
@@ -633,6 +641,7 @@ export class SceneEngine {
     const route = routeFor(this.map, this.origin(), to);
     this.speech = null;
     this.host.sound?.("travel-sting");
+    this.host.sound?.("map-plane");
     this.transition = {
       kind: "map",
       route,
