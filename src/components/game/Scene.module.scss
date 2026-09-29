@@ -26,6 +26,15 @@
   }
 }
 
+/* Text at display resolution over the art, never pixelated (font.ts) */
+.text {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+}
+
 /* Invisible buttons over each hotspot. SCUMM shows hover in the status line */
 .hotspots {
   position: absolute;

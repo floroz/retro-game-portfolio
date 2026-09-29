@@ -1,178 +1,196 @@
 /**
- * Engine-drawn pixel fonts. Art never contains text (docs/expansion-plan.md,
- * Extensibility), so every sign, label, and speech line goes through here.
+ * Engine-drawn text. Art never contains text (docs/expansion-plan.md,
+ * Extensibility), so every sign, label, board, caption, and speech line goes
+ * through here.
  *
- * Both fonts are drawn at canvas resolution, two pixels per logical px
- * (RENDER_SCALE), so text stays crisp over art of either density. Their
- * metrics are in logical px, the same as the 1x fonts they replace, so
- * every label wraps and fits exactly where it did:
+ * Text is drawn on its own layer at display resolution (the text canvas in
+ * Scene.tsx: the scene's on-screen size times `devicePixelRatio`), never
+ * upscaled from the art's canvas, so it stays crisp at any window size and
+ * on HiDPI screens. Layout stays in logical px (320x160), like the rest of
+ * the scene data, so labels keep their places whatever the art's density.
  *
- * - `regular`: proportional, 5 px capitals, 7 px tall, 2 px descenders.
- *   For speech and anything longer than a word or two.
- * - `small`: 3x5 capitals, for signs, boards, and captions.
+ * The typeface is Fredoka SemiBold (SIL OFL 1.1, self-hosted in
+ * `public/fonts/`): rounded, friendly, and heavy, in the spirit of
+ * _The Curse of Monkey Island_'s speech text.
  *
- * The glyphs are in glyphs.ts. Section icons are written as `{skills}` etc.
+ * - `regular`: mixed case, for speech and anything longer than a word or two.
+ * - `small`: capitals, for signs, boards, and captions.
+ *
+ * Section icons are written as `{skills}` etc. and drawn inline as crisp
+ * pixel art (icons.ts).
  */
-import { RENDER_SCALE } from "./constants";
-import { REGULAR_GLYPHS, SMALL_GLYPHS } from "./glyphs";
+import { ICON_TOKEN, iconRows } from "./icons";
 import type { SectionId } from "./types";
 
 export type FontId = "regular" | "small";
 
-interface Glyph {
-  /** Width in canvas pixels. */
-  w: number;
-  rows: string[];
-}
+/** The CSS family; `@font-face` is in `src/index.scss`. */
+export const FONT_FAMILY = "Fredoka";
+const FAMILY = `"${FONT_FAMILY}", "Trebuchet MS", "Verdana", sans-serif`;
 
-interface Font {
-  glyphs: Map<string, Glyph>;
-  /** Logical px from the top of a line to the bottom of the lowest glyph. */
-  height: number;
+interface FontSpec {
+  /** Em size in logical px. */
+  size: number;
+  weight: number;
+  /** Logical px from one line's top to the next's. */
   lineHeight: number;
-  /** Logical px between glyphs. */
-  spacing: number;
+  /** Extra logical px between characters. */
+  tracking: number;
+  /** Extra logical px per space, so outlined words never run together. */
+  wordSpacing: number;
+  /** Height of an inline section icon, in logical px. */
+  icon: number;
   upperOnly: boolean;
 }
 
-/** Parses glyphs.ts's format, for a font `height` logical px tall. */
-export function parseGlyphs(defs: string, height: number): Map<string, Glyph> {
-  const map = new Map<string, Glyph>();
-  const rowsTall = height * RENDER_SCALE;
-  for (const block of defs.trim().split(/\n\s*\n/)) {
-    const [header, ...lines] = block.split("\n");
-    const cut = header.lastIndexOf(" ");
-    const name = header.slice(0, cut);
-    const w = Number(header.slice(cut + 1));
-    if (!name || !Number.isInteger(w) || w % RENDER_SCALE !== 0) {
-      throw new Error(`Bad glyph header "${header}"`);
-    }
-    if (lines.length > rowsTall || lines.some((r) => r.length > w)) {
-      throw new Error(`Glyph "${name}" is bigger than ${w}x${rowsTall}`);
-    }
-    const rows = Array.from({ length: rowsTall }, (_, i) =>
-      (lines[i] ?? "").padEnd(w, "."),
-    );
-    map.set(name === "space" ? " " : name, { w, rows });
-  }
-  return map;
-}
-
-const REGULAR = parseGlyphs(REGULAR_GLYPHS, 9);
-const SMALL = parseGlyphs(SMALL_GLYPHS, 5);
-
-const FONTS: Record<FontId, Font> = {
+const FONTS: Record<FontId, FontSpec> = {
   regular: {
-    glyphs: REGULAR,
-    height: 9,
-    lineHeight: 10,
-    spacing: 1,
+    size: 9,
+    weight: 600,
+    lineHeight: 11,
+    tracking: 0.1,
+    wordSpacing: 1.4,
+    icon: 6.5,
     upperOnly: false,
   },
   small: {
-    glyphs: SMALL,
-    height: 5,
+    size: 6.5,
+    weight: 600,
     lineHeight: 7,
-    spacing: 1,
+    tracking: 0.3,
+    wordSpacing: 0.8,
+    icon: 4.75,
     upperOnly: true,
   },
 };
 
-const REPLACEMENTS: Record<string, string> = {
-  "’": "'",
-  "‘": "'",
-  "“": '"',
-  "”": '"',
-  "—": "-",
-  "–": "-",
-  "…": "...",
-  "•": "·",
-};
+/** Fredoka's cap height, as a fraction of the em. */
+const CAP_HEIGHT = 0.7;
 
-const ICON_TOKEN = /\{(experience|skills|about|contact|resume)\}/y;
+/** Logical px between an inline icon and the text either side of it. */
+const ICON_GAP = 0.25;
 
 /**
- * Pixel rows of a section icon ("#" ink) at canvas resolution, for the
- * toolbar's buttons.
+ * Glyphs the shipped subsets cover (Latin, Latin-1, Latin Extended-A, and
+ * general punctuation); anything else would fall back to a system font.
  */
-export function iconRows(section: SectionId): string[] {
-  const rows = REGULAR.get(iconToken(section))?.rows ?? [];
-  let end = rows.length;
-  while (end > 0 && !rows[end - 1].includes("#")) end--;
-  return rows.slice(0, end);
+const COVERED = /[\x20-\x7e\xa0-\u017f\u2000-\u206f\u20ac\u2122]/u;
+
+/** Display resolution text is drawn at: a context and its px per logical px. */
+export interface TextLayer {
+  ctx: CanvasRenderingContext2D;
+  /** Canvas pixels per logical px (4 for a 1280 px wide scene at 1x). */
+  scale: number;
 }
 
-/** The token that draws a section's icon, e.g. `{skills}`. */
-export function iconToken(section: SectionId): string {
-  return `{${section}}`;
-}
+type Run = { icon: SectionId } | { text: string };
 
-/** Splits text into glyphs of this font, with fallbacks for unknown chars. */
-function glyphsOf(text: string, fontId: FontId): Glyph[] {
-  const font = FONTS[fontId];
-  const out: Glyph[] = [];
-  const fallback = font.glyphs.get("?");
+/** Splits text into plain runs and section icons, in the font's case. */
+function runsOf(text: string, fontId: FontId): Run[] {
+  const upper = FONTS[fontId].upperOnly;
+  const out: Run[] = [];
+  let plain = "";
+  const flush = () => {
+    if (plain) out.push({ text: upper ? plain.toUpperCase() : plain });
+    plain = "";
+  };
   for (let i = 0; i < text.length; ) {
     ICON_TOKEN.lastIndex = i;
     const icon = ICON_TOKEN.exec(text);
     if (icon) {
-      const g = font.glyphs.get(icon[0]);
-      if (g) out.push(g);
+      flush();
+      out.push({ icon: icon[1] as SectionId });
       i += icon[0].length;
       continue;
     }
-    const raw = text[i];
+    plain += text[i];
     i += 1;
-    const replaced = REPLACEMENTS[raw] ?? raw;
-    for (const c of replaced) {
-      const ch = font.upperOnly ? c.toUpperCase() : c;
-      const direct = font.glyphs.get(ch);
-      if (direct) {
-        out.push(direct);
-        continue;
-      }
-      const base = ch.normalize("NFD").replace(/[̀-ͯ]/g, "");
-      const g = font.glyphs.get(base) ?? fallback;
-      if (g) out.push(g);
-    }
   }
+  flush();
   return out;
 }
 
-/** Characters in `text` this font can't draw (they'd fall back to "?"). */
-export function unknownChars(
-  text: string,
-  fontId: FontId = "regular",
-): string[] {
-  const font = FONTS[fontId];
-  const out = new Set<string>();
+/** Characters in `text` the font can't draw (they'd use a fallback font). */
+export function unknownChars(text: string): string[] {
   const plain = text.replace(
     /\{(experience|skills|about|contact|resume)\}/g,
     "",
   );
-  for (const raw of plain) {
-    for (const c of REPLACEMENTS[raw] ?? raw) {
-      const ch = font.upperOnly ? c.toUpperCase() : c;
-      const base = ch.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      if (!font.glyphs.has(ch) && !font.glyphs.has(base)) out.add(raw);
-    }
-  }
-  return [...out];
+  return [...new Set([...plain].filter((c) => !COVERED.test(c)))];
 }
 
 export function lineHeight(fontId: FontId): number {
   return FONTS[fontId].lineHeight;
 }
 
-/** Width in logical px of one line of text. */
-export function measureText(text: string, fontId: FontId = "regular") {
-  const font = FONTS[fontId];
-  const glyphs = glyphsOf(text, fontId);
-  if (glyphs.length === 0) return 0;
+function cssFont(fontId: FontId, px: number): string {
+  return `${FONTS[fontId].weight} ${px}px ${FAMILY}`;
+}
+
+// --- Measuring ---------------------------------------------------------------
+
+/** Em size text is measured at, then scaled: big enough for exact widths. */
+const MEASURE_PX = 100;
+
+let measurer: CanvasRenderingContext2D | null | undefined;
+const widths = new Map<string, number>();
+
+function measuringContext(): CanvasRenderingContext2D | null {
+  if (measurer !== undefined) return measurer;
+  measurer = null;
+  if (typeof document === "undefined") return measurer;
+  try {
+    measurer = document.createElement("canvas").getContext("2d");
+  } catch {
+    measurer = null;
+  }
+  // Widths measured with a fallback font go stale once Fredoka arrives.
+  document.fonts?.addEventListener?.("loadingdone", () => widths.clear());
+  return measurer;
+}
+
+/** Width of plain text in logical px, at the font's size and tracking. */
+function runWidth(text: string, fontId: FontId): number {
+  const spec = FONTS[fontId];
+  const key = `${fontId}|${text}`;
+  let em = widths.get(key);
+  if (em === undefined) {
+    const ctx = measuringContext();
+    if (ctx) {
+      ctx.font = cssFont(fontId, MEASURE_PX);
+      em = ctx.measureText(text).width / MEASURE_PX;
+    } else {
+      // No canvas (unit tests): Fredoka's average advance.
+      em = [...text].length * 0.56;
+    }
+    widths.set(key, em);
+  }
+  const chars = [...text];
+  const spaces = chars.filter((c) => c === " ").length;
   return (
-    glyphs.reduce((w, g) => w + g.w / RENDER_SCALE + font.spacing, 0) -
-    font.spacing
+    em * spec.size +
+    spec.tracking * Math.max(0, chars.length - 1) +
+    spec.wordSpacing * spaces
   );
+}
+
+function iconWidth(fontId: FontId): number {
+  return FONTS[fontId].icon + ICON_GAP * 2;
+}
+
+/** Width in logical px of one line of text, at `fit` times the font's size. */
+export function measureText(
+  text: string,
+  fontId: FontId = "regular",
+  fit = 1,
+): number {
+  const runs = runsOf(text, fontId);
+  const w = runs.reduce(
+    (sum, r) =>
+      sum + ("icon" in r ? iconWidth(fontId) : runWidth(r.text, fontId)),
+    0,
+  );
+  return w * fit;
 }
 
 /** Greedy word wrap to `maxWidth` logical px. Honours explicit newlines. */
@@ -199,102 +217,142 @@ export function wrapText(
 }
 
 /**
- * Calls `plot` for every ink pixel of one line, in canvas pixels from its
- * top-left.
+ * How much to shrink a line so it fits `maxWidth` logical px: 1 when it
+ * already fits, and never below 0.6, where signs stop being legible.
  */
-function forEachPixel(
+export function fitScale(
   text: string,
-  fontId: FontId,
-  plot: (x: number, y: number) => void,
-) {
-  const font = FONTS[fontId];
-  let cx = 0;
-  for (const g of glyphsOf(text, fontId)) {
-    g.rows.forEach((row, y) => {
-      for (let x = 0; x < row.length; x++) if (row[x] === "#") plot(cx + x, y);
-    });
-    cx += g.w + font.spacing * RENDER_SCALE;
-  }
+  maxWidth: number,
+  fontId: FontId = "regular",
+): number {
+  const w = measureText(text, fontId);
+  return w <= maxWidth || w === 0 ? 1 : Math.max(0.6, maxWidth / w);
 }
 
-interface TextStyle {
+// --- Drawing -----------------------------------------------------------------
+
+export interface TextStyle {
   font?: FontId;
   color: string;
-  /** A 1 logical px hard outline, rounded at the corners, as SCUMM speech. */
+  /** A dark (or light) rim around every glyph, or false for none. */
   outline?: string | false;
+  /** Rim width in logical px. Defaults to the font's. */
+  outlineWidth?: number;
+  /** A soft drop shadow under the rim, for speech. */
+  shadow?: string | false;
+  /** Size relative to the font's, from `fitScale`. */
+  fit?: number;
 }
 
-/**
- * Outline offsets in canvas pixels: every point within one logical px,
- * except the far corners, so the outline rounds off at the glyph's corners.
- */
-const OUTLINE: readonly (readonly [number, number])[] = (() => {
-  const r = RENDER_SCALE;
-  const out: [number, number][] = [];
-  for (let dy = -r; dy <= r; dy++) {
-    for (let dx = -r; dx <= r; dx++) {
-      if (Math.abs(dx) === r && Math.abs(dy) === r) continue;
-      out.push([dx, dy]);
-    }
-  }
-  return out;
-})();
+const DEFAULT_OUTLINE: Record<FontId, number> = { regular: 0.85, small: 0.5 };
 
-const cache = new Map<string, HTMLCanvasElement>();
-const CACHE_LIMIT = 256;
-
-function renderLine(text: string, style: TextStyle): HTMLCanvasElement {
-  const fontId = style.font ?? "regular";
-  const key = `${fontId}|${style.color}|${style.outline || ""}|${text}`;
-  const hit = cache.get(key);
-  if (hit) return hit;
-  const pad = style.outline ? RENDER_SCALE : 0;
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.max(
-    1,
-    measureText(text, fontId) * RENDER_SCALE + pad * 2,
-  );
-  canvas.height = FONTS[fontId].height * RENDER_SCALE + pad * 2;
-  const ctx = canvas.getContext("2d");
-  if (ctx) {
-    if (style.outline) {
-      ctx.fillStyle = style.outline;
-      forEachPixel(text, fontId, (x, y) => {
-        for (const [dx, dy] of OUTLINE) {
-          ctx.fillRect(x + pad + dx, y + pad + dy, 1, 1);
-        }
-      });
-    }
-    ctx.fillStyle = style.color;
-    forEachPixel(text, fontId, (x, y) => ctx.fillRect(x + pad, y + pad, 1, 1));
-  }
-  if (cache.size >= CACHE_LIMIT) {
-    const oldest = cache.keys().next().value;
-    if (oldest !== undefined) cache.delete(oldest);
-  }
-  cache.set(key, canvas);
-  return canvas;
-}
+/** Shadow offset in logical px. */
+const SHADOW = { dx: 0.35, dy: 0.5 };
 
 /**
- * Draws one line with its top-left at logical `x`,`y` (the outline, if any,
- * sits one logical px outside that box), on a context scaled to logical px.
+ * Draws one line with its top-left at logical `x`,`y`: capitals run from
+ * `y` down to `y + capHeight`. The outline, if any, sits just outside that
+ * box. Every pass (shadow, outline, fill) covers the whole line before the
+ * next starts, so no glyph's rim ever cuts into its neighbour.
  */
 export function drawText(
-  ctx: CanvasRenderingContext2D,
+  layer: TextLayer,
   text: string,
   x: number,
   y: number,
   style: TextStyle,
 ) {
   if (!text) return;
-  const pad = style.outline ? 1 : 0;
-  const line = renderLine(text, style);
-  ctx.drawImage(
-    line,
-    Math.round(x) - pad,
-    Math.round(y) - pad,
-    line.width / RENDER_SCALE,
-    line.height / RENDER_SCALE,
-  );
+  const { ctx, scale } = layer;
+  const fontId = style.font ?? "regular";
+  const spec = FONTS[fontId];
+  const fit = style.fit ?? 1;
+  const runs = runsOf(text, fontId);
+  const px = spec.size * fit * scale;
+  // Positions in canvas pixels, the baseline snapped to the pixel grid.
+  const left = Math.round(x * scale);
+  const baseline = Math.round((y + spec.size * CAP_HEIGHT * fit) * scale);
+  const iconH = spec.icon * fit * scale;
+  const cell = Math.max(1, Math.round(iconH / 14));
+
+  const placed: { run: Run; x: number; w: number }[] = [];
+  let cx = left;
+  for (const run of runs) {
+    const w =
+      ("icon" in run ? iconWidth(fontId) : runWidth(run.text, fontId)) *
+      fit *
+      scale;
+    placed.push({ run, x: cx, w });
+    cx += w;
+  }
+
+  ctx.save();
+  ctx.font = cssFont(fontId, px);
+  ctx.textBaseline = "alphabetic";
+  ctx.textAlign = "left";
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  if ("letterSpacing" in ctx) {
+    ctx.letterSpacing = `${spec.tracking * fit * scale}px`;
+  }
+  if ("wordSpacing" in ctx) {
+    ctx.wordSpacing = `${spec.wordSpacing * fit * scale}px`;
+  }
+
+  /** One pass over the line: `grow` px of rim around every glyph. */
+  const pass = (color: string, grow: number, dx = 0, dy = 0) => {
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = grow * 2;
+    for (const p of placed) {
+      if ("icon" in p.run) {
+        drawIcon(ctx, p.run.icon, p, baseline + dy, cell, grow, dx);
+      } else {
+        if (grow > 0) ctx.strokeText(p.run.text, p.x + dx, baseline + dy);
+        ctx.fillText(p.run.text, p.x + dx, baseline + dy);
+      }
+    }
+  };
+
+  const rim = style.outline
+    ? (style.outlineWidth ?? DEFAULT_OUTLINE[fontId]) * fit * scale
+    : 0;
+  if (style.shadow) {
+    pass(style.shadow, rim, SHADOW.dx * scale, SHADOW.dy * scale);
+  }
+  if (style.outline) pass(style.outline, rim);
+  pass(style.color, 0);
+  ctx.restore();
+}
+
+/**
+ * A section icon as crisp pixel art, in whole canvas pixels per icon
+ * pixel, centred in its slot and sat on the baseline. `grow` fattens each
+ * pixel for the outline.
+ */
+function drawIcon(
+  ctx: CanvasRenderingContext2D,
+  section: SectionId,
+  slot: { x: number; w: number },
+  baseline: number,
+  cell: number,
+  grow: number,
+  dx: number,
+) {
+  const rows = iconRows(section);
+  const size = 14 * cell;
+  const ox = Math.round(slot.x + (slot.w - size) / 2 + dx);
+  const oy = baseline - size;
+  const g = Math.round(grow);
+  rows.forEach((row, ry) => {
+    for (let rx = 0; rx < row.length; rx++) {
+      if (row[rx] !== "#") continue;
+      ctx.fillRect(
+        ox + rx * cell - g,
+        oy + ry * cell - g,
+        cell + g * 2,
+        cell + g * 2,
+      );
+    }
+  });
 }

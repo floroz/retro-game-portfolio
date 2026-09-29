@@ -53,6 +53,9 @@ const SHELF_LABELS: SceneLabel[] = (
   y,
   align: "center",
   font: "small",
+  // Names shrink to fit their shelf: 27 px a slot on the top shelf, 40 on
+  // the bottom one.
+  maxWidth: y === 54 ? 25 : 38,
 }));
 
 export const HALL_SCENE: SceneData = {

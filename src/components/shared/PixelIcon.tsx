@@ -1,4 +1,4 @@
-import { iconRows } from "../../engine/font";
+import { iconRows } from "../../engine/icons";
 import type { SectionId } from "../../engine/types";
 
 interface PixelIconProps {
@@ -12,7 +12,7 @@ interface PixelIconProps {
 }
 
 /**
- * A section icon from the engine's pixel font, so the toolbar, the gate
+ * A section icon from the engine (icons.ts), so the toolbar, the gate
  * signs, and the departures board all show the same icon.
  */
 export function PixelIcon({ section, scale = 1, className }: PixelIconProps) {

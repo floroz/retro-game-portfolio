@@ -9,7 +9,7 @@ import {
   SECTIONS,
   sectionsIn,
 } from "../config/sections";
-import { iconToken } from "./font";
+import { iconToken } from "./icons";
 import type { CountrySceneId, LabelSource, Rect, SceneId } from "./types";
 
 const SCENE_NAMES: Record<SceneId, string> = {

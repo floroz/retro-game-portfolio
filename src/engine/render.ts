@@ -6,8 +6,14 @@
  * on the old 320x160 canvas, and density-2 art 1:1. HD frames (density 4)
  * draw on a canvas backed at display resolution (backing.ts), with
  * high-quality smoothing for HD images only; anything still pixel art in
- * an HD frame (the sprite-sheet character, shared sprites, the font) stays
+ * an HD frame (the sprite-sheet character, shared sprites) stays
  * nearest-neighbour. The frame's density is its scene background's.
+ *
+ * Text (labels, captions, speech, the map label) draws on a separate layer
+ * at display resolution (font.ts), laid over the art. To keep the depth
+ * order, anything drawn in front of a label also erases it from the text
+ * layer (`maskText`), so Daniele walking past the CRT still hides its
+ * marquee, and the iris closes over speech.
  *
  * Layers, back to front (docs/art-spec.md, "Layers, depth, and slots"):
  * 1. `bg`
@@ -26,7 +32,14 @@ import { paintOrder, type Paintable } from "./depth";
 import { backingSize, type Display } from "./backing";
 import { CORE, IRIS_MS, NATIVE_H, NATIVE_W } from "./constants";
 import { isSmooth, snap, type Density } from "./density";
-import { drawText, lineHeight, measureText, wrapText } from "./font";
+import {
+  drawText,
+  fitScale,
+  lineHeight,
+  measureText,
+  wrapText,
+  type TextLayer,
+} from "./font";
 import { marqueeX, resolveLabel } from "./labels";
 import type { SceneEngine, Transition } from "./SceneEngine";
 import type { SlotItem } from "./slots";
@@ -48,11 +61,16 @@ import type {
 type Ctx = CanvasRenderingContext2D;
 
 interface Drawable extends Paintable {
-  draw: () => void;
+  /** Art, on the art canvas. */
+  draw?: (rc: RenderContext) => void;
+  /** Text, on the text layer. */
+  text?: (layer: TextLayer) => void;
 }
 
 export interface RenderContext {
   ctx: Ctx;
+  /** The display-resolution text layer over `ctx`. */
+  text: TextLayer;
   engine: SceneEngine;
   images: ImageStore;
   sheet: CharacterSheet;
@@ -100,8 +118,8 @@ function prepareCanvas(rc: RenderContext): boolean {
 
 /**
  * Draws with smoothing for an HD image (density 4) and nearest-neighbour
- * for pixel art, then leaves smoothing off, which the pixel font and the
- * pixel-art layers rely on.
+ * for pixel art, then leaves smoothing off, which the pixel-art layers
+ * rely on.
  */
 function drawSmoothIf(ctx: Ctx, d: Density, draw: () => void) {
   if (!isSmooth(d)) {
@@ -112,6 +130,30 @@ function drawSmoothIf(ctx: Ctx, d: Density, draw: () => void) {
   ctx.imageSmoothingQuality = "high";
   draw();
   ctx.imageSmoothingEnabled = false;
+}
+
+/**
+ * Erases the text layer wherever `draw` paints, for art in front of text:
+ * `draw` runs again on the text layer, scaled to logical px, with
+ * destination-out compositing.
+ */
+function maskText(rc: RenderContext, draw: (rc: RenderContext) => void) {
+  const t = rc.text.ctx;
+  t.save();
+  t.setTransform(rc.text.scale, 0, 0, rc.text.scale, 0, 0);
+  t.imageSmoothingEnabled = false;
+  t.globalCompositeOperation = "destination-out";
+  draw({ ...rc, ctx: t });
+  t.restore();
+}
+
+/** The text layer's context, scaled to logical px, for shapes over text. */
+function onText(rc: RenderContext, draw: (ctx: Ctx) => void) {
+  const t = rc.text.ctx;
+  t.save();
+  t.setTransform(rc.text.scale, 0, 0, rc.text.scale, 0, 0);
+  draw(t);
+  t.restore();
 }
 
 /** What a frame needs loaded before it's drawn, per scene and for the map. */
@@ -139,6 +181,9 @@ export function renderFrame(rc: RenderContext) {
         ]);
   if (!rc.images.ready(urls)) return;
   const hd = prepareCanvas(rc);
+  const t = rc.text.ctx;
+  t.setTransform(1, 0, 0, 1, 0, 0);
+  t.clearRect(0, 0, t.canvas.width, t.canvas.height);
   if (tr?.kind === "map") {
     drawTravelMap(rc, tr, hd);
     return;
@@ -150,35 +195,64 @@ export function renderFrame(rc: RenderContext) {
   drawImageAt(rc, scene.background, 0, 0);
 
   const items: Drawable[] = [];
-  const add = (y: number | undefined, draw: () => void, actor = false) =>
-    items.push({ y: y ?? null, actor, draw });
+  const add = (
+    y: number | undefined,
+    draw: Drawable["draw"],
+    actor = false,
+    text?: Drawable["text"],
+  ) => items.push({ y: y ?? null, actor, draw, text });
 
   for (const thing of [...scene.objects, ...scene.exits]) {
     const state = engine.stateOf(thing.id);
     const url = (state && thing.states?.[state]) || thing.sprite;
     if (!url || thing.x === undefined || thing.y === undefined) continue;
     const { x, y } = thing;
-    add(thing.baselineY, () => drawImageAt(rc, url, x, y));
+    add(thing.baselineY, (r) => drawImageAt(r, url, x, y));
   }
   for (const anim of scene.animations ?? []) {
-    add(anim.baselineY, () => drawAnimation(rc, anim));
+    add(anim.baselineY, (r) => drawAnimation(r, anim));
   }
   for (const row of scene.slots ?? []) {
     const rowItems = engine.slots.filter((i) => i.rowId === row.id);
-    add(row.baselineY, () => drawSlotRow(rc, row, rowItems));
+    add(
+      row.baselineY,
+      (r) => drawSlotRow(r, rowItems),
+      false,
+      row.caption ? (layer) => drawCaptions(layer, row, rowItems) : undefined,
+    );
   }
   for (const label of scene.labels ?? []) {
-    add(label.baselineY, () => drawLabel(ctx, label, engine.now));
+    add(label.baselineY, undefined, false, (layer) =>
+      drawLabel(layer, label, engine.now),
+    );
   }
   const actor = engine.position;
-  add(actor.y, () => drawCharacter(rc), true);
+  add(actor.y, (r) => drawCharacter(r), true);
 
-  paintOrder(items).forEach((i) => i.draw());
+  // Once any text is down, art painted after it also masks it.
+  let textBelow = false;
+  for (const item of paintOrder(items)) {
+    if (item.draw) {
+      item.draw(rc);
+      if (textBelow) maskText(rc, item.draw);
+    }
+    if (item.text) {
+      item.text(rc.text);
+      textBelow = true;
+    }
+  }
 
-  if (scene.foreground) drawImageAt(rc, scene.foreground, 0, 0);
+  const fg = scene.foreground;
+  if (fg) {
+    drawImageAt(rc, fg, 0, 0);
+    if (textBelow) maskText(rc, (r) => drawImageAt(r, fg, 0, 0));
+  }
 
   drawSpeech(rc);
-  if (tr?.kind === "iris") drawIris(ctx, tr, hd);
+  if (tr?.kind === "iris") {
+    drawIris(ctx, tr, hd);
+    onText(rc, (t) => drawIris(t, tr, hd));
+  }
 }
 
 /** Draws a whole image with its top-left at logical `x`,`y`. */
@@ -228,26 +302,34 @@ function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
   if (anim.clip) ctx.restore();
 }
 
-function drawSlotRow(rc: RenderContext, row: SlotRow, items: SlotItem[]) {
+function drawSlotRow(rc: RenderContext, items: SlotItem[]) {
   for (const item of items) {
     const url = slotSpriteUrl(item.sprite);
     if (url) drawImageAt(rc, url, item.x, item.y);
-    if (row.caption) {
-      drawText(
-        rc.ctx,
-        item.name,
-        item.x + row.caption.dx,
-        item.y + row.caption.dy,
-        {
-          font: "small",
-          color: row.caption.color ?? CORE.paper,
-        },
-      );
-    }
   }
 }
 
-function drawLabel(ctx: Ctx, label: SceneLabel, now: number) {
+function drawCaptions(layer: TextLayer, row: SlotRow, items: SlotItem[]) {
+  if (!row.caption) return;
+  for (const item of items) {
+    drawText(
+      layer,
+      item.name,
+      item.x + row.caption.dx,
+      item.y + row.caption.dy,
+      {
+        font: "small",
+        color: row.caption.color ?? CORE.paper,
+      },
+    );
+  }
+}
+
+/**
+ * A scene label. With `maxWidth`, lines wrap at word breaks, and a single
+ * word still too wide shrinks to fit.
+ */
+function drawLabel(layer: TextLayer, label: SceneLabel, now: number) {
   const font = label.font ?? "regular";
   const lines = resolveLabel(label.source).flatMap((l) =>
     label.maxWidth ? wrapText(l, label.maxWidth, font) : [l],
@@ -261,23 +343,28 @@ function drawLabel(ctx: Ctx, label: SceneLabel, now: number) {
     const { clip } = label.marquee;
     const text = lines.join(" ");
     const x = marqueeX(label.marquee, measureText(text, font), now);
+    const { ctx, scale } = layer;
     ctx.save();
     ctx.beginPath();
-    ctx.rect(clip.x, clip.y, clip.w, clip.h);
+    ctx.rect(clip.x * scale, clip.y * scale, clip.w * scale, clip.h * scale);
     ctx.clip();
-    drawText(ctx, text, x, label.y, style);
+    drawText(layer, text, x, label.y, style);
     ctx.restore();
     return;
   }
   lines.forEach((line, i) => {
-    const w = measureText(line, font);
+    const fit = label.maxWidth ? fitScale(line, label.maxWidth, font) : 1;
+    const w = measureText(line, font, fit);
     const x =
       label.align === "center"
-        ? label.x - Math.floor(w / 2)
+        ? label.x - w / 2
         : label.align === "right"
           ? label.x - w
           : label.x;
-    drawText(ctx, line, x, label.y + i * lineHeight(font), style);
+    drawText(layer, line, x, label.y + i * lineHeight(font), {
+      ...style,
+      fit,
+    });
   });
 }
 
@@ -349,11 +436,14 @@ function drawCharacter(rc: RenderContext) {
   ctx.restore();
 }
 
+/** A soft shadow under speech's outline. */
+const SPEECH_SHADOW = "rgba(15, 13, 18, 0.55)";
+
 /** Daniele's lines: centred over his head, kept on screen, SCUMM style. */
 function drawSpeech(rc: RenderContext) {
   const speech = rc.engine.speech;
   if (!speech) return;
-  const { ctx, engine, sheet } = rc;
+  const { engine, sheet } = rc;
   const { x, y } = engine.position;
   const lh = lineHeight("regular");
   // The top of the cell, just above the hair, in logical px above the feet.
@@ -361,15 +451,18 @@ function drawSpeech(rc: RenderContext) {
   const headTop = y - head * engine.scale;
   const top = Math.max(2, Math.round(headTop - 3 - speech.lines.length * lh));
   const widest = Math.max(...speech.lines.map((l) => measureText(l)));
+  // Kept clear of the edges by the margin plus the outline.
+  const margin = 6;
   const center = Math.max(
-    2 + widest / 2,
-    Math.min(NATIVE_W - 2 - widest / 2, x),
+    margin + widest / 2,
+    Math.min(NATIVE_W - margin - widest / 2, x),
   );
   speech.lines.forEach((line, i) => {
     const w = measureText(line);
-    drawText(ctx, line, Math.round(center - w / 2), top + i * lh, {
+    drawText(rc.text, line, center - w / 2, top + i * lh, {
       color: CORE.paper,
       outline: CORE.black,
+      shadow: SPEECH_SHADOW,
     });
   });
 }
@@ -502,15 +595,17 @@ function drawTravelMap(
   const label = `${COUNTRIES[tr.to].name}: ${sectionList(tr.to)}`;
   const [bx, by] = tr.route.b;
   const lw = measureText(label, "small");
-  const lx = Math.max(2, Math.min(NATIVE_W - lw - 2, Math.round(bx - lw / 2)));
+  const lx = Math.max(3, Math.min(NATIVE_W - lw - 3, bx - lw / 2));
   const ly = by - 12 < 2 ? by + 6 : by - 12;
-  drawText(ctx, label, lx, ly, {
+  drawText(rc.text, label, lx, ly, {
     font: "small",
     color: map.labelColor ?? CORE.black,
     outline: CORE.paper,
+    outlineWidth: 0.8,
   });
 
   drawPlane(rc, tr, progress);
+  maskText(rc, (r) => drawPlane(r, tr, progress));
 }
 
 function drawPlane(

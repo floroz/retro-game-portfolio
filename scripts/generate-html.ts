@@ -180,6 +180,9 @@ ${JSON.stringify(websiteSchema, null, 2)
     <!-- Preconnect to external domains for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- The game's world text (src/engine/font.ts), self-hosted -->
+    <link rel="preload" href="/fonts/fredoka-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
   </head>
   <body>
     <!-- Noscript fallback for SEO crawlers -->
