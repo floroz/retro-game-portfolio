@@ -6,7 +6,7 @@
   "derivedFrom": "char-turnaround",
   "palette": "v2",
   "density": 2,
-  "cleanup": "Packed with npm run assets:pack -- --density 2 --stride 52 --head-offset 17,3 from the ten 2x strips in assets-src/character/ (see their records): 31 body frames of 64x128 with feet on row 123 and origin (32, 123), plus 6 talk heads of 32x32 at talkHeadOffset (17, 3). Stride 52 sheet px, twice the logical 26 (walk-e's planted foot moves back 6, 6, 8, 6 px per frame, 26 px per step), so walk frames still advance every 3.25 logical px and the feet don't slide. Replaces the 1x B7 sheet.",
+  "cleanup": "Packed with npm run assets:pack -- --density 2 --stride 52 --head-offset 17,3 from the ten 2x strips in assets-src/character/ (see their records): 31 body frames of 64x128 with feet on row 123 and origin (32, 123), plus 6 talk heads of 32x32 at talkHeadOffset (17, 3). Stride 52 sheet px, twice the logical 26 (walk-e's planted foot moves back 6, 6, 8, 6 px per frame, 26 px per step), so walk frames still advance every 3.25 logical px and the feet don't slide. Replaces the 1x B7 sheet. I2: repacked with the same command after the hair and shoe outline change (6 to & on the silhouette edge) in every strip.",
   "approvedBy": "opus (RB7 build agent, delegated pick)",
   "date": "2026-09-29"
 }
