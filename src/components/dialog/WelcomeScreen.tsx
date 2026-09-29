@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useGameStore } from "../../store/gameStore";
 import {
   CANVAS_CARD_H,
@@ -12,10 +12,21 @@ import styles from "./WelcomeScreen.module.scss";
 
 interface WelcomeScreenProps {
   onDismiss: () => void;
+  /**
+   * False while the scene's art is still loading. A start requested until
+   * then waits, and the card says so (default true).
+   */
+  ready?: boolean;
 }
 
 /** How often the space bar presses itself, in ms. */
 const PRESS_MS = 700;
+
+/**
+ * The longest a requested start waits for the art, in ms. A stalled
+ * download must never lock the visitor out of the content.
+ */
+const WAIT_LIMIT_MS = 12000;
 
 /**
  * The title card, shown in the game window until the visitor starts: a
@@ -23,16 +34,44 @@ const PRESS_MS = 700;
  * the button, and Space starts the game too. A brass fitting toggles the
  * sound.
  *
+ * If the visitor starts before the scene's art has loaded, the pass stays
+ * up with "loading" on its stub and the game starts as soon as the art is in.
+ *
  * The art is one canvas; the button and the fitting over it are real
  * controls, and the name and title are also in the page for screen readers.
  */
-export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
+export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const soundEnabled = useGameStore((s) => s.soundEnabled);
   const toggleSound = useGameStore((s) => s.toggleSound);
   const [passLit, setPassLit] = useState(false);
-  const [soundLit, setSoundLit] = useState(false);
+  const [soundHover, setSoundHover] = useState(false);
+  const [soundFocus, setSoundFocus] = useState(false);
+  const soundLit = soundHover || soundFocus;
   const [pressed, setPressed] = useState(false);
+  const [queued, setQueued] = useState(false);
+  const waiting = queued && !ready;
+
+  // The visitor asked to start: now if the art is in, else once it is.
+  const start = useCallback(() => {
+    if (ready) onDismiss();
+    else setQueued(true);
+  }, [ready, onDismiss]);
+
+  const dismissRef = useRef(onDismiss);
+  useEffect(() => {
+    dismissRef.current = onDismiss;
+  }, [onDismiss]);
+
+  useEffect(() => {
+    if (queued && ready) dismissRef.current();
+  }, [queued, ready]);
+
+  useEffect(() => {
+    if (!waiting) return;
+    const timer = setTimeout(() => dismissRef.current(), WAIT_LIMIT_MS);
+    return () => clearTimeout(timer);
+  }, [waiting]);
 
   // The space bar presses itself, unless the visitor would rather it didn't.
   useEffect(() => {
@@ -46,25 +85,27 @@ export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
     if (ctx) {
       paintCard(ctx, {
         lit: passLit,
-        pressed: pressed || passLit,
+        pressed: pressed || passLit || waiting,
         soundEnabled,
         soundLit,
+        waiting,
       });
     }
-  }, [passLit, pressed, soundEnabled, soundLit]);
+  }, [passLit, pressed, soundEnabled, soundLit, waiting]);
 
-  // Space starts the game, whatever has focus (the pass or the fitting
-  // handle their own Enter and Space).
+  // Space starts the game, whatever has focus except a button the visitor
+  // tabbed to, which handles its own Space (the pass starts, the fitting
+  // toggles the sound). A click blurs the fitting for that reason.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== " " && e.code !== "Space") return;
       if (e.target instanceof HTMLButtonElement) return;
       e.preventDefault();
-      if (!e.repeat) onDismiss();
+      if (!e.repeat) start();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onDismiss]);
+  }, [start]);
 
   return (
     <div
@@ -73,6 +114,7 @@ export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
       role="dialog"
       aria-modal="true"
       aria-label="Welcome screen - press space to start"
+      aria-busy={waiting}
     >
       <canvas
         ref={canvasRef}
@@ -95,7 +137,7 @@ export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
         style={cardPct(PASS)}
         data-e2e="welcome-screen-prompt"
         aria-label="Press space or click to start"
-        onClick={onDismiss}
+        onClick={start}
         onMouseEnter={() => setPassLit(true)}
         onMouseLeave={() => setPassLit(false)}
         onFocus={() => setPassLit(true)}
@@ -109,11 +151,16 @@ export function WelcomeScreen({ onDismiss }: WelcomeScreenProps) {
         data-e2e="welcome-screen-sound"
         aria-pressed={soundEnabled}
         aria-label="Sound"
-        onClick={toggleSound}
-        onMouseEnter={() => setSoundLit(true)}
-        onMouseLeave={() => setSoundLit(false)}
-        onFocus={() => setSoundLit(true)}
-        onBlur={() => setSoundLit(false)}
+        onClick={(e) => {
+          toggleSound();
+          // A click (detail > 0, unlike Enter or Space) hands the keyboard
+          // back, so the next Space starts the game.
+          if (e.detail > 0) e.currentTarget.blur();
+        }}
+        onMouseEnter={() => setSoundHover(true)}
+        onMouseLeave={() => setSoundHover(false)}
+        onFocus={() => setSoundFocus(true)}
+        onBlur={() => setSoundFocus(false)}
       />
     </div>
   );

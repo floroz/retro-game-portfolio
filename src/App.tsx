@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import styles from "./App.module.scss";
 import { GameCanvas } from "./components/game/GameCanvas";
 import gameCanvasStyles from "./components/game/GameCanvas.module.scss";
@@ -13,6 +13,10 @@ import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { useSceneAudio } from "./hooks/useSceneAudio";
 import { allImages, images } from "./engine/runtime";
+
+/** Every image the game draws, listed once. */
+const ALL_IMAGES = allImages();
+const assetsReady = () => images.ready(ALL_IMAGES);
 
 /**
  * Day of the Tentacle inspired portfolio
@@ -33,6 +37,10 @@ function App() {
   useEffect(() => {
     if (!isMobile) void images.loadAll(allImages());
   }, [isMobile]);
+
+  // True once every scene image has loaded (or failed), so the title card
+  // can hold the start until the Hall can be drawn.
+  const ready = useSyncExternalStore(images.subscribe, assetsReady);
 
   // Track when welcome screen is dismissed to trigger dialog
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
@@ -101,6 +109,7 @@ function App() {
         welcomeContent={
           !welcomeShown ? (
             <WelcomeScreen
+              ready={ready}
               onDismiss={() => {
                 dismissWelcome();
                 setWelcomeDismissed(true);

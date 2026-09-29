@@ -8,10 +8,16 @@ import { offGridPixels } from "../../../test/helpers/canvas";
 const initial = useGameStore.getState();
 
 /** The title card at the game window's size: 1280x800 content. */
-function Card({ onDismiss }: { onDismiss: () => void }) {
+function Card({
+  onDismiss,
+  ready,
+}: {
+  onDismiss: () => void;
+  ready?: boolean;
+}) {
   return (
     <div style={{ width: 1280, height: 800, position: "relative" }}>
-      <WelcomeScreen onDismiss={onDismiss} />
+      <WelcomeScreen onDismiss={onDismiss} ready={ready} />
     </div>
   );
 }
@@ -96,6 +102,39 @@ describe("WelcomeScreen: the title card", () => {
     await userEvent.keyboard(" ");
     expect(useGameStore.getState().soundEnabled).toBe(true);
     expect(onDismiss).not.toHaveBeenCalled();
+  });
+
+  test("Space after clicking the sound fitting still starts the game", async () => {
+    const onDismiss = vi.fn();
+    await render(<Card onDismiss={onDismiss} />);
+    await page.getByRole("button", { name: "Sound" }).click();
+    await userEvent.keyboard(" ");
+    expect(useGameStore.getState().soundEnabled).toBe(true);
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  test("a start before the art has loaded waits for it, once", async () => {
+    const onDismiss = vi.fn();
+    const screen = await render(<Card onDismiss={onDismiss} ready={false} />);
+    await userEvent.keyboard(" ");
+    await userEvent.keyboard(" ");
+    const card = screen.container.querySelector("[data-e2e=welcome-screen]");
+    expect(onDismiss).not.toHaveBeenCalled();
+    // The card says so, for screen readers as well as on the stub.
+    expect(card?.getAttribute("aria-busy")).toBe("true");
+    await screen.rerender(<Card onDismiss={onDismiss} ready />);
+    await vi.waitFor(() => expect(onDismiss).toHaveBeenCalledTimes(1));
+  });
+
+  test("a click before the art has loaded waits for it too", async () => {
+    const onDismiss = vi.fn();
+    const screen = await render(<Card onDismiss={onDismiss} ready={false} />);
+    await page
+      .getByRole("button", { name: "Press space or click to start" })
+      .click();
+    expect(onDismiss).not.toHaveBeenCalled();
+    await screen.rerender(<Card onDismiss={onDismiss} ready />);
+    await vi.waitFor(() => expect(onDismiss).toHaveBeenCalledTimes(1));
   });
 
   test("the card is painted on the 2x grid", async () => {
