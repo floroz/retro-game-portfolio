@@ -269,6 +269,16 @@ export const ZURICH_SCENE: SceneData = {
 ```
 
 - A slot row's capacity is its number of positions.
+
+**As implemented by E1:** the authority is `src/engine/types.ts` on `v2`. Where this sketch and the code differ, the code wins. Build tasks must know these additions:
+
+- **Loading:** `src/config/scenes/<id>.ts` exports `<ID>_SCENE: SceneData` (for example `ZURICH_SCENE`), and `travel-map.ts` exports `TRAVEL_MAP: TravelMapData`. The registry is `src/engine/scenes.ts`.
+- **Scenes:** need `name`, and may have `entryLine` (said on first arrival) and `floor` (`carpet`, `wood`, or `tile`, for footsteps). `music` and `ambience` take a URL or `{ src, loopStart, loopEnd }`. **Copy the loop points from the audio provenance record**, because the engine can't read provenance at runtime.
+- **Entry keys:** the Hall needs `start`, `fromLondon`, `fromZurich`, and `fromSorrento`. Each country needs `fromHall`.
+- **Objects:** need `name` (hover text) and `look`, and may have `use`. An optional `states.open` sprite shows while the object's content is on screen. **Exits** may have `name`, `look`, and `states.open`.
+- **Animations** need `frames`, and may have `motion`, `clip`, and `baselineY`. **Slot rows** may have `caption` and `baselineY`.
+- **Labels:** `source` is `section:`, `scene:`, `gate:<country>`, `departures`, `skills:menu`, or `text:`, with `font`, `align`, `color`, `outline`, and `maxWidth`. Section icons are written as `{skills}` and so on.
+- **Travel map:** `TravelMapData` has `markers`, a `hall` start point, optional per-route bezier `routes`, an optional `plane` strip (1 or 8 headings, ordered E, SE, S, SW, W, NW, N, NE), and an optional `marker` sprite. The trip starts from the last country visited, or from the `hall` point.
 - `cutout.ts` and `pack.ts` print each sprite's position and alpha bounding box, so hotspots can be copied rather than measured.
 
 ## Tooling
@@ -447,7 +457,8 @@ Audio is written entirely as code by Opus. It needs no generated images and no m
 | B6      | todo   | Opus    | 2     | G2a           | Shared sprites: slot sprites, fold objects, the plane, map markers       |
 | B7      | todo   | Opus    | 2     | C5, C6        | Character frames, talk heads, packing                                    |
 | A2      | todo   | Opus    | 2     | GA            | Three country tracks, the travel sting, four ambience loops, all effects |
-| I1      | todo   | Opus    | 3     | B1–B7, A2, E1 | Cohesion, integration, baselines (ends at **G4**)                        |
+| E2      | todo   | Opus    | 2     | E1, A2        | Engine follow-ups: object sounds, audio loop points, leftovers           |
+| I1      | todo   | Opus    | 3     | B1–B7, A2, E2 | Cohesion, integration, baselines (ends at **G4**)                        |
 
 ```mermaid
 flowchart LR
@@ -493,7 +504,9 @@ flowchart LR
   C5 --> B7
   C6 --> B7
   GA --> A2
-  E1[E1 engine lane] --> I1
+  E1[E1 engine lane] --> E2[E2 engine follow-ups]
+  A2 --> E2
+  E2 --> I1
   B1 & B2 & B3 & B4 & B5 & B6 & B7 & A2 --> I1[I1 integration]
   I1 --> G4{G4 final review}
 ```
@@ -658,6 +671,7 @@ Everything in this phase starts once its dependencies are met, and runs in paral
   4. Draw the clean plate behind each cutout at native size. Continue regular patterns (carpet, tiles, planks) procedurally. Where a background isn't regular, a clean plate may use one Codex edit; ask Daniele to run it with the exact prompt.
   5. Draw the scene's animation strips (see its card) and any `@open` states.
   6. Write the scene data: walkbox, depth, entry points, objects, animations, slot positions (placed where B6's sprites will sit), labels, and exits. Check it in the dev overlay with placeholder slot sprites. For `travel-map` (B5), write the route geometry and marker positions instead of a walkbox.
+- **Contract:** write the scene data against the implemented types (see "As implemented by E1" in the Scene data contract), including `name`, `look`, and `use` lines for every object, `floor`, and the entry keys. Replace your scene's placeholder config, and delete its `obj-placeholder` and `anim-placeholder` files.
 - **Hand-off prompt addition:** "Scene: {scene}. Chosen candidate: {NN}. Scene card changes: {…}."
 - **Done when:** the scene renders in the dev overlay, `lint` passes, and the PR is merged.
 
@@ -687,6 +701,16 @@ Everything in this phase starts once its dependencies are met, and runs in paral
 - **Owns:** `assets-src/audio/music/` (country tracks and sting), `assets-src/audio/sfx/`, `assets-src/audio/ambience/`, `public/audio/`, audio provenance records, plus the audio part of `scripts/assets/validate.ts` and `knip.json`.
 - **Steps:** compose `london`, `zurich`, and `sorrento` as variations on the motif, plus `music-travel-sting`. Synthesise the four ambience loops and every sound effect in the Audio section. Make the boarding chime the motif's first three notes (A C F) on tubular bells, matching the Hall theme. Extend `lint:assets` to require a provenance record for every file in `public/audio/`, and drop `midi-writer-js` from knip's `ignoreDependencies`. Check loop seams and loudness, and report objective evidence (loudness, seam checks) to the orchestrator.
 - **Done when:** every audio asset is merged.
+
+#### E2 Engine follow-ups
+
+- **Lane:** Opus. **After:** E1 (done), A2.
+- **Owns:** the same paths as E1, plus `public/theme.mp3` (delete it; the new Hall theme replaces it).
+- **Steps:**
+  1. Add an optional `sound` field to objects and animations, and wire the object effects A2 produces: dart thunk, cuckoo, phone ring, moka gurgle, fruit machine jingle, split-flap flutter.
+  2. Check that every audio path the engine expects exists after A2 (music, ambience, the sting, and all effects), and that the scene configs carry the loop points from the provenance records. Where a build task has already merged, add missing loop points only in the `music` and `ambience` fields of its config.
+  3. Record the `lint:types` change (`tsc -b` in `package.json`) in the PR description.
+- **Done when:** every object effect plays in the running app, and no expected audio file is missing.
 
 ### Phase 3 — Integration
 
