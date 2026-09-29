@@ -166,7 +166,7 @@ export interface Pose {
 
 type Mode =
   | { kind: "idle"; step: number; left: number }
-  | { kind: "walk"; walked: number; frame: number }
+  | { kind: "walk"; walked: number; frame: number } // `walked` in frames
   | { kind: "use"; phase: "reach" | "hold" | "return"; left: number };
 
 export interface AnimInput {
@@ -256,10 +256,12 @@ export class CharacterAnimator {
         mode.kind === "walk"
           ? mode
           : { kind: "walk" as const, walked: 0, frame: 0 };
-      walk.walked += input.distance;
+      // `walked` counts frames, not px: perFrame shrinks as he walks into
+      // the distance, and a px total divided by it would jump ahead.
       const count = this.walkCount();
       const perFrame = Math.max(0.5, (this.sheet.stride / 8) * input.scale);
-      const frame = Math.floor(walk.walked / perFrame) % count;
+      walk.walked += input.distance / perFrame;
+      const frame = Math.floor(walk.walked) % count;
       if (frame !== walk.frame && (frame === 0 || frame === count / 2)) {
         footstep = true;
       }

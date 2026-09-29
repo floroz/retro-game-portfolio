@@ -47,6 +47,25 @@ describe("character sheet", () => {
     expect(a.pose().body).toEqual(sheet.frames[2]);
   });
 
+  test("walking into the distance doesn't skip ahead as the frames shrink", () => {
+    const a = new CharacterAnimator(sheet, () => 0);
+    // 37 frames at full size, then 4 more at half size: the frame follows
+    // the frames walked, not the px walked over the current size.
+    const perFrame = sheet.stride / 8;
+    for (let i = 0; i < 37; i++) {
+      a.update(16, { ...input, moving: true, distance: perFrame });
+    }
+    for (let i = 0; i < 4; i++) {
+      a.update(16, {
+        ...input,
+        moving: true,
+        scale: 0.5,
+        distance: perFrame / 2,
+      });
+    }
+    expect(a.pose().body).toEqual(sheet.frames[(37 + 4) % 8]);
+  });
+
   test("footsteps land twice per cycle", () => {
     const a = new CharacterAnimator(sheet, () => 0);
     const perFrame = sheet.stride / 8;
