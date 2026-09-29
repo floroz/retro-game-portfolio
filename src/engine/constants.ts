@@ -24,6 +24,14 @@ export const VIEWPORT = {
   toolbarHeight: 160,
 } as const;
 
+/**
+ * The Phase H world scale (docs/art-spec.md, "Phase H: HD hand-painted",
+ * the scale sheet): Daniele stands 72 logical px tall at the front of the
+ * walkbox and 58 at the back. HD scenes spread it into `depth`:
+ * `depth: { farY: 108, nearY: 156, ...HD_WORLD_SCALE }`.
+ */
+export const HD_WORLD_SCALE = { farHeight: 58, nearHeight: 72 } as const;
+
 /** Logical scene px to logical viewport px (1280x640). */
 const PIXEL_SCALE = 4;
 
