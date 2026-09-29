@@ -1,9 +1,14 @@
 {
   "id": "hall-bg",
   "output": "src/assets/scenes/hall/bg.png",
-  "task": "F1",
-  "source": "opus",
-  "palette": "v0",
-  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Replaced in the hall build task.",
+  "task": "B2",
+  "source": "codex",
+  "prompt": "assets-src/prompts/scenes/hall.md",
+  "candidate": "01",
+  "references": ["assets-src/refs/style-anchor@8x.png"],
+  "approvedRaw": "assets-src/approved/hall-bg.webp",
+  "cleanup": "Pixelized with --scene hall, then repainted at native size on candidate 01's composition, palette and light (daylight through the back windows), because the gate signs and the duty-free labels need far more room than the candidate gave them. Layout changes: the gate wall widened to x 175-308 with three evenly spaced glass doors (centres 193, 239, 287) and beige desks; three hanging sign panels (37, 53 and 41 px wide, 30 px tall) sized to the engine's gate:<country> labels in the small font, the Zurich one wide enough for 'Experience' on one line; the departures board moved to the upper left and widened to 133x27 so each gate's row fits on one line, as a plain dark split-flap grid (3 px cells on the font's 4 px pitch); the CRT flight monitors hung under the board with blank screens; the duty-free shop widened to x 0-87 with a red fascia, a navy back wall and two shelves whose lips carry the engine-drawn section names, the five products (perfume, snow globe, postcards on top; whisky in its box, toolbox below) redrawn by hand as distinct flat sprites, and the counter's packages reduced to two plain gift boxes behind flat teal glass; the window view redrawn flat (sky in one colour with three pixel clouds, control tower, terminal and tree line on the horizon, concrete apron with a taxi line, a plain white airliner with no livery at a jet bridge); the luggage hatch, carousel and lost-luggage desk with the one suitcase kept, redrawn; the carpet regenerated procedurally as the candidate's plum triangles on navy, in staggered perspective rows, with all remap noise and the diagonal streaks removed. The seats, the security arch, the pillar and the plant are separate layers (obj-seats, obj-arch, fg). No text anywhere; core plus the Hall ramp only.",
+  "approvedBy": "opus-orchestrator (delegated pick)",
+  "palette": "v1",
   "date": "2026-09-29"
 }
