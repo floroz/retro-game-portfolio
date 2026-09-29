@@ -7,7 +7,6 @@ import { Toolbar } from "./components/toolbar/Toolbar";
 import { TerminalScreen } from "./components/game/TerminalScreen";
 import { Win95Desktop } from "./components/desktop/Win95Desktop";
 import { WelcomeScreen } from "./components/dialog/WelcomeScreen";
-import { AdventureDialog } from "./components/dialog/AdventureDialog";
 import { RetroConsole } from "./components/mobile/RetroConsole";
 import { useGameStore } from "./store/gameStore";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
@@ -43,8 +42,6 @@ function App() {
     closeTerminalScreen,
     welcomeShown,
     dismissWelcome,
-    dialogOpen,
-    closeDialog,
     openDialog,
   } = useGameStore();
 
@@ -104,20 +101,12 @@ function App() {
         welcomeContent={
           !welcomeShown ? (
             <WelcomeScreen
-              contained={true}
               onDismiss={() => {
                 dismissWelcome();
                 setWelcomeDismissed(true);
               }}
             />
           ) : undefined
-        }
-        dialogContent={
-          <AdventureDialog
-            isOpen={dialogOpen}
-            onClose={closeDialog}
-            contained={true}
-          />
         }
       />
 

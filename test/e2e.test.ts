@@ -18,11 +18,13 @@ async function waitForGameWindowReady(page: Page) {
   });
 }
 
-// Helper: Dismiss welcome screen and wait for dialog to appear
+// Helper: Dismiss welcome screen and wait for the conversation's first choices
 async function dismissWelcomeAndWaitForDialog(page: Page) {
   await page.keyboard.press("Space");
   const dialog = page.locator("[data-e2e=adventure-dialog]");
   await expect(dialog).toBeVisible({ timeout: 5000 });
+  // Daniele says the line over his head; Enter skips ahead to the choices.
+  await page.keyboard.press("Enter");
   await expect(page.locator("[data-e2e=dialog-options]")).toBeVisible({
     timeout: 30000,
   });

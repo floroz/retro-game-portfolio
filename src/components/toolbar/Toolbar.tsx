@@ -13,6 +13,7 @@ import {
   type PanelView,
 } from "./paint";
 import { IDLE_SENTENCE, controlSentence, sentenceText } from "./sentence";
+import { Dialogue } from "./Dialogue";
 
 const UTILITY_RECTS = Object.fromEntries(
   PANEL_LAYOUT.utilities.map((u) => [u.id, u.rect]),
@@ -31,8 +32,49 @@ const UTILITY_RECTS = Object.fromEntries(
  * section is one click from anywhere: Daniele walks to the nearest exit,
  * flies to the section's city, and the content opens on arrival; a click
  * during the trip skips straight to the content.
+ *
+ * While Daniele is in conversation, the dialogue choices take the trunk's
+ * place (Dialogue.tsx), as MI3's replace its verbs; the trunk comes back
+ * when the conversation ends.
  */
 export function Toolbar() {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const dialogOpen = useGameStore((s) => s.dialogOpen);
+
+  // Back from a conversation that never touched the mouse, the visitor
+  // lands on Talk, where they began, not at the top of the page. (After a
+  // click there's nothing to restore, and Talk would sit lit.)
+  const wasTalking = useRef(false);
+  const usedPointer = useRef(false);
+  useEffect(() => {
+    if (dialogOpen) {
+      wasTalking.current = true;
+      usedPointer.current = false;
+      const onPointer = () => {
+        usedPointer.current = true;
+      };
+      window.addEventListener("pointerdown", onPointer, { capture: true });
+      return () =>
+        window.removeEventListener("pointerdown", onPointer, { capture: true });
+    }
+    if (!wasTalking.current) return;
+    wasTalking.current = false;
+    const active = document.activeElement;
+    if (!usedPointer.current && (!active || active === document.body)) {
+      panelRef.current
+        ?.querySelector<HTMLElement>('[data-control="talk"]')
+        ?.focus({ preventScroll: true });
+    }
+  }, [dialogOpen]);
+
+  return (
+    <div className={styles.panel} data-e2e="toolbar" ref={panelRef}>
+      {dialogOpen ? <Dialogue /> : <Trunk />}
+    </div>
+  );
+}
+
+function Trunk() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hovered, setHovered] = useState<ControlId | null>(null);
   const [pressed, setPressed] = useState<ControlId | null>(null);
@@ -112,7 +154,7 @@ export function Toolbar() {
   });
 
   return (
-    <div className={styles.panel} data-e2e="toolbar">
+    <>
       <canvas
         ref={canvasRef}
         className={styles.art}
@@ -183,6 +225,6 @@ export function Toolbar() {
         target="_blank"
         rel="noopener noreferrer"
       />
-    </div>
+    </>
   );
 }

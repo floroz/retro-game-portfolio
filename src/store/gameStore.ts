@@ -32,6 +32,11 @@ interface GameState {
   welcomeShown: boolean;
   dialogOpen: boolean;
   dialogNode: string;
+  /**
+   * Daniele has said the current line, so its choices are up in the panel.
+   * The scene sets it (see `useConversation`).
+   */
+  dialogReady: boolean;
   visitedNodes: Set<string>;
   soundEnabled: boolean;
 
@@ -57,6 +62,7 @@ interface GameState {
   openDialog: (startNode?: string) => void;
   closeDialog: () => void;
   selectDialogOption: (nodeId: string) => void;
+  setDialogReady: (ready: boolean) => void;
   toggleSound: () => void;
   setSoundEnabled: (enabled: boolean) => void;
 }
@@ -81,6 +87,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   welcomeShown: false,
   dialogOpen: false,
   dialogNode: "",
+  dialogReady: false,
   visitedNodes: new Set<string>(),
   soundEnabled: false,
 
@@ -95,6 +102,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       // Get the content screen and dialog out of the way, so the trip plays.
       terminalScreenAction: null,
       dialogOpen: false,
+      dialogReady: false,
     });
   },
 
@@ -104,6 +112,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       sceneRequest: { id: requestId, kind: "travel", scene },
       terminalScreenAction: null,
       dialogOpen: false,
+      dialogReady: false,
     });
   },
 
@@ -123,7 +132,13 @@ export const useGameStore = create<GameState>((set, get) => ({
       return;
     }
 
-    set({ terminalScreenAction: action, hoveredObject: null });
+    // A content screen ends any conversation.
+    set({
+      terminalScreenAction: action,
+      hoveredObject: null,
+      dialogOpen: false,
+      dialogReady: false,
+    });
   },
 
   closeTerminalScreen: () => {
@@ -163,16 +178,22 @@ export const useGameStore = create<GameState>((set, get) => ({
     // Don't close terminal if we're in Win95 desktop mode with game window active
     const shouldKeepTerminalOpen = terminalOpen && gameWindowActive;
 
+    // Asking for the line already being said changes nothing: the scene
+    // would not say it again, and its choices would never come back.
+    const { dialogOpen, dialogNode, dialogReady } = get();
+    const again = dialogOpen && dialogNode === startNode;
+
     set({
       dialogOpen: true,
       dialogNode: startNode,
+      dialogReady: again ? dialogReady : false,
       terminalScreenAction: null,
       terminalOpen: shouldKeepTerminalOpen,
     });
   },
 
   closeDialog: () => {
-    set({ dialogOpen: false });
+    set({ dialogOpen: false, dialogReady: false });
   },
 
   selectDialogOption: (nodeId: string) => {
@@ -192,9 +213,12 @@ export const useGameStore = create<GameState>((set, get) => ({
     // Track visited nodes and update current node
     set((state) => ({
       dialogNode: nodeId,
+      dialogReady: false,
       visitedNodes: new Set([...state.visitedNodes, nodeId]),
     }));
   },
+
+  setDialogReady: (ready: boolean) => set({ dialogReady: ready }),
 
   toggleSound: () => {
     set((state) => ({ soundEnabled: !state.soundEnabled }));

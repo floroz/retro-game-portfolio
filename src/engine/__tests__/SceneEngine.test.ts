@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import { CHARACTER_SHEET } from "../assets";
 import { SceneEngine, type EngineHost } from "../SceneEngine";
+import { speechMs } from "../constants";
 import { SCENES, TRAVEL_MAP_DATA } from "../scenes";
 import type { SceneData, SectionId } from "../types";
 
@@ -357,5 +358,79 @@ describe("SceneEngine", () => {
       run(engine, 3000);
       expect(host.sound).not.toHaveBeenCalledWith("split-flap");
     });
+  });
+});
+
+describe("SceneEngine: conversation lines", () => {
+  const LINE = "Hey! Welcome to my portfolio.";
+
+  function talk() {
+    const { engine } = setup();
+    const spoken = vi.fn();
+    const left = vi.fn();
+    engine.converse(LINE, spoken, left);
+    return { engine, spoken, left };
+  }
+
+  test("Daniele talks while he says the line, then holds it", () => {
+    const { engine, spoken } = talk();
+    expect(engine.speech?.lines.join(" ")).toBe(LINE);
+    run(engine, 200);
+    expect(spoken).not.toHaveBeenCalled();
+
+    run(engine, speechMs(LINE));
+    expect(spoken).toHaveBeenCalledTimes(1);
+    // The line stays up, and he's done talking.
+    expect(engine.speech?.spoken).toBe(true);
+    run(engine, 10000);
+    expect(engine.speech?.lines.join(" ")).toBe(LINE);
+    expect(spoken).toHaveBeenCalledTimes(1);
+  });
+
+  test("a click while he talks skips to the choices, and keeps the line", () => {
+    const { engine, spoken, left } = talk();
+    expect(engine.interrupt()).toBe(true);
+    expect(spoken).toHaveBeenCalledTimes(1);
+    expect(engine.speech?.spoken).toBe(true);
+    expect(left).not.toHaveBeenCalled();
+  });
+
+  test("skipLine does the same, once", () => {
+    const { engine, spoken } = talk();
+    expect(engine.skipLine()).toBe(true);
+    expect(engine.skipLine()).toBe(false);
+    expect(spoken).toHaveBeenCalledTimes(1);
+  });
+
+  test("a click in the scene once the choices are up leaves the conversation", () => {
+    const { engine, left } = talk();
+    engine.skipLine();
+    // The click isn't used up: the walk or the hotspot carries on.
+    expect(engine.interrupt()).toBe(false);
+    expect(left).toHaveBeenCalledTimes(1);
+    expect(engine.speech).toBeNull();
+  });
+
+  test("endConversation takes down the line, and only a conversation's", () => {
+    const { engine } = talk();
+    engine.endConversation();
+    expect(engine.speech).toBeNull();
+
+    engine.greet();
+    expect(engine.speech).not.toBeNull();
+    engine.endConversation();
+    expect(engine.speech).not.toBeNull();
+  });
+
+  test("the next line replaces the last", () => {
+    const { engine, spoken } = talk();
+    engine.skipLine();
+    const next = vi.fn();
+    engine.converse("Second line.", next, vi.fn());
+    expect(engine.speech?.lines.join(" ")).toBe("Second line.");
+    expect(engine.speech?.spoken).toBeUndefined();
+    engine.skipLine();
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(spoken).toHaveBeenCalledTimes(1);
   });
 });

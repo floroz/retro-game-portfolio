@@ -116,6 +116,45 @@ function buildLayout(): PanelLayout {
 
 export const PANEL_LAYOUT: PanelLayout = buildLayout();
 
+/**
+ * While a conversation runs, its choices replace the trunk's tickets and
+ * fittings, as MI3's dialogue choices replace its verbs: lines of text on
+ * a leather page across the whole lid.
+ */
+export const CHOICES_PAGE: Rect = { x: 6, y: 4, w: PANEL_W - 12, h: 72 };
+
+/** A line of the serif's ink from its ascenders to its descenders, art px. */
+const CHOICE_INK = 19;
+/** Art px from a line's top (its ascenders) to its capitals'. */
+export const CHOICE_CAP_TOP = 3;
+
+/** Most art px from one choice's line to the next's (the font's leading). */
+const CHOICE_PITCH_MAX = 19;
+
+/**
+ * One full-width row per choice, top to bottom, the block centred on the
+ * page. A row starts at its line's ascenders. Four choices are the most any
+ * conversation offers; more would just tighten.
+ */
+export function choiceRows(count: number): Rect[] {
+  const n = Math.max(1, count);
+  const pitch =
+    n === 1
+      ? CHOICE_PITCH_MAX
+      : Math.min(
+          CHOICE_PITCH_MAX,
+          Math.floor((CHOICES_PAGE.h - CHOICE_INK) / (n - 1)),
+        );
+  const block = (n - 1) * pitch + CHOICE_INK;
+  const top = CHOICES_PAGE.y + Math.floor((CHOICES_PAGE.h - block) / 2);
+  return Array.from({ length: count }, (_, i) => ({
+    x: CHOICES_PAGE.x + 2,
+    y: top + i * pitch,
+    w: CHOICES_PAGE.w - 4,
+    h: pitch,
+  }));
+}
+
 /** A rect as percentages of the panel, for the HTML controls over it. */
 export function panelPct(r: Rect) {
   return {
