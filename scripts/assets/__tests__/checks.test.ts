@@ -3,10 +3,14 @@ import { describe, expect, test } from "vitest";
 import {
   checkAssetSize,
   checkCharacterJson,
+  checkPaintedAlpha,
+  checkPaintedColours,
   checkProvenance,
   checkSceneDensities,
   classifyAsset,
+  colourGroup,
   provenanceDensity,
+  provenanceStyle,
   usesPixelRules,
   type ShippedAsset,
 } from "../checks";
@@ -210,5 +214,138 @@ describe("HD (density 4)", () => {
       "src/assets/character/daniele.png",
     ) as ShippedAsset;
     expect(checkAssetSize(sheet, 64, 128, 4).join()).toMatch(/cut-out rig/);
+  });
+});
+
+describe("painted (density 2, style painted)", () => {
+  const asset = (path: string) => classifyAsset(path) as ShippedAsset;
+  const bg = asset("src/assets/scenes/zurich/bg.png");
+  const obj = asset("src/assets/scenes/zurich/obj-desk.png");
+  const london = asset("src/assets/scenes/london/bg.png");
+  const slot = asset("src/assets/shared/slots/slot-tap.png");
+  const plane = asset("src/assets/shared/map-plane.png");
+  const rig = asset("src/assets/character/daniele-rig.png");
+  const sheet = asset("src/assets/character/daniele.png");
+  const colours = (from: number, count: number) =>
+    new Set(Array.from({ length: count }, (_, i) => from + i));
+
+  test("skips the master-palette and ramp rules only for painted", () => {
+    expect(usesPixelRules(2, "painted")).toBe(false);
+    expect(usesPixelRules(2, "pixel")).toBe(true);
+    expect(usesPixelRules(2)).toBe(true);
+    expect(usesPixelRules(1, "painted")).toBe(true);
+  });
+
+  test("sizes scenes at 640x320 and needs even sprite sides", () => {
+    expect(checkAssetSize(bg, 640, 320, 2, "painted")).toEqual([]);
+    expect(checkAssetSize(bg, 1280, 640, 2, "painted").join()).toMatch(
+      /640x320 at density 2 \(painted\)/,
+    );
+    expect(checkAssetSize(obj, 120, 88, 2, "painted")).toEqual([]);
+    expect(checkAssetSize(obj, 121, 88, 2, "painted").join()).toMatch(
+      /even sides/,
+    );
+    expect(checkAssetSize(slot, 30, 31, 2, "painted")).toHaveLength(1);
+    expect(checkAssetSize(plane, 34, 34, 2, "painted")).toEqual([]);
+    // Pixel-art density 2 keeps its old rules: odd sprites are fine there.
+    expect(checkAssetSize(obj, 121, 88, 2, "pixel")).toEqual([]);
+  });
+
+  test("allows the rig at painted density 2, and no painted sheet", () => {
+    expect(checkAssetSize(rig, 901, 700, 2, "painted")).toEqual([]);
+    expect(checkAssetSize(rig, 900, 700, 2, "pixel").join()).toMatch(
+      /density 2 with "style": "painted", or density 4/,
+    );
+    expect(checkAssetSize(sheet, 64, 128, 2, "painted").join()).toMatch(
+      /cut-out rig/,
+    );
+    expect(checkAssetSize(sheet, 64, 128, 2, "pixel")).toEqual([]);
+  });
+
+  test("needs hard alpha", () => {
+    expect(
+      checkPaintedAlpha(obj, { data: [1, 2, 3, 255, 0, 0, 0, 0] }),
+    ).toEqual([]);
+    expect(
+      checkPaintedAlpha(obj, { data: [1, 2, 3, 255, 1, 2, 3, 128] }).join(),
+    ).toMatch(/1 pixels have partial alpha/);
+  });
+
+  test("allows at most 256 colours per scene folder across all its files", () => {
+    expect(colourGroup(obj)).toBe("src/assets/scenes/zurich");
+    expect(colourGroup(slot)).toBe("src/assets/shared");
+    expect(colourGroup(plane)).toBe("src/assets/shared");
+    expect(colourGroup(rig)).toBe(rig.path);
+    // 200 + 100 with 50 shared: 250 together.
+    expect(
+      checkPaintedColours([
+        { asset: bg, colours: colours(0, 200) },
+        { asset: obj, colours: colours(150, 100) },
+      ]),
+    ).toEqual([]);
+    const over = checkPaintedColours([
+      { asset: bg, colours: colours(0, 200) },
+      { asset: obj, colours: colours(190, 100) },
+      { asset: london, colours: colours(1000, 250) },
+    ]);
+    expect(over).toHaveLength(1);
+    expect(over[0]).toMatch(
+      /^src\/assets\/scenes\/zurich: its 2 painted file\(s\) use 290 colours/,
+    );
+    expect(
+      checkPaintedColours([
+        { asset: slot, colours: colours(0, 200) },
+        { asset: plane, colours: colours(500, 100) },
+      ]).join(),
+    ).toMatch(/src\/assets\/shared/);
+  });
+
+  test("forbids a scene that mixes painted and pixel art", () => {
+    expect(
+      checkSceneDensities([
+        { asset: bg, density: 2, style: "painted" },
+        { asset: obj, density: 2, style: "painted" },
+      ]),
+    ).toEqual([]);
+    expect(
+      checkSceneDensities([
+        { asset: bg, density: 2, style: "painted" },
+        { asset: obj, density: 2 },
+      ])[0],
+    ).toMatch(
+      /zurich: mixes densities.*density 2: .*obj-desk.*density 2 painted: .*bg/,
+    );
+  });
+
+  test("checks style in provenance", () => {
+    const record = {
+      id: "zurich-bg",
+      output: "src/assets/scenes/zurich/bg.png",
+      task: "HB1",
+      source: "codex",
+      prompt: "assets-src/prompts/hd/zurich.md",
+      candidate: "02",
+      references: [],
+      approvedRaw: "assets-src/approved/zurich-bg@hd.webp",
+      density: 2,
+      style: "painted",
+      date: "2026-10-05",
+    };
+    const check = (r: object) =>
+      checkProvenance(r, "zurich-bg.json", () => true);
+    expect(check(record)).toEqual([]);
+    expect(provenanceStyle(record)).toBe("painted");
+    expect(provenanceStyle({ ...record, style: undefined })).toBe("pixel");
+    expect(check({ ...record, style: "watercolour" }).join()).toMatch(
+      /style must be/,
+    );
+    expect(check({ ...record, density: 4 }).join()).toMatch(
+      /"style": "painted" is density 2 art/,
+    );
+    expect(check({ ...record, palette: "v2" }).join()).toMatch(
+      /no master palette/,
+    );
+    // Pixel-art density 2 still needs its @2x approved raw.
+    expect(check({ ...record, style: "pixel" }).join()).toMatch(/@2x\.webp/);
   });
 });

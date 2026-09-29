@@ -513,6 +513,31 @@ export function clearDust(img: Image, floor = DEFAULT_ALPHA_FLOOR): Image {
 
 export type PrepareKind = "scene" | "sprite";
 
+/** The resampling filter: Lanczos-3 (sharp), or an exact area average. */
+export type Resample = "lanczos" | "area";
+
+/** Parse `--resample`: lanczos, area, or undefined for the default. */
+export function parseResample(value: string | undefined): Resample | undefined {
+  if (value === undefined || value === "lanczos" || value === "area")
+    return value;
+  throw new Error(`--resample is lanczos or area, not "${value}"`);
+}
+
+/**
+ * Resize with `resample`. The area average only shrinks, so a size that
+ * grows on either side falls back to Lanczos.
+ */
+export async function resizeWith(
+  img: Image,
+  width: number,
+  height: number,
+  resample: Resample = "lanczos",
+): Promise<Image> {
+  if (resample === "area" && width <= img.width && height <= img.height)
+    return areaDownscale(img, width, height);
+  return resizeLanczos(img, width, height);
+}
+
 export interface PrepareOptions extends ColourAdjust {
   kind: PrepareKind;
   /** Default "auto": the centred 2:1 frame (scenes) or the alpha bounds (sprites). */
@@ -525,6 +550,8 @@ export interface PrepareOptions extends ColourAdjust {
   pad?: number;
   /** Soft key options, or null/undefined for none. */
   key?: SoftKeyOptions | null;
+  /** Default "lanczos". */
+  resample?: Resample;
 }
 
 export interface PrepareResult {
@@ -580,10 +607,10 @@ export async function prepare(
         `crop ${region.w}x${region.h} is stretched ${((stretch - 1) * 100).toFixed(1)}% to fit ${w}x${h}`,
       );
     }
-    image = await resizeLanczos(cropped, w, h);
+    image = await resizeWith(cropped, w, h, opts.resample);
   } else {
     const fit = fitSize({ w: region.w, h: region.h }, opts.size, opts.scale);
-    image = await resizeLanczos(cropped, fit.w, fit.h);
+    image = await resizeWith(cropped, fit.w, fit.h, opts.resample);
     const { w, h } = opts.size ?? {};
     if (w !== undefined && h !== undefined && (fit.w !== w || fit.h !== h))
       image = padBottomCentre(image, w, h);

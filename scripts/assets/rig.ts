@@ -4,6 +4,13 @@
  *
  *   npm run assets:rig -- --parts <dir> [--source <dir>/rig.json]
  *     [--out-dir src/assets/character] [--padding 2]
+ *     [--density 4|2] [--alpha-threshold 128]
+ *
+ * --density 2 packs painted parts at MI3 pixel density, on the scenes' 640x320
+ * grid: parts are drawn at 2 px per logical px, every part gets hard alpha
+ * (--alpha-threshold), and the atlas is kept to at most 256 colours with no
+ * dither. Record it as "density": 2, "style": "painted". The default, 4, is
+ * the smooth HD path.
  *
  * <dir> holds the part PNGs and rig.json, a `RigSource` (rigpack.ts): for
  * each facing (side, front, back), the feet point and every part's file,
@@ -50,8 +57,14 @@ async function main() {
       source: { type: "string" },
       "out-dir": { type: "string" },
       padding: { type: "string" },
+      density: { type: "string" },
+      "alpha-threshold": { type: "string" },
     },
   });
+  const density = values.density === undefined ? 4 : Number(values.density);
+  if (density !== 2 && density !== 4) fail("--density is 2 or 4");
+  if (values["alpha-threshold"] !== undefined && density !== 2)
+    fail("--alpha-threshold needs --density 2");
   if (!values.parts)
     fail("usage: assets:rig -- --parts <dir> [--source <rig.json>]");
   const dir = cliPath(values.parts);
@@ -69,6 +82,11 @@ async function main() {
 
   const { atlas, json } = packRig(source, images, {
     padding: values.padding === undefined ? undefined : Number(values.padding),
+    density,
+    alphaThreshold:
+      values["alpha-threshold"] === undefined
+        ? undefined
+        : Number(values["alpha-threshold"]),
   });
   const outDir = values["out-dir"]
     ? cliPath(values["out-dir"])
