@@ -1,0 +1,15 @@
+{
+  "id": "zurich-bg@2x",
+  "output": "assets-src/refs/remaster/style-anchor@4x.png",
+  "task": "RA",
+  "source": "codex",
+  "prompt": "assets-src/prompts/remaster/zurich.md",
+  "candidate": "04",
+  "references": ["assets-src/refs/remaster/zurich-current@4x.png"],
+  "approvedRaw": "assets-src/approved/zurich-bg@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Remaster style anchor. Pixelized to 640x320 with --scene zurich --density 2 (core plus Zurich ramp, palette v2); every object already sits where the shipped scene data has it (best alignment at a 0,0 offset for the window, cuckoo, door, CRT and lamp, desk, chair, cabinet, plant and rug). Grid passes: wallpaper redrawn on its 24 px rhythm with the stripes moved off the sweater's G onto the plum i, base j kept (a composite of the character at the back of the walkbox, and in front of the desk and cabinet, separated clearly: median torso-edge contrast 0.096-0.163 OKLab against the wall), and wall drop shadows on i; cornice and baseboard lines regularised; lamp halo painted out to wallpaper and the lamp's light pool removed from the desk edge (no light cones); moon glow ring removed, leaving a crisp p/o/^ crescent; star smudges redrawn as crisp single points and 2x2 stars; cuckoo case flattened to one wood tone with an eave shadow, and a stray red apex pixel removed; desk chair recoloured from navy to a muted plum-grey from the Zurich ramp ([ base, ] lit band and seat top, ^ only on the lit edges, k for the shadow edge and seat front), at least 0.119 OKLab from the sweater colours F, G and *, with rounded corners, dark navy kept only on the gas lift and star base (a brighter n/^/o version popped out of the night scene); desk knee-hole lifted from neutral 1 to dark wood 6 so the sweater outline separates from it; isolated pixels outside the window view, dial, lamp and plant cleaned (380), and 1-2 px grain flecks on the floor removed (83), keeping the plank seams and longer grain. The door pane stays flat and blank, and the upper-left wallpaper stays bare for the photo slots. The shipped src/assets/scenes/zurich/bg.png is unchanged (RB1 rebuilds it from this anchor).",
+  "approvedBy": "opus-orchestrator (delegated RG1a)",
+  "date": "2026-09-29"
+}
