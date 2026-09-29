@@ -12,7 +12,7 @@ import sheetJson from "../../assets/character/daniele.json";
 const HD_DEPTH = { farY: 100, nearY: 156, ...HD_WORLD_SCALE };
 
 /** Scenes rebuilt from the Phase H layers (the HB tasks). */
-const HD_SCENES = ["zurich", "sorrento"];
+const HD_SCENES = ["zurich", "sorrento", "hall"];
 
 describe("world scale", () => {
   test("the Phase H defaults are 58 px at the back and 72 at the front", () => {
@@ -60,6 +60,18 @@ describe("world scale", () => {
       expect(depth.nearHeight).toBe(HD_WORLD_SCALE.nearHeight);
       expect(depth.farScale).toBeUndefined();
     }
+  });
+
+  test("the HD Hall (HB2) uses the world scale over its whole floor", () => {
+    const { depth, walkbox } = SCENES.hall;
+    expect(depth.farHeight).toBe(58);
+    expect(depth.nearHeight).toBe(72);
+    const ys = walkbox.map((p) => p[1]);
+    expect(depth.farY).toBe(Math.min(...ys));
+    expect(depth.nearY).toBe(Math.max(...ys));
+    // 0.8 to 1.0 of the 72 px rig.
+    expect(scaleAt(depth, depth.farY, 72)).toBeCloseTo(0.8, 1);
+    expect(scaleAt(depth, depth.nearY, 72)).toBeCloseTo(1);
   });
 
   test("the sprite sheet is 57.5 logical px tall, or what daniele.json says", () => {

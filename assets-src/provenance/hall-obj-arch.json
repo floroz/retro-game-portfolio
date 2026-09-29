@@ -1,11 +1,18 @@
 {
   "id": "hall-obj-arch",
   "output": "src/assets/scenes/hall/obj-arch.png",
-  "task": "RB2",
-  "source": "opus",
-  "derivedFrom": "hall-bg",
-  "palette": "v2",
+  "task": "HB2",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/layers-hall.md",
+  "candidate": "01",
+  "references": [
+    "assets-src/refs/hd/hall-chosen.png",
+    "assets-src/refs/hd/scale-sheet.png"
+  ],
+  "approvedRaw": "assets-src/approved/hall-arch@hd.webp",
   "density": 2,
-  "date": "2026-09-29",
-  "cleanup": "RB2: the walk-through security arch redrawn at 2x (64x118) on B2's exact 32x59 footprint, so the posts stay in the walkbox's keyhole slits (candidate 04's arch has the same geometry but could not be separated cleanly from the gate wall behind it): an aluminium header with a lit top, screws, a dark display in a bezel and a green and a red lamp; a soffit; two posts with a lit edge and a recessed sensor strip; feet with teal contact shadows. Position (249, 70), baseline 128, unchanged."
+  "style": "painted",
+  "cleanup": "HB2: candidate 01 of hall-arch@hd, keyed from its own alpha, resized (Lanczos) and registered on the chosen composite with assets:prepare --painted --no-quantize --align (scale 0.91, 72x98 art px at 482,148, feet on art row 246), hard alpha; the stray pixels on its top row were cleared, and its dark display darkened off the sweater colours. The opening between the posts is transparent. Quantized jointly with the Hall plate.",
+  "approvedBy": "orchestrator",
+  "date": "2026-09-29"
 }

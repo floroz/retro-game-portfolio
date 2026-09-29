@@ -81,17 +81,16 @@ describe("scene data contract", () => {
       a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
     const covers = (rects: Rect[], x: number, y: number) =>
       rects.some((r) => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h);
-    // The hanging sign panels painted in the remastered hall/bg.png (RB2),
-    // measured at 2x and rounded out to logical px: each bevelled frame,
-    // and the dividers between them. And obj-arch.png's box (32x59 at the
-    // arch's position).
+    // The dark sign boards painted in the HD hall/bg.png (HB2), measured at
+    // 2x and rounded out to logical px: each bevelled frame. And
+    // obj-arch.png's box (36x49 at the arch's position).
     const signs: Record<string, Rect> = {
-      "gate-london": { x: 172, y: 14, w: 41, h: 31 },
-      "gate-zurich": { x: 213, y: 14, w: 54, h: 31 },
-      "gate-sorrento": { x: 267, y: 14, w: 43, h: 31 },
+      "gate-london": { x: 170, y: 12, w: 38, h: 24 },
+      "gate-zurich": { x: 209, y: 12, w: 50, h: 24 },
+      "gate-sorrento": { x: 261, y: 12, w: 46, h: 24 },
     };
     const arch = hall.objects.find((o) => o.id === "arch");
-    const archBox = { x: arch?.x ?? 0, y: arch?.y ?? 0, w: 32, h: 59 };
+    const archBox = { x: arch?.x ?? 0, y: arch?.y ?? 0, w: 36, h: 49 };
     for (const exit of hall.exits) {
       const rects = [exit.hotspot, ...(exit.extraHotspots ?? [])];
       const sign = signs[exit.id];
