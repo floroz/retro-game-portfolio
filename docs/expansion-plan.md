@@ -225,3 +225,5 @@ Every creative decision has been settled with Daniele:
 ## Out of scope for the MVP
 
 Inventory, puzzles, a navigable world map (the travel map is only a transition), save state, and mobile scenes.
+
+<!-- T0.3 guard test, never merge -->
