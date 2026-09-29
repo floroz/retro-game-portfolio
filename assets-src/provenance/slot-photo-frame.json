@@ -1,10 +1,11 @@
 {
   "id": "slot-photo-frame",
   "output": "src/assets/shared/slots/slot-photo-frame.png",
-  "task": "B6",
+  "task": "RB6",
   "source": "opus",
-  "palette": "v1",
-  "cleanup": "Drawn by hand at native size as a palette-index grid (core palette only), matching the style anchor's density, flat 2-4 step shading and selective 1px outline (local ramp's darkest on the lit top-left side, 0 on the shadow side). 20x16 framed photo for the London and Zurich job walls: a 2 px wood frame, a cream mat (deeper at the bottom), and an abstract team snapshot of three head-and-shoulders figures on a blue backdrop. No text or logos.",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Remastered for Phase R: drawn by hand as a palette-index grid at density 2, exactly twice the B6 density-1 size so the engine's SHARED_LOGICAL_SIZES keeps the same logical footprint. Core palette only (v2, including the new core steps), matching the remastered Zurich style anchor (assets-src/refs/remaster/style-anchor@4x.png): hard pixel edges, 3-6 steps per material, finer material detail, no dithering on the sprite, and a selective 1px outline lit from the top left (the local ramp's darkest on the lit side, 0 on the shadow side). No text or logos. 40x32 framed team photo (was 20x16): a 4px wood frame with mitred corners (lit outer edge and highlight on the top and left, a shadowed inner lip there and a lit inner lip on the bottom and right), a cream mat with the frame's shadow on its top and left edges and a deeper bottom margin, and a 28x18 photo: a blue sky with two small clouds and green hills behind three abstract people, now with hair, eyes, shaded skin and collars: red jumper on the left, a bearded one in navy in front, mustard on the right.",
   "approvedBy": "opus-orchestrator (delegated)",
   "date": "2026-09-29"
 }
