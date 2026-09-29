@@ -159,6 +159,7 @@ export function sceneImages(scene: SceneData): string[] {
     urls.push(...Object.values(o.states ?? {}));
   }
   for (const a of scene.animations ?? []) urls.push(a.strip);
+  for (const p of scene.props ?? []) urls.push(p.sprite);
   for (const row of scene.slots ?? []) {
     for (const id of [`slot-${row.kind}`, row.fold]) {
       const url = slotSpriteUrl(id);

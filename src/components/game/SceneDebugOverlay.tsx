@@ -33,6 +33,7 @@ const COLOURS = {
   label: "#6fd0ff",
   entry: "#ffffff",
   actor: "#00ffff",
+  effect: "#c78bff",
 };
 
 /** "72px" for a world-scale height, "×0.7" for a sprite scale. */
@@ -305,6 +306,46 @@ export function SceneDebugOverlay({ scene, hits }: Props) {
                 y={b.y + 4}
                 text={`${b.id} ${b.y}`}
                 colour={COLOURS.baseline}
+              />
+            </g>
+          ))}
+
+          {(scene.effects ?? []).flatMap((e) => {
+            const areas =
+              e.kind === "rain" || e.kind === "glints"
+                ? [e.area]
+                : e.kind === "flutter"
+                  ? e.rows
+                  : e.clip
+                    ? [e.clip]
+                    : [];
+            return areas.map((r, i) => (
+              <g key={`effect-${e.id}-${i}`}>
+                <Box r={r} colour={COLOURS.effect} dashed />
+                <Tag
+                  x={r.x + 0.5}
+                  y={r.y + 3.5}
+                  text={e.id}
+                  colour={COLOURS.effect}
+                />
+              </g>
+            ));
+          })}
+
+          {(scene.props ?? []).map((p) => (
+            <g key={`prop-${p.id}`}>
+              <polyline
+                points={p.path.map((k) => `${k.x},${k.y}`).join(" ")}
+                fill="none"
+                stroke={COLOURS.effect}
+                strokeWidth={0.5}
+                strokeDasharray="1 1"
+              />
+              <Tag
+                x={p.path[0]?.x ?? 0}
+                y={(p.path[0]?.y ?? 0) - 1}
+                text={p.id}
+                colour={COLOURS.effect}
               />
             </g>
           ))}

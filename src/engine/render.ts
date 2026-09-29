@@ -28,6 +28,8 @@ import type { ImageStore } from "./assets";
 import { sceneImages, slotSpriteUrl, travelMapImages } from "./assets";
 import { placeCell, type CharacterSheet } from "./character";
 import { drawRig } from "./rig/draw";
+import { effectShapes, propFrame, type Shape } from "./effects";
+import { stampOnGrid } from "./raster";
 import type { Rig } from "./rig/rig";
 import { animationFrame } from "./animation";
 import { paintOrder, type Paintable } from "./depth";
@@ -52,6 +54,8 @@ import {
   pointOnRoute,
 } from "./travelMap";
 import type {
+  MovingProp,
+  Rect,
   SceneAnimation,
   SceneData,
   SceneLabel,
@@ -217,6 +221,17 @@ export function renderFrame(rc: RenderContext) {
   for (const anim of scene.animations ?? []) {
     add(anim.baselineY, (r) => drawAnimation(r, anim));
   }
+  const grid = gridOf(rc);
+  for (const effect of scene.effects ?? []) {
+    add(effect.baselineY, (r) =>
+      withClip(r.ctx, effect.clip, () =>
+        drawShapes(r.ctx, effectShapes(effect, engine.now), grid),
+      ),
+    );
+  }
+  for (const prop of scene.props ?? []) {
+    add(prop.baselineY, (r) => drawProp(r, prop, grid));
+  }
   for (const row of scene.slots ?? []) {
     const rowItems = engine.slots.filter((i) => i.rowId === row.id);
     add(
@@ -274,6 +289,126 @@ function drawImageAt(rc: RenderContext, url: string, x: number, y: number) {
       img.naturalHeight / d,
     ),
   );
+}
+
+/** The art's pixels per logical px: 2 on the 640x320 canvas. */
+function gridOf(rc: RenderContext): number {
+  return Math.max(CANVAS_W / NATIVE_W, frameDensity(rc));
+}
+
+function withClip(ctx: Ctx, clip: Rect | undefined, draw: () => void) {
+  if (!clip) return draw();
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(clip.x, clip.y, clip.w, clip.h);
+  ctx.clip();
+  draw();
+  ctx.restore();
+}
+
+/** Logical px to whole grid pixels, and back: `g(v)` is on the grid. */
+const onGrid = (v: number, grid: number) => Math.round(v * grid) / grid;
+
+/**
+ * Draws effect shapes (effects.ts) with hard pixels: every edge on a whole
+ * pixel of the art's grid, at least one pixel big.
+ */
+function drawShapes(ctx: Ctx, shapes: Shape[], grid: number) {
+  const px = 1 / grid;
+  const fill = (x: number, y: number, w: number, h: number) =>
+    ctx.fillRect(
+      onGrid(x, grid),
+      onGrid(y, grid),
+      Math.max(px, onGrid(w, grid)),
+      Math.max(px, onGrid(h, grid)),
+    );
+  for (const s of shapes) {
+    ctx.globalAlpha = s.alpha ?? 1;
+    ctx.fillStyle = s.color;
+    switch (s.kind) {
+      case "px":
+        fill(s.x, s.y, px, px);
+        break;
+      case "rect":
+        fill(s.x, s.y, s.w, s.h);
+        break;
+      case "line": {
+        // One grid pixel per step along the longer axis.
+        const steps = Math.max(
+          1,
+          Math.round(
+            Math.max(Math.abs(s.x2 - s.x1), Math.abs(s.y2 - s.y1)) * grid,
+          ),
+        );
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
+          fill(s.x1 + (s.x2 - s.x1) * t, s.y1 + (s.y2 - s.y1) * t, px, px);
+        }
+        break;
+      }
+      case "disc": {
+        // A pixel disc: one span per grid row.
+        const cx = onGrid(s.x, grid);
+        const cy = onGrid(s.y, grid);
+        const rows = Math.round(s.r * grid);
+        for (let j = -rows; j < rows; j++) {
+          const dy = (j + 0.5) / grid;
+          const half = Math.sqrt(Math.max(0, s.r * s.r - dy * dy));
+          const w = Math.round(half * grid) / grid;
+          if (w > 0) fill(cx - w, cy + j / grid, w * 2, px);
+        }
+        break;
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+/**
+ * A moving prop on its path: drawn pixel for pixel at its own size, or,
+ * scaled or mirrored, stamped on the grid with hard edges (raster.ts).
+ */
+function drawProp(rc: RenderContext, prop: MovingProp, grid: number) {
+  const img = rc.images.get(prop.sprite);
+  const f = propFrame(prop, rc.engine.now);
+  if (!img || !f) return;
+  const { ctx } = rc;
+  const d = rc.images.density(prop.sprite);
+  const frames = prop.frames ?? 1;
+  const w = Math.floor(img.naturalWidth / frames);
+  const h = img.naturalHeight;
+  const sx = f.frame * w;
+  withClip(ctx, prop.clip, () => {
+    if (f.scale === 1 && !f.flip) {
+      drawSmoothIf(ctx, d, () =>
+        ctx.drawImage(
+          img,
+          sx,
+          0,
+          w,
+          h,
+          snap(f.x, d),
+          snap(f.y, d),
+          w / d,
+          h / d,
+        ),
+      );
+      return;
+    }
+    // Grid px per image px, and the box it lands in.
+    const k = (f.scale * grid) / d;
+    const left = Math.round(f.x * grid);
+    const top = Math.round(f.y * grid);
+    const bw = Math.ceil(w * k);
+    const bh = Math.ceil(h * k);
+    stampOnGrid(ctx, grid, { left, top, w: bw, h: bh }, (sctx) => {
+      if (f.flip) {
+        sctx.translate(bw, 0);
+        sctx.scale(-1, 1);
+      }
+      sctx.drawImage(img, sx, 0, w, h, 0, 0, w * k, h * k);
+    });
+  });
 }
 
 function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
@@ -405,7 +540,7 @@ function drawCharacter(rc: RenderContext) {
     // Rasterized on the art's pixel grid: 2 px per logical px for the
     // 640x320 art (and density-1 art, drawn 2x on the same canvas).
     const atlas = rc.images.get(figure.rig.image);
-    const grid = Math.max(CANVAS_W / NATIVE_W, frameDensity(rc));
+    const grid = gridOf(rc);
     if (atlas) {
       drawRig(ctx, atlas, figure.rig, figure.state, x, y, figure.scale, grid);
     }

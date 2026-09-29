@@ -14,6 +14,7 @@
  */
 import { SECTIONS, isCountryScene } from "../config/sections";
 import { cycleStarted } from "./animation";
+import { effectCycleStarted, propPassStarted } from "./effects";
 import {
   CharacterAnimator,
   facingFor,
@@ -554,6 +555,20 @@ export class SceneEngine {
     for (const anim of this.current.animations ?? []) {
       if (anim.sound && cycleStarted(anim, from, to)) {
         this.host.sound?.(anim.sound);
+      }
+    }
+    for (const prop of this.current.props ?? []) {
+      if (prop.sound && propPassStarted(prop, from, to)) {
+        this.host.sound?.(prop.sound);
+      }
+    }
+    for (const effect of this.current.effects ?? []) {
+      if (
+        effect.kind === "flutter" &&
+        effect.sound &&
+        effectCycleStarted(effect, from, to)
+      ) {
+        this.host.sound?.(effect.sound);
       }
     }
   }
