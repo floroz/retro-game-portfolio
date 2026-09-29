@@ -1,0 +1,10 @@
+{
+  "id": "map-marker",
+  "output": "src/assets/shared/map-marker.png",
+  "task": "B6",
+  "source": "opus",
+  "palette": "v1",
+  "cleanup": "Drawn by hand at native size as a palette-index grid (core palette only), matching the style anchor's density, flat 2-4 step shading and selective 1px outline (local ramp's darkest on the lit top-left side, 0 on the shadow side). 7x7 round red location marker with a cream highlight, drawn centred on each travel-map marker position.",
+  "approvedBy": "opus-orchestrator (delegated)",
+  "date": "2026-09-29"
+}
