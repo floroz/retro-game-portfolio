@@ -778,7 +778,7 @@ Everything in this phase starts once its dependencies are met, and runs in paral
 ### What doesn't change
 
 - **Logical coordinates.** Scene data (walkboxes, hotspots, baselines, slots, labels, markers, routes) stays in 320×160 logical px, and the engine multiplies by the density. Existing scene configs keep working, and builds only fine-tune them.
-- **Ids and paths.** Remastered files replace the current files in place, and provenance records gain `"density": 2`. Approved raws are saved as `assets-src/approved/<asset-id>@2x.webp`.
+- **Ids and paths.** Remastered files replace the current files in place, and provenance records gain `"density": 2`. **One provenance record per shipped file, updated in place.** RB tasks fold anchor-only records, such as `zurich-bg@2x.json`, into the shipped file's record and delete them. Approved raws are saved as `assets-src/approved/<asset-id>@2x.webp`.
 - **Everything else:** animation poses, timing and frame counts (the stride doubles in pixels), slot sizes in logical px and capacities, audio, and the signposting rules.
 
 ### Codex lane (the Codex orchestrator polls this table)
@@ -804,7 +804,7 @@ RC2 to RC7 can all run in parallel sessions.
 | R0   | done   | —                  | Palette v2, and tooling at 2× density                                                           |
 | E3   | done   | —                  | Engine density support and a 2× pixel font                                                      |
 | R1   | done   | —                  | Export the remaster references, and write all 14 remaster prompt files                          |
-| RA   | todo   | RC1, R0            | Pick and clean up both remaster anchors (ends at gates **RG1a** Zurich and **RG1b** turnaround) |
+| RA   | done   | RC1, R0            | Pick and clean up both remaster anchors (ends at gates **RG1a** Zurich and **RG1b** turnaround) |
 | RB1  | todo   | RG1a, E3           | Rebuild `zurich` at 2× from the remaster anchor                                                 |
 | RB2  | todo   | RC2, RG1a, E3      | Rebuild `hall` at 2×                                                                            |
 | RB3  | todo   | RC3, RG1a, E3      | Rebuild `london` at 2×                                                                          |
@@ -817,7 +817,7 @@ RC2 to RC7 can all run in parallel sessions.
 | Gate | Status | Decided by                                                        |
 | ---- | ------ | ----------------------------------------------------------------- |
 | RG1a | done   | Opus orchestrator (delegated): the remastered Zurich style anchor |
-| RG1b | todo   | Opus orchestrator (delegated): the remastered turnaround          |
+| RG1b | done   | Opus orchestrator (delegated): the remastered turnaround          |
 
 ### Task cards
 
