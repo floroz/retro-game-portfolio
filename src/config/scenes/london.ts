@@ -1,8 +1,9 @@
 /**
  * London: a pub on a rainy evening, with the City through the window
  * (docs/art-spec.md, scene card `london`). Built in task B3 from candidate 05
- * of `london-bg`. Every coordinate is in native pixels (320x160), top-left
- * origin.
+ * of `london-bg`, and remastered at 2x density in RB3 from candidate 02 of
+ * `london-bg@2x`. Every coordinate is in logical pixels (320x160), top-left
+ * origin; the 640x320 art is drawn at twice that density.
  *
  * The chalkboard behind the bar opens Skills: the engine letters "SKILLS" on
  * its header and chalks the menu (one line per skill group) below it. The
@@ -172,7 +173,7 @@ export const LONDON_SCENE: SceneData = {
       name: "fruit machine",
       sprite: londonObjFruitMachine,
       x: 290,
-      y: 82,
+      y: 81,
       interactionPoint: { x: 282, y: 132, facing: "e" },
       baselineY: FRUIT_MACHINE_BASELINE,
       look: "A fruit machine: the old vending machine's rowdier cousin. Three lemons pays out nothing, just like my first side project.",

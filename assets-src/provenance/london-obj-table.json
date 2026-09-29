@@ -1,10 +1,18 @@
 {
   "id": "london-obj-table",
   "output": "src/assets/scenes/london/obj-table.png",
-  "task": "B3",
-  "source": "opus",
-  "derivedFrom": "london-bg",
-  "palette": "v1",
-  "cleanup": "The round pub table with its two red-topped stools from candidate 05, redrawn as one sprite and moved clear of the door (front feet at baseline 121): a lit round top with its rim, a pedestal on a cast-iron foot, stools with 3 legs and brass foot rings, two pints on the table, and contact shadows.",
+  "task": "RB3",
+  "source": "codex",
+  "prompt": "assets-src/prompts/remaster/london.md",
+  "candidate": "02",
+  "references": [
+    "assets-src/refs/remaster/london-current@4x.png",
+    "assets-src/refs/remaster/style-anchor@4x.png"
+  ],
+  "approvedRaw": "assets-src/approved/london-bg@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB3: the round table with two pints and its two stools, cut at 2x (logical 28, 88): the table top and glasses as solid shapes, the pedestal and base, the red seats by colour, and the stools' legs and brass foot rings by colour, so the floor and wainscot between the legs stay in bg and Daniele shows through when he walks behind them. The legs' contact shadows are kept below the baseline.",
+  "approvedBy": "opus-orchestrator (delegated RB3 pick)",
   "date": "2026-09-29"
 }
