@@ -53,9 +53,11 @@ export function Scene() {
 
   useSceneKeyboard();
 
-  // Preload everything once, so no scene change ever flashes.
+  // Preload everything once, so no scene change ever flashes. Requests
+  // posted while the game was closed (a terminal command) are dropped.
   useEffect(() => {
     void images.loadAll(allImages());
+    useGameStore.getState().takeSceneRequest();
     useGameStore.getState().setCurrentScene(getEngine().scene.id);
   }, []);
 

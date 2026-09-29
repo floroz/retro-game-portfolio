@@ -1,5 +1,6 @@
 import type { TerminalCommands } from "../types/game";
 import { PROFILE } from "./profile";
+import { COUNTRIES, COUNTRY_ORDER, SECTIONS, sectionList } from "./sections";
 
 /**
  * Terminal command definitions
@@ -40,6 +41,15 @@ export const TERMINAL_COMMANDS: TerminalCommands = {
   resume: {
     description: "Download resume",
     action: "downloadResume",
+  },
+  fly: {
+    description: "Fly somewhere: fly london",
+    action: "travel",
+  },
+  goto: {
+    description: "Fly somewhere",
+    action: "travel",
+    hidden: true, // Alias for fly
   },
   clear: {
     description: "Clear terminal",
@@ -91,17 +101,36 @@ export function getHelpText(): string {
 }
 
 /**
- * Get list of available sections
+ * Get list of available sections, and where each one lives in the game
  */
 export function getListSections(): string {
+  const where = (s: keyof typeof SECTIONS) => COUNTRIES[SECTIONS[s].home].name;
   return `
 Available sections:
-  about/      - About me
-  experience/ - Work experience  
-  skills/     - Technical skills
-  contact/    - Contact information
+  about/      - About me             (${where("about")})
+  experience/ - Work experience      (${where("experience")})
+  skills/     - Technical skills     (${where("skills")})
+  contact/    - Contact information  (${where("contact")})
+  resume/     - Resume               (${where("resume")})
 
 Type the section name directly, e.g. 'about'
+`;
+}
+
+/**
+ * Departures board for `fly` without a destination
+ */
+export function getDepartures(): string {
+  const rows = COUNTRY_ORDER.map(
+    (c) =>
+      `  Gate ${COUNTRIES[c].gate}  ${COUNTRIES[c].name.toLowerCase().padEnd(9)} ${sectionList(c)}`,
+  );
+  return `
+Departures:
+${rows.join("\n")}
+          airport   back to the Hall
+
+Usage: fly <destination>, e.g. 'fly london'
 `;
 }
 

@@ -239,6 +239,11 @@ const REPLACEMENTS: Record<string, string> = {
 
 const ICON_TOKEN = /\{(experience|skills|about|contact|resume)\}/y;
 
+/** Pixel rows of a section icon ("#" ink), for the toolbar's buttons. */
+export function iconRows(section: SectionId): string[] {
+  return REGULAR.get(iconToken(section))?.rows ?? [];
+}
+
 /** The token that draws a section's icon, e.g. `{skills}`. */
 export function iconToken(section: SectionId): string {
   return `{${section}}`;

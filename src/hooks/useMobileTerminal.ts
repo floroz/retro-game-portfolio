@@ -12,7 +12,10 @@ import {
   getExperienceText,
   getSkillsText,
   getContactText,
+  getDepartures,
 } from "../config/commands";
+import { COUNTRIES, destinationFor, isCountryScene } from "../config/sections";
+import { PROFILE } from "../config/profile";
 import { useTypewriter } from "./useTypewriter";
 import type { TerminalLine } from "../types/game";
 
@@ -28,10 +31,18 @@ const TERMINAL_ART = `
 `;
 
 /**
- * Unified mobile terminal hook that merges dialog and command functionality
+ * Unified terminal hook that merges dialog and command functionality. Section
+ * commands also send the game there, with the same shortcut flow as the
+ * toolbar; `fly` travels without opening anything.
  */
 export function useMobileTerminal() {
-  const { dialogNode, selectDialogOption, closeTerminal } = useGameStore();
+  const {
+    dialogNode,
+    selectDialogOption,
+    closeTerminal,
+    goToSection,
+    travelTo,
+  } = useGameStore();
   const currentNode = DIALOG_TREE[dialogNode];
 
   // Terminal state
@@ -144,7 +155,7 @@ export function useMobileTerminal() {
       setHistoryIndex(-1);
 
       // Parse command
-      const [cmd] = trimmed.toLowerCase().split(/\s+/);
+      const [cmd, ...args] = trimmed.toLowerCase().split(/\s+/);
 
       // Check if command exists
       const command = TERMINAL_COMMANDS[cmd];
@@ -165,19 +176,44 @@ export function useMobileTerminal() {
 
         case "showAbout":
           addOutput(getAboutText());
+          goToSection("about");
           break;
 
         case "showExperience":
           addOutput(getExperienceText());
+          goToSection("experience");
           break;
 
         case "showSkills":
           addOutput(getSkillsText());
+          goToSection("skills");
           break;
 
         case "showContact":
           addOutput(getContactText());
+          goToSection("contact");
           break;
+
+        case "travel": {
+          const [where] = args;
+          const scene = where ? destinationFor(where) : undefined;
+          if (!where) {
+            addOutput(getDepartures());
+          } else if (!scene) {
+            addOutput(
+              `No flights to '${where}'. Type 'fly' for departures.`,
+              "error",
+            );
+          } else {
+            addOutput(
+              isCountryScene(scene)
+                ? `Now boarding: ${COUNTRIES[scene].name}. Fasten your seatbelt.`
+                : "Heading back to the airport.",
+            );
+            travelTo(scene);
+          }
+          break;
+        }
 
         case "openDialog":
           addOutput("Starting conversation...");
@@ -187,10 +223,8 @@ export function useMobileTerminal() {
           break;
 
         case "downloadResume":
-          addOutput(
-            "Opening resume download...\n(Resume PDF would download here)",
-          );
-          // TODO: Implement actual download
+          addOutput(`Opening the filing cabinet...\n${PROFILE.resumeUrl}`);
+          goToSection("resume");
           break;
 
         case "clearTerminal":
@@ -221,7 +255,7 @@ export function useMobileTerminal() {
           addOutput(`Unknown action: ${command.action}`, "error");
       }
     },
-    [addOutput, closeTerminal, selectDialogOption],
+    [addOutput, closeTerminal, selectDialogOption, goToSection, travelTo],
   );
 
   // Handle input (commands OR dialog option selection)
