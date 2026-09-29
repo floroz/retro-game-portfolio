@@ -47,14 +47,27 @@ export interface StandPoint {
 }
 
 /**
- * Depth scaling: the character is drawn at `farScale` with its feet on
- * `farY` and at `nearScale` on `nearY`, interpolated linearly between them.
+ * Depth scaling: how big Daniele is with his feet on `farY` (the back of the
+ * room) and on `nearY` (the front), interpolated linearly between them and
+ * clamped outside. Give either:
+ *
+ * - `farHeight` and `nearHeight`: his standing height in logical px, the
+ *   world scale of HD scenes (docs/art-spec.md, "Phase H", the scale sheet).
+ *   Spread `HD_WORLD_SCALE` (constants.ts) for the Phase H defaults, 58 and
+ *   72 px, which is a depth scale of 0.8 to 1.0 for the 72 px HD puppet;
+ * - or `farScale` and `nearScale`: a scale of the character's own size, as
+ *   the pixel-art scenes do (0.7 to 1.0 of the 57.5 px sprite).
+ *
+ * Heights win when both are given, so one scene's data draws every
+ * character at the same size in the world.
  */
 export interface DepthScale {
   farY: number;
   nearY: number;
-  farScale: number;
-  nearScale: number;
+  farScale?: number;
+  nearScale?: number;
+  farHeight?: number;
+  nearHeight?: number;
 }
 
 /** Which footstep sounds the scene plays. */

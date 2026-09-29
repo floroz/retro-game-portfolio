@@ -3,8 +3,11 @@
  * `npm run dev`, `?hd=<scene>` swaps that scene's art for the density-4
  * stand-ins made by `npm run dev:hd-placeholder -- <scene>` in `dev-hd/`,
  * so the HD engine can be checked on a real scene before the HD art exists.
- * The scene data is otherwise unchanged. Production builds never read it.
+ * It also takes the Phase H world scale (`HD_WORLD_SCALE`), as the HB
+ * builds will. The scene data is otherwise unchanged. Production builds
+ * never read it.
  */
+import { HD_WORLD_SCALE } from "../constants";
 import type { SceneData, SceneId } from "../types";
 
 /** The scene to preview in HD, from `?hd=<scene>`, under `npm run dev` only. */
@@ -27,6 +30,7 @@ export function hdPreviewScene(scene: SceneData): SceneData {
   return {
     ...scene,
     background: hd(scene.background),
+    depth: { ...scene.depth, ...HD_WORLD_SCALE },
     foreground: scene.foreground && hd(scene.foreground),
     objects: scene.objects.map((o) => ({
       ...o,

@@ -44,6 +44,11 @@ export interface CharacterSheet {
   origin: { x: number; y: number };
   /** Logical px a foot travels in one `walk-e` cycle. */
   stride: number;
+  /**
+   * Standing height at scale 1, feet to the top of the hair, in logical px:
+   * what a scene's `farHeight` and `nearHeight` are measured against.
+   */
+  figureHeight: number;
   talkHeadOffset: { x: number; y: number };
   frames: Rect[];
   tags: Record<string, TagRange>;
@@ -78,6 +83,13 @@ const isDensity = (v: unknown): v is Density => v === 1 || v === 2;
 /** A character cell at density 1, in logical px. */
 const CELL = { w: 32, h: 64 } as const;
 
+/**
+ * The sprite's standing height in logical px, when `daniele.json` doesn't
+ * give a `figureHeight` (in sheet px): 115 rows at density 2, from row 9 to
+ * the feet on row 123.
+ */
+const SHEET_FIGURE_HEIGHT = 57.5;
+
 function isTiming(v: unknown): v is Timing {
   if (!isRecord(v)) return false;
   switch (v.mode) {
@@ -105,6 +117,7 @@ export function parseSheet(json: unknown, imageUrl: string): CharacterSheet {
     !Array.isArray(json.frames) ||
     !json.frames.every(isRect) ||
     !isRecord(json.tags) ||
+    (json.figureHeight !== undefined && !isNum(json.figureHeight)) ||
     (json.density !== undefined && !isDensity(json.density))
   ) {
     throw new Error("daniele.json doesn't match the character sheet format");
@@ -134,6 +147,9 @@ export function parseSheet(json: unknown, imageUrl: string): CharacterSheet {
     density,
     origin: json.origin,
     stride: json.stride / density,
+    figureHeight: isNum(json.figureHeight)
+      ? json.figureHeight / density
+      : SHEET_FIGURE_HEIGHT,
     talkHeadOffset: json.talkHeadOffset,
     frames,
     tags,

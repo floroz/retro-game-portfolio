@@ -135,6 +135,7 @@ export class SceneEngine {
   private readonly map: TravelMapData;
   private readonly host: EngineHost;
   private readonly animator: CharacterAnimator;
+  private readonly figureHeight: number;
   private current: SceneData;
   private slotItems: SlotItem[] = [];
   private actor: Actor;
@@ -158,6 +159,7 @@ export class SceneEngine {
     this.map = opts.travelMap;
     this.host = opts.host;
     this.animator = new CharacterAnimator(opts.sheet, opts.rng);
+    this.figureHeight = opts.sheet.figureHeight;
     const start = opts.start ?? "hall";
     this.start = start;
     this.current = this.scenes[start];
@@ -195,8 +197,13 @@ export class SceneEngine {
     return this.slotItems;
   }
 
+  /**
+   * Daniele's depth scale where he stands: 1 is his own size. In a scene
+   * with a world scale (`farHeight`, `nearHeight`), it's the height there
+   * over his own height.
+   */
   get scale(): number {
-    return scaleAt(this.current.depth, this.actor.y);
+    return scaleAt(this.current.depth, this.actor.y, this.figureHeight);
   }
 
   pose(): Pose {
