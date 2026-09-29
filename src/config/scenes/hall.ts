@@ -17,7 +17,8 @@ export const HALL_SCENE: SceneData = {
   foreground: hallFg,
   // Loop points from assets-src/provenance/music-hall.json.
   music: { src: "/audio/music/hall.mp3", loopStart: 0.6, loopEnd: 77.4 },
-  ambience: "/audio/ambience/hall.mp3",
+  // Loop points from assets-src/provenance/ambience-hall.json.
+  ambience: { src: "/audio/ambience/hall.mp3", loopStart: 0.5, loopEnd: 40.5 },
   floor: "carpet",
   walkbox: [
     [4, 102],

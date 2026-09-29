@@ -15,8 +15,14 @@ export const LONDON_SCENE: SceneData = {
   name: "London",
   background: londonBg,
   foreground: londonFg,
-  music: "/audio/music/london.mp3",
-  ambience: "/audio/ambience/london.mp3",
+  // Loop points from assets-src/provenance/music-london.json and
+  // ambience-london.json.
+  music: { src: "/audio/music/london.mp3", loopStart: 0.5, loopEnd: 72.5 },
+  ambience: {
+    src: "/audio/ambience/london.mp3",
+    loopStart: 0.5,
+    loopEnd: 32.5,
+  },
   floor: "wood",
   walkbox: [
     [4, 102],
