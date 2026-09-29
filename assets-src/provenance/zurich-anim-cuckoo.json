@@ -1,11 +1,15 @@
 {
   "id": "zurich-anim-cuckoo",
   "output": "src/assets/scenes/zurich/anim-cuckoo.png",
-  "task": "RB1",
-  "source": "opus",
-  "derivedFrom": "zurich-bg",
-  "palette": "v2",
+  "task": "HB1",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/layers-zurich.md",
+  "candidate": "02",
+  "references": ["assets-src/refs/hd/style-anchor.png"],
+  "approvedRaw": "assets-src/approved/zurich-cuckoo@hd.webp",
   "density": 2,
-  "cleanup": "RB1: 10 opaque 26x16 frames of the clock's gable at 2x: the little arched door opens on its left hinge, the cuckoo peeks out, leans out and calls twice (beak open), then goes back in and the door shuts. Frame 0 matches bg. I2: the wallpaper stripe pixels at the strip's edges (17 per frame) follow bg's stripe recolour from i to k, so frame 0 still matches bg exactly.",
+  "style": "painted",
+  "cleanup": "HB1: candidate 02 of zurich-cuckoo@hd, the carved bird calling with its beak open, facing left. Prepared with assets:prepare --painted --no-quantize (Lanczos, hard alpha) at the size given, registered to the style-anchor layout with --align, then quantized with the other eight Zurich layers to one shared 256-colour palette with assets:quantize (no dither); pixels still within 0.08 OKLab of a rig colour after quantizing were remapped inside the palette. Resized to 18x10 (9x5 logical px), a single frame used as a moving prop (scene.props), not a strip: it pops out of the clock's gable door, calls, and goes back in.",
+  "approvedBy": "daniele",
   "date": "2026-09-29"
 }

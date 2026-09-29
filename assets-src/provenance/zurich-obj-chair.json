@@ -1,15 +1,18 @@
 {
   "id": "zurich-obj-chair",
   "output": "src/assets/scenes/zurich/obj-chair.png",
-  "task": "RB1",
+  "task": "HB1",
   "source": "codex",
-  "prompt": "assets-src/prompts/remaster/zurich.md",
-  "candidate": "04",
-  "references": ["assets-src/refs/remaster/zurich-current@4x.png"],
-  "approvedRaw": "assets-src/approved/zurich-bg@2x.webp",
-  "palette": "v2",
+  "prompt": "assets-src/prompts/hd/layers-zurich.md",
+  "candidate": "01",
+  "references": [
+    "assets-src/refs/hd/style-anchor.png",
+    "assets-src/refs/hd/scale-sheet.png"
+  ],
+  "approvedRaw": "assets-src/approved/zurich-chair@hd.webp",
   "density": 2,
-  "cleanup": "RB1: the anchor's plum-grey office chair (back, seat, underside, gas lift, five-star base, casters, contact shadow) cut at 2x. The star base and casters recoloured from navy (F, G, *, 0) to warm greys (2, !, 3, 1), matching the gas lift: the character's jeans outline against the base went from a median 0.049 OKLab to 0.110 when he stands in front of the chair.",
-  "approvedBy": "opus-orchestrator (delegated RG1a)",
+  "style": "painted",
+  "cleanup": "HB1: candidate 01 of zurich-chair@hd, the violet-blue office chair from behind. Prepared with assets:prepare --painted --no-quantize (Lanczos, hard alpha) at the size given, registered to the style-anchor layout with --align, then quantized with the other eight Zurich layers to one shared 256-colour palette with assets:quantize (no dither); pixels still within 0.08 OKLab of a rig colour after quantizing were remapped inside the palette. Resized to 50x60 (25x30 logical px), registered at (145, 103) logical px (best fit at scale 0.9 of the anchor's chair); casters on y 133. The periwinkle seat and back were 0.02-0.08 OKLab from the jeans; a smoothed radial repel (margin 0.105) moved them to a purple that also sits better in the plum room.",
+  "approvedBy": "daniele",
   "date": "2026-09-29"
 }

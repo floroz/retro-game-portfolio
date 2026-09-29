@@ -390,7 +390,7 @@ describe("mouth shapes", () => {
 describe("the engine with a rig", () => {
   const hd: SceneData = {
     ...SCENES.zurich,
-    depth: { farY: 102, nearY: 158, ...HD_WORLD_SCALE },
+    depth: { farY: 101, nearY: 158, ...HD_WORLD_SCALE },
   };
   const make = (rigFor: (s: SceneData) => boolean) =>
     new SceneEngine({
@@ -407,8 +407,8 @@ describe("the engine with a rig", () => {
     const engine = make((s) => s.id === "zurich");
     const f = engine.figure();
     expect(f.kind).toBe("rig");
-    // fromHall, y 114: 58 + 14 * 12/56 = 61 px tall.
-    expect(f.scale * rig.figureHeight).toBeCloseTo(61);
+    // fromHall, y 112: 58 + 14 * 11/57 = 60.7 px tall.
+    expect(f.scale * rig.figureHeight).toBeCloseTo(60.7, 1);
   });
 
   test("by default, draws the rig only in scenes at the world scale", () => {
