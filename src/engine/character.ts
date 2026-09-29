@@ -9,7 +9,17 @@
  * - use reaches out for 150 ms, holds while the action runs, then returns;
  * - talk overlays a 16x16 head, a random mouth every 100-140 ms, only idle;
  * - west is east mirrored.
+ *
+ * Density (docs/art-spec.md, "Phase R: Remaster"): a density-1 sheet has
+ * 32x64 cells with the feet on row 61; a density-2 sheet has 64x128 cells
+ * with the feet on row 123. Everything in `daniele.json` is in sheet
+ * pixels, as `assets:pack` writes it: `origin`, `talkHeadOffset`, `frames`,
+ * and `stride`, so a density-2 sheet has twice the stride in pixels for the
+ * same logical stride. `parseSheet` turns the stride into logical px, like
+ * every distance the engine walks. The sheet states its `density` at 2;
+ * without one, it's read from the cell size.
  */
+import { detectDensity, type Density } from "./density";
 import type { Facing, Rect } from "./types";
 
 type Timing =
@@ -28,7 +38,11 @@ interface TagRange {
 export interface CharacterSheet {
   /** URL of the packed sheet image. */
   image: string;
+  /** Sheet pixels per logical px. */
+  density: Density;
+  /** Feet, in sheet pixels from a cell's top-left. */
   origin: { x: number; y: number };
+  /** Logical px a foot travels in one `walk-e` cycle. */
   stride: number;
   talkHeadOffset: { x: number; y: number };
   frames: Rect[];
@@ -59,6 +73,10 @@ const isRect = (v: unknown): v is Rect =>
   isRecord(v) && isNum(v.x) && isNum(v.y) && isNum(v.w) && isNum(v.h);
 const isPair = (v: unknown): v is [number, number] =>
   Array.isArray(v) && v.length === 2 && v.every(isNum);
+const isDensity = (v: unknown): v is Density => v === 1 || v === 2;
+
+/** A character cell at density 1, in logical px. */
+const CELL = { w: 32, h: 64 } as const;
 
 function isTiming(v: unknown): v is Timing {
   if (!isRecord(v)) return false;
@@ -86,11 +104,13 @@ export function parseSheet(json: unknown, imageUrl: string): CharacterSheet {
     !isPoint(json.talkHeadOffset) ||
     !Array.isArray(json.frames) ||
     !json.frames.every(isRect) ||
-    !isRecord(json.tags)
+    !isRecord(json.tags) ||
+    (json.density !== undefined && !isDensity(json.density))
   ) {
     throw new Error("daniele.json doesn't match the character sheet format");
   }
   const frames: Rect[] = json.frames;
+  if (frames.length === 0) throw new Error("daniele.json has no frames");
   const tags: Record<string, TagRange> = {};
   for (const tag of BODY_TAGS) {
     const t = json.tags[tag];
@@ -106,10 +126,14 @@ export function parseSheet(json: unknown, imageUrl: string): CharacterSheet {
     }
     tags[tag] = { from: t.from, to: t.to, timing: t.timing };
   }
+  const density = isDensity(json.density)
+    ? json.density
+    : detectDensity(frames[0], CELL);
   return {
     image: imageUrl,
+    density,
     origin: json.origin,
-    stride: json.stride,
+    stride: json.stride / density,
     talkHeadOffset: json.talkHeadOffset,
     frames,
     tags,
@@ -303,6 +327,36 @@ export class CharacterAnimator {
         : null;
     return { body: this.frameOf(idleTag, idleFrame), mirror, head };
   }
+}
+
+/** Where a scaled cell lands, in sheet pixels (see `placeCell`). */
+interface CellPlacement {
+  left: number;
+  top: number;
+  w: number;
+  h: number;
+}
+
+/**
+ * Where a cell drawn at depth `scale` lands with its origin on the logical
+ * point `x`,`y`, in the sheet's own pixels. It rounds on the sheet's grid:
+ * whole logical px at density 1, exactly as before the remaster, and half
+ * logical px at density 2.
+ */
+export function placeCell(
+  sheet: Pick<CharacterSheet, "density" | "origin">,
+  cell: Rect,
+  x: number,
+  y: number,
+  scale: number,
+): CellPlacement {
+  const d = sheet.density;
+  return {
+    left: Math.round(x * d - sheet.origin.x * scale),
+    top: Math.round(y * d - sheet.origin.y * scale),
+    w: Math.round(cell.w * scale),
+    h: Math.round(cell.h * scale),
+  };
 }
 
 /** Facing for a movement vector: sideways wins unless it's mostly vertical. */

@@ -4,7 +4,7 @@ import styles from "./Scene.module.scss";
 import { useGameStore } from "../../store/gameStore";
 import { useSceneKeyboard } from "../../hooks/useSceneKeyboard";
 import { CHARACTER_SHEET } from "../../engine/assets";
-import { NATIVE_H, NATIVE_W } from "../../engine/constants";
+import { CANVAS_H, CANVAS_W, NATIVE_H, NATIVE_W } from "../../engine/constants";
 import { renderFrame } from "../../engine/render";
 import { allImages, getEngine, images } from "../../engine/runtime";
 import { interactablesFor, type Hit } from "../../engine/SceneEngine";
@@ -27,7 +27,7 @@ const hitKey = (hit: Hit) =>
       ? `exit:${hit.target.exit.id}`
       : `slot:${hit.target.item.id}`;
 
-/** Native px under the pointer. */
+/** Logical scene px under the pointer. */
 function nativePoint(e: MouseEvent<HTMLElement>): [number, number] {
   const r = e.currentTarget.getBoundingClientRect();
   return [
@@ -37,9 +37,10 @@ function nativePoint(e: MouseEvent<HTMLElement>): [number, number] {
 }
 
 /**
- * The game scene: a 320x160 canvas drawn by the engine every frame, with
- * invisible buttons over each hotspot for the pointer, the keyboard, and
- * screen readers. Left click walks or uses; right click looks.
+ * The game scene: a 640x320 canvas drawn by the engine every frame in
+ * 320x160 logical px (render.ts), with invisible buttons over each hotspot
+ * for the pointer, the keyboard, and screen readers. Left click walks or
+ * uses; right click looks.
  */
 export function Scene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -115,8 +116,8 @@ export function Scene() {
       <canvas
         ref={canvasRef}
         className={styles.canvas}
-        width={NATIVE_W}
-        height={NATIVE_H}
+        width={CANVAS_W}
+        height={CANVAS_H}
         aria-hidden="true"
       />
       <div className={styles.hotspots}>

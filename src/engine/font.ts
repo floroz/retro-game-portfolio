@@ -2,212 +2,64 @@
  * Engine-drawn pixel fonts. Art never contains text (docs/expansion-plan.md,
  * Extensibility), so every sign, label, and speech line goes through here.
  *
- * - `regular`: proportional, 7 px capitals, 5 px x-height, 2 px descenders.
+ * Both fonts are drawn at canvas resolution, two pixels per logical px
+ * (RENDER_SCALE), so text stays crisp over art of either density. Their
+ * metrics are in logical px, the same as the 1x fonts they replace, so
+ * every label wraps and fits exactly where it did:
+ *
+ * - `regular`: proportional, 5 px capitals, 7 px tall, 2 px descenders.
  *   For speech and anything longer than a word or two.
  * - `small`: 3x5 capitals, for signs, boards, and captions.
  *
- * Glyphs are rows of `#` (ink) and `.` (paper), separated by spaces, drawn
- * from the top of the line. Section icons are written as `{skills}` etc.
+ * The glyphs are in glyphs.ts. Section icons are written as `{skills}` etc.
  */
+import { RENDER_SCALE } from "./constants";
+import { REGULAR_GLYPHS, SMALL_GLYPHS } from "./glyphs";
 import type { SectionId } from "./types";
 
 export type FontId = "regular" | "small";
 
 interface Glyph {
+  /** Width in canvas pixels. */
   w: number;
   rows: string[];
 }
 
 interface Font {
   glyphs: Map<string, Glyph>;
-  /** Rows from the top of a line to the bottom of the lowest glyph. */
+  /** Logical px from the top of a line to the bottom of the lowest glyph. */
   height: number;
   lineHeight: number;
+  /** Logical px between glyphs. */
   spacing: number;
   upperOnly: boolean;
 }
 
-function parse(defs: Record<string, string>): Map<string, Glyph> {
+/** Parses glyphs.ts's format, for a font `height` logical px tall. */
+export function parseGlyphs(defs: string, height: number): Map<string, Glyph> {
   const map = new Map<string, Glyph>();
-  for (const [ch, def] of Object.entries(defs)) {
-    const rows = def.split(" ");
-    const w = rows[0].length;
-    if (rows.some((r) => r.length !== w)) {
-      throw new Error(`Ragged glyph "${ch}"`);
+  const rowsTall = height * RENDER_SCALE;
+  for (const block of defs.trim().split(/\n\s*\n/)) {
+    const [header, ...lines] = block.split("\n");
+    const cut = header.lastIndexOf(" ");
+    const name = header.slice(0, cut);
+    const w = Number(header.slice(cut + 1));
+    if (!name || !Number.isInteger(w) || w % RENDER_SCALE !== 0) {
+      throw new Error(`Bad glyph header "${header}"`);
     }
-    map.set(ch, { w, rows });
+    if (lines.length > rowsTall || lines.some((r) => r.length > w)) {
+      throw new Error(`Glyph "${name}" is bigger than ${w}x${rowsTall}`);
+    }
+    const rows = Array.from({ length: rowsTall }, (_, i) =>
+      (lines[i] ?? "").padEnd(w, "."),
+    );
+    map.set(name === "space" ? " " : name, { w, rows });
   }
   return map;
 }
 
-// prettier-ignore
-const REGULAR = parse({
-  A: ".###. #...# #...# ##### #...# #...# #...#",
-  B: "####. #...# #...# ####. #...# #...# ####.",
-  C: ".###. #...# #.... #.... #.... #...# .###.",
-  D: "####. #...# #...# #...# #...# #...# ####.",
-  E: "##### #.... #.... ####. #.... #.... #####",
-  F: "##### #.... #.... ####. #.... #.... #....",
-  G: ".###. #...# #.... #.### #...# #...# .###.",
-  H: "#...# #...# #...# ##### #...# #...# #...#",
-  I: "### .#. .#. .#. .#. .#. ###",
-  J: "..### ...#. ...#. ...#. #..#. #..#. .##..",
-  K: "#...# #..#. #.#.. ##... #.#.. #..#. #...#",
-  L: "#.... #.... #.... #.... #.... #.... #####",
-  M: "#...# ##.## #.#.# #.#.# #...# #...# #...#",
-  N: "#...# ##..# #.#.# #..## #...# #...# #...#",
-  O: ".###. #...# #...# #...# #...# #...# .###.",
-  P: "####. #...# #...# ####. #.... #.... #....",
-  Q: ".###. #...# #...# #...# #.#.# #..#. .##.#",
-  R: "####. #...# #...# ####. #.#.. #..#. #...#",
-  S: ".###. #...# #.... .###. ....# #...# .###.",
-  T: "##### ..#.. ..#.. ..#.. ..#.. ..#.. ..#..",
-  U: "#...# #...# #...# #...# #...# #...# .###.",
-  V: "#...# #...# #...# #...# #...# .#.#. ..#..",
-  W: "#...# #...# #...# #.#.# #.#.# #.#.# .#.#.",
-  X: "#...# #...# .#.#. ..#.. .#.#. #...# #...#",
-  Y: "#...# #...# .#.#. ..#.. ..#.. ..#.. ..#..",
-  Z: "##### ....# ...#. ..#.. .#... #.... #####",
-  a: ".... .... .##. ...# .### #..# .###",
-  b: "#... #... ###. #..# #..# #..# ###.",
-  c: "... ... .## #.. #.. #.. .##",
-  d: "...# ...# .### #..# #..# #..# .###",
-  e: ".... .... .##. #..# #### #... .###",
-  f: ".## #.. ### #.. #.. #.. #..",
-  g: ".... .... .### #..# #..# #..# .### ...# .##.",
-  h: "#... #... ###. #..# #..# #..# #..#",
-  i: "# . # # # # #",
-  j: ".# .. .# .# .# .# .# .# #.",
-  k: "#... #... #..# #.#. ##.. #.#. #..#",
-  l: "#. #. #. #. #. #. .#",
-  m: "..... ..... ##.#. #.#.# #.#.# #.#.# #.#.#",
-  n: ".... .... ###. #..# #..# #..# #..#",
-  o: ".... .... .##. #..# #..# #..# .##.",
-  p: ".... .... ###. #..# #..# #..# ###. #... #...",
-  q: ".... .... .### #..# #..# #..# .### ...# ...#",
-  r: "... ... #.# ##. #.. #.. #..",
-  s: ".... .... .### #... .##. ...# ###.",
-  t: ".#. .#. ### .#. .#. .#. ..#",
-  u: ".... .... #..# #..# #..# #..# .###",
-  v: "..... ..... #...# #...# #...# .#.#. ..#..",
-  w: "..... ..... #...# #...# #.#.# #.#.# .#.#.",
-  x: "..... ..... #...# .#.#. ..#.. .#.#. #...#",
-  y: ".... .... #..# #..# #..# #..# .### ...# .##.",
-  z: ".... .... #### ...# .##. #... ####",
-  "0": ".###. #...# #..## #.#.# ##..# #...# .###.",
-  "1": ".#. ##. .#. .#. .#. .#. ###",
-  "2": ".###. #...# ....# ...#. ..#.. .#... #####",
-  "3": ".###. #...# ....# ..##. ....# #...# .###.",
-  "4": "...#. ..##. .#.#. #..#. ##### ...#. ...#.",
-  "5": "##### #.... ####. ....# ....# #...# .###.",
-  "6": "..##. .#... #.... ####. #...# #...# .###.",
-  "7": "##### ....# ...#. ..#.. .#... .#... .#...",
-  "8": ".###. #...# #...# .###. #...# #...# .###.",
-  "9": ".###. #...# #...# .#### ....# ...#. .##..",
-  " ": "... ... ... ... ... ... ...",
-  ".": ". . . . . . #",
-  ",": ".. .. .. .. .. .# .# #.",
-  "!": "# # # # # . #",
-  "?": ".###. #...# ....# ...#. ..#.. ..... ..#..",
-  "'": "# # . . . . .",
-  '"': "#.# #.# ... ... ... ... ...",
-  ":": ". . # . . . #",
-  ";": ".. .. .# .. .. .# .# #.",
-  "-": "... ... ... ### ... ... ...",
-  "+": "... ... .#. ### .#. ... ...",
-  "=": ".... .... #### .... #### .... ....",
-  "*": "... #.# .#. #.# ... ... ...",
-  "_": ".... .... .... .... .... .... ####",
-  "(": ".# #. #. #. #. #. .#",
-  ")": "#. .# .# .# .# .# #.",
-  "[": "## #. #. #. #. #. ##",
-  "]": "## .# .# .# .# .# ##",
-  "<": "... ..# .#. #.. .#. ..# ...",
-  ">": "... #.. .#. ..# .#. #.. ...",
-  "/": "..# ..# .#. .#. .#. #.. #..",
-  "&": ".##.. #..#. #.#.. .#... #.#.# #..#. .##.#",
-  "@": ".###. #...# #.### #.#.# #.### #.... .###.",
-  "#": ".#.#. .#.#. ##### .#.#. ##### .#.#. .#.#.",
-  "%": "##..# ##..# ...#. ..#.. .#... #..## #..##",
-  "·": ". . . # . . .",
-  "é": "..#. .#.. .##. #..# #### #... .###",
-  "è": ".#.. ..#. .##. #..# #### #... .###",
-  "à": ".#.. ..#. .##. ...# .### #..# .###",
-  "ò": ".#.. ..#. .##. #..# #..# #..# .##.",
-  "ù": ".#.. ..#. #..# #..# #..# #..# .###",
-  "ì": "#. .# .# .# .# .# .#",
-  "ü": ".... #..# .... #..# #..# #..# .###",
-  "ö": ".... #..# .... .##. #..# #..# .##.",
-  "ä": ".... #..# .##. ...# .### #..# .###",
-  // Section icons, as on the toolbar: {experience} {skills} {about} {contact} {resume}
-  "{experience}": "..###.. ..#.#.. ####### #..#..# ####### #.....# #######",
-  "{skills}": "....#.# ....### ...###. ..###.. .###... ###.... .#.....",
-  "{about}": "..###.. .#####. .#####. ..###.. ....... .#####. #######",
-  "{contact}": "##..... ###.... .##.... ..##... ...##.. ....### .....##",
-  "{resume}": "#####.. #...##. #.....# #.###.# #.....# #.###.# #######",
-});
-
-// prettier-ignore
-const SMALL = parse({
-  A: ".#. #.# ### #.# #.#",
-  B: "##. #.# ##. #.# ##.",
-  C: ".## #.. #.. #.. .##",
-  D: "##. #.# #.# #.# ##.",
-  E: "### #.. ##. #.. ###",
-  F: "### #.. ##. #.. #..",
-  G: ".## #.. #.# #.# .##",
-  H: "#.# #.# ### #.# #.#",
-  I: "### .#. .#. .#. ###",
-  J: "..# ..# ..# #.# .#.",
-  K: "#.# #.# ##. #.# #.#",
-  L: "#.. #.. #.. #.. ###",
-  M: "#.# ### ### #.# #.#",
-  N: "##. #.# #.# #.# #.#",
-  O: ".#. #.# #.# #.# .#.",
-  P: "##. #.# ##. #.. #..",
-  Q: ".#. #.# #.# ##. .##",
-  R: "##. #.# ##. #.# #.#",
-  S: ".## #.. .#. ..# ##.",
-  T: "### .#. .#. .#. .#.",
-  U: "#.# #.# #.# #.# ###",
-  V: "#.# #.# #.# #.# .#.",
-  W: "#.# #.# ### ### #.#",
-  X: "#.# #.# .#. #.# #.#",
-  Y: "#.# #.# .#. .#. .#.",
-  Z: "### ..# .#. #.. ###",
-  "0": "### #.# #.# #.# ###",
-  "1": ".#. ##. .#. .#. ###",
-  "2": "##. ..# .#. #.. ###",
-  "3": "##. ..# .#. ..# ##.",
-  "4": "#.# #.# ### ..# ..#",
-  "5": "### #.. ##. ..# ##.",
-  "6": ".## #.. ### #.# ###",
-  "7": "### ..# .#. .#. .#.",
-  "8": "### #.# ### #.# ###",
-  "9": "### #.# ### ..# ##.",
-  " ": "... ... ... ... ...",
-  ".": ". . . . #",
-  ",": ".. .. .. .# #.",
-  "!": "# # # . #",
-  "?": "##. ..# .#. ... .#.",
-  "'": "# # . . .",
-  '"': "#.# #.# ... ... ...",
-  ":": ". # . # .",
-  "-": "... ... ### ... ...",
-  "+": "... .#. ### .#. ...",
-  "/": "..# ..# .#. #.. #..",
-  "&": ".#. #.# .#. #.# .##",
-  "(": ".# #. #. #. .#",
-  ")": "#. .# .# .# #.",
-  "·": ". . # . .",
-  "É": "..# ### #.. ##. ###",
-  // Section icons at 5x5 for signs
-  "{experience}": ".###. ##### #.#.# ##### #####",
-  "{skills}": "...## ..### .###. ###.. ##...",
-  "{about}": ".###. .###. ..... ##### #####",
-  "{contact}": "##... ###.. .##.. ..### ...##",
-  "{resume}": "####. #..## #.#.# #...# #####",
-});
+const REGULAR = parseGlyphs(REGULAR_GLYPHS, 9);
+const SMALL = parseGlyphs(SMALL_GLYPHS, 5);
 
 const FONTS: Record<FontId, Font> = {
   regular: {
@@ -239,9 +91,15 @@ const REPLACEMENTS: Record<string, string> = {
 
 const ICON_TOKEN = /\{(experience|skills|about|contact|resume)\}/y;
 
-/** Pixel rows of a section icon ("#" ink), for the toolbar's buttons. */
+/**
+ * Pixel rows of a section icon ("#" ink) at canvas resolution, for the
+ * toolbar's buttons.
+ */
 export function iconRows(section: SectionId): string[] {
-  return REGULAR.get(iconToken(section))?.rows ?? [];
+  const rows = REGULAR.get(iconToken(section))?.rows ?? [];
+  let end = rows.length;
+  while (end > 0 && !rows[end - 1].includes("#")) end--;
+  return rows.slice(0, end);
 }
 
 /** The token that draws a section's icon, e.g. `{skills}`. */
@@ -306,15 +164,18 @@ export function lineHeight(fontId: FontId): number {
   return FONTS[fontId].lineHeight;
 }
 
-/** Width in native px of one line of text. */
+/** Width in logical px of one line of text. */
 export function measureText(text: string, fontId: FontId = "regular") {
   const font = FONTS[fontId];
   const glyphs = glyphsOf(text, fontId);
   if (glyphs.length === 0) return 0;
-  return glyphs.reduce((w, g) => w + g.w + font.spacing, 0) - font.spacing;
+  return (
+    glyphs.reduce((w, g) => w + g.w / RENDER_SCALE + font.spacing, 0) -
+    font.spacing
+  );
 }
 
-/** Greedy word wrap to `maxWidth` native px. Honours explicit newlines. */
+/** Greedy word wrap to `maxWidth` logical px. Honours explicit newlines. */
 export function wrapText(
   text: string,
   maxWidth: number,
@@ -337,7 +198,10 @@ export function wrapText(
   return lines;
 }
 
-/** Calls `plot` for every ink pixel of one line, from its top-left. */
+/**
+ * Calls `plot` for every ink pixel of one line, in canvas pixels from its
+ * top-left.
+ */
 function forEachPixel(
   text: string,
   fontId: FontId,
@@ -349,16 +213,32 @@ function forEachPixel(
     g.rows.forEach((row, y) => {
       for (let x = 0; x < row.length; x++) if (row[x] === "#") plot(cx + x, y);
     });
-    cx += g.w + font.spacing;
+    cx += g.w + font.spacing * RENDER_SCALE;
   }
 }
 
 interface TextStyle {
   font?: FontId;
   color: string;
-  /** A 1 px hard outline, as SCUMM speech. */
+  /** A 1 logical px hard outline, rounded at the corners, as SCUMM speech. */
   outline?: string | false;
 }
+
+/**
+ * Outline offsets in canvas pixels: every point within one logical px,
+ * except the far corners, so the outline rounds off at the glyph's corners.
+ */
+const OUTLINE: readonly (readonly [number, number])[] = (() => {
+  const r = RENDER_SCALE;
+  const out: [number, number][] = [];
+  for (let dy = -r; dy <= r; dy++) {
+    for (let dx = -r; dx <= r; dx++) {
+      if (Math.abs(dx) === r && Math.abs(dy) === r) continue;
+      out.push([dx, dy]);
+    }
+  }
+  return out;
+})();
 
 const cache = new Map<string, HTMLCanvasElement>();
 const CACHE_LIMIT = 256;
@@ -368,15 +248,22 @@ function renderLine(text: string, style: TextStyle): HTMLCanvasElement {
   const key = `${fontId}|${style.color}|${style.outline || ""}|${text}`;
   const hit = cache.get(key);
   if (hit) return hit;
-  const pad = style.outline ? 1 : 0;
+  const pad = style.outline ? RENDER_SCALE : 0;
   const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, measureText(text, fontId) + pad * 2);
-  canvas.height = FONTS[fontId].height + pad * 2;
+  canvas.width = Math.max(
+    1,
+    measureText(text, fontId) * RENDER_SCALE + pad * 2,
+  );
+  canvas.height = FONTS[fontId].height * RENDER_SCALE + pad * 2;
   const ctx = canvas.getContext("2d");
   if (ctx) {
     if (style.outline) {
       ctx.fillStyle = style.outline;
-      forEachPixel(text, fontId, (x, y) => ctx.fillRect(x, y, 3, 3));
+      forEachPixel(text, fontId, (x, y) => {
+        for (const [dx, dy] of OUTLINE) {
+          ctx.fillRect(x + pad + dx, y + pad + dy, 1, 1);
+        }
+      });
     }
     ctx.fillStyle = style.color;
     forEachPixel(text, fontId, (x, y) => ctx.fillRect(x + pad, y + pad, 1, 1));
@@ -390,8 +277,8 @@ function renderLine(text: string, style: TextStyle): HTMLCanvasElement {
 }
 
 /**
- * Draws one line with its top-left at `x`,`y` (the outline, if any, sits
- * one pixel outside that box).
+ * Draws one line with its top-left at logical `x`,`y` (the outline, if any,
+ * sits one logical px outside that box), on a context scaled to logical px.
  */
 export function drawText(
   ctx: CanvasRenderingContext2D,
@@ -402,9 +289,12 @@ export function drawText(
 ) {
   if (!text) return;
   const pad = style.outline ? 1 : 0;
+  const line = renderLine(text, style);
   ctx.drawImage(
-    renderLine(text, style),
+    line,
     Math.round(x) - pad,
     Math.round(y) - pad,
+    line.width / RENDER_SCALE,
+    line.height / RENDER_SCALE,
   );
 }
