@@ -34,6 +34,10 @@ Every agent works in its own git worktree, so parallel work never collides. Work
   - Only the final integration task may touch every scene.
 - **Cleaning up:** remove a task's worktree once its PR is merged, with `git worktree remove ../rgp-<task-id>`.
 
+### Engineering blog (Agreed)
+
+The v2 revamp is documented as an engineering blog post, `docs/blog/v2-revamp.md`, written for engineers: how the work was planned, orchestrated across two model families, and delivered, including the dead ends. **Keeping it current is a requirement of this plan.** After every gate, every direction change, and every phase that lands, the orchestrator dispatches an update. The blog writer (Sonnet) is the only agent allowed to edit `docs/blog/`, on branches named `docs/blog-*`, which the plan guard allows. It never edits the plan files.
+
 ### Keeping the plan in sync
 
 The plan (this file and [the art spec](art-spec.md)) exists only on **`origin/v2`**. A copy in a worktree, a branch, or a chat is never the source of truth.
