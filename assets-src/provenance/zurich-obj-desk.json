@@ -1,15 +1,18 @@
 {
   "id": "zurich-obj-desk",
   "output": "src/assets/scenes/zurich/obj-desk.png",
-  "task": "RB1",
+  "task": "HB1",
   "source": "codex",
-  "prompt": "assets-src/prompts/remaster/zurich.md",
-  "candidate": "04",
-  "references": ["assets-src/refs/remaster/zurich-current@4x.png"],
-  "approvedRaw": "assets-src/approved/zurich-bg@2x.webp",
-  "palette": "v2",
+  "prompt": "assets-src/prompts/hd/layers-zurich.md",
+  "candidate": "01",
+  "references": [
+    "assets-src/refs/hd/style-anchor.png",
+    "assets-src/refs/hd/scale-sheet.png"
+  ],
+  "approvedRaw": "assets-src/approved/zurich-desk@hd.webp",
   "density": 2,
-  "cleanup": "RB1: cut from the remaster anchor at 2x with the CRT, keyboard, pen cup, lamp and books; the sill and its drop shadow, the props' shadows on the wall and baseboard, and the lamp's light on the baseboard stay in bg. The chair was removed from the knee hole: the dark-wood back panel (6) filled in behind the chair back down to row 80 of the sprite, the floor below it left open, and the pedestal's left edge under the seat repainted from the same rows of the drawer above. The floor contact shadow is kept below the baseline. Position (135, 78), half a logical px higher and to the right of B1's, where the anchor has it.",
-  "approvedBy": "opus-orchestrator (delegated RG1a)",
+  "style": "painted",
+  "cleanup": "HB1: candidate 01 of zurich-desk@hd, the desk with the CRT, keyboard, pen cup, lit lamp and books. Prepared with assets:prepare --painted --no-quantize (Lanczos, hard alpha) at the size given, registered to the style-anchor layout with --align, then quantized with the other eight Zurich layers to one shared 256-colour palette with assets:quantize (no dither); pixels still within 0.08 OKLab of a rig colour after quantizing were remapped inside the palette. Resized to 136x96 (68x48 logical px) and registered at (136, 78) logical px, matching the style anchor's desk (best fit at scale 1.07); front feet on y 126. The CRT screen, blank and dark in the candidate, is recoloured to a dark phosphor green (OKLab C 0.09, hue 148) so the sweater and hair never sink into it; the lamp shade and the wood stay as painted. A smoothed radial repel (margin 0.105) moved the few dark pixels within 0.08 OKLab of the rig colours.",
+  "approvedBy": "daniele",
   "date": "2026-09-29"
 }
