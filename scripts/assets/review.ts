@@ -18,13 +18,42 @@
  *
  * Writes assets-src/review/<asset-id>/NN.png (native) and sheet@<scale>x.png.
  * Judge at native size: a beautiful raw image can pixelize into mush.
+ *
+ * HD candidates (Phase H), with no palette remap:
+ *
+ *   npm run assets:review -- <asset-id> --hd
+ *     --hd                     on by default for an "<id>@hd" folder: each candidate
+ *                              goes through assets:prepare (hd.ts) instead of pixelize
+ *     [--kind scene|sprite]    default scene for a -bg, -fg, or -plate id, else sprite
+ *     [--crop auto|x,y,w,h] [--size WxH|Wx|xH] [--pad 2]
+ *     [--key none|auto|alpha|ff00ff] [--key-tolerance] [--softness] [--band]
+ *     [--choke] [--min-hole] [--despill on|off] [--spill] [--alpha-floor]
+ *                              the soft key; default auto for sprites, none for scenes
+ *     [--levels b,w[,g]] [--saturation 1.1]
+ *     [--overlay scale|layout|<png>]   blend a reference over every tile: the scale
+ *                              sheet (assets-src/refs/hd/scale-sheet.png), the scene's
+ *                              current layout (assets-src/refs/hd/<scene>-current.png),
+ *                              or any image; it is also shown alone as tile REF
+ *     [--overlay-opacity 0.35] [--tile 640] (tile width in px) [--cols 2]
+ *
+ *   Writes assets-src/review/<asset-id>/NN.png (full HD) and sheet-hd.png.
  */
 import { existsSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { codexSizeWarning } from "./codex";
+import {
+  KEY_FLAG_OPTIONS,
+  hdContactSheet,
+  keyOptions,
+  parseLevels,
+  parseTargetSize,
+  prepare,
+  type PrepareKind,
+} from "./hd";
 import { floodKey, parseKeyArg } from "./key";
 import {
+  REFS_DIR,
   REPO_ROOT,
   REVIEW_DIR,
   allowedColours,
@@ -46,6 +75,7 @@ import {
   sceneSize,
   upscale,
   writePng,
+  type Image,
 } from "./lib";
 
 function numberOption(value: string | undefined): number | undefined {
@@ -66,12 +96,19 @@ async function main() {
       density: { type: "string" },
       size: { type: "string" },
       crop: { type: "string", default: "auto" },
-      key: { type: "string" },
-      "key-tolerance": { type: "string" },
       "fringe-tolerance": { type: "string" },
-      "min-hole": { type: "string" },
       sprites: { type: "string" },
       scale: { type: "string" },
+      ...KEY_FLAG_OPTIONS,
+      hd: { type: "boolean" },
+      kind: { type: "string" },
+      pad: { type: "string" },
+      levels: { type: "string" },
+      saturation: { type: "string" },
+      overlay: { type: "string" },
+      "overlay-opacity": { type: "string" },
+      tile: { type: "string" },
+      cols: { type: "string" },
     },
   });
   const [assetId] = positionals;
@@ -92,6 +129,11 @@ async function main() {
     .filter((f) => /^\d+\.png$/i.test(f))
     .sort();
   if (files.length === 0) fail(`No NN.png candidates in ${rawDir}`);
+
+  if (values.hd ?? assetId.endsWith("@hd")) {
+    await reviewHd(assetId, rawDir, files, values);
+    return;
+  }
 
   const density = parseDensity(
     values.density ?? (assetId.endsWith("@2x") ? "2" : undefined),
@@ -158,6 +200,78 @@ async function main() {
   console.log(
     `Review sheet: ${sheetPath} (scene: ${scene ?? "core"}, density ${density})`,
   );
+}
+
+/** Resolve --overlay: "scale", "layout", or a path. */
+function overlayPath(value: string, assetId: string): string {
+  if (value === "scale") return join(REFS_DIR, "hd/scale-sheet.png");
+  if (value === "layout") {
+    const scene = sceneForAssetId(assetId);
+    if (!scene) fail(`--overlay layout: "${assetId}" names no scene`);
+    return join(REFS_DIR, `hd/${scene}-current.png`);
+  }
+  return cliPath(value);
+}
+
+async function reviewHd(
+  assetId: string,
+  rawDir: string,
+  files: string[],
+  values: Record<string, string | boolean | undefined>,
+) {
+  const str = (k: string) =>
+    typeof values[k] === "string" ? (values[k] as string) : undefined;
+  const num = (k: string) =>
+    str(k) === undefined ? undefined : Number(str(k));
+  const kindFlag = str("kind");
+  if (kindFlag !== undefined && kindFlag !== "scene" && kindFlag !== "sprite")
+    fail(`--kind is scene or sprite, not "${kindFlag}"`);
+  const kind: PrepareKind =
+    kindFlag ?? (/-(bg|fg|plate)(@|$)/.test(assetId) ? "scene" : "sprite");
+  const crop = str("crop") ?? "auto";
+  const key = keyOptions(
+    Object.fromEntries(Object.keys(KEY_FLAG_OPTIONS).map((k) => [k, str(k)])),
+    kind === "sprite" ? "auto" : "none",
+  );
+  const outDir = join(REVIEW_DIR, assetId);
+
+  const prepared: Image[] = [];
+  for (const file of files) {
+    const raw = await readImage(join(rawDir, file));
+    const result = await prepare(raw, {
+      kind,
+      crop: crop === "auto" ? "auto" : parseRect(crop),
+      size: str("size") ? parseTargetSize(str("size") as string) : undefined,
+      pad: num("pad"),
+      key,
+      levels: str("levels") ? parseLevels(str("levels") as string) : undefined,
+      saturation: num("saturation"),
+    });
+    for (const w of result.warnings) console.warn(`warning: ${file}: ${w}`);
+    await writePng(join(outDir, file), result.image);
+    prepared.push(result.image);
+    console.log(
+      `${file}: ${raw.width}x${raw.height} -> ${result.image.width}x${result.image.height}`,
+    );
+  }
+
+  const overlayFlag = str("overlay");
+  const overlay = overlayFlag
+    ? await readImage(overlayPath(overlayFlag, assetId))
+    : undefined;
+  const sheetPath = join(outDir, "sheet-hd.png");
+  await writePng(
+    sheetPath,
+    await hdContactSheet(prepared, {
+      tileWidth: num("tile"),
+      cols: num("cols"),
+      labels: files.map((f) => f.replace(/\.png$/i, "")),
+      overlay,
+      overlayOpacity: num("overlay-opacity"),
+      reference: overlay,
+    }),
+  );
+  console.log(`HD review sheet: ${sheetPath} (${kind}, no palette remap)`);
 }
 
 main().catch((e: unknown) => fail(e instanceof Error ? e.message : String(e)));

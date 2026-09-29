@@ -43,8 +43,8 @@
     },
     "palette": { "type": "string", "pattern": "^v\\d+$" },
     "density": {
-      "enum": [1, 2],
-      "description": "Pixel density: 1 for the 320x160 art, 2 for the Phase R remaster (640x320 scenes, 64x128 character cells). Absent means 1"
+      "enum": [1, 2, 4],
+      "description": "Density: 1 for the 320x160 art, 2 for the Phase R remaster (640x320 scenes, 64x128 character cells), 4 for the Phase H hand-painted HD art (1280x640 scenes, the cut-out rig; no palette, soft alpha). Absent means 1"
     },
     "cleanup": { "type": "string" },
     "approvedBy": { "type": "string" },
