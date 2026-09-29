@@ -10,7 +10,7 @@
     "build": "tsc -b && vite build",
     "lint": "run-s lint:*",
     "lint:code": "eslint .",
-    "lint:types": "tsc --noEmit",
+    "lint:types": "tsc -b",
     "lint:format": "prettier --check .",
     "lint:style": "stylelint \"**/*.{css,scss}\" --ignore-pattern \"dist/**\"",
     "lint:knip": "knip",
