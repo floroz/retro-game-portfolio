@@ -1,10 +1,11 @@
 {
   "id": "slot-tap-more",
   "output": "src/assets/shared/slots/slot-tap-more.png",
-  "task": "B6",
+  "task": "RB6",
   "source": "opus",
-  "palette": "v1",
-  "cleanup": "Drawn by hand at native size as a palette-index grid (core palette only), matching the style anchor's density, flat 2-4 step shading and selective 1px outline (local ramp's darkest on the lit top-left side, 0 on the shadow side). 11x16 fold object for the taps: a small upright wooden cask with three iron hoops and a brass spigot. Same height as slot-tap and bottom-aligned (rows 0-3 transparent), so it stands on the same bar-top line in the last tap slot.",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Remastered for Phase R: drawn by hand as a palette-index grid at density 2, exactly twice the B6 density-1 size so the engine's SHARED_LOGICAL_SIZES keeps the same logical footprint. Core palette only (v2, including the new core steps), matching the remastered Zurich style anchor (assets-src/refs/remaster/style-anchor@4x.png): hard pixel edges, 3-6 steps per material, finer material detail, no dithering on the sprite, and a selective 1px outline lit from the top left (the local ramp's darkest on the lit side, 0 on the shadow side). No text or logos. 22x32 wooden cask (was 11x16), bottom-aligned with the tap by eight blank rows at the top: bulging staves shaded across the barrel in five wood steps ((, A, 9, 8, 7) with darker stave seams and a few grain flecks, a lit top chime, three iron hoops in neutral steps (4, %, 3, !, 2) with a lit top row, and a small brass spigot on the front between the lower hoops.",
   "approvedBy": "opus-orchestrator (delegated)",
   "date": "2026-09-29"
 }
