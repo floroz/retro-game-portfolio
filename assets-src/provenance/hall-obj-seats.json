@@ -1,0 +1,10 @@
+{
+  "id": "hall-obj-seats",
+  "output": "src/assets/scenes/hall/obj-seats.png",
+  "task": "B2",
+  "source": "opus",
+  "derivedFrom": "hall-bg",
+  "cleanup": "Row of five joined 1990s seats, redrawn front-on from the candidate's angled row: navy backs and pans with a lighter roll, chrome armrests, beam and three splayed legs, a 1 px contact shadow. Moved forward onto the carpet (baseline y 120) so Daniele walks behind and in front of it.",
+  "palette": "v1",
+  "date": "2026-09-29"
+}

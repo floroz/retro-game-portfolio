@@ -1,0 +1,10 @@
+{
+  "id": "hall-anim-plane",
+  "output": "src/assets/scenes/hall/anim-plane.png",
+  "task": "B2",
+  "source": "opus",
+  "derivedFrom": "hall-bg",
+  "cleanup": "A 14x5 white airliner, nose left and climbing, with its gear up. The scene data moves it up and away over the horizon in the right-hand window pane, clipped to that pane.",
+  "palette": "v1",
+  "date": "2026-09-29"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "hall-obj-arch",
+  "output": "src/assets/scenes/hall/obj-arch.png",
+  "task": "B2",
+  "source": "opus",
+  "derivedFrom": "hall-bg",
+  "cleanup": "Walk-through security arch, redrawn 30x58 from the candidate's: aluminium header with a blank display and a green and a red light, two posts with lit and shaded edges, feet and contact shadows. Moved forward onto the carpet (baseline y 128), away from the gate desks, with room to walk between its posts.",
+  "palette": "v1",
+  "date": "2026-09-29"
+}
