@@ -14,6 +14,7 @@ import { sectionList, COUNTRIES } from "../config/sections";
 import type { ImageStore } from "./assets";
 import { slotSpriteUrl } from "./assets";
 import type { CharacterSheet } from "./character";
+import { animationFrame } from "./animation";
 import { paintOrder, type Paintable } from "./depth";
 import { CORE, IRIS_MS, NATIVE_H, NATIVE_W } from "./constants";
 import { drawText, lineHeight, measureText, wrapText } from "./font";
@@ -99,29 +100,6 @@ export function renderFrame(rc: RenderContext) {
 
   drawSpeech(rc);
   if (tr?.kind === "iris") drawIris(ctx, tr);
-}
-
-function animationFrame(anim: SceneAnimation, now: number) {
-  if (anim.motion) {
-    const period = Math.max(anim.everyMs ?? anim.motion.durationMs, 1);
-    const t = now % period;
-    if (t > anim.motion.durationMs) return null;
-    const p = t / anim.motion.durationMs;
-    return {
-      frame: Math.floor(t / anim.frameMs) % anim.frames,
-      x: anim.x + anim.motion.dx * p,
-      y: anim.y + anim.motion.dy * p,
-    };
-  }
-  let frame: number;
-  if (anim.everyMs) {
-    const t = now % anim.everyMs;
-    const cycle = anim.frames * anim.frameMs;
-    frame = t < cycle ? Math.floor(t / anim.frameMs) : 0;
-  } else {
-    frame = Math.floor(now / anim.frameMs) % anim.frames;
-  }
-  return { frame, x: anim.x, y: anim.y };
 }
 
 function drawAnimation(rc: RenderContext, anim: SceneAnimation) {

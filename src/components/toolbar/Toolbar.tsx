@@ -9,9 +9,11 @@ import { useGameStore } from "../../store/gameStore";
  */
 export function Toolbar() {
   const hoveredObject = useGameStore((state) => state.hoveredObject);
+  const skippable = useGameStore((state) => state.skippable);
 
   // Generate status text based on current state
   const getStatusText = () => {
+    if (skippable) return "Click to skip";
     if (hoveredObject) {
       const labels: Record<string, string> = {
         experience: "View Experience",

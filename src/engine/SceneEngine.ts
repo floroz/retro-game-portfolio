@@ -72,6 +72,8 @@ export interface EngineHost {
   openSection(section: SectionId): void;
   sceneChanged(scene: SceneId): void;
   sound?(name: SoundName): void;
+  /** A click would now skip something (a trip, or the travel map), or not. */
+  skippableChanged?(skippable: boolean): void;
 }
 
 /** Size and alpha bounding box of a loaded sprite, for default hotspots. */
@@ -142,6 +144,9 @@ export class SceneEngine {
   private states = new Map<string, string>();
   private visited = new Set<SceneId>();
   private lastCountry: CountrySceneId | null = null;
+  /** Object shown in its `open` state while its content is on screen. */
+  private opened: string | null = null;
+  private wasSkippable = false;
   speech: Speech | null = null;
   transition: Transition | null = null;
 
@@ -257,7 +262,7 @@ export class SceneEngine {
     }
     const { object } = target;
     const act = () => {
-      if (object.action) this.useAndOpen(object.action);
+      if (object.action) this.useAndOpen(object.action, object);
       else this.say(object.use ?? object.look);
     };
     const ip = object.interactionPoint;
@@ -303,7 +308,7 @@ export class SceneEngine {
       } else if (ip) {
         Object.assign(this.actor, { x: ip.x, y: ip.y, facing: ip.facing });
       }
-      this.useAndOpen(section);
+      this.useAndOpen(section, object);
     };
     this.skipFn = finish;
 
@@ -373,9 +378,13 @@ export class SceneEngine {
     this.keyboard = [dx, dy];
   }
 
-  /** The content screen closed: finish the "use" animation. */
+  /** The content screen closed: finish the "use" animation, shut the object. */
   contentClosed() {
     this.animator.releaseUse();
+    if (this.opened) {
+      this.states.delete(this.opened);
+      this.opened = null;
+    }
   }
 
   /** Stop walking and drop any queued action. */
@@ -418,6 +427,12 @@ export class SceneEngine {
       talking: this.speech !== null,
     });
     if (footstep) this.host.sound?.(`footstep-${this.current.floor ?? "wood"}`);
+
+    const skippable = this.skipFn !== null || this.transition?.kind === "map";
+    if (skippable !== this.wasSkippable) {
+      this.wasSkippable = skippable;
+      this.host.skippableChanged?.(skippable);
+    }
   }
 
   // --- Internals -------------------------------------------------------------
@@ -551,7 +566,11 @@ export class SceneEngine {
           : "s";
   }
 
-  private useAndOpen(section: SectionId) {
+  private useAndOpen(section: SectionId, object?: SceneObject) {
+    if (object?.states?.open) {
+      this.states.set(object.id, "open");
+      this.opened = object.id;
+    }
     this.animator.startUse();
     this.host.sound?.("ui-blip");
     this.after(150, () => this.host.openSection(section));
@@ -683,6 +702,7 @@ export class SceneEngine {
     const scene = this.scenes[id];
     this.current = scene;
     this.states.clear();
+    this.opened = null;
     this.slotItems = this.fillSlots(scene);
     const ep = opts.place ?? this.entryPoint(scene, entryKey);
     const [x, y] = clampToPolygon([ep.x, ep.y], scene.walkbox);
