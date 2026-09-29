@@ -14,6 +14,12 @@ const HD_DEPTH = { farY: 100, nearY: 156, ...HD_WORLD_SCALE };
 /** Scenes rebuilt from the Phase H layers (the HB tasks). */
 const HD_SCENES = ["zurich", "sorrento", "hall"];
 
+/**
+ * Rebuilt scenes whose plate is shot so much wider or deeper than the world
+ * scale's that they have a perspective of their own, measured from the art.
+ */
+const OWN_PERSPECTIVE = ["hall"];
+
 describe("world scale", () => {
   test("the Phase H defaults are 58 px at the back and 72 at the front", () => {
     expect(heightAt(HD_DEPTH, 100, 72)).toBe(58);
@@ -53,8 +59,9 @@ describe("world scale", () => {
     }
   });
 
-  test("the rebuilt scenes use the world scale", () => {
+  test("the rebuilt scenes use the world scale, unless they have their own", () => {
     for (const id of HD_SCENES) {
+      if (OWN_PERSPECTIVE.includes(id)) continue;
       const { depth } = SCENES[id as keyof typeof SCENES];
       expect(depth.farHeight).toBe(HD_WORLD_SCALE.farHeight);
       expect(depth.nearHeight).toBe(HD_WORLD_SCALE.nearHeight);
@@ -62,16 +69,32 @@ describe("world scale", () => {
     }
   });
 
-  test("the HD Hall (HB2) uses the world scale over its whole floor", () => {
+  test("the HD Hall (HB2b) uses its own measured perspective over its whole floor", () => {
     const { depth, walkbox } = SCENES.hall;
-    expect(depth.farHeight).toBe(58);
-    expect(depth.nearHeight).toBe(72);
+    // Not the shared world scale.
+    expect(depth.farHeight).not.toBe(HD_WORLD_SCALE.farHeight);
+    expect(depth.nearHeight).not.toBe(HD_WORLD_SCALE.nearHeight);
+    expect(depth.farScale).toBeUndefined();
+    expect(depth.farHeight).toBe(34);
+    expect(depth.nearHeight).toBe(64);
     const ys = walkbox.map((p) => p[1]);
     expect(depth.farY).toBe(Math.min(...ys));
     expect(depth.nearY).toBe(Math.max(...ys));
-    // 0.8 to 1.0 of the 72 px rig.
-    expect(scaleAt(depth, depth.farY, 72)).toBeCloseTo(0.8, 1);
-    expect(scaleAt(depth, depth.nearY, 72)).toBeCloseTo(1);
+
+    // At the gates, about 0.85 of the 41 px doors (frame included).
+    const DOOR = 41;
+    const gate = heightAt(depth, 95, 72);
+    expect(gate / DOOR).toBeGreaterThan(0.8);
+    expect(gate / DOOR).toBeLessThan(0.9);
+    // Beside the seats (27 px tall), they come up to about half of him.
+    const SEATS = 27;
+    const beside = heightAt(depth, 131, 72);
+    expect(SEATS / beside).toBeGreaterThan(0.45);
+    expect(SEATS / beside).toBeLessThan(0.58);
+    // Between the arch's posts (y 114) he fits under its beam (44 px clear).
+    expect(heightAt(depth, 114, 72)).toBeLessThanOrEqual(44.5);
+    // And never bigger than the rig's own size.
+    expect(scaleAt(depth, depth.nearY, 72)).toBeLessThanOrEqual(1);
   });
 
   test("the sprite sheet is 57.5 logical px tall, or what daniele.json says", () => {
