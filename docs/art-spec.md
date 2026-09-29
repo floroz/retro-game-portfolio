@@ -737,11 +737,16 @@ Everything in this phase starts once its dependencies are met, and runs in paral
 - **Steps:**
   1. Put all five scenes, the shared sprites, and the character on one contact sheet. Fix mismatches in outline weight, shading steps, ramp use, and light direction.
   2. Check each scene with the real character and real `profile.ts` data: scale at the near and far walkbox edges, `baselineY` occlusion, interaction points, and slot rows (including a full row folding).
-  3. In `zurich.ts`, add `sound: "cuckoo"` to the cuckoo animation. Give the Zurich CRT an engine-drawn "EXPERIENCE" label on its screen, to match the cabinet's "RESUME" card, and check that every primary object in every scene names its section. Check the signposting rules from the plan: gate signs, map labels, arrival lines, and primary objects all name their sections.
-  4. Check that preloading stops scene changes and the travel map from flashing.
-  5. Regenerate the OG image with `npm run generate:og-image`. Confirm the Game Boy view and the SEO HTML are unchanged.
-  6. Walk every scene by hand and check that each section is reachable in two clicks or fewer. E2E tests and baselines are out of scope for v2.
-  7. **G4:** final review by Daniele.
+  3. **Fixes found during Phase 2**, each owned by I1:
+     - **The character must never vanish into the background (critical).** In the Hall, the carpet uses the same navy as Daniele's sweater (core `F`/`G`), so his torso disappears. Recolour the carpet to the Hall ramp's teal with plum triangles, as the ramp intended. Recolour Zurich's navy desk chair too. Then check every scene: walk the character across every floor and in front of every object, and fix any surface whose value is within one step of the sweater, jeans, or hair.
+     - **The Hall greeting:** the Hall's `entryLine` is never spoken, because the engine marks the start scene as visited at start-up. Add a hook so Daniele greets the visitor when the game starts.
+     - **Gate hotspots:** make the whole gate sign clickable without blocking the security arch.
+     - **Sorrento:** tone the majolica floor down one step, and fill the empty wall and floor areas a little, to match the density of Zurich and London.
+  4. In `zurich.ts`, add `sound: "cuckoo"` to the cuckoo animation. Give the Zurich CRT an engine-drawn "EXPERIENCE" label on its screen, to match the cabinet's "RESUME" card, and check that every primary object in every scene names its section. Check the signposting rules from the plan: gate signs, map labels, arrival lines, and primary objects all name their sections.
+  5. Check that preloading stops scene changes and the travel map from flashing.
+  6. Regenerate the OG image with `npm run generate:og-image`. Confirm the Game Boy view and the SEO HTML are unchanged.
+  7. Walk every scene by hand and check that each section is reachable in two clicks or fewer. E2E tests and baselines are out of scope for v2.
+  8. **G4:** final review by Daniele.
 
 ## Done when
 
