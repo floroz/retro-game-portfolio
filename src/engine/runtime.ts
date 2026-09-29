@@ -26,6 +26,7 @@ export function getEngine(): SceneEngine {
         openSection: (section) =>
           useGameStore.getState().openTerminalScreen(section),
         sceneChanged: (scene) => useGameStore.getState().setCurrentScene(scene),
+        skippableChanged: (skippable) => useGameStore.setState({ skippable }),
       },
     });
   }

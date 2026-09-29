@@ -78,7 +78,11 @@ export interface SceneObject {
   name: string;
   /** Imported asset URL of `obj-<id>.png`. */
   sprite?: string;
-  /** Alternative sprites by state, e.g. `{ open: objDoorOpen }` for `@open`. */
+  /**
+   * Alternative sprites by state, e.g. `{ open: objCabinetOpen }` for
+   * `obj-cabinet@open.png`. `open` shows while the object's content is on
+   * screen (the drawer is out while the resume shows).
+   */
   states?: Record<string, string>;
   /** Sprite top-left. Required with `sprite`. */
   x?: number;

@@ -16,6 +16,8 @@ interface GameState {
   // (src/engine/SceneEngine.ts), which runs every frame outside React.
   currentScene: SceneId;
   sceneRequest: SceneRequest | null;
+  /** A trip or the travel map is playing, and a click skips it. */
+  skippable: boolean;
 
   // Interaction state
   /** Status-line text for whatever the pointer is over. */
@@ -64,6 +66,7 @@ let requestId = 0;
 export const useGameStore = create<GameState>((set, get) => ({
   currentScene: "hall",
   sceneRequest: null,
+  skippable: false,
 
   // Initial interaction state
   hoveredObject: null,

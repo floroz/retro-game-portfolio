@@ -96,6 +96,34 @@ describe("SceneEngine", () => {
     });
   });
 
+  test("an object with an open state opens while its content shows", () => {
+    const cabinet = SCENES.zurich.objects.find((o) => o.id === "cabinet");
+    if (!cabinet) throw new Error("no cabinet");
+    const scenes = {
+      ...SCENES,
+      zurich: {
+        ...SCENES.zurich,
+        objects: [
+          { ...cabinet, states: { open: "cabinet-open.png" } },
+          ...SCENES.zurich.objects.filter((o) => o !== cabinet),
+        ],
+      },
+    };
+    const host = { openSection: vi.fn(), sceneChanged: vi.fn() };
+    const engine = new SceneEngine({
+      scenes,
+      travelMap: TRAVEL_MAP_DATA,
+      sheet: CHARACTER_SHEET,
+      host,
+      start: "zurich",
+    });
+    engine.goToSection("resume");
+    runUntil(engine, () => host.openSection.mock.calls.length > 0);
+    expect(engine.stateOf("cabinet")).toBe("open");
+    engine.contentClosed();
+    expect(engine.stateOf("cabinet")).toBeUndefined();
+  });
+
   test("a Hall gate plays the travel map, then enters the country", () => {
     const { engine, host } = setup();
     engine.activate(exit(SCENES.hall, "london"));
