@@ -312,3 +312,46 @@ describe("shipped rig checks", () => {
     );
   });
 });
+
+describe("rig packer at painted density 2", () => {
+  test("gives every part hard alpha and records density 2", () => {
+    const { source, images } = fixture();
+    // Soften one part's edge, as a keyed painting would have.
+    const torso = images.get("side/torso.png") as Image;
+    for (let y = 30; y < 70; y++) {
+      torso.data[(y * DRAWING.w + 20) * 4 + 3] = 90;
+      torso.data[(y * DRAWING.w + 39) * 4 + 3] = 200;
+    }
+    const { atlas, json } = packRig(source, images, { density: 2 });
+    expect(json.density).toBe(2);
+    for (let i = 3; i < atlas.data.length; i += 4)
+      expect([0, 255]).toContain(atlas.data[i]);
+    const frame = json.facings.side.parts.find((p) => p.id === "torso")?.frame;
+    // The column at alpha 90 is gone; the one at 200 is opaque.
+    expect(frame?.w).toBe(19);
+    expect(checkRigJson(json, atlas, 2)).toEqual([]);
+    expect(checkRigJson(json, atlas).join()).toMatch(/density must be 4/);
+  });
+
+  test("keeps the atlas to at most 256 colours", () => {
+    const { source, images } = fixture();
+    for (const [file, img] of images) {
+      if (!file.startsWith("front/")) continue;
+      for (let i = 0; i < img.data.length; i += 4) {
+        if (img.data[i + 3] === 0) continue;
+        const p = i / 4;
+        img.data[i] = (p * 7) % 256;
+        img.data[i + 1] = (p * 13) % 256;
+      }
+    }
+    const { atlas } = packRig(source, images, { density: 2 });
+    const colours = new Set<number>();
+    for (let i = 0; i < atlas.data.length; i += 4)
+      if (atlas.data[i + 3])
+        colours.add(
+          (atlas.data[i] << 16) | (atlas.data[i + 1] << 8) | atlas.data[i + 2],
+        );
+    expect(colours.size).toBeLessThanOrEqual(256);
+    expect(colours.size).toBeGreaterThan(100);
+  });
+});

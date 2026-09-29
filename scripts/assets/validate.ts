@@ -14,6 +14,14 @@
  * hard-alpha rules, but keeps every naming, provenance, size, and
  * one-density-per-scene rule. The HD character is the cut-out rig,
  * daniele-rig.png, checked against daniele-rig.json.
+ *
+ * Painted density-2 art (Phase H at MI3 pixel density: "density": 2,
+ * "style": "painted") also skips the palette and ramp rules, but keeps hard
+ * alpha, needs even sprite sides, and may use at most 256 colours per scene
+ * folder across all its files (the shared sprites together count as one
+ * group, the rig atlas as another). A scene folder can't mix painted and
+ * pixel density-2 files either. Density-2 files without a style (or with
+ * "pixel") are Phase R pixel art and keep every pixel-art rule.
  */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
@@ -32,13 +40,18 @@ import {
   SHIPPED_ROOTS,
   checkAssetSize,
   checkCharacterJson,
+  checkPaintedAlpha,
+  checkPaintedColours,
   checkProvenance,
   checkSceneDensities,
   classifyAsset,
+  isPainted,
   provenanceDensity,
+  provenanceStyle,
   usesPixelRules,
   type ShippedAsset,
 } from "./checks";
+import { visibleColours } from "./painted";
 import { checkRigJson } from "./rigpack";
 
 function walk(dir: string): string[] {
@@ -168,16 +181,27 @@ async function main() {
   }
 
   const sizes = new Map<string, { w: number; h: number }>();
-  const densityOf = (path: string) => {
+  const recordOf = (path: string) => {
     const file = byOutput.get(path);
-    return provenanceDensity(file ? records.get(file) : undefined);
+    return file ? records.get(file) : undefined;
   };
+  const densityOf = (path: string) => provenanceDensity(recordOf(path));
+  const styleOf = (path: string) => provenanceStyle(recordOf(path));
+  const paintedColours: Parameters<typeof checkPaintedColours>[0][number][] =
+    [];
   for (const asset of assets) {
     const img = await readImage(resolve(REPO_ROOT, asset.path));
     const density = densityOf(asset.path);
+    const style = styleOf(asset.path);
     sizes.set(asset.path, { w: img.width, h: img.height });
-    errors.push(...checkAssetSize(asset, img.width, img.height, density));
-    if (usesPixelRules(density)) {
+    errors.push(
+      ...checkAssetSize(asset, img.width, img.height, density, style),
+    );
+    if (isPainted(density, style)) {
+      errors.push(...checkPaintedAlpha(asset, img));
+      paintedColours.push({ asset, colours: visibleColours([img]) });
+    }
+    if (usesPixelRules(density, style)) {
       const report = checkImagePalette(img, palette, asset.scene);
       const ramp = asset.scene ?? "core only";
       if (report.offPalette.length) {
@@ -217,6 +241,7 @@ async function main() {
           ...checkRigJson(
             JSON.parse(readFileSync(jsonPath, "utf8")) as unknown,
             img,
+            density === 2 ? 2 : 4,
           ),
         );
     }
@@ -236,9 +261,14 @@ async function main() {
     }
   }
 
+  errors.push(...checkPaintedColours(paintedColours));
   errors.push(
     ...checkSceneDensities(
-      assets.map((asset) => ({ asset, density: densityOf(asset.path) })),
+      assets.map((asset) => ({
+        asset,
+        density: densityOf(asset.path),
+        style: styleOf(asset.path),
+      })),
     ),
   );
 
