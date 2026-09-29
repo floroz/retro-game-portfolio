@@ -102,6 +102,14 @@ export interface Speech {
   since: number;
   until: number;
   onDone?: () => void;
+  /**
+   * A conversation line (`converse`): it stays up once Daniele has said it,
+   * until the conversation moves on, and `onLeave` runs if a click elsewhere
+   * ends it.
+   */
+  held?: { onLeave: () => void };
+  /** A held line Daniele has finished saying: no talking, text still up. */
+  spoken?: boolean;
 }
 
 /**
@@ -298,8 +306,20 @@ export class SceneEngine {
       return true;
     }
     if (tr) return true;
-    if (this.speech) {
-      const done = this.speech.onDone;
+    const speech = this.speech;
+    if (speech?.held) {
+      // A click while Daniele talks skips to the choices. Once they're up,
+      // a click elsewhere in the scene walks away from the conversation.
+      if (!speech.spoken) {
+        this.finishSpeaking(speech);
+        return true;
+      }
+      this.speech = null;
+      speech.held.onLeave();
+      return false;
+    }
+    if (speech) {
+      const done = speech.onDone;
       this.speech = null;
       if (done) {
         done();
@@ -307,6 +327,41 @@ export class SceneEngine {
       }
     }
     return false;
+  }
+
+  /**
+   * Daniele says one line of a conversation and holds it on screen, talking
+   * while he says it; `onSpoken` runs once he's done (or the visitor skips
+   * ahead), when the choices come up. `onLeave` runs if a click in the
+   * scene ends the conversation instead.
+   */
+  converse(text: string, onSpoken: () => void, onLeave: () => void) {
+    this.speech = {
+      lines: wrapText(text, SPEECH_WIDTH),
+      text,
+      since: this.clock,
+      until: this.clock + speechMs(text),
+      onDone: onSpoken,
+      held: { onLeave },
+    };
+  }
+
+  /** Skips the rest of a conversation line: the same as a click on it. */
+  skipLine(): boolean {
+    const speech = this.speech;
+    if (!speech?.held || speech.spoken) return false;
+    this.finishSpeaking(speech);
+    return true;
+  }
+
+  /** The conversation is over: takes down its line, if it's still up. */
+  endConversation() {
+    if (this.speech?.held) this.speech = null;
+  }
+
+  private finishSpeaking(speech: Speech) {
+    speech.spoken = true;
+    speech.onDone?.();
   }
 
   /** Walk to a floor point (clamped into the walkbox). */
@@ -506,10 +561,14 @@ export class SceneEngine {
     let moved = 0;
     if (this.transition?.kind !== "map") moved = this.move(dt);
 
-    if (this.speech && this.clock >= this.speech.until) {
-      const done = this.speech.onDone;
-      this.speech = null;
-      done?.();
+    const said = this.speech;
+    if (said && this.clock >= said.until) {
+      if (said.held) {
+        if (!said.spoken) this.finishSpeaking(said);
+      } else {
+        this.speech = null;
+        said.onDone?.();
+      }
     }
 
     const speech = this.speech;
@@ -518,10 +577,11 @@ export class SceneEngine {
       distance: moved,
       scale: scaleAt(this.current.depth, this.actor.y, this.figureHeight),
       facing: this.actor.facing,
-      talking: speech !== null,
-      speech: speech
-        ? { text: speech.text, elapsedMs: this.clock - speech.since }
-        : undefined,
+      talking: speech !== null && !speech.spoken,
+      speech:
+        speech && !speech.spoken
+          ? { text: speech.text, elapsedMs: this.clock - speech.since }
+          : undefined,
     };
     // Both keep time, so a scene change mid-reach carries on; only the
     // drawn one's feet make footsteps.

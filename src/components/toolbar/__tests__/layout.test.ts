@@ -1,7 +1,13 @@
 import { describe, expect, test } from "vitest";
 import { COUNTRY_ORDER, SECTIONS } from "../../../config/sections";
 import type { Rect, SectionId } from "../../../engine/types";
-import { PANEL_H, PANEL_LAYOUT, PANEL_W } from "../layout";
+import {
+  CHOICES_PAGE,
+  PANEL_H,
+  PANEL_LAYOUT,
+  PANEL_W,
+  choiceRows,
+} from "../layout";
 import { IDLE_SENTENCE, controlSentence, sentenceText } from "../sentence";
 
 const inside = (r: Rect, outer: Rect) =>
@@ -97,5 +103,29 @@ describe("sentence line", () => {
     expect(sentenceText({ ...base, skippable: true, flyingTo: "zurich" })).toBe(
       "Off to Zurich: Experience, Resume",
     );
+  });
+});
+
+describe("conversation choices", () => {
+  test("the page sits inside the panel", () => {
+    expect(inside(CHOICES_PAGE, panel)).toBe(true);
+  });
+
+  for (const n of [1, 2, 3, 4]) {
+    test(`${n} choice${n > 1 ? "s" : ""} stack in order without overlapping, on the page`, () => {
+      const rects = choiceRows(n);
+      expect(rects).toHaveLength(n);
+      rects.forEach((r, i) => {
+        expect(inside(r, CHOICES_PAGE), `row ${i}`).toBe(true);
+        if (i > 0) expect(overlaps(r, rects[i - 1]), `row ${i}`).toBe(false);
+      });
+    });
+  }
+
+  test("four choices are still tall enough to hit at the smallest window", () => {
+    // The window bottoms out at 680 px wide: 0.53 of the 1280 px canvas,
+    // and an art px is 2 canvas px.
+    const smallest = (680 / 1280) * 2;
+    for (const r of choiceRows(4)) expect(r.h * smallest).toBeGreaterThan(16);
   });
 });

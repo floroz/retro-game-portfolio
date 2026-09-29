@@ -3,6 +3,7 @@ import type { MouseEvent } from "react";
 import styles from "./Scene.module.scss";
 import { useGameStore } from "../../store/gameStore";
 import { useSceneKeyboard } from "../../hooks/useSceneKeyboard";
+import { useConversation } from "../../hooks/useConversation";
 import { CHARACTER_RIG, CHARACTER_SHEET } from "../../engine/assets";
 import { CANVAS_H, CANVAS_W, NATIVE_H, NATIVE_W } from "../../engine/constants";
 import { renderFrame } from "../../engine/render";
@@ -54,13 +55,13 @@ export function Scene() {
   const currentScene = useGameStore((s) => s.currentScene);
   const sceneRequest = useGameStore((s) => s.sceneRequest);
   const contentOpen = useGameStore((s) => s.terminalScreenAction !== null);
-  const dialogOpen = useGameStore((s) => s.dialogOpen);
   const setHoveredObject = useGameStore((s) => s.setHoveredObject);
   const spriteInfo = useSyncExternalStore(images.subscribe, images.getInfo);
   const scene = SCENES[currentScene];
   const hits = interactablesFor(scene, spriteInfo);
 
   useSceneKeyboard();
+  useConversation();
 
   // Preload everything once, so no scene change ever flashes. Requests
   // posted while the game was closed (a terminal command) are dropped.
@@ -69,14 +70,6 @@ export function Scene() {
     useGameStore.getState().takeSceneRequest();
     useGameStore.getState().setCurrentScene(getEngine().scene.id);
   }, []);
-
-  // Daniele greets the visitor once the intro conversation (opened by App
-  // after the welcome screen) is out of the way and the Hall is in view.
-  const introSeen = useRef(false);
-  useEffect(() => {
-    if (dialogOpen) introSeen.current = true;
-    else if (introSeen.current) getEngine().greet();
-  }, [dialogOpen]);
 
   // The frame loop pauses while the content screen covers the scene.
   useEffect(() => {

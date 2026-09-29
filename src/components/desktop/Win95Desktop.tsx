@@ -15,7 +15,6 @@ interface Win95DesktopProps {
   isOpen: boolean;
   onClose: () => void;
   gameContent?: ReactNode;
-  dialogContent?: ReactNode; // Dialog content to render inside game window
   welcomeContent?: ReactNode; // Welcome screen to show before game content
 }
 
@@ -37,7 +36,6 @@ type ActiveWindow = WindowType | null;
 export function Win95Desktop({
   isOpen,
   gameContent,
-  dialogContent,
   welcomeContent,
 }: Win95DesktopProps) {
   const {
@@ -356,7 +354,6 @@ export function Win95Desktop({
                 setActiveWindow("game");
               }}
               zIndex={getZIndex("game")}
-              dialogContent={dialogContent}
               welcomeContent={welcomeContent}
             >
               {gameContent}

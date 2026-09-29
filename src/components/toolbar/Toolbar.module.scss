@@ -54,3 +54,26 @@
 
   border-radius: 50%;
 }
+
+/* The lid while Daniele talks: the choices' page (Dialogue.tsx) */
+.dialogue {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
+  background: #2a1812;
+}
+
+/* A choice on the page. The canvas lights the line under it, so the ring
+   the other controls use would only clutter the text. */
+.choice {
+  @extend %control;
+
+  color: transparent;
+  font-size: to-rem(1px);
+  overflow: hidden;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+}

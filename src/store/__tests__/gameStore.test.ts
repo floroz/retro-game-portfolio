@@ -189,6 +189,52 @@ describe("gameStore", () => {
       expect(state.visitedNodes.size).toBe(0);
     });
 
+    test("a line's choices are up only once Daniele has said it", () => {
+      const store = useGameStore.getState();
+
+      store.openDialog("intro");
+      expect(useGameStore.getState().dialogReady).toBe(false);
+
+      store.setDialogReady(true);
+      expect(useGameStore.getState().dialogReady).toBe(true);
+
+      // Choosing an option moves to the next line, which he has to say.
+      store.selectDialogOption("intro-2");
+      expect(useGameStore.getState().dialogNode).toBe("intro-2");
+      expect(useGameStore.getState().dialogReady).toBe(false);
+
+      store.setDialogReady(true);
+      store.selectDialogOption("__close__");
+      expect(useGameStore.getState().dialogOpen).toBe(false);
+      expect(useGameStore.getState().dialogReady).toBe(false);
+    });
+
+    test("opening the line already being said leaves its choices up", () => {
+      const store = useGameStore.getState();
+
+      store.openDialog("intro");
+      store.setDialogReady(true);
+      store.openDialog("intro");
+      expect(useGameStore.getState().dialogReady).toBe(true);
+
+      // A different line has to be said first.
+      store.openDialog("welcome");
+      expect(useGameStore.getState().dialogReady).toBe(false);
+    });
+
+    test("opening a content screen ends the conversation", () => {
+      const store = useGameStore.getState();
+
+      store.openDialog("intro");
+      store.setDialogReady(true);
+      store.openTerminalScreen("about");
+
+      const state = useGameStore.getState();
+      expect(state.terminalScreenAction).toBe("about");
+      expect(state.dialogOpen).toBe(false);
+      expect(state.dialogReady).toBe(false);
+    });
+
     test("should dismiss welcome", () => {
       const store = useGameStore.getState();
 
