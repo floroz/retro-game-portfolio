@@ -297,9 +297,10 @@ export const HALL_SCENE: SceneData = {
       id: "gate-london",
       to: "london",
       entry: "fromHall",
-      // The whole sign (x 174-212), the door, and its desk: nothing else
-      // is under this column.
+      // The door and its desk: nothing else is under this column. The
+      // sign's bevelled frame starts 2 px further left (x 172-211).
       hotspot: { x: 174, y: 13, w: 39, h: 76 },
+      extraHotspots: [{ x: 172, y: 13, w: 41, h: 32 }],
       interactionPoint: { x: 193, y: 95, facing: "n" },
       look: `Gate ${COUNTRIES.london.gate}, to ${COUNTRIES.london.name}, where I learned the trade. ${sectionList("london")} on the chalkboard behind the bar.`,
     },
@@ -319,9 +320,9 @@ export const HALL_SCENE: SceneData = {
       to: "sorrento",
       entry: "fromHall",
       // As for Zurich: the door column starts right of the arch (x 281),
-      // and the sign is clickable across its full width (x 267-308).
+      // and the sign is clickable across its full width (x 267-309).
       hotspot: { x: 281, y: 13, w: 27, h: 76 },
-      extraHotspots: [{ x: 267, y: 13, w: 41, h: 32 }],
+      extraHotspots: [{ x: 267, y: 13, w: 43, h: 32 }],
       interactionPoint: { x: 288, y: 95, facing: "n" },
       look: `Gate ${COUNTRIES.sorrento.gate}, to ${COUNTRIES.sorrento.name}: now and next. ${SECTIONS.about.label} on the fridge, ${SECTIONS.contact.label} by the wall phone.`,
     },
