@@ -412,8 +412,14 @@ describe("the engine with a rig", () => {
   });
 
   test("by default, draws the rig only in scenes at the world scale", () => {
+    // London stands in for a scene still on the pixel-art scales, whichever
+    // scenes the HB tasks have rebuilt so far.
+    const pixel: SceneData = {
+      ...SCENES.london,
+      depth: { farY: 106, nearY: 158, farScale: 0.7, nearScale: 1 },
+    };
     const engine = new SceneEngine({
-      scenes: { ...SCENES, zurich: hd },
+      scenes: { ...SCENES, zurich: hd, london: pixel },
       travelMap: TRAVEL_MAP_DATA,
       sheet: CHARACTER_SHEET,
       rig,

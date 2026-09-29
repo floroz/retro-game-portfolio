@@ -11,14 +11,14 @@ import sheetJson from "../../assets/character/daniele.json";
 
 const HD_DEPTH = { farY: 100, nearY: 156, ...HD_WORLD_SCALE };
 
-/** Scenes rebuilt from the Phase H layers (the HB tasks). */
-const HD_SCENES = ["zurich", "sorrento", "hall"];
+/** Scenes rebuilt from the Phase H layers (the HB tasks) at the shared world scale. */
+const HD_SCENES = ["zurich", "sorrento", "hall", "london"];
 
 /**
  * Rebuilt scenes whose plate is shot so much wider or deeper than the world
  * scale's that they have a perspective of their own, measured from the art.
  */
-const OWN_PERSPECTIVE = ["hall"];
+const OWN_PERSPECTIVE = ["hall", "london"];
 
 describe("world scale", () => {
   test("the Phase H defaults are 58 px at the back and 72 at the front", () => {
@@ -95,6 +95,22 @@ describe("world scale", () => {
     expect(heightAt(depth, 114, 72)).toBeLessThanOrEqual(44.5);
     // And never bigger than the rig's own size.
     expect(scaleAt(depth, depth.nearY, 72)).toBeLessThanOrEqual(1);
+  });
+
+  test("London (HB3) uses its own measured perspective, close to the shared scale", () => {
+    const { depth, walkbox } = SCENES.london;
+    // Measured against the painted door, counter, table and fruit machine
+    // (london.test.ts): not the shared world scale.
+    expect(depth.farHeight).toBe(55);
+    expect(depth.nearHeight).toBe(66);
+    expect(depth.farScale).toBeUndefined();
+    expect(depth.nearScale).toBeUndefined();
+    const ys = walkbox.map((p) => p[1]);
+    expect(depth.farY).toBe(Math.min(...ys));
+    expect(depth.nearY).toBe(Math.max(...ys));
+    // 0.76 to 0.92 of the 72 px rig: bigger at the front, never above it.
+    expect(scaleAt(depth, depth.farY, 72)).toBeCloseTo(55 / 72, 3);
+    expect(scaleAt(depth, depth.nearY, 72)).toBeCloseTo(66 / 72, 3);
   });
 
   test("the sprite sheet is 57.5 logical px tall, or what daniele.json says", () => {

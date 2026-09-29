@@ -1,18 +1,18 @@
 {
   "id": "london-obj-bar",
   "output": "src/assets/scenes/london/obj-bar.png",
-  "task": "RB3",
+  "task": "HB3",
   "source": "codex",
-  "prompt": "assets-src/prompts/remaster/london.md",
+  "prompt": "assets-src/prompts/hd/layers-london.md",
+  "density": 2,
+  "style": "painted",
+  "approvedBy": "orchestrator",
+  "date": "2026-09-29",
   "candidate": "02",
   "references": [
-    "assets-src/refs/remaster/london-current@4x.png",
-    "assets-src/refs/remaster/style-anchor@4x.png"
+    "assets-src/refs/hd/london-chosen.png",
+    "assets-src/refs/hd/scale-sheet.png"
   ],
-  "approvedRaw": "assets-src/approved/london-bg@2x.webp",
-  "palette": "v2",
-  "density": 2,
-  "cleanup": "RB3: cut from the re-registered candidate at 2x as whole rows, x 200-519 and native rows 188-253 (logical 100, 94): the lit top with its lip and front edge, the raised panels, the brass foot rail on its brackets, the kick plate and its contact shadow. The top is bare for the tap slot row; the back lip's single row (native 187) stays in bg.",
-  "approvedBy": "opus-orchestrator (delegated RB3 pick)",
-  "date": "2026-09-29"
+  "approvedRaw": "assets-src/approved/london-bar@hd.webp",
+  "cleanup": "HB3: candidate 02 of london-bar@hd (the whole counter with a clear top), keyed from its own alpha, registered onto the chosen composite with assets:prepare --align (scale 0.196 of raw), prepared to painted density 2 with assets:prepare --painted --no-quantize, then quantized jointly with the other London layers (assets:quantize, one palette of at most 244 colours, no dither; the folder totals 256 colours with the bus, which added 13 of its own). 316x68 art px at logical (97, 86.5). The bar top is bare for the tap row."
 }
