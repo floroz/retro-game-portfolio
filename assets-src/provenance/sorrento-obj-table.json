@@ -1,11 +1,18 @@
 {
   "id": "sorrento-obj-table",
   "output": "src/assets/scenes/sorrento/obj-table.png",
-  "task": "RB4",
-  "source": "opus",
-  "derivedFrom": "sorrento-bg",
-  "palette": "v2",
+  "task": "HB4",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/layers-sorrento.md",
+  "candidate": "01",
+  "references": [
+    "assets-src/refs/hd/sorrento-chosen.png",
+    "assets-src/refs/hd/scale-sheet.png"
+  ],
+  "approvedRaw": "assets-src/approved/sorrento-table@hd.webp",
   "density": 2,
-  "cleanup": "RB4: drawn at 2x after candidate 01's table (its gingham pixelized into noise): a yellow gingham cloth with a foreshortened top face and a front drape with four soft folds, a shaded right end and a wavy hem, four dark-wood legs (the back pair shorter), two espresso cups on saucers with crema, and a little majolica sugar bowl. 84x64 at logical 172,107, front feet on the baseline (138).",
+  "style": "painted",
+  "cleanup": "HB4: candidate 01 of sorrento-table@hd, prepared with assets:prepare --painted --no-quantize (alpha key, Lanczos, hard alpha at 128), then quantized with the rest of the scene to one shared 256-colour palette (assets:quantize, no dither), 104x62 art px (52x31 logical) at logical 159,107, legs on logical y 138 (the baseline). The cups and the bowl are part of the sprite. Dark shading within 0.105 OKLab of the sweater was lightened in L only.",
+  "approvedBy": "orchestrator",
   "date": "2026-09-29"
 }

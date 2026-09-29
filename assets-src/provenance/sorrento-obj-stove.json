@@ -1,18 +1,18 @@
 {
   "id": "sorrento-obj-stove",
   "output": "src/assets/scenes/sorrento/obj-stove.png",
-  "task": "RB4",
+  "task": "HB4",
   "source": "codex",
-  "prompt": "assets-src/prompts/remaster/sorrento.md",
+  "prompt": "assets-src/prompts/hd/layers-sorrento.md",
   "candidate": "01",
   "references": [
-    "assets-src/refs/remaster/sorrento-current@4x.png",
-    "assets-src/refs/remaster/style-anchor@4x.png"
+    "assets-src/refs/hd/sorrento-chosen.png",
+    "assets-src/refs/hd/scale-sheet.png"
   ],
-  "approvedRaw": "assets-src/approved/sorrento-bg@2x.webp",
-  "palette": "v2",
+  "approvedRaw": "assets-src/approved/sorrento-stove@hd.webp",
   "density": 2,
-  "cleanup": "RB4: candidate 01's cream enamel stove and moka pot, cut at 2x (74x72 at logical 250,84), with 7 plain body rows removed so the feet land on the baseline (119) at the shipped size. The moka pot redrawn (a crisp eight-sided pot with a black loop handle) where the cut ate its handle; cast-iron grates and the oven glass recoloured from navy to neutral blacks and greys, so the sweater never sinks into them, with a hard-edged glare on the glass; the kick plate and both feet redrawn. Lit from the window on the left (v edge).",
-  "approvedBy": "opus-orchestrator (delegated RB pick)",
+  "style": "painted",
+  "cleanup": "HB4: candidate 01 of sorrento-stove@hd, prepared with assets:prepare --painted --no-quantize (alpha key, Lanczos, hard alpha at 128), then quantized with the rest of the scene to one shared 256-colour palette (assets:quantize, no dither), 74x78 art px (37x39 logical) at logical 250,73, feet on logical y 112 (the baseline). Contrast: the dark oven window and the charcoal trim, which sat within 0.08 OKLab of the sweater, were lightened in L only (a one-off OKLab pass, margin 0.105) so the sweater reads against them. The moka pot is plain; the steam is a procedural effect.",
+  "approvedBy": "orchestrator",
   "date": "2026-09-29"
 }

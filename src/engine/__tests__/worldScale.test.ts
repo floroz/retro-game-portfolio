@@ -12,7 +12,7 @@ import sheetJson from "../../assets/character/daniele.json";
 const HD_DEPTH = { farY: 100, nearY: 156, ...HD_WORLD_SCALE };
 
 /** Scenes rebuilt from the Phase H layers (the HB tasks). */
-const HD_SCENES = ["zurich"];
+const HD_SCENES = ["zurich", "sorrento"];
 
 describe("world scale", () => {
   test("the Phase H defaults are 58 px at the back and 72 at the front", () => {
