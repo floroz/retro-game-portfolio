@@ -302,7 +302,12 @@ export function packRig(
     if (density !== 2) return img;
     let h = hard.get(file);
     if (!h) {
-      h = hardAlpha(img, { threshold: opts.alphaThreshold }).image;
+      // No speck removal: a part is drawn pixel by pixel, and an ink overlay
+      // (a lone pupil pixel) is single pixels by design.
+      h = hardAlpha(img, {
+        threshold: opts.alphaThreshold,
+        minNeighbours: 0,
+      }).image;
       hard.set(file, h);
     }
     return h;

@@ -79,6 +79,28 @@ function stepCycle(half: PoseKey[], mirrorX = false): PoseKey[] {
   return [...half, ...second];
 }
 
+/**
+ * A torso lean with the legs held upright: the legs hang from the torso, so
+ * leaning it would swing the feet. The idle sways the weight, not the feet.
+ */
+const planted = (torso: number): Partial<Record<RigPartId, number>> => ({
+  torso,
+  "thigh-l": -torso,
+  "thigh-r": -torso,
+});
+
+/**
+ * The chest rising by `s` (a torso stretch). A stretch is inherited by
+ * everything hanging from the part, so the legs and head are counter-scaled
+ * to stay exactly as they were: only the shoulders and arms ride up.
+ */
+const breathe = (s: number): Partial<Record<RigPartId, number>> => ({
+  torso: s,
+  head: 1 / s,
+  "thigh-l": 1 / s,
+  "thigh-r": 1 / s,
+});
+
 export const POSE_CLIPS: Record<ClipName, PoseClip> = {
   // --- Walks: distance-driven, the feet planted -----------------------------
   "walk-side": {
@@ -248,60 +270,136 @@ export const POSE_CLIPS: Record<ClipName, PoseClip> = {
   },
 
   // --- Idle: breathing, with a blink by head swap (animator.ts) -------------
+  // Alive, not a statue: the chest rises a pixel over about 2 s with the feet
+  // planted (a torso stretch: the shoulders, head and arms ride up with it),
+  // the weight drifts a degree from side to side, and the elbows hang a few
+  // degrees bent, a little differently on each side.
   "idle-side": {
     facing: "side",
     loop: true,
-    timing: { ms: 3400 },
+    timing: { ms: 3600 },
     keys: [
       {
         at: 0,
         angles: {
-          "upper-arm-r": 3,
-          "forearm-r": 8,
-          "upper-arm-l": 2,
-          "forearm-l": 6,
+          ...planted(-0.6),
+          head: 0.6,
+          "upper-arm-r": 2,
+          "forearm-r": 7,
+          "upper-arm-l": 1,
+          "forearm-l": 5,
         },
       },
       {
-        // Breathe in: the chest lifts, the shoulders rise a touch.
+        // Breathe in: the chest lifts a pixel, the shoulders rise a touch.
         at: 0.45,
         angles: {
-          torso: 1,
-          head: -1.5,
-          "upper-arm-r": 4.5,
-          "forearm-r": 10,
-          "upper-arm-l": 3,
-          "forearm-l": 7,
+          ...planted(0.4),
+          head: -1.2,
+          "upper-arm-r": 3,
+          "forearm-r": 9,
+          "upper-arm-l": 2,
+          "forearm-l": 6,
         },
-        stretch: { torso: 1.015 },
+        stretch: breathe(1.024),
+      },
+      {
+        at: 0.8,
+        angles: {
+          ...planted(0.6),
+          head: -0.4,
+          "upper-arm-r": 2.4,
+          "forearm-r": 8,
+          "upper-arm-l": 1.4,
+          "forearm-l": 5.5,
+        },
+        stretch: breathe(1.008),
       },
     ],
   },
   "idle-front": {
     facing: "front",
     loop: true,
-    timing: { ms: 3400 },
+    timing: { ms: 3600 },
     // Facing the viewer, his right arm is on screen left: outwards is
-    // clockwise, a negative angle.
+    // clockwise, a negative angle, and bending the elbow in is positive.
     keys: [
-      { at: 0, angles: { "upper-arm-r": -3, "upper-arm-l": 3 } },
+      {
+        at: 0,
+        angles: {
+          ...planted(-0.7),
+          head: 0.8,
+          "upper-arm-r": -1.5,
+          "forearm-r": 6,
+          "upper-arm-l": 2,
+          "forearm-l": -3,
+        },
+      },
       {
         at: 0.45,
-        angles: { head: 1.5, "upper-arm-r": -5, "upper-arm-l": 5 },
-        stretch: { torso: 1.015 },
+        angles: {
+          ...planted(0.3),
+          head: 1.6,
+          "upper-arm-r": -2.5,
+          "forearm-r": 7,
+          "upper-arm-l": 3,
+          "forearm-l": -4,
+        },
+        stretch: breathe(1.024),
+      },
+      {
+        at: 0.8,
+        angles: {
+          ...planted(0.7),
+          head: 0.2,
+          "upper-arm-r": -2,
+          "forearm-r": 6.5,
+          "upper-arm-l": 2.4,
+          "forearm-l": -3.4,
+        },
+        stretch: breathe(1.008),
       },
     ],
   },
   "idle-back": {
     facing: "back",
     loop: true,
-    timing: { ms: 3400 },
+    timing: { ms: 3600 },
     keys: [
-      { at: 0, angles: { "upper-arm-r": 3, "upper-arm-l": -3 } },
+      {
+        at: 0,
+        angles: {
+          ...planted(0.7),
+          head: -0.8,
+          "upper-arm-r": 2,
+          "forearm-r": -4,
+          "upper-arm-l": -1.5,
+          "forearm-l": 5,
+        },
+      },
       {
         at: 0.45,
-        angles: { head: -1, "upper-arm-r": 4.5, "upper-arm-l": -4.5 },
-        stretch: { torso: 1.015 },
+        angles: {
+          ...planted(-0.3),
+          head: -1.4,
+          "upper-arm-r": 3,
+          "forearm-r": -5,
+          "upper-arm-l": -2.5,
+          "forearm-l": 6,
+        },
+        stretch: breathe(1.024),
+      },
+      {
+        at: 0.8,
+        angles: {
+          ...planted(-0.7),
+          head: -0.2,
+          "upper-arm-r": 2.4,
+          "forearm-r": -4.4,
+          "upper-arm-l": -2,
+          "forearm-l": 5.5,
+        },
+        stretch: breathe(1.008),
       },
     ],
   },
@@ -369,7 +467,7 @@ export const POSE_CLIPS: Record<ClipName, PoseClip> = {
       { at: 0.5, angles: { head: -2, "upper-arm-r": 12, "forearm-r": 38 } },
       {
         at: 0.75,
-        angles: { head: 2, torso: 1, "upper-arm-r": 18, "forearm-r": 58 },
+        angles: { head: 2, ...planted(1), "upper-arm-r": 18, "forearm-r": 58 },
       },
     ],
   },

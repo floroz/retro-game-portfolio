@@ -109,6 +109,41 @@ describe("rig transforms", () => {
     close(short[2].joint.y, -125);
   });
 
+  test("a part's ink twin follows the image it is shown with", () => {
+    const frame = (x: number) => ({
+      x,
+      y: 0,
+      w: 4,
+      h: 4,
+      pivot: { x: 2, y: 2 },
+    });
+    const face: RigFacingData = {
+      bounds: { x: 0, y: 0, w: 0, h: 0 },
+      parts: [
+        {
+          id: "torso",
+          parent: null,
+          z: 0,
+          attach: { x: 0, y: 0 },
+          frame: frame(0),
+          variants: {
+            ink: frame(10),
+            wide: frame(20),
+            "wide-ink": frame(30),
+            blink: frame(40),
+          },
+        },
+      ],
+    };
+    const at = (v?: string) =>
+      solveRig(face, { ...REST_POSE, variants: v ? { torso: v } : {} })[0];
+    expect(at().ink?.x).toBe(10);
+    expect(at("wide").frame.x).toBe(20);
+    expect(at("wide").ink?.x).toBe(30);
+    // The blink has no detail of its own, and must not borrow the rest one.
+    expect(at("blink").ink).toBeUndefined();
+  });
+
   test("variants swap the image on the same joint", () => {
     const placed = solveRig(ARM, {
       ...REST_POSE,
@@ -472,11 +507,18 @@ describe("the shipped rig (HB7)", () => {
     expect(shipped.mouths).toEqual(["talk-1", "talk-2", "talk-3"]);
     expect(shipped.blinks).toBe(true);
     const front = shipped.facings.front.parts.find((p) => p.id === "head");
+    // Each drawn head has an "-ink" twin holding its pupils and mouth line,
+    // which the renderer snaps to solid ink (the blink has none).
     expect(Object.keys(front?.variants ?? {}).sort()).toEqual([
       "blink",
+      "blink-ink",
+      "ink",
       "talk-1",
+      "talk-1-ink",
       "talk-2",
+      "talk-2-ink",
       "talk-3",
+      "talk-3-ink",
     ]);
   });
 
