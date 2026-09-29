@@ -1,13 +1,15 @@
 {
   "id": "zurich-obj-chair",
   "output": "src/assets/scenes/zurich/obj-chair.png",
-  "task": "B1",
+  "task": "RB1",
   "source": "codex",
-  "prompt": "assets-src/prompts/scenes/zurich.md",
-  "candidate": "01",
-  "references": ["assets-src/refs/zurich-layout@8x.png"],
-  "approvedRaw": "assets-src/approved/zurich-bg.webp",
-  "palette": "v1",
-  "cleanup": "The anchor's office chair (back, seat, gas stem, five-star base, contact shadow), cut from the knee hole. Moves with the desk, 8 px in front of it.",
+  "prompt": "assets-src/prompts/remaster/zurich.md",
+  "candidate": "04",
+  "references": ["assets-src/refs/remaster/zurich-current@4x.png"],
+  "approvedRaw": "assets-src/approved/zurich-bg@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB1: the anchor's plum-grey office chair (back, seat, underside, gas lift, five-star base, casters, contact shadow) cut at 2x. The star base and casters recoloured from navy (F, G, *, 0) to warm greys (2, !, 3, 1), matching the gas lift: the character's jeans outline against the base went from a median 0.049 OKLab to 0.110 when he stands in front of the chair.",
+  "approvedBy": "opus-orchestrator (delegated RG1a)",
   "date": "2026-09-29"
 }

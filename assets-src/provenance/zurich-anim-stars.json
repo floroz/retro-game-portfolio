@@ -1,10 +1,11 @@
 {
   "id": "zurich-anim-stars",
   "output": "src/assets/scenes/zurich/anim-stars.png",
-  "task": "B1",
+  "task": "RB1",
   "source": "opus",
   "derivedFrom": "zurich-bg",
-  "palette": "v1",
-  "cleanup": "4 transparent frames over the window's sky: single stars brighten, dim, or flash a 1 px cross. Frame 0 is empty (the bg's stars).",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB1: 4 transparent 158x42 frames over the window's sky at 2x, placed on the anchor's own stars: in each frame one star flashes a 2 px cross, one brightens, and (frames 2 and 3) one dims. Frame 0 is empty (the bg's stars).",
   "date": "2026-09-29"
 }
