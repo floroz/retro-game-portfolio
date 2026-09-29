@@ -15,6 +15,15 @@ export function sceneWarnings(
   const out: string[] = [];
   const walkable = (p: StandPoint) => pointInPolygon([p.x, p.y], scene.walkbox);
   if (scene.walkbox.length < 3) out.push("walkbox needs at least 3 points");
+  const { depth } = scene;
+  const heights = [depth.farHeight, depth.nearHeight];
+  const scales = [depth.farScale, depth.nearScale];
+  if (heights.some((h) => h !== undefined) && heights.includes(undefined)) {
+    out.push("depth needs both farHeight and nearHeight");
+  }
+  if (heights.includes(undefined) && scales.includes(undefined)) {
+    out.push("depth needs farHeight and nearHeight, or farScale and nearScale");
+  }
   for (const [key, p] of Object.entries(scene.entryPoints)) {
     if (!walkable(p)) out.push(`entry ${key} is off the walkbox`);
   }

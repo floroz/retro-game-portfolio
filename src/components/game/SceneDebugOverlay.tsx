@@ -35,6 +35,10 @@ const COLOURS = {
   actor: "#00ffff",
 };
 
+/** "72px" for a world-scale height, "×0.7" for a sprite scale. */
+const depthTag = (height?: number, scale?: number) =>
+  height !== undefined ? `${height}px` : `×${scale ?? 1}`;
+
 function Standpoint({ p, colour }: { p: StandPoint; colour: string }) {
   const [dx, dy] = FACING[p.facing];
   return (
@@ -205,8 +209,11 @@ export function SceneDebugOverlay({ scene, hits }: Props) {
             strokeWidth={0.5}
           />
           {[
-            [depth.farY, `far ${depth.farScale}`],
-            [depth.nearY, `near ${depth.nearScale}`],
+            [depth.farY, `far ${depthTag(depth.farHeight, depth.farScale)}`],
+            [
+              depth.nearY,
+              `near ${depthTag(depth.nearHeight, depth.nearScale)}`,
+            ],
           ].map(([y, t]) => (
             <g key={String(t)}>
               <line

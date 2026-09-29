@@ -115,10 +115,42 @@ export function findPath(from: Vec, to: Vec, poly: readonly Vec[]): Vec[] {
   return path;
 }
 
-/** Character scale for feet at `y`, clamped to the depth range. */
-export function scaleAt(depth: DepthScale, y: number): number {
-  const { farY, nearY, farScale, nearScale } = depth;
-  if (nearY === farY) return nearScale;
-  const t = Math.max(0, Math.min(1, (y - farY) / (nearY - farY)));
-  return farScale + (nearScale - farScale) * t;
+/** 0 with the feet on `farY`, 1 on `nearY`, clamped outside. */
+function depthT(depth: DepthScale, y: number): number {
+  const { farY, nearY } = depth;
+  if (nearY === farY) return 1;
+  return Math.max(0, Math.min(1, (y - farY) / (nearY - farY)));
+}
+
+/**
+ * Daniele's standing height in logical px with his feet at `y`, for a
+ * character `figureHeight` logical px tall at scale 1 (types.ts,
+ * `DepthScale`): the scene's heights if it gives them, otherwise its scales
+ * of the character's own height, otherwise his own height.
+ */
+export function heightAt(
+  depth: DepthScale,
+  y: number,
+  figureHeight: number,
+): number {
+  const t = depthT(depth, y);
+  const { farHeight, nearHeight, farScale, nearScale } = depth;
+  if (farHeight !== undefined && nearHeight !== undefined) {
+    return farHeight + (nearHeight - farHeight) * t;
+  }
+  const far = farScale ?? nearScale ?? 1;
+  const near = nearScale ?? farScale ?? 1;
+  return figureHeight * (far + (near - far) * t);
+}
+
+/**
+ * Character scale for feet at `y`, clamped to the depth range: its height
+ * there (`heightAt`) over its own height at scale 1.
+ */
+export function scaleAt(
+  depth: DepthScale,
+  y: number,
+  figureHeight = 1,
+): number {
+  return heightAt(depth, y, figureHeight) / figureHeight;
 }

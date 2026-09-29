@@ -60,6 +60,8 @@ describe("dev HD preview", () => {
     ].filter((u) => u !== undefined);
     expect(urls.length).toBeGreaterThan(5);
     for (const url of urls) expect(url).toMatch(/^\/dev-hd\/zurich\//);
+    // The Phase H world scale, as the HB builds will set it.
+    expect(hd.depth).toMatchObject({ farHeight: 58, nearHeight: 72 });
     // Everything else is the same scene.
     expect(hd.walkbox).toBe(SCENES.zurich.walkbox);
     expect(hd.objects.map((o) => o.id)).toEqual(
