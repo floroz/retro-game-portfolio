@@ -1,105 +1,98 @@
-# Art spec and asset pipeline
+# Art spec and asset plan
 
-This is the asset side of [the expansion plan](expansion-plan.md), MVP feature 9. It's written to be executed by agents: section [Execution plan](#execution-plan) splits the work into task cards, each marked as sequential or parallel, which you hand off one card at a time.
+This is the asset side of [the expansion plan](expansion-plan.md). The plan's [Creative direction](expansion-plan.md#creative-direction) is the source of truth for what the world contains. This spec says how every asset is made and in what order.
+
+It's written for **two orchestrators**, one per model family. Each one runs every task in its own lane, starting each task as soon as its dependencies are met and running independent tasks in parallel. The work has three phases:
+
+1. **Foundations:** a short sequential chain that everything else depends on.
+2. **Fan-out:** everything that can run in parallel, across both lanes.
+3. **Integration:** one final sequential pass.
+
+**Trunk and worktrees.** Everything branches from and merges back into **`v2`**, never `main`. Each orchestrator works in its own git worktree, and each Opus task in its own worktree and branch. Daniele's main checkout is never touched by an agent. The layout and the reconciliation rules are in the plan's [Where to work](expansion-plan.md#where-to-work).
+
+**The plan lives on `origin/v2`.** This spec and the expansion plan are read from `origin/v2`, never from a local copy, and only Daniele changes them, directly on `v2`. The full rules are in [Keeping the plan in sync](expansion-plan.md#keeping-the-plan-in-sync).
 
 ## Who does what
 
-| Actor                    | Does                                                                                                                                                                      | Never does                                                     |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| **Opus** (Claude Code)   | Tooling, palette, the prompt files Codex runs, pixelizing, pixel cleanup, layer cutouts, scene data, character packing, music and sound effects, engine work, integration | Generate images                                                |
-| **Codex** (ChatGPT plan) | Runs prompt files with its built-in image tool (`image_gen` / `$imagegen`) and saves the candidates into the repo                                                         | Edit code, docs, `src/`, or anything outside its output folder |
-| **You**                  | Housekeeping, choosing candidates, approving gates, merging PRs                                                                                                           | —                                                              |
+| Actor                                        | Runs                                                                                                                                                         | Never does                                                          |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| **Opus orchestrator** (Claude Code, Opus)    | Every task marked Opus: tooling, palette, prompt files, pixelizing, cleanup, cutouts, hand-drawn sprites, animations, scene data, audio, engine, integration | Generate images                                                     |
+| **Codex orchestrator** (Codex, ChatGPT plan) | Every task marked Codex: runs prompt files with its built-in image tool (`image_gen` / `$imagegen`) and saves candidates                                     | Edit code, docs, `src/`, or anything outside `assets-src/exchange/` |
+| **Daniele**                                  | Gates: picking candidates, approving anchors and audio, the final review. Merging PRs. Keeping the Status column up to date                                  | —                                                                   |
 
-No task calls a model API. Image generation happens only inside Codex sessions, driven by prompts and billed to your ChatGPT plan. This is a one-off batch of about 20 generated images, not a pipeline that keeps running. The scripts exist to turn each generated image into real pixel art and keep it that way.
+No task calls a model API. Image generation happens only inside Codex sessions, billed to the ChatGPT plan, as a one-off batch of about 50 images. The scripts exist to turn each generated image into real pixel art and keep it that way.
 
 ## How an asset gets made
 
 ```
-Opus writes      Codex runs it,     Opus pixelizes     You pick    Opus cleans up,     validate
-prompt file  ─▶  saves candidates ─▶ all candidates ─▶  one     ─▶  cuts layers,    ─▶  (CI)
-                 into exchange/      + review sheet               writes scene data
+Opus writes      Codex runs it,      Opus pixelizes     Daniele    Opus cleans up,    validate
+prompt file  ─▶  saves candidates ─▶  all candidates ─▶  picks  ─▶  cuts layers,   ─▶  (CI)
+                 into exchange/       + review sheet     one        writes scene data
 ```
 
 1. **Prompt file.** Opus writes a self-contained prompt file in `assets-src/prompts/`. It's the handoff to Codex.
-2. **Generate.** Codex runs it and copies each candidate into `assets-src/exchange/raw/<asset-id>/`.
-3. **Pixelize.** Opus crops each candidate, downscales it by area-averaging to native size, and maps every pixel to the nearest palette colour in OKLab with no dithering. Magenta backgrounds become transparent.
-4. **Pick.** Opus shows you a review sheet of all pixelized candidates side by side, and you choose one. Judge at native size: a beautiful raw image can pixelize into mush.
+2. **Generate.** Codex runs it and saves each candidate to `assets-src/exchange/raw/<asset-id>/`.
+3. **Pixelize.** Opus crops each candidate, downscales it by area-averaging to native size, and maps every pixel to the nearest allowed palette colour in OKLab, with no dithering. Magenta backgrounds become transparent.
+4. **Pick.** Opus shows Daniele a review sheet of all pixelized candidates, and he chooses one. Judge at native size: a beautiful raw image can pixelize into mush.
 5. **Clean up.** Opus edits regions as palette-index text grids, renders an 8× preview, looks at it, and repeats.
 6. **Validate.** A script checks palette, size, alpha, naming, and provenance, as part of `npm run lint`.
 
-Opus draws some assets directly, with no generation: object cutouts, clean plates, door `@open` states, and talk heads.
+Opus draws some assets directly, with no generation: object cutouts, clean plates, `@open` door states, talk heads, the generic slot sprites, the travel-map plane and markers, and the small animation frames.
 
 ## Art rules
 
 ### Resolution and coordinates
 
 - Native scene size is **320×160**, displayed at 4× (1280×640) with `image-rendering: pixelated`. The logical viewport, toolbar, and tests keep working in 1280×640.
-- All art-side coordinates (walkboxes, hotspots, object positions) are **native pixels with a top-left origin**. The engine multiplies by 4 and converts to its own bottom-based Y for the character (see `WALKABLE_AREA` in `src/config/scene.ts`).
-- In the hub, the wall meets the floor at native **y ≈ 110**, matching today's background. Other rooms may move it, but the floor must stay at least 40 native px deep for depth scaling.
+- All art-side coordinates (walkboxes, hotspots, object positions, slots) are **native pixels with a top-left origin**. The engine multiplies by 4 and converts to its own bottom-based Y for the character.
+- The floor in every scene must be at least 40 native px deep, for depth scaling and walking around free-standing objects.
 
 ### Palette
 
-The master palette is version-controlled at `assets-src/palette/master.hex`. Each colour has a single-character index, used by the text grids. `.` is transparent.
+One master palette, version-controlled at `assets-src/palette/master.hex`. It has a **core** shared by everything, plus **one ramp per scene** (Agreed in the plan's decision log). Each colour has a single-character index, used by the text grids. `.` is transparent.
 
-Seed palette v0 comes from the current `background.png` and `retro-daniele.png`. Task T1.1 checks it, and gate G1 freezes it as v1. After v1 the palette is **append-only**: never renumber or recolour an index, because grids and PNGs depend on it.
+| Indices | Group    | Colours | Used by                                                                  |
+| ------- | -------- | ------- | ------------------------------------------------------------------------ |
+| `0–P`   | Core     | 26      | Everything, including the character, UI-adjacent art, and the travel map |
+| `Q–Y`   | Hall     | 9       | Hall only: beige plastic, patterned carpet, apron and daylight sky       |
+| `Z a–h` | London   | 9       | London only: wet grey-blues, amber lamplight, brick                      |
+| `i–q`   | Zurich   | 9       | Zurich only: plum, night navy, snow and lake                             |
+| `r–z`   | Sorrento | 9       | Sorrento only: terracotta, lemon, majolica and sea blues                 |
 
-| Idx | Hex       | Ramp    | Typical use               |
-| --- | --------- | ------- | ------------------------- |
-| `0` | `#0f0d12` | neutral | outlines, deepest shadow  |
-| `1` | `#2a2328` | neutral | shadow                    |
-| `2` | `#4a4046` | neutral | metal, dark trim          |
-| `3` | `#7a6e6c` | neutral | mid grey                  |
-| `4` | `#b0a49a` | neutral | light grey                |
-| `5` | `#e8dcc8` | neutral | paper, highlights         |
-| `6` | `#13262b` | teal    | wall shadow               |
-| `7` | `#1c3339` | teal    | hub wall base             |
-| `8` | `#214042` | teal    | wall                      |
-| `9` | `#2f5752` | teal    | wall lit                  |
-| `A` | `#3d6e64` | teal    | wall highlight            |
-| `B` | `#3a2220` | wood    | wood shadow               |
-| `C` | `#49322d` | wood    | wood dark                 |
-| `D` | `#6d3f31` | wood    | wood, doors               |
-| `E` | `#90583d` | wood    | wood lit, dark floor tile |
-| `F` | `#a1603f` | wood    | wood highlight            |
-| `G` | `#a17853` | tan     | floor shadow              |
-| `H` | `#cb9562` | tan     | floor                     |
-| `I` | `#daa76a` | tan     | light floor tile          |
-| `J` | `#ecc488` | tan     | floor highlight           |
-| `K` | `#5a1e1e` | red     | red shadow                |
-| `L` | `#9b3d34` | red     | vending machine, pennant  |
-| `M` | `#c8483a` | red     | red lit                   |
-| `N` | `#e8735a` | red     | red highlight             |
-| `O` | `#5c3b33` | skin    | skin shadow, beard        |
-| `P` | `#9a7860` | skin    | skin mid                  |
-| `Q` | `#bf987d` | skin    | skin                      |
-| `R` | `#e7bd98` | skin    | skin highlight            |
-| `S` | `#161c2f` | navy    | sweater shadow            |
-| `T` | `#21283c` | navy    | sweater                   |
-| `U` | `#2f3f66` | navy    | jeans                     |
-| `V` | `#466394` | navy    | jeans highlight           |
-| `W` | `#8a6420` | brass   | brass shadow              |
-| `X` | `#e0b040` | brass   | brass, lamp light, clock  |
-| `Y` | `#4f7a3a` | green   | plants, bottles           |
-| `Z` | `#7fae52` | green   | green highlight           |
+- **Each scene may use only the core plus its own ramp.** The validator enforces this, which keeps the character and the shared sprites identical everywhere. The character uses the core only.
+- **Core seed (v0),** from today's `background.png` and `retro-daniele.png`:
 
-That's 36 colours, exactly the number of index characters in `0–9A–Z`. If the palette grows, continue in lowercase (`a–z`). Pure magenta `#ff00ff` is reserved as the chroma key and must never enter the palette.
+  | Ramp    | Indices | Hex                                                         |
+  | ------- | ------- | ----------------------------------------------------------- |
+  | Neutral | `0–5`   | `#0f0d12` `#2a2328` `#4a4046` `#7a6e6c` `#b0a49a` `#e8dcc8` |
+  | Wood    | `6–A`   | `#3a2220` `#49322d` `#6d3f31` `#90583d` `#a1603f`           |
+  | Skin    | `B–E`   | `#5c3b33` `#9a7860` `#bf987d` `#e7bd98`                     |
+  | Navy    | `F–I`   | `#161c2f` `#21283c` `#2f3f66` `#466394`                     |
+  | Brass   | `J–K`   | `#8a6420` `#e0b040`                                         |
+  | Red     | `L–N`   | `#5a1e1e` `#9b3d34` `#c8483a`                               |
+  | Green   | `O–P`   | `#4f7a3a` `#7fae52`                                         |
+
+- **Scene ramps** are proposed in F1 and frozen at gate G1.
+- After v1 the palette is **append-only**: never renumber or recolour an index, because grids and PNGs depend on it. All 62 alphanumeric indices are in use, so any further colours take punctuation characters, declared in `master.hex`.
+- Pure magenta `#ff00ff` is reserved as the chroma key and must never enter the palette.
 
 ### Style
 
 - **Reference games:** _Monkey Island 2_, _Day of the Tentacle_, _Indiana Jones and the Fate of Atlantis_ (VGA era).
-- **Pixels:** hard edges and flat colour fills. No anti-aliasing, blur, glow, bloom, or lens effects. The glow on the current `daniele-moving.png` is the opposite of the target.
+- **Pixels:** hard edges and flat colour fills. No anti-aliasing, blur, glow, bloom, or lens effects.
 - **Shading:** 2–4 steps per ramp. Dithering only by hand, as a 2-colour checker, and only on large background surfaces. Never on sprites.
-- **Light:** key light from the **upper left** unless the room card says otherwise. Shadows fall down and to the right.
+- **Light:** each scene card sets its light. Shadows fall away from it.
 - **Outlines:** sprites use a selective 1px outline: the darkest colour of the local ramp on the lit side, `0` on the shadow side. Background props have no outline, only ramp contrast.
-- **No text in generated art.** Objects are named on hover in the sentence line, as SCUMM did. Tiny diegetic text (for example "CV" on a sheet of paper) may be hand-pixelled during cleanup, and only if it reads cleanly at native size.
+- **No text in the art, ever.** Signs, the departures board, the chalkboard, labels, and map names are drawn by the engine in the pixel font (see [Extensibility](expansion-plan.md#extensibility-agreed)).
 - **Perspective:** side-on, slight 3/4 view from standing eye height. Floor tiles recede towards the horizon.
 - **Voice:** pick props that invite a joke. Every object gets a "look at" line in the LucasArts voice in `src/config/dialogTrees.ts`.
+- **No brand logos.** Company names appear in hover text and content, never in the art.
 
 ### Character (Daniele)
 
 - **Cell:** 32×64. Feet rest on **row 61** (0-indexed), horizontally centred. Figure height **56–58 px**, head about a fifth of body height.
-- **Origin:** bottom centre `(16, 61)`, matching today's centre-bottom positioning.
-- **Look:** short brown hair, full beard, navy crew-neck sweater, blue jeans, brown shoes, as in `retro-daniele.png`.
+- **Origin:** bottom centre `(16, 61)`.
+- **Look:** short brown hair, full beard, navy crew-neck sweater, blue jeans, brown shoes, as in `retro-daniele.png`. One outfit in every scene.
 - **Facing:** east, south (towards the viewer), and north (away). West is east mirrored at runtime, as LucasArts did.
 - **Depth scaling:** the engine scales the sprite between 0.7 and 1.0 with nearest-neighbour. The uneven pixels are accepted: _Monkey Island 2_ scaled the same way.
 
@@ -112,51 +105,72 @@ That's 36 colours, exactly the number of index characters in `0–9A–Z`. If th
 | `use-e`, `use-n`   | 2 each | Codex sheet | Reach out for 150 ms, hold while the action runs, then return               |
 | `talk-e`, `talk-s` | 3 each | Opus draws  | 16×16 head overlay, random mouth frame every 100–140 ms, only while idle    |
 
-That's 37 body frames plus 6 talk heads. The stride is how far a foot travels during one `walk-e` cycle. T2.7 measures it and records it in `daniele.json`, so the engine can sync the feet to movement and avoid sliding.
+That's 37 body frames plus 6 talk heads. The stride is how far a foot travels during one `walk-e` cycle. It's measured during packing and recorded in `daniele.json`, so the engine can sync the feet to movement and avoid sliding.
 
-### Layers and depth
+### Layers, depth, and slots
 
-- `bg.png`: 320×160, opaque. No interactive objects, no characters.
-- `fg.png` (optional): 320×160, transparent, always drawn above the character. For pillars, front-corner plants, and the like.
-- `obj-<id>.png`: an interactive object, cut to its bounding box. With an optional `baselineY`, it's drawn above the character while the character's feet are above that line (behind the object), and below otherwise. That's how the character walks both behind and in front of a desk.
+- `bg.png`: 320×160, opaque. No interactive objects, no characters, no text.
+- `fg.png` (optional): 320×160, transparent, always drawn above the character. Only for things that are always nearest the viewer.
+- `obj-<id>.png`: an object, cut to its bounding box. With a `baselineY`, it's drawn above the character while the character's feet are above that line (behind the object), and below otherwise. That's how the character walks both behind and in front of a desk.
 - `obj-<id>@<state>.png`: an alternative state such as `@open` or `@on`, at the same size and position as the default.
+- `anim-<id>.png`: a horizontal strip of equal-size frames for a small loop, with its frame timing in the scene data.
+- **Slot sprites** live in `src/assets/shared/slots/`: `slot-tap.png`, `slot-photo-frame.png`, `slot-magnet.png`, plus one "and more" fold object per kind. The engine repeats them at the slot positions in the scene data, one per entry in `profile.ts`.
 - **Alpha:** every pixel is fully transparent or fully opaque (0 or 255). No partial alpha.
+
+## Scene cards
+
+These restate the plan's [Scene contents](expansion-plan.md#scene-contents-agreed) in the form the prompt files and build tasks need. If they disagree, the plan wins. Each country scene has one door back to the Hall.
+
+| Scene        | Concept                                                                                                                              | Primary objects                                                                 | Free-standing (baseline)                                     | Slot rows                       | Animations                                            | Foreground              | Light                                     |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------- | ----------------------------------------------------- | ----------------------- | ----------------------------------------- |
+| `hall`       | 1990s airport departure lounge: big windows onto the apron with a parked plane, patterned carpet, beige plastic, CRT flight monitors | Three gates (exits); the duty-free shelf with 5 section products (direct jumps) | Security arch, a row of seats                                | —                               | Plane taking off outside, split-flap board flipping   | A pillar or a plant     | Daylight through the back windows         |
+| `london`     | Pub on a rainy evening. The window shows the City skyline (St Paul's, the Gherkin, the Shard), a red phone box, and a double-decker  | Chalkboard menu (Skills), next to the taps                                      | Bar counter, a table with stools, fruit machine              | Taps (8), London job photos (6) | Rain on the window, passing bus, fruit machine lights | A stool or a pint glass | Warm amber pendant lamps                  |
+| `zurich`     | Office at night overlooking Lake Zurich and the Alps. Layout from prototype B                                                        | CRT workstation (Experience), filing cabinet (Resume)                           | Desk, chair, filing cabinet                                  | Zurich job photos (6)           | Stars, moonlight on the lake, cuckoo, CRT cursor      | A plant                 | Desk lamp plus cool moonlight             |
+| `sorrento`   | Kitchen with a majolica tile floor. The window looks across the Gulf of Naples to Naples, Vesuvius, and Ischia                       | Fridge (About), wall phone with a curly cord (Contact)                          | Table with two espresso cups and chairs, stove with moka pot | Fridge magnets (6)              | Moka steam, sparkle on the sea, the ferry             | A potted lemon tree     | Low sunset sun through the window         |
+| `travel-map` | Sepia map of Europe, with London, Zurich, and Sorrento marked                                                                        | —                                                                               | —                                                            | —                               | The plane flying the red route line                   | —                       | Flat, as printed paper. Core palette only |
+
+The dartboard in London and the other flavour props from the plan are painted into the background as hotspots, unless they need a separate sprite for depth or animation.
 
 ## File layout
 
 ```
 assets-src/
-  palette/master.hex            # "idx hex" per line (committed)
+  palette/master.hex            # "idx hex scene" per line (committed)
   palette/master.gpl            # same palette for Aseprite / GIMP users (committed)
   prompts/scenes/<scene>.md     # Codex prompt files (committed)
   prompts/character/<tag>.md
-  refs/                         # references Opus prepares for Codex, e.g. hub-bg@8x.png (committed)
+  refs/                         # references for Codex, e.g. style-anchor@8x.png (committed)
   provenance/<asset-id>.json    # one record per final asset (committed)
   approved/<asset-id>.webp      # the chosen raw candidate, lossless WebP (committed)
-  audio/music/<scene>.ts        # MIDI source written as code (committed)
-  exchange/                     # Codex → Opus handoff (gitignored, main checkout only)
-    probe/                      #   T1.3 outputs and FINDINGS.md
+  audio/music/<track>.ts        # MIDI source written as code (committed)
+  exchange/                     # Codex → Opus handoff (gitignored; lives in ../rgp-codex only)
+    probe/                      #   F2 outputs and FINDINGS.md
     raw/<asset-id>/NN.png       #   candidates
     raw/<asset-id>/NOTES.md     #   exact prompt text used and any deviations
+    raw/<asset-id>/DONE         #   written last, when the batch is complete
   review/                       # Opus previews and review sheets (gitignored)
-src/assets/scenes/<scene>/      # bg.png, fg.png, obj-*.png (final, native size)
+src/assets/scenes/<scene>/      # bg.png, fg.png, obj-*.png, anim-*.png (final, native size)
+src/assets/shared/slots/        # generic slot sprites and fold objects
 src/assets/character/           # daniele.png (sheet) + daniele.json (frames, tags, stride)
 src/config/scenes/<scene>.ts    # scene data (see Scene data contract)
-public/audio/music/<scene>.mp3
+public/audio/music/<track>.mp3
+public/audio/ambience/<scene>.mp3
 public/audio/sfx/<name>.mp3
-scripts/assets/                 # tooling (T1.1)
+scripts/assets/                 # tooling
 ```
 
-- **Scene ids:** `hub`, `about`, `skills`, `experience`, `contact`, `resume`.
-- **Asset ids:** `<scene>-bg`, `<scene>-fg`, `<scene>-obj-<id>`, `<scene>-obj-<id>@<state>`, `char-turnaround`, `char-<tag>`, `char-talk-<facing>`, `music-<scene>`, `sfx-<name>`. All kebab-case.
+- **Scene ids:** `hall`, `london`, `zurich`, `sorrento`, `travel-map`.
+- **Asset ids:** `<scene>-bg`, `<scene>-fg`, `<scene>-obj-<id>`, `<scene>-obj-<id>@<state>`, `<scene>-anim-<id>`, `slot-<kind>`, `char-turnaround`, `char-<tag>`, `char-talk-<facing>`, `music-<track>`, `ambience-<scene>`, `sfx-<name>`. All kebab-case.
+- **Style anchor:** the approved and cleaned `zurich-bg` composite, exported as `assets-src/refs/style-anchor@8x.png`. Every other composite references it.
 
-### How files move between agents
+### How files move between the lanes
 
-- **`v2` is the trunk.** All work branches from `v2` and every PR targets `v2`, never `main` (see [Where to work](expansion-plan.md#where-to-work)).
-- **Codex always works in the main checkout** (the first entry in `git worktree list`), with `v2` checked out, and writes only to `assets-src/exchange/`. That folder is gitignored, so candidates never enter git history.
-- **Opus agents work in their own worktrees**, branched from `origin/v2`. They read candidates by absolute path from `<main checkout>/assets-src/exchange/`, then copy the chosen one into their worktree as `assets-src/approved/<asset-id>.webp`.
-- **Opus → Codex handoffs** (prompt files, references) are committed and merged to `v2` before the Codex task that needs them starts. Before each task, Codex runs `git pull` on `v2` in the main checkout.
-- **Every Opus task ends with one PR against `v2`.** Merge it before starting any task that lists it under "After".
+All paths below are relative to the worktrees in the plan's [Where to work](expansion-plan.md#where-to-work).
+
+- **`v2` is the trunk.** Every Opus task branches from `origin/v2` in its own worktree and ends with one PR against `v2`. Daniele merges.
+- **Codex works only in `../rgp-codex/`**, detached at `origin/v2`, and writes only to `assets-src/exchange/` there. That folder is gitignored, so candidates never enter git history and the Codex lane never needs reconciling. A candidate reaches `v2` only as the approved WebP that an Opus task commits.
+- **Opus → Codex:** prompt files and references are merged to `v2` before the Codex task that needs them starts. The Codex orchestrator then refreshes its worktree to `origin/v2`.
+- **Codex → Opus:** a Codex task is finished when every one of its `raw/<asset-id>/` folders contains a `DONE` file. Opus agents read candidates from `../rgp-codex/assets-src/exchange/` by absolute path, never write there, and copy the chosen one into their own worktree as `assets-src/approved/<asset-id>.webp`.
 
 ### Provenance record
 
@@ -164,88 +178,117 @@ Models get retired, so the approved raw candidate is the only thing an asset can
 
 ```json
 {
-  "id": "hub-bg",
-  "output": "src/assets/scenes/hub/bg.png",
-  "task": "T2.4",
+  "id": "zurich-bg",
+  "output": "src/assets/scenes/zurich/bg.png",
+  "task": "F5",
   "source": "codex",
-  "prompt": "assets-src/prompts/scenes/hub.md",
+  "prompt": "assets-src/prompts/scenes/zurich.md",
   "candidate": "03",
-  "references": [],
-  "approvedRaw": "assets-src/approved/hub-bg.webp",
+  "references": ["assets-src/refs/zurich-layout@8x.png"],
+  "approvedRaw": "assets-src/approved/zurich-bg.webp",
   "palette": "v1",
-  "cleanup": "Removed floor noise, re-drew door frame edges, hand-pixelled clock hands.",
+  "cleanup": "Removed floor noise, re-drew the window mullions, hand-pixelled the cuckoo clock.",
   "approvedBy": "daniele",
   "date": "2026-10-01"
 }
 ```
 
-For assets Opus draws directly (cutouts, clean plates, `@open` states, talk heads), set `"source": "opus"`. Leave out `prompt`, `candidate`, and `approvedRaw`, and add `"derivedFrom"` with the asset id it was drawn from.
+For assets Opus draws directly, set `"source": "opus"`. Leave out `prompt`, `candidate`, and `approvedRaw`, and add `"derivedFrom"` with the asset id it was drawn from (if any).
 
 ## Scene data contract
 
-The engine (expansion plan items 1–4) and the art tasks both use this shape. Art tasks write it and the engine reads it. Coordinates are native px with a top-left origin.
+The engine and the build tasks both use this shape. Build tasks write it, and the engine reads it. Coordinates are native px with a top-left origin.
 
 ```ts
-export const HUB_SCENE: SceneData = {
-  id: "hub",
-  background: hubBg,
-  foreground: hubFg, // optional
-  music: "/audio/music/hub.mp3",
+export const ZURICH_SCENE: SceneData = {
+  id: "zurich",
+  background: zurichBg,
+  foreground: zurichFg, // optional
+  music: "/audio/music/zurich.mp3",
+  ambience: "/audio/ambience/zurich.mp3",
   walkbox: [
-    [4, 112],
-    [316, 112],
-    [316, 156],
-    [4, 156],
+    [8, 108],
+    [304, 108],
+    [304, 156],
+    [8, 156],
   ], // polygon
-  depth: { farY: 112, nearY: 156, farScale: 0.7, nearScale: 1.0 },
-  entryPoints: { default: { x: 160, y: 140, facing: "s" } },
+  depth: { farY: 108, nearY: 156, farScale: 0.7, nearScale: 1.0 },
+  entryPoints: { fromHall: { x: 296, y: 120, facing: "w" } },
   objects: [
     {
-      id: "clock",
-      sprite: hubObjClock,
-      x: 124,
-      y: 32,
-      hotspot: { x: 124, y: 32, w: 22, h: 22 }, // defaults to the sprite's alpha bounding box
-      interactionPoint: { x: 132, y: 118, facing: "n" },
-      baselineY: undefined,
-      action: undefined, // or a section id such as "about"
+      id: "crt",
+      sprite: zurichObjDesk,
+      x: 194,
+      y: 56,
+      hotspot: { x: 204, y: 56, w: 30, h: 26 }, // defaults to the sprite's alpha bounding box
+      interactionPoint: { x: 220, y: 108, facing: "n" },
+      baselineY: 100,
+      action: "experience", // a section id, or undefined for flavour
     },
   ],
+  animations: [
+    {
+      id: "cuckoo",
+      strip: zurichAnimCuckoo,
+      x: 60,
+      y: 20,
+      frameMs: 180,
+      everyMs: 15000,
+    },
+  ],
+  slots: [
+    {
+      id: "job-photos",
+      kind: "photo-frame", // → src/assets/shared/slots/slot-photo-frame.png
+      source: "jobs:switzerland", // or "skills:groups", "jobs:london", "jobs:italy"
+      positions: [
+        [20, 24],
+        [46, 24],
+        [72, 24],
+        [20, 50],
+        [46, 50],
+        [72, 50],
+      ],
+      fold: "slot-photo-frame-more", // shown in the last slot when entries exceed the capacity
+    },
+  ],
+  labels: [{ id: "cabinet", source: "section:resume", x: 262, y: 54 }], // engine-drawn pixel-font text
   exits: [
     {
-      id: "door-experience",
-      to: "experience",
-      entry: "default",
-      sprite: hubObjDoorExperience, // optional; states: "@open"
-      hotspot: { x: 154, y: 38, w: 38, h: 72 },
-      interactionPoint: { x: 172, y: 114, facing: "n" },
+      id: "door-hall",
+      to: "hall",
+      entry: "fromZurich",
+      sprite: zurichObjDoor, // optional; states: "@open"
+      hotspot: { x: 286, y: 32, w: 30, h: 68 },
+      interactionPoint: { x: 298, y: 116, facing: "e" },
     },
   ],
 };
 ```
 
-`cutout.ts` and `pack.ts` print each sprite's position and alpha bounding box, so hotspots can be copied rather than measured.
+- A slot row's capacity is its number of positions.
+- `cutout.ts` and `pack.ts` print each sprite's position and alpha bounding box, so hotspots can be copied rather than measured.
 
 ## Tooling
 
-T1.1 builds these in `scripts/assets/`. They're TypeScript run with `tsx`, like the existing `scripts/*.ts`. PNG and WebP input and output use `sharp` (a new dev dependency). The resampling and palette code is written by hand in `lib.ts`, because `sharp` has no area-average kernel and its palette mode quantizes on its own. ImageMagick and Aseprite are not required.
+F1 builds these in `scripts/assets/`. They're TypeScript run with `tsx`, like the existing `scripts/*.ts`. PNG and WebP input and output use `sharp`. The resampling and palette code is written by hand in `lib.ts`, because `sharp` has no area-average kernel and its palette mode quantizes on its own.
 
-| Script            | npm script            | Does                                                                                                                                                                                                                                                                                                                                                 |
-| ----------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `lib.ts`          | —                     | PNG/WebP input and output, area-average downscale for any ratio, OKLab nearest-palette remap, chroma key, alpha threshold, palette loading                                                                                                                                                                                                           |
-| `pixelize.ts`     | `assets:pixelize`     | Raw candidate → native image. Crops to the target aspect (`--crop auto` centres; `--crop x,y,w,h` in raw px), downscales, remaps. With `--key ff00ff`, magenta becomes transparent. With `--sprites 32x64`, it finds each figure by bounding box, scales them all by one factor, and puts each in its own cell with feet on row 61, in reading order |
-| `review.ts`       | `assets:review`       | Pixelizes every candidate in an `exchange/raw/<asset-id>/` folder and builds one numbered review sheet at 4× for choosing                                                                                                                                                                                                                            |
-| `grid.ts`         | `assets:grid`         | PNG ↔ palette-index text grid. `--region x,y,w,h` extracts or patches a region of a larger image                                                                                                                                                                                                                                                     |
-| `preview.ts`      | `assets:preview`      | 8× nearest-neighbour upscale, contact sheet, onion skin (frame n over n−1 at 50%), and a local HTML page that plays animations for you to review                                                                                                                                                                                                     |
-| `cutout.ts`       | `assets:cutout`       | Polygon (native px) → object sprite cut from a composite, plus its position and bounding box                                                                                                                                                                                                                                                         |
-| `pack.ts`         | `assets:pack`         | Frames → `daniele.png` sheet + `daniele.json` (frames, tags, durations, origin, stride)                                                                                                                                                                                                                                                              |
-| `refs.ts`         | `assets:refs`         | Native image → 8× reference PNG in `assets-src/refs/` for Codex                                                                                                                                                                                                                                                                                      |
-| `validate.ts`     | `lint:assets`         | Fails if any file in `src/assets/scenes/` or `src/assets/character/` is off-palette, has partial alpha, is the wrong size, is badly named, or has no provenance record                                                                                                                                                                               |
-| `placeholders.ts` | `assets:placeholders` | Flat-colour placeholder scenes and a box-figure character sheet that pass the validator, so the engine track isn't blocked                                                                                                                                                                                                                           |
-| `music.ts`        | `assets:music`        | T2.3: MIDI source → `.mid` → FluidSynth → MP3                                                                                                                                                                                                                                                                                                        |
-| `sfx.ts`          | `assets:sfx`          | T2.3: synthesises sound effects from code to WAV, then MP3                                                                                                                                                                                                                                                                                           |
+| Script            | npm script            | Does                                                                                                                                                                                                          |
+| ----------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lib.ts`          | —                     | PNG/WebP input and output, area-average downscale for any ratio, OKLab nearest-palette remap restricted to a scene's allowed colours, chroma key, alpha threshold, palette loading                            |
+| `pixelize.ts`     | `assets:pixelize`     | Raw candidate → native image. `--scene <id>` picks the allowed colours, `--crop auto` or `--crop x,y,w,h`, `--key ff00ff` for transparency, `--sprites 32x64` to slice figures into cells with feet on row 61 |
+| `review.ts`       | `assets:review`       | Pixelizes every candidate in an `exchange/raw/<asset-id>/` folder and builds one numbered review sheet at 4×                                                                                                  |
+| `grid.ts`         | `assets:grid`         | PNG ↔ palette-index text grid. `--region x,y,w,h` extracts or patches a region                                                                                                                                |
+| `preview.ts`      | `assets:preview`      | 8× nearest-neighbour upscale, contact sheet, onion skin, and a local HTML page that plays animations and composites slot sprites into a scene                                                                 |
+| `cutout.ts`       | `assets:cutout`       | Polygon (native px) → object sprite cut from a composite, plus its position and bounding box                                                                                                                  |
+| `pack.ts`         | `assets:pack`         | Frames → `daniele.png` sheet + `daniele.json` (frames, tags, durations, origin, stride)                                                                                                                       |
+| `refs.ts`         | `assets:refs`         | Native image → 8× reference PNG in `assets-src/refs/` for Codex                                                                                                                                               |
+| `validate.ts`     | `lint:assets`         | Fails if any shipped asset is off-palette, uses another scene's ramp, has partial alpha, is the wrong size, is badly named, or has no provenance record                                                       |
+| `placeholders.ts` | `assets:placeholders` | Flat-colour placeholder scenes, slot sprites, and a box-figure character sheet that pass the validator, so the engine lane isn't blocked                                                                      |
+| `music.ts`        | `assets:music`        | MIDI source → `.mid` → FluidSynth → MP3                                                                                                                                                                       |
+| `sfx.ts`          | `assets:sfx`          | Synthesises sound effects and ambience layers from code to WAV, then MP3                                                                                                                                      |
 
-Because `lint:assets` runs inside `npm run lint`, the PR workflow picks it up with no workflow change. Vitest's unit project only includes `src/**`, so add `scripts/**/*.test.ts` to it for the tooling tests. Check that `knip` treats `scripts/assets/*` as entry points.
+Because `lint:assets` runs inside `npm run lint`, the PR workflow picks it up with no workflow change. Add `scripts/**/*.test.ts` to Vitest's unit project, and check that `knip` treats `scripts/assets/*` as entry points.
 
 ### Grid format
 
@@ -253,7 +296,7 @@ Because `lint:assets` runs inside `npm run lint`, the PR workflow picks it up wi
 # asset: char-walk-e  frame: 00  palette: v1  size: 32x64
 ................................
 ..............000000............
-.............0OOOO000...........
+.............0BBBB000...........
 ```
 
 - One character per pixel, one row per line, exact width on every line. `grid.ts` rejects ragged rows.
@@ -261,7 +304,7 @@ Because `lint:assets` runs inside `npm run lint`, the PR workflow picks it up wi
 
 ## Codex image generation
 
-These are the constraints of Codex's built-in image tool as far as they're known. T1.3 checks them, and T1.4 adjusts the prompt files to what it finds.
+These are the constraints of Codex's built-in image tool as far as they're known. F2 checks them, and F3 adjusts the prompt files to what it finds.
 
 - **No size parameter.** Codex App's built-in path doesn't take explicit dimensions (openai/codex issue 19175). So prompts ask for an orientation and a safe composition band, and `pixelize --crop` does the rest.
 - **No transparency setting.** Sprites are generated on a flat pure-magenta `#FF00FF` background and keyed out by `pixelize`.
@@ -276,11 +319,11 @@ Opus writes every prompt file like this. It's complete in itself: Codex doesn't 
 
 ```md
 ---
-asset: hub-bg
-task: T2.1
+asset: london-bg
+task: C2
 candidates: 4
-references: []
-output: assets-src/exchange/raw/hub-bg/
+references: [assets-src/refs/style-anchor@8x.png]
+output: assets-src/exchange/raw/london-bg/
 ---
 
 <full prompt text, with the style preamble already written in>
@@ -288,26 +331,29 @@ output: assets-src/exchange/raw/hub-bg/
 
 ### Rules for Codex tasks
 
-1. Run `git pull` on `v2` in the main checkout. Read this section and the prompt files your task names.
+1. Work in `../rgp-codex/`. The orchestrator refreshed it to `origin/v2` just before starting you, so its `docs/` and prompt files are the current plan. Read this section and the prompt files your task names.
 2. For each prompt file, generate exactly `candidates` images, using the references listed. Use the prompt text as written. Don't embellish it.
 3. Copy each image to `<output>/NN.png` (`01`, `02`, …). Append the exact prompt text you used, plus anything that went wrong, to `<output>/NOTES.md`.
 4. If an output breaks an obvious rule (visible text, a gradient background instead of flat magenta, the wrong subject), you may replace it once. Record that in `NOTES.md`.
-5. Don't edit, commit, or delete anything outside `assets-src/exchange/`. Don't open PRs.
-6. Finish by listing each asset id with the number of candidates saved, then stop.
+5. Write an empty `<output>/DONE` file last.
+6. Don't edit, commit, or delete anything outside `assets-src/exchange/`. Don't open PRs.
+7. Finish by listing each asset id with the number of candidates saved, then stop.
 
 ## Prompts
 
-T1.4 writes the prompt files from these templates. Prompts never include hex codes: the model won't follow them, and the remap step enforces the palette anyway. Instead, they ask for output that remaps cleanly.
+F3 writes every prompt file from these templates, all at once, including the ones used later in the fan-out. Prompts never include hex codes: the model won't follow them, and the remap step enforces the palette anyway. Instead, they describe the mood in words.
 
 ### Style preamble (written into every prompt)
 
-> 1990s LucasArts SCUMM point-and-click adventure game art, VGA era, in the style of Monkey Island 2 and Day of the Tentacle. Pixel art made of large, flat colour areas with crisp hard edges. No anti-aliasing, no gradients, no dithering, no noise or grain texture, no blur, no glow, no bloom, no lens effects. No text, letters, numbers, signage, logos, or watermarks anywhere. Muted warm palette: deep teal walls, warm browns and tans, a few red and brass accents. Key light from the upper left, shadows falling down and to the right. Slightly exaggerated cartoon proportions and bold, readable silhouettes.
+> 1990s LucasArts SCUMM point-and-click adventure game art, VGA era, in the style of Monkey Island 2, Day of the Tentacle, and Indiana Jones and the Fate of Atlantis. Pixel art made of large, flat colour areas with crisp hard edges. No anti-aliasing, no gradients, no dithering, no noise or grain texture, no blur, no glow, no bloom, no lens effects. No text, letters, numbers, signage, logos, or watermarks anywhere; signs and boards are blank. Slightly exaggerated cartoon proportions and bold, readable silhouettes.
 
-### Room composite template
+### Scene composite template
 
-> {preamble} Wide landscape image. Side-on interior view of {room concept}, with a slight 3/4 view from standing eye height. Compose for a 2:1 crop: all important content sits between one sixth and five sixths of the image height, and the areas above and below are plain ceiling and floor. The back wall meets the floor about two thirds of the way down that band. Left to right: {props with approximate horizontal positions}. The floor across the bottom third of the band is open and uncluttered, so a character can walk the full width. Exits: {exits}. Foreground: {foreground element, partly cropped by the frame edge}. The room is empty of people.
+> {preamble} Wide landscape image. Side-on interior view of {concept}, with a slight 3/4 view from standing eye height. {palette mood in words}. {light}. Compose for a 2:1 crop: all important content sits between one sixth and five sixths of the image height, and the areas above and below are plain ceiling and floor. The back wall meets the floor about two thirds of the way down that band, leaving a deep, open floor. Left to right: {props with approximate horizontal positions}. {free-standing objects} stand on the floor, away from the back wall, with space to walk in front of and behind them. Exits: {exits}. Foreground: {foreground element, partly cropped by the frame edge}. The room is empty of people.
 
-For rooms other than the hub, add the reference `assets-src/refs/hub-bg@8x.png` and this line: "Match the reference image's pixel density, palette, outline style, and lighting exactly; only the room's contents change."
+- **Style anchor** (`zurich`): add `assets-src/refs/zurich-layout@8x.png` (prototype B) as a layout reference, and this line: "Follow the reference image's layout and mood; redraw it as detailed pixel art."
+- **Every other composite:** add `assets-src/refs/style-anchor@8x.png`, and this line: "Match the reference image's pixel density, outline style, shading steps, and level of detail exactly. Only the place, palette, light, and contents change."
+- **Travel map:** "{preamble} A flat, top-down, hand-drawn sepia map of Western Europe on aged paper, from Britain to southern Italy, with coastlines, a few mountain ranges and seas, and three small round markers at London, Zurich, and Sorrento. No route line, no labels." Same style-anchor reference and line.
 
 ### Character templates
 
@@ -315,7 +361,7 @@ For rooms other than the hub, add the reference `assets-src/refs/hub-bg@8x.png` 
 
   > {preamble} Character turnaround sheet of the same man as the reference images, on a flat, solid, pure magenta (#FF00FF) background with no shadow and no gradient. Front view, side view facing right, and back view, left to right, in a neutral standing pose. Short brown hair, full brown beard, navy crew-neck sweater, blue jeans, brown shoes. Same height, same scale, feet on one shared baseline, figures well apart and not touching. No ground shadow, no glow, no rim light.
 
-- **Animation sheet** (references: `assets-src/refs/char-turnaround@8x.png`, plus `assets-src/refs/char-walk-e@8x.png` for Stage 3 sheets):
+- **Animation sheet** (reference: `assets-src/refs/char-turnaround@8x.png` only, so all sheets can be generated in parallel):
 
   > {preamble} Sprite sheet on a flat, solid, pure magenta (#FF00FF) background with no shadow and no gradient. {N} figures in {layout}, read left to right, top to bottom, evenly spaced and not touching. The same character as the reference in every figure, at identical scale, with feet on the same baseline in each row. {Animation}: {pose list}. No ground shadow, no motion lines.
 
@@ -334,309 +380,307 @@ For rooms other than the hub, add the reference `assets-src/refs/hub-bg@8x.png` 
 
 Every Opus build task follows this for each asset:
 
-> Read Art rules in `docs/art-spec.md` and `assets-src/palette/master.hex`. Work in the palette-index grid via `npm run assets:grid`. For each pass: fix stray single pixels, broken outlines, colour banding from the remap, and drift from the references (for the character: head size, beard shape, sweater colour); then render `npm run assets:preview` and look at the 8× output. Crop to regions when the whole image is too small to judge. Stop when a pass changes nothing meaningful. Replace whole rows only. Record what changed in the provenance record's `cleanup` field.
-
-## Room cards
-
-The concepts are defaults. You confirm or change each one when you pick its composite. Every room has an exit back to the hub. The **primary object** opens the section's content (the target of the verb shortcut). The other props are "look at" flavour.
-
-| Scene        | Concept                                                     | Primary object                 | Other props                                                                       | Foreground                 | Light                       |
-| ------------ | ----------------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------- | -------------------------- | --------------------------- |
-| `hub`        | Today's hallway, redrawn: teal panelled wall, checker floor | Five doors (exits), no content | Clock, framed map, pennant                                                        | Potted plant, front left   | Upper left, window shaft    |
-| `about`      | Cosy 90s bedroom-study                                      | Framed portrait                | Bookshelf with psychology books, Swiss Alps poster, beige PC with a retro console | Armchair edge, front right | Warm desk lamp, upper left  |
-| `skills`     | Garage workshop                                             | The vending machine (callback) | Pegboard tool wall, humming server rack, crystal ball on a workbench (AI)         | Workbench corner           | Hanging bulb, centre        |
-| `experience` | Small museum hall                                           | Display case (current role)    | 5 framed plaques for past roles, velvet rope, bench                               | Rope stanchion             | Gallery spotlights, top     |
-| `contact`    | Radio shack                                                 | Rotary phone (email)           | Ham radio (LinkedIn), pigeon coop (GitHub), mailbox                               | Coil of cable              | Radio dial glow, upper left |
-| `resume`     | Print shop                                                  | Dot-matrix printer             | Paper stacks, guillotine cutter, "wet ink" sign (hand-pixelled)                   | Paper stack                | Fluorescent strip, top      |
-
-Use generic props, not brand logos. The GitHub and LinkedIn names appear in the hover text and content, not in the art.
+> Read Art rules in `docs/art-spec.md` and `assets-src/palette/master.hex`. Work in the palette-index grid via `npm run assets:grid`, using only the core and this scene's ramp. For each pass: fix stray single pixels, broken outlines, colour banding from the remap, and drift from the references (for the character: head size, beard shape, sweater colour); then render `npm run assets:preview` and look at the 8× output. Crop to regions when the whole image is too small to judge. Stop when a pass changes nothing meaningful. Replace whole rows only. Record what changed in the provenance record's `cleanup` field.
 
 ## Audio
 
 Audio is written entirely as code by Opus. It needs no generated images and no model API.
 
-- **Music:** one General MIDI track per scene, written as code with `midi-writer-js` in `assets-src/audio/music/<scene>.ts`. Each is 60–90 s, loops seamlessly, and is instrumented like iMUSE-era LucasArts: sparse and in character, with a bass line and a clear motif. The rooms share a motif, like iMUSE variations on a theme. The hub may keep the existing `public/theme.mp3`.
+| Asset                         | Hall                            | London                                 | Zurich                               | Sorrento                                 |
+| ----------------------------- | ------------------------------- | -------------------------------------- | ------------------------------------ | ---------------------------------------- |
+| Music (`music-<scene>`)       | New theme; introduces the motif | Pub feel: honky-tonk piano, music-hall | Quiet night: music box, soft strings | Neapolitan: mandolin, a light tarantella |
+| Ambience (`ambience-<scene>`) | Terminal hum, boarding chimes   | Rain, pub murmur                       | Clock ticking, a quiet night         | Waves, gulls, a distant scooter          |
+
+- **Music:** General MIDI, written as code with `midi-writer-js` in `assets-src/audio/music/<track>.ts`. Each track is 60–90 s, loops seamlessly, and is instrumented like iMUSE-era LucasArts: sparse and in character, with a bass line. All four share one motif, varied per country. Plus `music-travel-sting`, a 2 s phrase of the motif for the travel map. `theme.mp3` is retired.
+- **Sound effects:** footsteps on carpet, wood, and tile (3 variants each), door open, door close, boarding chime, plane on the map, UI blip, split-flap flutter, dart thunk, fruit machine jingle, cuckoo, phone ring, and moka gurgle. `sfx.ts` synthesises them. If one sounds fake, one CC0 sample from Freesound is acceptable; record its URL and licence.
 - **Rendering:** FluidSynth with a free General MIDI soundfont (for example FluidR3_GM, MIT licence), then ffmpeg to MP3. Commit the MP3s and MIDI sources. Leave rendered WAVs uncommitted.
 - **Looping:** MP3 encoder padding breaks `<audio loop>`. Decode with Web Audio and loop with `loopStart`/`loopEnd`. Record the loop points in the provenance record.
-- **Sound effects:** `sfx.ts` synthesises them from noise, envelopes, and filters: footsteps (3 variants), door open, door close, transition whoosh, and a UI blip. If the synthesised door creak sounds fake, one CC0 sample from Freesound is acceptable. Record its URL and licence.
-- **Levels:** music about −20 LUFS, sound effects peaking at −3 dBFS. The existing sound toggle controls everything.
+- **Levels:** music about −20 LUFS, ambience about −28 LUFS, sound effects peaking at −3 dBFS. The existing sound toggle controls everything.
 
 ## Execution plan
 
+### Phases
+
+1. **Phase 1, Foundations.** Everything the fan-out depends on, lifted up front: tooling, the palette, every prompt file, and two **anchors** (the approved Zurich composite as the style anchor, and the approved character turnaround). With the anchors approved, every remaining image can be generated in parallel without drifting in style.
+2. **Phase 2, Fan-out.** Codex generates every remaining image in parallel sessions. Opus builds each scene, the character, the shared sprites, and the audio in parallel sub-agents, each starting as soon as its inputs arrive. The engine lane runs throughout, on placeholders.
+3. **Phase 3, Integration.** One Opus task brings everything together and ends at the final review.
+
 ### Execution map
 
-**Run** says how a task relates to others: **sequential** tasks start only after everything under **After** is done and merged, and **parallel** tasks can run at the same time as the tasks listed. Gates (G) are approvals only you can give. Agents stop and wait at them.
+**Status** is one of `todo`, `in progress`, or `done`. A task is `done` once its PR is merged to `v2`, its `DONE` files exist (Codex), or Daniele has passed the gate. Daniele keeps this column up to date on `v2`. Orchestrators and agents read it but never edit it, so parallel PRs don't conflict on this table.
 
-**Status** is one of `todo`, `in progress`, or `done`. A task is `done` once its PR is merged to `v2`, or once you've passed the gate. You keep this column up to date on `v2`. Agents read it but never edit it, so parallel PRs don't conflict on this table.
-
-| Task        | Status | Agent | Run                                         | After                   | What                                                       |
-| ----------- | ------ | ----- | ------------------------------------------- | ----------------------- | ---------------------------------------------------------- |
-| T0.1        | done   | You   | sequential                                  | —                       | Housekeeping                                               |
-| T1.1        | todo   | Opus  | parallel with T1.2, T1.3                    | T0.1                    | Tooling, palette, placeholders                             |
-| T1.2        | todo   | Opus  | parallel with everything until T4.1         | T0.1                    | Engine track (expansion plan items 1–8)                    |
-| T1.3        | todo   | Codex | parallel with T1.1, T1.2                    | T0.1                    | Probe the image tool                                       |
-| **G1**      | todo   | You   | gate                                        | T1.1, T1.3              | Freeze palette v1, read probe findings                     |
-| T1.4        | todo   | Opus  | sequential                                  | G1                      | Adjust tooling to findings, write all prompt files         |
-| T2.1        | todo   | Codex | parallel with T2.2, T2.3                    | T1.4                    | Hub composite candidates                                   |
-| T2.2        | todo   | Codex | parallel with T2.1, T2.3                    | T1.4                    | Turnaround candidates                                      |
-| T2.3        | todo   | Opus  | parallel with all of Stage 2                | T1.1                    | Audio pilot: tools, hub music, all sound effects           |
-| T2.4        | todo   | Opus  | parallel with T2.5                          | T2.1                    | Build the hub (includes pick **G2a**)                      |
-| T2.5        | todo   | Opus  | parallel with T2.4                          | T2.2                    | Clean up the turnaround (includes pick and **G2b**)        |
-| T2.6        | todo   | Codex | sequential                                  | T2.5                    | `walk-e` and `idle-e` sheets                               |
-| T2.7        | todo   | Opus  | sequential                                  | T2.6                    | Clean up and pack `walk-e`, `idle-e`                       |
-| **G2**      | todo   | You   | gate                                        | T2.3, T2.4, T2.7        | Vertical slice review                                      |
-| T2.8        | todo   | Opus  | sequential                                  | G2                      | Apply fixes from G2 to tooling and prompt files            |
-| T3.1        | todo   | Codex | parallel with T3.2, T3.3                    | T2.8                    | Five room composites                                       |
-| T3.2        | todo   | Codex | parallel with T3.1, T3.3                    | T2.8                    | Remaining character sheets                                 |
-| T3.3        | todo   | Opus  | parallel with all of Stage 3                | T2.8                    | Five room music tracks                                     |
-| T3.4        | todo   | Opus  | sequential                                  | T3.1                    | Review candidates for all five rooms (**G3a**)             |
-| T3.5 – T3.9 | todo   | Opus  | **parallel with each other** and with T3.10 | T3.4                    | Build `about`, `skills`, `experience`, `contact`, `resume` |
-| T3.10       | todo   | Opus  | parallel with T3.5 – T3.9                   | T3.2                    | Remaining character frames, talk heads, repack             |
-| T4.1        | todo   | Opus  | sequential                                  | all Stage 3 tasks, T1.2 | Cohesion, integration, baselines (ends at **G4**)          |
+| Task   | Status | Lane    | Phase | After         | What                                                                     |
+| ------ | ------ | ------- | ----- | ------------- | ------------------------------------------------------------------------ |
+| T0.1   | done   | Daniele | 0     | —             | Housekeeping: `v2` exists and is pushed, Codex signed in                 |
+| T0.2   | todo   | Opus    | 0     | —             | Park the prototype and export the Zurich layout reference                |
+| T0.3   | todo   | Opus    | 0     | —             | CI guard that keeps every task PR in sync with the plan on `v2`          |
+| F1     | todo   | Opus    | 1     | T0.2, T0.3    | Tooling, palette v0, placeholders, all dependencies and npm scripts      |
+| F2     | todo   | Codex   | 1     | T0.1          | Probe the image tool                                                     |
+| E1     | todo   | Opus    | 1–2   | T0.3          | Engine lane (expansion plan MVP features), on placeholders               |
+| **G1** | todo   | Daniele | 1     | F1, F2        | Freeze palette v1, read probe findings                                   |
+| F3     | todo   | Opus    | 1     | G1            | Adjust tooling to the findings, write every prompt file                  |
+| F4     | todo   | Codex   | 1     | F3            | Anchor candidates: `zurich-bg` and `char-turnaround`, in parallel        |
+| F5     | todo   | Opus    | 1     | F4            | Pick, clean up, and export both anchors (ends at **G2**)                 |
+| A1     | todo   | Opus    | 1     | F1            | Audio tools, the motif, and the Hall theme (ends at **GA**)              |
+| C1     | todo   | Codex   | 2     | G2            | `hall-bg` candidates                                                     |
+| C2     | todo   | Codex   | 2     | G2            | `london-bg` candidates                                                   |
+| C3     | todo   | Codex   | 2     | G2            | `sorrento-bg` candidates                                                 |
+| C4     | todo   | Codex   | 2     | G2            | `travel-map-bg` candidates                                               |
+| C5     | todo   | Codex   | 2     | G2            | Walk sheets: `walk-e`, `walk-s`, `walk-n`                                |
+| C6     | todo   | Codex   | 2     | G2            | Idle and use sheets: `idle-e`, `idle-s`, `idle-n`, `use-e`, `use-n`      |
+| B1     | todo   | Opus    | 2     | G2            | Build `zurich` from the style anchor                                     |
+| B2     | todo   | Opus    | 2     | C1            | Build `hall`                                                             |
+| B3     | todo   | Opus    | 2     | C2            | Build `london`                                                           |
+| B4     | todo   | Opus    | 2     | C3            | Build `sorrento`                                                         |
+| B5     | todo   | Opus    | 2     | C4            | Build `travel-map`                                                       |
+| B6     | todo   | Opus    | 2     | G2            | Shared sprites: slot sprites, fold objects, the plane, map markers       |
+| B7     | todo   | Opus    | 2     | C5, C6        | Character frames, talk heads, packing                                    |
+| A2     | todo   | Opus    | 2     | GA            | Three country tracks, the travel sting, four ambience loops, all effects |
+| I1     | todo   | Opus    | 3     | B1–B7, A2, E1 | Cohesion, integration, baselines (ends at **G4**)                        |
 
 ```mermaid
 flowchart LR
-  T01[T0.1 You] --> T11[T1.1 Opus tooling]
-  T01 --> T12[T1.2 Opus engine track]
-  T01 --> T13[T1.3 Codex probe]
-  T11 --> G1{G1}
-  T13 --> G1
-  G1 --> T14[T1.4 Opus prompts]
-  T11 --> T23[T2.3 Opus audio pilot]
-  T14 --> T21[T2.1 Codex hub]
-  T14 --> T22[T2.2 Codex turnaround]
-  T21 --> T24[T2.4 Opus hub build]
-  T22 --> T25[T2.5 Opus turnaround]
-  T25 --> T26[T2.6 Codex walk-e, idle-e]
-  T26 --> T27[T2.7 Opus walk-e, idle-e]
-  T23 --> G2{G2}
-  T24 --> G2
-  T27 --> G2
-  G2 --> T28[T2.8 Opus fixes]
-  T28 --> T31[T3.1 Codex rooms]
-  T28 --> T32[T3.2 Codex character]
-  T28 --> T33[T3.3 Opus music]
-  T31 --> T34[T3.4 Opus room review]
-  T34 --> T35[T3.5–T3.9 Opus rooms ×5]
-  T32 --> T310[T3.10 Opus character]
-  T35 --> T41[T4.1 Opus integration]
-  T310 --> T41
-  T33 --> T41
-  T12 --> T41
+  subgraph P1[Phase 1: Foundations]
+    T02[T0.2 park prototype] --> F1[F1 tooling, palette]
+    T03[T0.3 CI plan guard] --> F1
+    T03 --> E1
+    F2[F2 Codex probe] --> G1{G1 palette, findings}
+    F1 --> G1
+    G1 --> F3[F3 all prompt files]
+    F3 --> F4[F4 Codex anchors]
+    F4 --> F5[F5 anchors cleanup]
+    F5 --> G2{G2 anchors approved}
+    F1 --> A1[A1 motif, Hall theme]
+    A1 --> GA{GA motif approved}
+  end
+  subgraph CX[Phase 2: Codex lane]
+    C1[C1 hall]
+    C2[C2 london]
+    C3[C3 sorrento]
+    C4[C4 travel map]
+    C5[C5 walk sheets]
+    C6[C6 idle, use sheets]
+  end
+  subgraph OP[Phase 2: Opus lane]
+    B1[B1 zurich]
+    B2[B2 hall]
+    B3[B3 london]
+    B4[B4 sorrento]
+    B5[B5 travel map]
+    B6[B6 shared sprites]
+    B7[B7 character]
+    A2[A2 audio]
+  end
+  G2 --> C1 & C2 & C3 & C4 & C5 & C6
+  G2 --> B1 & B6
+  C1 --> B2
+  C2 --> B3
+  C3 --> B4
+  C4 --> B5
+  C5 --> B7
+  C6 --> B7
+  GA --> A2
+  E1[E1 engine lane] --> I1
+  B1 & B2 & B3 & B4 & B5 & B6 & B7 & A2 --> I1[I1 integration]
+  I1 --> G4{G4 final review}
 ```
 
-**How much parallelism is worth it:** your gates are the bottleneck, not agent time. T3.1 does all five rooms in one Codex session and T3.4 puts them on one review sheet, so you choose them in a single sitting. If your plan's usage runs low, run T3.2 after T3.1 instead of alongside it.
+**Where the bottleneck is:** Daniele's picks, not agent time. The gates are grouped so each needs one sitting: G1 (palette), G2 (two anchors), then one review sheet per Codex batch in Phase 2. Daniele can review all four composites and all character sheets together once C1–C6 finish. If plan usage runs low, the Codex orchestrator runs C1–C4 before C5–C6.
 
-### Handing off a task
+### Handing off to the orchestrators
 
-Start each agent with a fresh session and this prompt:
+Start each orchestrator with a fresh session and this prompt:
 
-- **Opus:** "Execute task {ID} from `docs/art-spec.md`. Follow 'Rules for Opus tasks'. Stop at any gate in the card and ask me."
-- **Codex:** "Execute task {ID} from `docs/art-spec.md`. Follow 'Rules for Codex tasks' exactly."
+- **Opus orchestrator:** "You are the Opus orchestrator for `docs/art-spec.md`. Work in your own worktree, `../rgp-opus/`, detached at `origin/v2`: create it with `git fetch origin && git worktree add --detach ../rgp-opus origin/v2` if it doesn't exist, otherwise refresh it with `git fetch origin && git checkout --detach origin/v2`. Never write to the main checkout. Before spawning anything, fetch `origin` and read the plan from `origin/v2` (see Keeping the plan in sync in the expansion plan). Run every task in the Opus lane whose Status is `todo` and whose dependencies are met (merged to `v2`, `DONE` files present, or gate passed). Run independent tasks in parallel, one sub-agent per task, each in its own task worktree (`../rgp-<task-id>/`, see Where to work in the plan) and told: 'Execute task {ID} from `docs/art-spec.md`. Follow Rules for Opus tasks.' Relay every gate and pick to Daniele, and never approve one yourself. When nothing is runnable, report what each blocked task is waiting for, and stop."
+- **Codex orchestrator:** "You are the Codex orchestrator for `docs/art-spec.md`. Work only in your own worktree, `../rgp-codex/`, detached at `origin/v2`: create it with `git fetch origin && git worktree add --detach ../rgp-codex origin/v2` if it doesn't exist, otherwise refresh it with `git fetch origin && git checkout --detach origin/v2`. Never write to the main checkout, and never commit. Before starting each batch, fetch `origin` and refresh the worktree if `docs/` or `assets-src/prompts/` changed. Then run every task in the Codex lane whose Status is `todo` and whose dependencies are met, in parallel sessions inside `../rgp-codex/` as far as plan usage allows, each writing only its own `assets-src/exchange/raw/<asset-id>/` folders and each following Rules for Codex tasks exactly. When nothing is runnable, report what is waiting and stop."
+
+Daniele restarts an orchestrator after each gate, or when the other lane has produced something it needs.
 
 ### Rules for Opus tasks
 
-- **Isolation.** Work in your own worktree on a branch named `assets/<task-id>` (for example `assets/t2-4-hub`), created from `origin/v2`. Write only to the paths in your card's **Owns** line. The palette, this spec, and `scripts/assets/lib.ts` are read-only after T1.1. If one needs to change, stop and propose the change to the user.
-- **Codex output.** Read it from the main checkout's `assets-src/exchange/` by absolute path. Never write there.
-- **Choosing candidates.** Run `assets:review`, send the user the review sheet, and wait for their choice. Never choose for them.
+- **Isolation.** Work in your own worktree, `../rgp-<task-id>/`, on a branch named `assets/<task-id>` (for example `assets/b3-london`; `engine/e1-...` for the engine lane), created with `git fetch origin && git worktree add ../rgp-<task-id> -b <branch> origin/v2`. Never write to the main checkout or to another task's worktree. Write only to the paths in your card's **Owns** line. The palette, this spec, and `scripts/assets/lib.ts` are read-only after F1. If one needs to change, stop and propose the change to Daniele through the orchestrator.
+- **Codex output.** Read it from `../rgp-codex/assets-src/exchange/` by absolute path, only once the folder has a `DONE` file. Never write there.
+- **Reconciling.** If your PR conflicts with something merged since you branched, rebase onto `origin/v2`, re-run `npm run lint`, and push again. Never resolve a conflict by editing another task's paths.
+- **Choosing candidates.** Run `assets:review`, send Daniele the review sheet through the orchestrator, and wait for his choice. Never choose for him.
 - **Reviewing images.** Large raw images are downsampled when you view them. Judge detail from 8× crops made with `assets:preview`.
-- **Before handing off:** `npm run lint` passes (it includes `lint:assets`), every new asset has a provenance record, and you've sent the user the final previews. Run `npm run format`, check the diff, and open one PR for the task against `v2`.
-- **Gates.** Stop at a gate and ask the user. Never approve your own gate.
+- **Plan sync.** Read the plan with `git fetch origin && git show origin/v2:docs/art-spec.md` (and `docs/expansion-plan.md`) at the start of the task, before every gate, and before opening the PR. If `docs/` changed since you started, read the diff and rebase if it affects your task. Never edit `docs/`: propose plan changes to Daniele through the orchestrator.
+- **Before handing off:** `npm run lint` passes (it includes `lint:assets`), every new asset has a provenance record, and Daniele has seen the final previews. Run `npm run format`, check the diff, and open one PR for the task against `v2`. Its description says "Plan read at `<sha>`".
+- **Gates.** Stop at a gate and ask. Never approve your own gate.
 
-### Stage 0 — Prep
+### Phase 0 — Prep
 
-#### T0.1 Housekeeping
+#### T0.1 Housekeeping (done)
 
-- **Agent:** you. **Run:** sequential, first.
+- **Lane:** Daniele. `v2` exists and is pushed to `origin`, and Codex is signed in with `$imagegen` available.
+
+#### T0.2 Park the prototype
+
+- **Lane:** Opus. **After:** nothing.
+- **Owns:** the `prototype/multi-scene` branch, `assets-src/refs/zurich-layout@8x.png`.
+- **Context:** the prototype exists only as uncommitted files in Daniele's main checkout: `src/components/game/scene-prototype/` and a small gate in `src/App.tsx`.
 - **Steps:**
-  1. Keep `v2` checked out in the main checkout. Codex works there.
-  2. Sign Codex in with your ChatGPT plan and check that `$imagegen` is available.
+  1. In a worktree `../rgp-t0-2-prototype/` on a new `prototype/multi-scene` branch from `origin/v2`, copy those files in from the main checkout (reading only), commit them, and push the branch. It's a reference branch: no PR, never merged.
+  2. From that branch, capture the office room (`?prototype=scene&variant=B`) at native 320×160. In a second worktree on `assets/t0-2-layout-ref` from `origin/v2`, export it as `assets-src/refs/zurich-layout@8x.png` and open a PR to `v2`.
+  3. Ask Daniele to discard the prototype from his main checkout once the branch is pushed.
+- **Done when:** the `prototype/multi-scene` branch is pushed, the layout reference is merged, and the main checkout is clean.
 
-### Stage 1 — Foundations
+#### T0.3 CI plan guard
 
-#### T1.1 Tooling, palette, placeholders
+- **Lane:** Opus. **After:** nothing. **Runs alongside:** T0.2.
+- **Owns:** `.github/workflows/pr.yml` (one new job), plus any small script it calls in `scripts/ci/`.
+- **Steps:** add a job that runs on pull requests to `v2` and fails when either:
+  1. the PR changes anything in `docs/`, unless its branch is named `docs/*` (reserved for Daniele); or
+  2. the latest commit on `origin/v2` that touched `docs/` isn't an ancestor of the PR's head, meaning the branch predates a plan change. The failure message tells the agent to rebase onto `origin/v2` and re-read the plan.
+- **Done when:** the job is merged, and a test PR shows it failing in both cases and passing after a rebase.
 
-- **Agent:** Opus. **Run:** parallel with T1.2 and T1.3. **After:** T0.1.
-- **Owns:** `scripts/assets/`, `assets-src/palette/`, `assets-src/provenance/` (schema only), `src/assets/scenes/` and `src/assets/character/` (placeholders only), `.gitignore`, `package.json`, `vitest.config.ts`, knip config.
+### Phase 1 — Foundations
+
+#### F1 Tooling, palette v0, placeholders
+
+- **Lane:** Opus. **After:** T0.2. **Runs alongside:** F2, E1.
+- **Owns:** `scripts/assets/`, `assets-src/palette/`, `assets-src/provenance/` (schema only), placeholder assets in `src/assets/`, `.gitignore`, `package.json`, `vitest.config.ts`, knip config.
 - **Steps:**
-  1. Add `sharp`. Build every script in the Tooling table except `music.ts` and `sfx.ts`, with unit tests for area downscale, OKLab remap, chroma key, alpha threshold, sprite slicing, and grid round-trip.
-  2. Write `master.hex` and `master.gpl` from the seed palette. Test it by pixelizing `src/assets/background.png` and `src/assets/retro-daniele.png`. Tune colours until both read well at 8×. Save before/after previews to `assets-src/review/palette/`.
-  3. Add `assets-src/exchange/` and `assets-src/review/` to `.gitignore`. Wire `lint:assets` into `npm run lint`.
-  4. Generate placeholders for all six scenes and the character sheet, with provenance records (`"source": "opus"`).
-- **Done when:** `npm run lint`, `npm run test:unit`, and `npm run build` pass. The palette previews are ready for G1.
+  1. Add every new dependency now (`sharp`, `midi-writer-js`) and every `assets:*` npm script, even those later tasks implement, so no later task touches `package.json`.
+  2. Build every script in the Tooling table except `music.ts` and `sfx.ts`, with unit tests for area downscale, OKLab remap, per-scene colour restriction, chroma key, alpha threshold, sprite slicing, and grid round-trip.
+  3. Write `master.hex` and `master.gpl`: the core seed plus a proposed 9-colour ramp per scene, from the scene cards' moods. Save before/after previews to `assets-src/review/palette/`: pixelize `src/assets/background.png` and `src/assets/retro-daniele.png` with the core, and the prototype captures with each scene's ramp.
+  4. Add `assets-src/exchange/` and `assets-src/review/` to `.gitignore`. Wire `lint:assets` into `npm run lint`.
+  5. Generate placeholders for all five scenes, the slot sprites, and the character sheet, with provenance records (`"source": "opus"`).
+- **Done when:** `npm run lint`, `npm run test:unit`, and `npm run build` pass, and the palette previews are ready for G1.
 
-#### T1.2 Engine track
+#### F2 Probe the image tool
 
-- **Agent:** Opus (one or more sessions, in the expansion plan's own order). **Run:** parallel with everything until T4.1. **After:** T0.1.
-- **Owns:** everything in `src/` except `src/assets/scenes/`, `src/assets/character/`, and `src/config/scenes/`.
-- **Steps:** implement expansion plan items 1–8 against the scene data contract and the `daniele.json` format. Start with the current background, and switch to T1.1's placeholders once they land. Include a dev-only overlay (for example `?debug=scene`) that draws walkboxes, hotspots, interaction points, and baselines. The build tasks rely on it.
-- **Done when:** the expansion plan's MVP features work with placeholder assets.
-
-#### T1.3 Probe the image tool
-
-- **Agent:** Codex. **Run:** parallel with T1.1 and T1.2. **After:** T0.1.
+- **Lane:** Codex. **After:** T0.1. **Runs alongside:** F1, E1.
 - **Owns:** `assets-src/exchange/probe/`.
-- **Steps:** generate each of these once, save them as `01.png`–`04.png` in `assets-src/exchange/probe/`, and record findings in `assets-src/exchange/probe/FINDINGS.md`:
-  1. The hub, using the room composite template with the hub row of the room cards. Record the actual pixel dimensions.
-  2. A turnaround, using the turnaround template and its references. Record the dimensions, and whether the background is flat pure magenta or has gradients or shadows.
-  3. An edit of `01.png`: "Same image; remove only the clock from the wall. Change nothing else." Record whether the tool offered a mask or region option.
-  4. The same as 1, but asking for "a very wide panoramic image". Record whether the dimensions changed.
-  5. In `FINDINGS.md`, also note which options the image tool exposes (size, quality, transparency, masks), and roughly how much of your usage the four images took.
-- **Done when:** four images and `FINDINGS.md` exist. Codex stops.
+- **Steps:** generate each of these once, save them as `01.png`–`04.png`, and record findings in `FINDINGS.md`:
+  1. A scene composite from the template with the `london` card. Record the pixel dimensions, and whether any text or signage appeared despite the prompt.
+  2. A turnaround from the template and its references. Record the dimensions, and whether the background is flat pure magenta.
+  3. An edit of `01.png`: "Same image; remove only the fruit machine. Change nothing else." Record whether a mask or region option was offered.
+  4. The same as 1, asking for "a very wide panoramic image". Record whether the dimensions changed.
+  5. Note which options the tool exposes (size, quality, transparency, masks), whether parallel sessions work, and roughly how much usage the four images took.
+- **Done when:** four images, `FINDINGS.md`, and `DONE` exist.
 
-#### G1 — Palette and findings (you)
+#### E1 Engine lane
 
-1. Approve palette v1 from `assets-src/review/palette/`.
-2. Read `FINDINGS.md` and ask Opus to compare `03.png` with `01.png`.
-3. Record any decisions for T1.4, for example "outputs are 1536×1024, keep the composition band".
+- **Lane:** Opus (one or more sessions, in the expansion plan's order). **After:** T0.1. **Runs alongside:** everything until I1.
+- **Owns:** everything in `src/` except `src/assets/scenes/`, `src/assets/shared/`, `src/assets/character/`, and `src/config/scenes/`.
+- **Steps:** implement the expansion plan's MVP features against the scene data contract (including slots, animations, engine-drawn labels, and the travel map) and the `daniele.json` format. Use F1's placeholders once they land. Include a dev-only overlay (`?debug=scene`) that draws walkboxes, hotspots, interaction points, baselines, and slot positions; the build tasks rely on it. Add the `country` field to jobs in `profile.ts` and the unit test for slot capacity.
+- **Done when:** the MVP features work with placeholder assets.
 
-#### T1.4 Adjust tooling, write prompt files
+#### G1 Palette and findings (Daniele)
 
-- **Agent:** Opus. **Run:** sequential. **After:** G1.
+1. Approve palette v1, core and scene ramps, from `assets-src/review/palette/`.
+2. Read `FINDINGS.md`, and ask Opus to compare `03.png` with `01.png`.
+3. Record decisions for F3, for example "outputs are 1536×1024, keep the composition band".
+
+#### F3 Adjust tooling, write every prompt file
+
+- **Lane:** Opus. **After:** G1.
 - **Owns:** `assets-src/prompts/`, `scripts/assets/` (adjustments only).
 - **Steps:**
-  1. Pixelize the probe images. Adjust the `pixelize` crop and slicing defaults to the real output sizes and background quality.
-  2. If the magenta background came back with gradients, widen the chroma-key tolerance, or add a flood fill from the image edges.
-  3. Write every prompt file from the templates: 6 scenes and 9 character files (turnaround plus 8 tags). Candidate counts: 4 per scene, 4 for the turnaround, 3 per animation sheet.
-  4. Adjust the wording where the probe showed problems.
-- **Done when:** all 15 prompt files are merged to `v2`.
+  1. Pixelize the probe images. Adjust the `pixelize` crop and slicing defaults to the real output sizes and background quality. If the magenta came back with gradients, widen the chroma-key tolerance or add a flood fill from the image edges.
+  2. Write **all 14 prompt files** now, so the fan-out never waits on prompts: 5 scenes (`zurich`, `hall`, `london`, `sorrento`, `travel-map`) and 9 character files (turnaround plus 8 tags). Fan-out prompts reference `style-anchor@8x.png` and `char-turnaround@8x.png` by path; those files arrive in F5.
+  3. Candidate counts: 4 per composite, 4 for the turnaround, 3 per animation sheet. Adjust the wording where the probe showed problems.
+- **Done when:** all 14 prompt files are merged to `v2`.
 
-### Stage 2 — Vertical slice
+#### F4 Anchor candidates
 
-#### T2.1 Hub composite candidates
+- **Lane:** Codex, two parallel sessions. **After:** F3.
+- **Steps:** run `prompts/scenes/zurich.md` and `prompts/character/turnaround.md`, following the Codex rules.
 
-- **Agent:** Codex. **Run:** parallel with T2.2 and T2.3. **After:** T1.4.
-- **Steps:** run `assets-src/prompts/scenes/hub.md` following the Codex rules.
+#### F5 Anchors
 
-#### T2.2 Turnaround candidates
-
-- **Agent:** Codex. **Run:** parallel with T2.1 and T2.3. **After:** T1.4.
-- **Steps:** run `assets-src/prompts/character/turnaround.md` following the Codex rules.
-
-#### T2.3 Audio pilot
-
-- **Agent:** Opus. **Run:** parallel with all of Stage 2. **After:** T1.1.
-- **Owns:** `scripts/assets/music.ts`, `scripts/assets/sfx.ts`, `assets-src/audio/`, `public/audio/`, audio provenance records.
+- **Lane:** Opus, two parallel sub-agents (one per anchor). **After:** F4.
+- **Owns:** `assets-src/approved/zurich-bg.webp`, `assets-src/approved/char-turnaround.webp`, their provenance records, `assets-src/refs/style-anchor@8x.png`, `assets-src/refs/char-turnaround@8x.png`.
 - **Steps:**
-  1. Build both scripts.
-  2. Ask the user whether the hub keeps `theme.mp3`. If not, compose the hub track.
-  3. Synthesise all six sound effects.
-  4. Check loop seams and loudness, and send the user the MP3s.
-- **Done when:** the hub music (or the decision to keep `theme.mp3`) and all sound effects are merged.
+  1. `assets:review` each, and Daniele picks one candidate for each.
+  2. Pixelize with `--scene zurich` (composite) or the core (turnaround, sliced into three 32×64 frames with `--sprites 32x64 --key ff00ff`). Run the cleanup brief on the whole image until it's a reference worth copying.
+  3. **G2:** Daniele approves both anchors. They fix the style of every later image.
+  4. Export both references with `assets:refs`.
+- **Done when:** both references are merged to `v2`. This unlocks Phase 2.
 
-#### T2.4 Build the hub
+#### A1 Audio tools, motif, and Hall theme
 
-- **Agent:** Opus. **Run:** parallel with T2.5. **After:** T2.1.
-- **Owns:** `src/assets/scenes/hub/`, `src/config/scenes/hub.ts`, `assets-src/approved/hub-*`, `assets-src/provenance/hub-*`, `assets-src/refs/hub-*`.
+- **Lane:** Opus. **After:** F1. **Runs alongside:** the rest of Phase 1.
+- **Owns:** `scripts/assets/music.ts`, `scripts/assets/sfx.ts`, `assets-src/audio/`, `public/audio/music/hall.mp3`, its provenance record.
+- **Steps:** build both scripts. Compose the shared motif and the Hall theme around it. Check the loop seam and loudness, and send Daniele the MP3. **GA:** Daniele approves the motif.
+- **Done when:** the scripts and the Hall theme are merged.
+
+### Phase 2 — Fan-out
+
+Everything in this phase starts once its dependencies are met, and runs in parallel with everything else in the phase.
+
+#### C1–C4 Scene composites
+
+- **Lane:** Codex, one session per asset. **After:** G2.
+- **Steps:** run `prompts/scenes/hall.md` (C1), `london.md` (C2), `sorrento.md` (C3), and `travel-map.md` (C4), following the Codex rules.
+
+#### C5–C6 Character sheets
+
+- **Lane:** Codex, one session per task. **After:** G2.
+- **Steps:** run the prompt files for `walk-e`, `walk-s`, and `walk-n` (C5), and `idle-e`, `idle-s`, `idle-n`, `use-e`, and `use-n` (C6), following the Codex rules.
+
+#### B1–B5 Build a scene
+
+- **Lane:** Opus, **one sub-agent per scene, in parallel**. **After:** G2 for B1 (`zurich`, already picked in F5); C1–C4 for B2–B5.
+- **Owns:** only that scene's paths: `src/assets/scenes/<scene>/`, `src/config/scenes/<scene>.ts`, `assets-src/approved/<scene>-*`, `assets-src/provenance/<scene>-*`.
 - **Steps:**
-  1. `assets:review hub-bg`. **G2a:** the user picks a candidate and confirms the room card.
-  2. Pixelize the chosen candidate and run the cleanup brief on the whole image.
-  3. Cut out the doors, clock, map, pennant, and plant with `assets:cutout`. The plant becomes `fg.png`.
-  4. Draw the clean plate behind each cutout at native size. The panelled wall and checker floor are regular patterns, so continue them procedurally.
-  5. Draw an `@open` state for each of the 5 doors.
-  6. Write `hub.ts` (walkbox, depth, exits, objects, `baselineY`) and check it in the dev overlay.
-  7. Export `assets-src/refs/hub-bg@8x.png` with `assets:refs`.
-- **Done when:** the hub renders with placeholders in the dev overlay, `lint` passes, and the PR is merged.
+  1. Except B1: `assets:review <scene>-bg`, and Daniele picks one candidate and confirms the scene card.
+  2. Pixelize with `--scene <scene>`, and run the cleanup brief on the whole image.
+  3. Cut out every free-standing object, stateful object, and exit with `assets:cutout`, and set each `baselineY`. Move always-nearest elements to `fg.png`.
+  4. Draw the clean plate behind each cutout at native size. Continue regular patterns (carpet, tiles, planks) procedurally. Where a background isn't regular, a clean plate may use one Codex edit; ask Daniele to run it with the exact prompt.
+  5. Draw the scene's animation strips (see its card) and any `@open` states.
+  6. Write the scene data: walkbox, depth, entry points, objects, animations, slot positions (placed where B6's sprites will sit), labels, and exits. Check it in the dev overlay with placeholder slot sprites. For `travel-map` (B5), write the route geometry and marker positions instead of a walkbox.
+- **Hand-off prompt addition:** "Scene: {scene}. Chosen candidate: {NN}. Scene card changes: {…}."
+- **Done when:** the scene renders in the dev overlay, `lint` passes, and the PR is merged.
 
-#### T2.5 Clean up the turnaround
+#### B6 Shared sprites
 
-- **Agent:** Opus. **Run:** parallel with T2.4. **After:** T2.2.
-- **Owns:** `assets-src/approved/char-*`, `assets-src/provenance/char-*`, `assets-src/refs/char-*`, `assets-src/review/char-*`.
-- **Steps:**
-  1. `assets:review char-turnaround`, and the user picks one.
-  2. Slice it into three 32×64 frames with `pixelize --sprites 32x64 --key ff00ff`.
-  3. Run the cleanup brief until the frames are on-model.
-  4. **G2b:** the user approves the turnaround. It anchors every later frame.
-  5. Export `assets-src/refs/char-turnaround@8x.png`.
-- **Done when:** the approved turnaround and its reference are merged.
+- **Lane:** Opus. **After:** G2.
+- **Owns:** `src/assets/shared/`, their provenance records.
+- **Steps:** draw at native size, matching the style anchor: `slot-tap`, `slot-photo-frame`, and `slot-magnet`, plus a fold object for each (for example a shoebox of old photos). Also draw the travel-map plane (8 headings, or 1 heading rotated in 90° steps if it reads well) and the location marker. Core palette only, so they work in every scene.
+- **Done when:** merged, with a preview of each slot sprite composited into each scene's placeholder.
 
-#### T2.6 `walk-e` and `idle-e` sheets
+#### B7 Character
 
-- **Agent:** Codex. **Run:** sequential. **After:** T2.5 merged.
-- **Steps:** run `assets-src/prompts/character/walk-e.md` and `idle-e.md` following the Codex rules.
-
-#### T2.7 Clean up and pack `walk-e`, `idle-e`
-
-- **Agent:** Opus. **Run:** sequential. **After:** T2.6.
-- **Owns:** `src/assets/character/`, plus T2.5's paths.
-- **Steps:**
-  1. Review and pick one candidate per tag (the user chooses).
-  2. Slice, then line up the feet on row 61 and lock the head size to the turnaround.
-  3. Run the cleanup brief, with onion-skin checks between frames.
-  4. **Fallback:** if the frames still drift too far after 2 cleanup passes, build them from parts instead. Reuse the head and torso with a 1px bob, and draw only the legs and arms per frame. Tell the user when you switch.
-  5. Measure the stride. Run `assets:pack`, and export `assets-src/refs/char-walk-e@8x.png`.
-- **Done when:** `daniele.png` and `daniele.json` (with the stride) are merged, and the HTML preview plays both animations.
-
-#### G2 — Vertical slice (you)
-
-Review the hub at 4× with the real walk cycle: in the running app if T1.2 is far enough along, otherwise in the `assets:preview` HTML page. Listen to the audio. Decide whether the pipeline, the cleanup quality, and the fallback are good enough to fan out. List every change you want.
-
-#### T2.8 Apply G2 fixes
-
-- **Agent:** Opus. **Run:** sequential. **After:** G2.
-- **Owns:** `assets-src/prompts/`, `scripts/assets/`.
-- **Steps:** apply your G2 list to the prompt files and tooling. Re-run anything in Stage 2 that the fixes invalidate.
-- **Done when:** merged. Pipeline problems get fixed here, not during Stage 3.
-
-### Stage 3 — Fan-out
-
-#### T3.1 Five room composites
-
-- **Agent:** Codex, one session. **Run:** parallel with T3.2 and T3.3. **After:** T2.8.
-- **Steps:** run the prompt files for `about`, `skills`, `experience`, `contact`, and `resume`, in that order, following the Codex rules. Each uses `refs/hub-bg@8x.png`.
-
-#### T3.2 Remaining character sheets
-
-- **Agent:** Codex, a separate session. **Run:** parallel with T3.1 and T3.3. If usage is tight, run it after T3.1 instead. **After:** T2.8.
-- **Steps:** run the prompt files for `walk-s`, `walk-n`, `idle-s`, `idle-n`, `use-e`, and `use-n` following the Codex rules.
-
-#### T3.3 Room music
-
-- **Agent:** Opus. **Run:** parallel with all of Stage 3. **After:** T2.8.
-- **Owns:** `assets-src/audio/music/`, `public/audio/music/`, music provenance records.
-- **Steps:** compose the five room tracks with the T2.3 pipeline, sharing the hub's motif. Send them to the user.
-
-#### T3.4 Room candidate review
-
-- **Agent:** Opus. **Run:** sequential. **After:** T3.1.
-- **Owns:** `assets-src/review/`.
-- **Steps:** run `assets:review` for all five rooms and send them as one set. **G3a:** the user picks one candidate per room and confirms or edits each room card. Record the choices in the PR description of each build task, or as a note for the user to paste into the hand-off prompt.
-
-#### T3.5 – T3.9 Build `about`, `skills`, `experience`, `contact`, `resume`
-
-- **Agent:** Opus, **one agent per room, in parallel**. **Run:** parallel with each other and with T3.10. **After:** T3.4.
-- **Owns:** only that room's paths: `src/assets/scenes/<room>/`, `src/config/scenes/<room>.ts`, `assets-src/approved/<room>-*`, `assets-src/provenance/<room>-*`.
-- **Steps:** T2.4 steps 2–6 for the room chosen at G3a, following its room card. Where a background isn't a regular pattern, a clean plate may use one Codex edit. Ask the user to run it, with the exact prompt, rather than doing it yourself.
-- **Hand-off prompt addition:** "Room: {room}. Chosen candidate: {NN}. Room card changes: {…}."
-
-#### T3.10 Remaining character frames
-
-- **Agent:** Opus, one agent (consistency matters more than speed here). **Run:** parallel with T3.5 – T3.9. **After:** T3.2.
+- **Lane:** Opus, one agent (consistency matters more than speed here). **After:** C5, C6.
 - **Owns:** `src/assets/character/`, `assets-src/*/char-*`.
 - **Steps:**
-  1. T2.7 steps 1–4 for each tag.
-  2. Draw the `talk-e` and `talk-s` heads (3 mouth frames each) from the idle heads.
-  3. Repack the sheet.
+  1. Review and pick one candidate per tag (Daniele chooses; one sitting for all 8).
+  2. Slice, line up the feet on row 61, and lock the head size to the turnaround.
+  3. Run the cleanup brief, with onion-skin checks between frames.
+  4. **Fallback:** if a tag's frames still drift too far after 2 cleanup passes, build them from parts instead. Reuse the head and torso with a 1px bob, and draw only the legs and arms per frame. Tell Daniele when you switch.
+  5. Draw the `talk-e` and `talk-s` heads (3 mouth frames each) from the idle heads.
+  6. Measure the stride, and run `assets:pack`.
 - **Done when:** all 37 frames and 6 heads are packed and play correctly in the HTML preview.
 
-### Stage 4 — Integration
+#### A2 Remaining audio
 
-#### T4.1 Cohesion, integration, baselines
+- **Lane:** Opus; the three country tracks may run as parallel sub-agents. **After:** GA.
+- **Owns:** `assets-src/audio/music/` (country tracks and sting), `public/audio/`, audio provenance records.
+- **Steps:** compose `london`, `zurich`, and `sorrento` as variations on the motif, plus `music-travel-sting`. Synthesise the four ambience loops and every sound effect in the Audio section. Check loop seams and loudness, and send Daniele the MP3s.
+- **Done when:** every audio asset is merged.
 
-- **Agent:** Opus. **Run:** sequential. **After:** all Stage 3 tasks and T1.2.
+### Phase 3 — Integration
+
+#### I1 Cohesion, integration, baselines
+
+- **Lane:** Opus. **After:** B1–B7, A2, E1.
 - **Owns:** everything. This is the only task allowed to touch every scene.
 - **Steps:**
-  1. Put all six scenes and the character on one contact sheet. Fix mismatches in outline weight, shading steps, ramp use, and light direction.
-  2. Check each scene with the real character: scale at the near and far walkbox edges, `baselineY` occlusion, interaction points.
-  3. Check that preloading adjacent scenes stops transitions from flashing.
-  4. Regenerate the OG image with `npm run generate:og-image`. Confirm the Game Boy view and the SEO HTML are unchanged.
-  5. Update the E2E baselines with `npm run test:e2e:docker:update`, adding one per scene, and inspect every changed `*-linux.png`.
-  6. **G4:** final review by the user.
+  1. Put all five scenes, the shared sprites, and the character on one contact sheet. Fix mismatches in outline weight, shading steps, ramp use, and light direction.
+  2. Check each scene with the real character and real `profile.ts` data: scale at the near and far walkbox edges, `baselineY` occlusion, interaction points, and slot rows (including a full row folding).
+  3. Check the signposting rules from the plan: gate signs, map labels, arrival lines, and primary objects all name their sections.
+  4. Check that preloading stops scene changes and the travel map from flashing.
+  5. Regenerate the OG image with `npm run generate:og-image`. Confirm the Game Boy view and the SEO HTML are unchanged.
+  6. Update the E2E baselines with `npm run test:e2e:docker:update`, adding one per scene, and inspect every changed `*-linux.png`.
+  7. **G4:** final review by Daniele.
 
 ## Done when
 
-- Every asset in `src/assets/scenes/` and `src/assets/character/` passes `lint:assets` and has a provenance record. Generated ones also have their approved raw.
-- Every scene has a walkbox, depth data, an exit back to the hub, and a primary object that opens its section.
+- Every asset in `src/assets/scenes/`, `src/assets/shared/`, and `src/assets/character/` passes `lint:assets`, uses only the core and its own scene's ramp, and has a provenance record. Generated ones also have their approved raw.
+- Every country scene has a walkbox, depth data, an exit back to the Hall, a primary object for each of its sections, and its slot rows filled from `profile.ts`.
+- The Hall has three gates and a duty-free shelf that opens every section.
 - The character has all 37 frames and 6 talk heads, and the feet don't slide at `CHARACTER_SPEED` or at shortcut speeds.
-- Music loops without a gap, and the sound toggle mutes everything.
-- Each section is reachable in two clicks or fewer from any room (expansion plan, Testing).
+- Music and ambience loop without a gap, and the sound toggle mutes everything.
+- No generated image contains text; every sign and label is drawn by the engine.
+- Each section is reachable in two clicks or fewer from any scene (expansion plan, Testing).
