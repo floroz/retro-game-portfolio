@@ -32,11 +32,10 @@
   overflow: hidden;
 }
 
-/* Toolbar area - bottom 160px (20% of 800px) */
+/* Controls area - bottom 160px (20% of 800px); the panel paints its own
+   edge (components/toolbar) */
 .toolbar {
   position: relative;
   inline-size: to-rem(1280px);
   block-size: to-rem(160px);
-  background: var(--color-toolbar-bg);
-  border-block-start: to-rem(4px) solid var(--color-border);
 }
