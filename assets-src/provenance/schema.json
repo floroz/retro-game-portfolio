@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "assets-src/provenance/schema.json",
+  "title": "Asset provenance record",
+  "description": "One record per final asset, named <id>.json (docs/art-spec.md, Provenance record). npm run lint:assets enforces it.",
+  "type": "object",
+  "required": ["id", "output", "task", "source", "date"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*(?:@[a-z0-9]+(?:-[a-z0-9]+)*)?$",
+      "description": "Asset id, e.g. zurich-bg or zurich-obj-door@open"
+    },
+    "output": {
+      "type": "string",
+      "description": "Repo-relative path of the shipped file"
+    },
+    "task": {
+      "type": "string",
+      "description": "Task id from the execution map"
+    },
+    "source": { "enum": ["codex", "opus"] },
+    "prompt": {
+      "type": "string",
+      "description": "Codex only: the prompt file"
+    },
+    "candidate": {
+      "type": "string",
+      "description": "Codex only: the chosen candidate number, e.g. 03"
+    },
+    "references": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Codex only: reference images passed with the prompt"
+    },
+    "approvedRaw": {
+      "type": "string",
+      "description": "Codex only: assets-src/approved/<id>.webp"
+    },
+    "derivedFrom": {
+      "type": "string",
+      "description": "Opus only: the asset id this was drawn from, if any"
+    },
+    "palette": { "type": "string", "pattern": "^v\\d+$" },
+    "cleanup": { "type": "string" },
+    "approvedBy": { "type": "string" },
+    "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "source": { "const": "codex" } } },
+      "then": {
+        "required": ["prompt", "candidate", "references", "approvedRaw"]
+      }
+    },
+    {
+      "if": { "properties": { "source": { "const": "opus" } } },
+      "then": {
+        "not": {
+          "anyOf": [
+            { "required": ["prompt"] },
+            { "required": ["candidate"] },
+            { "required": ["approvedRaw"] }
+          ]
+        }
+      }
+    }
+  ]
+}

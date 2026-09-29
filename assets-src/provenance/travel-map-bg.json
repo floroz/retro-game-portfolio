@@ -1,0 +1,9 @@
+{
+  "id": "travel-map-bg",
+  "output": "src/assets/scenes/travel-map/bg.png",
+  "task": "F1",
+  "source": "opus",
+  "palette": "v0",
+  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Replaced in B5.",
+  "date": "2026-09-29"
+}

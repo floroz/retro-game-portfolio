@@ -1,0 +1,66 @@
+GIMP Palette
+Name: retro-game-portfolio v0
+Columns: 9
+#
+ 15  13  18	0 core
+ 42  35  40	1 core
+ 74  64  70	2 core
+122 110 108	3 core
+176 164 154	4 core
+232 220 200	5 core
+ 58  34  32	6 core
+ 73  50  45	7 core
+109  63  49	8 core
+144  88  61	9 core
+161  96  63	A core
+ 92  59  51	B core
+154 120  96	C core
+191 152 125	D core
+231 189 152	E core
+ 22  28  47	F core
+ 33  40  60	G core
+ 47  63 102	H core
+ 70  99 148	I core
+138 100  32	J core
+224 176  64	K core
+ 90  30  30	L core
+155  61  52	M core
+200  72  58	N core
+ 79 122  58	O core
+127 174  82	P core
+ 90  92 102	Q hall
+158 162 170	R hall
+180 164 124	S hall
+214 202 160	T hall
+ 31  84  88	U hall
+ 58 138 134	V hall
+106  58  98	W hall
+116 172 216	X hall
+198 228 240	Y hall
+ 42  58  74	Z london
+ 60  76  94	a london
+ 98 120 140	b london
+162 182 196	c london
+196  30  36	d london
+ 35  64  46	e london
+168 100  26	f london
+238 160  58	g london
+255 220 142	h london
+ 44  26  60	i zurich
+ 58  44  72	j zurich
+ 92  70 112	k zurich
+ 12  18  48	l zurich
+ 28  44  98	m zurich
+ 88 118 176	n zurich
+184 200 232	o zurich
+242 244 255	p zurich
+248 216 128	q zurich
+124  50  32	r sorrento
+196  94  54	s sorrento
+238 164 108	t sorrento
+242 200  40	u sorrento
+255 241 160	v sorrento
+ 28  58 140	w sorrento
+ 44 124 196	x sorrento
+124 202 234	y sorrento
+240 106  82	z sorrento
