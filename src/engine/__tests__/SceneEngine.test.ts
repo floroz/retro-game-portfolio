@@ -57,6 +57,26 @@ describe("SceneEngine", () => {
     expect(engine.position).toMatchObject(SCENES.hall.entryPoints.start);
   });
 
+  test("greets the visitor with the Hall's entry line, once", () => {
+    const { engine } = setup();
+    expect(engine.speech).toBeNull();
+    engine.greet();
+    expect(engine.speech?.lines.join(" ")).toBe(SCENES.hall.entryLine);
+    engine.interrupt();
+    engine.greet();
+    expect(engine.speech).toBeNull();
+  });
+
+  test("doesn't greet over a trip that's already under way", () => {
+    const { engine } = setup();
+    engine.goToSection("skills");
+    engine.greet();
+    expect(engine.speech).toBeNull();
+    runUntil(engine, () => engine.scene.id === "london");
+    engine.greet();
+    expect(engine.speech).toBeNull();
+  });
+
   test("walks to a clicked floor point and faces the way it walks", () => {
     const { engine } = setup();
     engine.walkTo(300, 140);

@@ -5,7 +5,7 @@ import { pointInPolygon } from "../geometry";
 import { resolveLabel } from "../labels";
 import { SCENES, TRAVEL_MAP_DATA } from "../scenes";
 import { sceneWarnings } from "../validate";
-import type { SceneId, SectionId, StandPoint } from "../types";
+import type { Rect, SceneId, SectionId, StandPoint } from "../types";
 
 const inside = (scene: SceneId, p: StandPoint) =>
   pointInPolygon([p.x, p.y], SCENES[scene].walkbox);
@@ -72,6 +72,35 @@ describe("scene data contract", () => {
         country,
       ).toBe(true);
       expect(SCENES[country].entryPoints.fromHall, country).toBeDefined();
+    }
+  });
+
+  test("each gate's whole sign is clickable, and the arch stays clickable", () => {
+    const hall = SCENES.hall;
+    const overlaps = (a: Rect, b: Rect) =>
+      a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+    const covers = (rects: Rect[], x: number, y: number) =>
+      rects.some((r) => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h);
+    // The hanging sign panels painted in hall/bg.png, and obj-arch.png's
+    // box (32x59 at the arch's position).
+    const signs: Record<string, Rect> = {
+      "gate-london": { x: 174, y: 14, w: 39, h: 31 },
+      "gate-zurich": { x: 213, y: 14, w: 54, h: 31 },
+      "gate-sorrento": { x: 267, y: 14, w: 41, h: 31 },
+    };
+    const arch = hall.objects.find((o) => o.id === "arch");
+    const archBox = { x: arch?.x ?? 0, y: arch?.y ?? 0, w: 32, h: 59 };
+    for (const exit of hall.exits) {
+      const rects = [exit.hotspot, ...(exit.extraHotspots ?? [])];
+      const sign = signs[exit.id];
+      for (let y = sign.y; y < sign.y + sign.h; y++) {
+        for (let x = sign.x; x < sign.x + sign.w; x++) {
+          expect(covers(rects, x, y), `${exit.id} at ${x},${y}`).toBe(true);
+        }
+      }
+      for (const r of rects) {
+        expect(overlaps(r, archBox), `${exit.id} over the arch`).toBe(false);
+      }
     }
   });
 

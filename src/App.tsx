@@ -13,6 +13,7 @@ import { useGameStore } from "./store/gameStore";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { useSceneAudio } from "./hooks/useSceneAudio";
+import { allImages, images } from "./engine/runtime";
 
 /**
  * Day of the Tentacle inspired portfolio
@@ -27,6 +28,12 @@ function App() {
   // Scene music, ambience, and effects when sound is on (desktop only; the
   // Game Boy has its own sounds)
   useSceneAudio({ enabled: !isMobile });
+
+  // Start loading every scene image while the welcome screen is up, so the
+  // Hall is ready the moment the visitor presses a key (desktop only).
+  useEffect(() => {
+    if (!isMobile) void images.loadAll(allImages());
+  }, [isMobile]);
 
   // Track when welcome screen is dismissed to trigger dialog
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);

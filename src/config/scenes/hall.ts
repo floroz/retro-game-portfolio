@@ -297,7 +297,9 @@ export const HALL_SCENE: SceneData = {
       id: "gate-london",
       to: "london",
       entry: "fromHall",
-      hotspot: { x: 175, y: 13, w: 37, h: 76 },
+      // The whole sign (x 174-212), the door, and its desk: nothing else
+      // is under this column.
+      hotspot: { x: 174, y: 13, w: 39, h: 76 },
       interactionPoint: { x: 193, y: 95, facing: "n" },
       look: `Gate ${COUNTRIES.london.gate}, to ${COUNTRIES.london.name}, where I learned the trade. ${sectionList("london")} on the chalkboard behind the bar.`,
     },
@@ -305,7 +307,10 @@ export const HALL_SCENE: SceneData = {
       id: "gate-zurich",
       to: "zurich",
       entry: "fromHall",
+      // The door column stops short of the arch (x 249); the sign, which
+      // hangs well above the arch, is clickable across its full width.
       hotspot: { x: 213, y: 13, w: 36, h: 76 },
+      extraHotspots: [{ x: 213, y: 13, w: 54, h: 32 }],
       interactionPoint: { x: 239, y: 95, facing: "n" },
       look: `Gate ${COUNTRIES.zurich.gate}, to ${COUNTRIES.zurich.name}, where the career grew: ${SECTIONS.experience.label} on the CRT, my ${SECTIONS.resume.label} in the filing cabinet.`,
     },
@@ -313,7 +318,10 @@ export const HALL_SCENE: SceneData = {
       id: "gate-sorrento",
       to: "sorrento",
       entry: "fromHall",
+      // As for Zurich: the door column starts right of the arch (x 281),
+      // and the sign is clickable across its full width (x 267-308).
       hotspot: { x: 281, y: 13, w: 27, h: 76 },
+      extraHotspots: [{ x: 267, y: 13, w: 41, h: 32 }],
       interactionPoint: { x: 288, y: 95, facing: "n" },
       look: `Gate ${COUNTRIES.sorrento.gate}, to ${COUNTRIES.sorrento.name}: now and next. ${SECTIONS.about.label} on the fridge, ${SECTIONS.contact.label} by the wall phone.`,
     },

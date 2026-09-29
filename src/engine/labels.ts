@@ -10,7 +10,7 @@ import {
   sectionsIn,
 } from "../config/sections";
 import { iconToken } from "./font";
-import type { CountrySceneId, LabelSource, SceneId } from "./types";
+import type { CountrySceneId, LabelSource, Rect, SceneId } from "./types";
 
 const SCENE_NAMES: Record<SceneId, string> = {
   hall: "Airport",
@@ -65,4 +65,22 @@ export function resolveLabel(source: LabelSource): string[] {
       return arg.split("\n");
   }
   return [source];
+}
+
+/** Blank px between the end of a marquee's text and its next pass. */
+export const MARQUEE_GAP = 8;
+
+/**
+ * Left edge of a marquee's text at `nowMs`: it enters at the clip's right
+ * edge, leaves past its left edge, and starts again after a short gap.
+ */
+export function marqueeX(
+  marquee: { clip: Rect; pxPerSec: number },
+  textWidth: number,
+  nowMs: number,
+): number {
+  const { clip, pxPerSec } = marquee;
+  const cycle = clip.w + textWidth + MARQUEE_GAP;
+  const travelled = Math.floor((nowMs * pxPerSec) / 1000) % cycle;
+  return clip.x + clip.w - travelled;
 }

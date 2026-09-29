@@ -47,6 +47,7 @@ export function Scene() {
   const currentScene = useGameStore((s) => s.currentScene);
   const sceneRequest = useGameStore((s) => s.sceneRequest);
   const contentOpen = useGameStore((s) => s.terminalScreenAction !== null);
+  const dialogOpen = useGameStore((s) => s.dialogOpen);
   const setHoveredObject = useGameStore((s) => s.setHoveredObject);
   const spriteInfo = useSyncExternalStore(images.subscribe, images.getInfo);
   const scene = SCENES[currentScene];
@@ -61,6 +62,14 @@ export function Scene() {
     useGameStore.getState().takeSceneRequest();
     useGameStore.getState().setCurrentScene(getEngine().scene.id);
   }, []);
+
+  // Daniele greets the visitor once the intro conversation (opened by App
+  // after the welcome screen) is out of the way and the Hall is in view.
+  const introSeen = useRef(false);
+  useEffect(() => {
+    if (dialogOpen) introSeen.current = true;
+    else if (introSeen.current) getEngine().greet();
+  }, [dialogOpen]);
 
   // The frame loop pauses while the content screen covers the scene.
   useEffect(() => {
@@ -123,7 +132,7 @@ export function Scene() {
       <div className={styles.hotspots}>
         {hits.map((hit) => (
           <button
-            key={hitKey(hit)}
+            key={hit.part ? `${hitKey(hit)}:${hit.part}` : hitKey(hit)}
             type="button"
             className={styles.hotspot}
             style={pct(hit.rect)}
