@@ -1,0 +1,16 @@
+{
+  "id": "char-rig",
+  "output": "src/assets/character/daniele-rig.png",
+  "task": "HB7",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/char-parts.md",
+  "candidate": "01 of each sheet: char-parts-side, char-parts-front, char-parts-back, char-heads-side, char-heads-front",
+  "references": ["assets-src/refs/hd/char-turnaround-approved.png"],
+  "approvedRaw": "assets-src/approved/char-parts-side@hd.webp",
+  "derivedFrom": "char-turnaround@hd",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "Sliced from the five approved sheets (assets-src/approved/char-parts-{side,front,back}@hd.webp, char-heads-{side,front}@hd.webp; the head sheets' prompt is assets-src/prompts/hd/char-heads.md) with npm run assets:rigcut, which keys and resizes each part like assets:prepare --painted (hard alpha), keeps the ink dark at the small size (pupils and outlines that downscaled to grey are set back to solid ink; no other colour is touched), cuts the torso's neck peg so the head's own neck shows through the collar, scales arms to 0.88 and legs to 1.1 of the sheet scale, and scales each facing so the assembled figure stands 144 art px (72 logical px). Head variants: talk-1 (open), talk-2 (wide), talk-3 (O) and blink, side and front only; the back head is the sheet's. Pivots and attach points are in assets-src/character-rig/rig.json; npm run assets:rig -- --parts assets-src/character-rig --density 2 packs it into one atlas of at most 256 colours with hard alpha.",
+  "approvedBy": "daniele",
+  "date": "2026-09-29"
+}

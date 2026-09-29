@@ -1,0 +1,723 @@
+{
+  "version": 1,
+  "image": "daniele-rig.png",
+  "density": 2,
+  "size": {
+    "w": 208,
+    "h": 218
+  },
+  "facings": {
+    "side": {
+      "parts": [
+        {
+          "id": "forearm-l",
+          "parent": "upper-arm-l",
+          "z": 0,
+          "attach": {
+            "x": 2,
+            "y": 29
+          },
+          "frame": {
+            "x": 132,
+            "y": 99,
+            "w": 13,
+            "h": 40,
+            "pivot": {
+              "x": 5,
+              "y": 4
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "upper-arm-l",
+          "parent": "torso",
+          "z": 1,
+          "attach": {
+            "x": 0,
+            "y": -34
+          },
+          "frame": {
+            "x": 52,
+            "y": 141,
+            "w": 14,
+            "h": 38,
+            "pivot": {
+              "x": 5,
+              "y": 4
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "shin-l",
+          "parent": "thigh-l",
+          "z": 2,
+          "attach": {
+            "x": 0,
+            "y": 31
+          },
+          "frame": {
+            "x": 100,
+            "y": 99,
+            "w": 30,
+            "h": 40,
+            "pivot": {
+              "x": 6,
+              "y": 4
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "thigh-l",
+          "parent": "torso",
+          "z": 3,
+          "attach": {
+            "x": 0,
+            "y": 0
+          },
+          "frame": {
+            "x": 34,
+            "y": 54,
+            "w": 17,
+            "h": 43,
+            "pivot": {
+              "x": 8,
+              "y": 5
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "head",
+          "parent": "torso",
+          "z": 4,
+          "attach": {
+            "x": -1,
+            "y": -40
+          },
+          "frame": {
+            "x": 144,
+            "y": 54,
+            "w": 31,
+            "h": 40,
+            "pivot": {
+              "x": 13,
+              "y": 35
+            }
+          },
+          "variants": {
+            "talk-1": {
+              "x": 2,
+              "y": 99,
+              "w": 31,
+              "h": 40,
+              "pivot": {
+                "x": 13,
+                "y": 35
+              }
+            },
+            "talk-2": {
+              "x": 68,
+              "y": 99,
+              "w": 30,
+              "h": 40,
+              "pivot": {
+                "x": 12,
+                "y": 35
+              }
+            },
+            "talk-3": {
+              "x": 35,
+              "y": 99,
+              "w": 31,
+              "h": 40,
+              "pivot": {
+                "x": 13,
+                "y": 35
+              }
+            },
+            "blink": {
+              "x": 112,
+              "y": 54,
+              "w": 30,
+              "h": 41,
+              "pivot": {
+                "x": 13,
+                "y": 36
+              }
+            }
+          }
+        },
+        {
+          "id": "shin-r",
+          "parent": "thigh-r",
+          "z": 5,
+          "attach": {
+            "x": 1,
+            "y": 30
+          },
+          "frame": {
+            "x": 2,
+            "y": 54,
+            "w": 30,
+            "h": 43,
+            "pivot": {
+              "x": 10,
+              "y": 4
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "thigh-r",
+          "parent": "torso",
+          "z": 6,
+          "attach": {
+            "x": 0,
+            "y": 0
+          },
+          "frame": {
+            "x": 92,
+            "y": 54,
+            "w": 18,
+            "h": 42,
+            "pivot": {
+              "x": 9,
+              "y": 5
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "torso",
+          "parent": null,
+          "z": 7,
+          "attach": {
+            "x": 0,
+            "y": -69
+          },
+          "frame": {
+            "x": 45,
+            "y": 2,
+            "w": 35,
+            "h": 49,
+            "pivot": {
+              "x": 18,
+              "y": 42
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "forearm-r",
+          "parent": "upper-arm-r",
+          "z": 8,
+          "attach": {
+            "x": -2,
+            "y": 29
+          },
+          "frame": {
+            "x": 68,
+            "y": 141,
+            "w": 12,
+            "h": 38,
+            "pivot": {
+              "x": 7,
+              "y": 4
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "upper-arm-r",
+          "parent": "torso",
+          "z": 9,
+          "attach": {
+            "x": 0,
+            "y": -34
+          },
+          "frame": {
+            "x": 35,
+            "y": 141,
+            "w": 15,
+            "h": 38,
+            "pivot": {
+              "x": 9,
+              "y": 4
+            }
+          },
+          "variants": {}
+        }
+      ],
+      "bounds": {
+        "x": -18,
+        "y": -144,
+        "w": 42,
+        "h": 144
+      }
+    },
+    "front": {
+      "parts": [
+        {
+          "id": "shin-r",
+          "parent": "thigh-r",
+          "z": 0,
+          "attach": {
+            "x": -2,
+            "y": 37
+          },
+          "frame": {
+            "x": 126,
+            "y": 2,
+            "w": 20,
+            "h": 48,
+            "pivot": {
+              "x": 14,
+              "y": 4
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "thigh-r",
+          "parent": "torso",
+          "z": 1,
+          "attach": {
+            "x": -8,
+            "y": 0
+          },
+          "frame": {
+            "x": 187,
+            "y": 2,
+            "w": 16,
+            "h": 47,
+            "pivot": {
+              "x": 8,
+              "y": 4
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "shin-l",
+          "parent": "thigh-l",
+          "z": 2,
+          "attach": {
+            "x": 1,
+            "y": 37
+          },
+          "frame": {
+            "x": 148,
+            "y": 2,
+            "w": 19,
+            "h": 48,
+            "pivot": {
+              "x": 5,
+              "y": 4
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "thigh-l",
+          "parent": "torso",
+          "z": 3,
+          "attach": {
+            "x": 9,
+            "y": 0
+          },
+          "frame": {
+            "x": 169,
+            "y": 2,
+            "w": 16,
+            "h": 47,
+            "pivot": {
+              "x": 8,
+              "y": 4
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "head",
+          "parent": "torso",
+          "z": 4,
+          "attach": {
+            "x": 1,
+            "y": -34
+          },
+          "frame": {
+            "x": 135,
+            "y": 141,
+            "w": 23,
+            "h": 34,
+            "pivot": {
+              "x": 11,
+              "y": 29
+            }
+          },
+          "variants": {
+            "talk-1": {
+              "x": 160,
+              "y": 141,
+              "w": 23,
+              "h": 34,
+              "pivot": {
+                "x": 11,
+                "y": 29
+              }
+            },
+            "talk-2": {
+              "x": 2,
+              "y": 182,
+              "w": 23,
+              "h": 34,
+              "pivot": {
+                "x": 11,
+                "y": 29
+              }
+            },
+            "talk-3": {
+              "x": 27,
+              "y": 182,
+              "w": 23,
+              "h": 34,
+              "pivot": {
+                "x": 11,
+                "y": 29
+              }
+            },
+            "blink": {
+              "x": 52,
+              "y": 182,
+              "w": 23,
+              "h": 34,
+              "pivot": {
+                "x": 11,
+                "y": 29
+              }
+            }
+          }
+        },
+        {
+          "id": "torso",
+          "parent": null,
+          "z": 5,
+          "attach": {
+            "x": 0,
+            "y": -81
+          },
+          "frame": {
+            "x": 53,
+            "y": 54,
+            "w": 37,
+            "h": 42,
+            "pivot": {
+              "x": 18,
+              "y": 36
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "forearm-r",
+          "parent": "upper-arm-r",
+          "z": 6,
+          "attach": {
+            "x": 3,
+            "y": 28
+          },
+          "frame": {
+            "x": 147,
+            "y": 99,
+            "w": 12,
+            "h": 40,
+            "pivot": {
+              "x": 8,
+              "y": 3
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "upper-arm-r",
+          "parent": "torso",
+          "z": 7,
+          "attach": {
+            "x": -13,
+            "y": -28
+          },
+          "frame": {
+            "x": 77,
+            "y": 182,
+            "w": 12,
+            "h": 34,
+            "pivot": {
+              "x": 4,
+              "y": 3
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "forearm-l",
+          "parent": "upper-arm-l",
+          "z": 8,
+          "attach": {
+            "x": -3,
+            "y": 28
+          },
+          "frame": {
+            "x": 161,
+            "y": 99,
+            "w": 11,
+            "h": 40,
+            "pivot": {
+              "x": 4,
+              "y": 3
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "upper-arm-l",
+          "parent": "torso",
+          "z": 9,
+          "attach": {
+            "x": 14,
+            "y": -28
+          },
+          "frame": {
+            "x": 95,
+            "y": 141,
+            "w": 12,
+            "h": 35,
+            "pivot": {
+              "x": 8,
+              "y": 3
+            }
+          },
+          "variants": {}
+        }
+      ],
+      "bounds": {
+        "x": -24,
+        "y": -144,
+        "w": 48,
+        "h": 144
+      }
+    },
+    "back": {
+      "parts": [
+        {
+          "id": "shin-r",
+          "parent": "thigh-r",
+          "z": 0,
+          "attach": {
+            "x": 1,
+            "y": 26
+          },
+          "frame": {
+            "x": 104,
+            "y": 2,
+            "w": 20,
+            "h": 49,
+            "pivot": {
+              "x": 7,
+              "y": 4
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "thigh-r",
+          "parent": "torso",
+          "z": 1,
+          "attach": {
+            "x": -11,
+            "y": 0
+          },
+          "frame": {
+            "x": 2,
+            "y": 141,
+            "w": 18,
+            "h": 39,
+            "pivot": {
+              "x": 9,
+              "y": 6
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "shin-l",
+          "parent": "thigh-l",
+          "z": 2,
+          "attach": {
+            "x": -2,
+            "y": 26
+          },
+          "frame": {
+            "x": 82,
+            "y": 2,
+            "w": 20,
+            "h": 49,
+            "pivot": {
+              "x": 12,
+              "y": 4
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "thigh-l",
+          "parent": "torso",
+          "z": 3,
+          "attach": {
+            "x": 10,
+            "y": 0
+          },
+          "frame": {
+            "x": 174,
+            "y": 99,
+            "w": 18,
+            "h": 39,
+            "pivot": {
+              "x": 9,
+              "y": 6
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "head",
+          "parent": "torso",
+          "z": 4,
+          "attach": {
+            "x": 0,
+            "y": -45
+          },
+          "frame": {
+            "x": 109,
+            "y": 141,
+            "w": 24,
+            "h": 34,
+            "pivot": {
+              "x": 12,
+              "y": 28
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "torso",
+          "parent": null,
+          "z": 5,
+          "attach": {
+            "x": 0,
+            "y": -71
+          },
+          "frame": {
+            "x": 2,
+            "y": 2,
+            "w": 41,
+            "h": 50,
+            "pivot": {
+              "x": 21,
+              "y": 45
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "forearm-r",
+          "parent": "upper-arm-r",
+          "z": 6,
+          "attach": {
+            "x": 4,
+            "y": 25
+          },
+          "frame": {
+            "x": 82,
+            "y": 141,
+            "w": 11,
+            "h": 38,
+            "pivot": {
+              "x": 5,
+              "y": 3
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "upper-arm-r",
+          "parent": "torso",
+          "z": 7,
+          "attach": {
+            "x": 15,
+            "y": -35
+          },
+          "frame": {
+            "x": 91,
+            "y": 182,
+            "w": 13,
+            "h": 32,
+            "pivot": {
+              "x": 4,
+              "y": 3
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "forearm-l",
+          "parent": "upper-arm-l",
+          "z": 8,
+          "attach": {
+            "x": -4,
+            "y": 24
+          },
+          "frame": {
+            "x": 22,
+            "y": 141,
+            "w": 11,
+            "h": 39,
+            "pivot": {
+              "x": 6,
+              "y": 3
+            }
+          },
+          "variants": {}
+        },
+        {
+          "id": "upper-arm-l",
+          "parent": "torso",
+          "z": 9,
+          "attach": {
+            "x": -16,
+            "y": -35
+          },
+          "frame": {
+            "x": 106,
+            "y": 182,
+            "w": 13,
+            "h": 31,
+            "pivot": {
+              "x": 9,
+              "y": 3
+            }
+          },
+          "variants": {}
+        }
+      ],
+      "bounds": {
+        "x": -26,
+        "y": -144,
+        "w": 51,
+        "h": 144
+      }
+    }
+  }
+}
