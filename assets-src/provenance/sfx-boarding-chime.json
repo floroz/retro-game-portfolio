@@ -1,0 +1,24 @@
+{
+  "id": "sfx-boarding-chime",
+  "output": "public/audio/sfx/boarding-chime.mp3",
+  "task": "A2",
+  "source": "opus",
+  "date": "2026-09-29",
+  "recipe": "assets-src/audio/sfx/boarding-chime.ts",
+  "description": "Boarding chime: the motif's head (A4 C5 F5) on General MIDI tubular bells at 100 bpm, rendered with FluidSynth and FluidR3_GM like the Hall theme.",
+  "loudness": {
+    "integratedLufs": -16.1,
+    "lraLu": 3.9,
+    "truePeakDbtp": -3.1,
+    "samplePeakDbfs": -3.06,
+    "gainDb": 11.75,
+    "target": "-3 dBFS sample peak"
+  },
+  "render": {
+    "synth": "scripts/assets/sfx.ts (seeded, deterministic)",
+    "seed": 13,
+    "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "sampleRate": 48000,
+    "channels": 1
+  }
+}
