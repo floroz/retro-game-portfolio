@@ -35,6 +35,7 @@
     "assets:cutout": "tsx scripts/assets/cutout.ts",
     "assets:pack": "tsx scripts/assets/pack.ts",
     "assets:rig": "tsx scripts/assets/rig.ts",
+    "assets:rigcut": "tsx scripts/assets/rigcut.ts",
     "assets:refs": "tsx scripts/assets/refs.ts",
     "assets:palette": "tsx scripts/assets/palette.ts",
     "assets:placeholders": "tsx scripts/assets/placeholders.ts",

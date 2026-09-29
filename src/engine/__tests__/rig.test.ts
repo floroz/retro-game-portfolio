@@ -445,3 +445,55 @@ describe("the engine with a rig", () => {
     expect(f.state.pose.variants.head).toMatch(/^talk-\d$/);
   });
 });
+
+describe("the shipped rig (HB7)", () => {
+  const json = Object.values(
+    import.meta.glob<unknown>("../../assets/character/daniele-rig.json", {
+      eager: true,
+      import: "default",
+    }),
+  )[0];
+  const shipped = parseRig(json, "daniele-rig.png");
+
+  test("is painted at density 2, 72 logical px tall in every facing", () => {
+    expect(shipped.density).toBe(2);
+    expect(shipped.figureHeight).toBe(72);
+    for (const facing of ["side", "front", "back"] as const)
+      expect(shipped.facings[facing].bounds.h).toBe(144);
+  });
+
+  test("has the mouth shapes and the blink the animator uses", () => {
+    expect(shipped.mouths).toEqual(["talk-1", "talk-2", "talk-3"]);
+    expect(shipped.blinks).toBe(true);
+    const front = shipped.facings.front.parts.find((p) => p.id === "head");
+    expect(Object.keys(front?.variants ?? {}).sort()).toEqual([
+      "blink",
+      "talk-1",
+      "talk-2",
+      "talk-3",
+    ]);
+  });
+
+  test("the walk keeps the planted heel still and the soles on the ground", () => {
+    const clip = POSE_CLIPS["walk-side"];
+    const heel = (phase: number) => {
+      const pose = poseFor(shipped, clip, sampleClip(clip, phase), {}, phase);
+      const part = placeRig(shipped, "side", pose).find(
+        (p) => p.id === "shin-r",
+      );
+      if (!part) throw new Error("no shin");
+      return phase * shipped.stride + heelOf(part).x / shipped.density;
+    };
+    const start = heel(0);
+    for (let i = 1; i < 20; i++) close(heel((i / 20) * 0.5), start, 1e-6);
+    for (let i = 0; i < 32; i++) {
+      const pose = poseFor(shipped, clip, sampleClip(clip, i / 32), {}, i / 32);
+      const lowest = Math.max(
+        ...placeRig(shipped, "side", pose)
+          .filter((x) => x.id.startsWith("shin"))
+          .map((s) => heelOf(s).y),
+      );
+      expect(lowest).toBeLessThanOrEqual(1e-6);
+    }
+  });
+});
