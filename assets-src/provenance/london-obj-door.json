@@ -1,0 +1,10 @@
+{
+  "id": "london-obj-door",
+  "output": "src/assets/scenes/london/obj-door.png",
+  "task": "B3",
+  "source": "opus",
+  "derivedFrom": "london-bg",
+  "palette": "v1",
+  "cleanup": "The pub door to the Hall, redrawn from candidate 05 (which was nearly black at native size) and scaled to 64 px so it sits right with the character: a bottle-green leaf in the London ramp with a glazed upper panel, two lower panels, brass letterbox, knob and kick plate, in a lit wooden architrave with a radiating fanlight and a stone step.",
+  "date": "2026-09-29"
+}

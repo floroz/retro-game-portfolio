@@ -1,9 +1,14 @@
 {
   "id": "london-bg",
   "output": "src/assets/scenes/london/bg.png",
-  "task": "F1",
-  "source": "opus",
-  "palette": "v0",
-  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Replaced in the london build task.",
+  "task": "B3",
+  "source": "codex",
+  "prompt": "assets-src/prompts/scenes/london.md",
+  "candidate": "05",
+  "references": ["assets-src/refs/style-anchor@8x.png"],
+  "approvedRaw": "assets-src/approved/london-bg.webp",
+  "palette": "v1",
+  "cleanup": "Pixelized with --scene london, then redrawn at native size on candidate 05's layout and colours, because the remap was too mushy to clean pixel by pixel (dark door, noisy panelling, light cones). Procedural shell: ceiling boards and cornice, deep red flock wallpaper with a pinstripe every 8 px above a dado rail, raised wainscot panels, baseboard, and plank rows that grow towards the viewer with staggered joints. Window: a transom with two glazing bars over one unbroken lower pane (so the bus animation passes cleanly); flat overcast sky with low clouds; the Shard (into the transom), the Gherkin with its lattice, and St Paul's (dome, lantern, drum, west towers) as flat silhouettes with a lit face; low lit buildings, the road, a wet pavement, a street lamp at the pane's right edge, and a red phone box with lit panes. The candidate's half-hidden bus is removed (it's the anim-bus loop) and so is its rain haze (anim-rain). Back bar: two bottle shelves with flat 2-tone bottles and upside-down pint glasses; the chalkboard enlarged and raised (x 140-204, y 6-80) with a wooden header for the engine's SKILLS lettering, a chalk surface sized for the skills:menu label, and a chalk ledge ending at y 80, so the 16 px tap row stands on the bar top (y 96) below it; two brass pendant lamps (the centre one dropped for the board), no light cones. Right wall: three brass picture lights (no cones) over bare wallpaper for the 3 x 2 London job photos (x 238-301, y 34-70); the dartboard moved to the top right and redrawn smaller (16 px, 8 segments, doubles and bull), with a stray dart in the wallpaper. Oval rug redrawn as a clean ellipse with one ring. The bar, table with stools, fruit machine, door and foreground stool are separate sprites, so the plate behind them is the procedural wall and floor. Core plus London ramp only; no text.",
+  "approvedBy": "opus-orchestrator (delegated pick)",
   "date": "2026-09-29"
 }

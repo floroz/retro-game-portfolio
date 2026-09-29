@@ -1,9 +1,10 @@
 {
   "id": "london-fg",
   "output": "src/assets/scenes/london/fg.png",
-  "task": "F1",
+  "task": "B3",
   "source": "opus",
-  "palette": "v0",
-  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Replaced in the london build task.",
+  "derivedFrom": "london-bg",
+  "palette": "v1",
+  "cleanup": "Candidate 05's red-topped bar stool in the bottom-left corner, redrawn by hand on a transparent layer: a red leather seat with a lit top and a deep side band, a selective 0 outline on the shadow side, two splayed front legs, a back leg in shadow, and a brass foot ring, cropped by the frame edge.",
   "date": "2026-09-29"
 }

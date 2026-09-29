@@ -1,9 +1,0 @@
-{
-  "id": "london-obj-placeholder",
-  "output": "src/assets/scenes/london/obj-placeholder.png",
-  "task": "F1",
-  "source": "opus",
-  "palette": "v0",
-  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Deleted in the london build task.",
-  "date": "2026-09-29"
-}

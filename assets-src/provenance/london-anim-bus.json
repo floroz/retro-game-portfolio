@@ -1,0 +1,10 @@
+{
+  "id": "london-anim-bus",
+  "output": "src/assets/scenes/london/anim-bus.png",
+  "task": "B3",
+  "source": "opus",
+  "derivedFrom": "london-bg",
+  "palette": "v1",
+  "cleanup": "2 frames of a red double-decker (26x14): lit upper and lower decks with window pillars, a cream band between decks, the open rear platform, a lit blank destination blind and a headlight, and wheels that turn between frames. The scene data drives it across the lower pane behind the phone box and the street lamp, clipped to the glass.",
+  "date": "2026-09-29"
+}
