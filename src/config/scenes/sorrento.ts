@@ -1,14 +1,43 @@
 /**
- * PLACEHOLDER scene data for Sorrento, written by E1 against F1's
- * placeholder art so the engine runs end to end. Task B4 replaces this whole
- * file; keep the export name (`SORRENTO_SCENE`) and the `SceneData` type.
- * Check positions with the dev overlay: `npm run dev`, then `?debug=scene`.
+ * Sorrento: a kitchen at sunset, looking across the Gulf of Naples to
+ * Naples, Vesuvius, and Ischia (docs/art-spec.md, scene card `sorrento`).
+ * Built in task B4 from candidate 02. Every coordinate is in native pixels
+ * (320x160), top-left origin.
+ *
+ * Walking depth: the table for two, its two chairs, and the stove stand out
+ * on the floor, each with a `baselineY` on its front feet. The walkbox is one
+ * polygon with two keyhole slits from its back edge (x 190 and x 268), so
+ * their footprints are holes and Daniele walks behind them (feet above the
+ * baseline, drawn under the object) or in front. The lemon tree is `fg.png`.
+ *
+ * Check it with the dev overlay: `npm run dev`, then `?debug=scene`.
  */
+import { PROFILE } from "../profile";
+import { SECTIONS } from "../sections";
 import type { SceneData } from "../../engine/types";
 import sorrentoBg from "../../assets/scenes/sorrento/bg.png";
 import sorrentoFg from "../../assets/scenes/sorrento/fg.png";
-import sorrentoObjPlaceholder from "../../assets/scenes/sorrento/obj-placeholder.png";
-import sorrentoAnimPlaceholder from "../../assets/scenes/sorrento/anim-placeholder.png";
+import sorrentoObjDoor from "../../assets/scenes/sorrento/obj-door.png";
+import sorrentoObjDoorOpen from "../../assets/scenes/sorrento/obj-door@open.png";
+import sorrentoObjStove from "../../assets/scenes/sorrento/obj-stove.png";
+import sorrentoObjTable from "../../assets/scenes/sorrento/obj-table.png";
+import sorrentoObjChairLeft from "../../assets/scenes/sorrento/obj-chair-left.png";
+import sorrentoObjChairRight from "../../assets/scenes/sorrento/obj-chair-right.png";
+import sorrentoAnimGlints from "../../assets/scenes/sorrento/anim-glints.png";
+import sorrentoAnimFerry from "../../assets/scenes/sorrento/anim-ferry.png";
+import sorrentoAnimSteam from "../../assets/scenes/sorrento/anim-steam.png";
+
+const ABOUT = SECTIONS.about.label;
+const CONTACT = SECTIONS.contact.label;
+const FIRST_NAME = PROFILE.name.split(" ")[0];
+
+/** Front feet of the free-standing furniture: the depth-sort lines. */
+const STOVE_BASELINE = 119;
+const TABLE_BASELINE = 138;
+const CHAIR_BASELINE = 137;
+
+/** The view through the window, which the ferry never leaves. */
+const VIEW = { x: 118, y: 14, w: 78, h: 59 };
 
 export const SORRENTO_SCENE: SceneData = {
   id: "sorrento",
@@ -28,84 +57,233 @@ export const SORRENTO_SCENE: SceneData = {
     loopEnd: 36.5,
   },
   floor: "tile",
+  // The tiled floor from the baseboard (y 103) to the front edge, less the
+  // lemon tree's pot. Two keyhole slits cut out the footprints of the table
+  // and chairs (x 158-228, y 129-140) and the stove (x 249-287, y 111-121).
   walkbox: [
-    [4, 102],
-    [316, 102],
-    [316, 158],
+    [4, 103],
+    [190, 103],
+    [190, 129],
+    [158, 129],
+    [158, 140],
+    [228, 140],
+    [228, 129],
+    [190, 129],
+    [190, 103],
+    [268, 103],
+    [268, 111],
+    [249, 111],
+    [249, 121],
+    [287, 121],
+    [287, 111],
+    [268, 111],
+    [268, 103],
+    [316, 103],
+    [316, 124],
+    [291, 128],
+    [287, 158],
     [4, 158],
   ],
-  depth: { farY: 102, nearY: 158, farScale: 0.7, nearScale: 1.0 },
-  entryPoints: { fromHall: { x: 296, y: 112, facing: "w" } },
-  entryLine:
-    "Sorrento: now and next. About me is on the fridge, and the phone is for Contact.",
+  depth: { farY: 103, nearY: 158, farScale: 0.7, nearScale: 1.0 },
+  entryPoints: { fromHall: { x: 28, y: 114, facing: "e" } },
+  entryLine: `Sorrento: the next chapter. ${ABOUT} me is on the fridge, and the phone is for ${CONTACT}.`,
+  // Topmost last: nearer things come after the things behind them.
   objects: [
     {
+      id: "window",
+      name: "window",
+      hotspot: { x: 105, y: 9, w: 105, h: 64 },
+      interactionPoint: { x: 157, y: 108, facing: "n" },
+      look: "The Gulf of Naples: Naples on the far shore, Vesuvius pretending to be asleep, and Ischia catching the sunset.",
+      use: "I'd lean out and shout 'Buonasera!' at the ferry, but it never shouts back.",
+    },
+    {
+      id: "sill",
+      name: "lemons and limoncello",
+      hotspot: { x: 150, y: 57, w: 39, h: 16 },
+      interactionPoint: { x: 175, y: 108, facing: "n" },
+      look: "Sorrento lemons and a bottle of limoncello. One is breakfast, the other is a digestif, and I'm not saying which.",
+      use: "Not before the call. Limoncello has never once improved a technical interview.",
+    },
+    {
+      id: "plate",
+      name: "majolica plate",
+      hotspot: { x: 57, y: 13, w: 18, h: 18 },
+      interactionPoint: { x: 70, y: 106, facing: "n" },
+      look: "A hand-painted majolica plate. Too nice to eat off, so it lives on the wall, like my side projects.",
+      use: "It's load-bearing. Nonna said so.",
+    },
+    {
       id: "fridge",
-      name: "fridge door",
-      hotspot: { x: 18, y: 28, w: 36, h: 72 },
-      interactionPoint: { x: 36, y: 106, facing: "n" },
+      name: "fridge",
+      hotspot: { x: 46, y: 40, w: 40, h: 63 },
+      interactionPoint: { x: 66, y: 108, facing: "n" },
       action: "about",
-      look: "Photos, postcards, and a magnet shaped like a lemon. My life, alphabetised by fridge.",
+      look: `Postcards, a note that says ${ABOUT.toUpperCase()}, and plenty of room for magnets. Everything worth knowing about ${FIRST_NAME} ends up on this fridge.`,
+    },
+    {
+      id: "pans",
+      name: "copper pans",
+      hotspot: { x: 262, y: 14, w: 53, h: 35 },
+      interactionPoint: { x: 288, y: 106, facing: "n" },
+      look: "Copper pans, polished to a mirror. They've seen more sauce than a code review.",
+      use: "They're decorative. The real cooking happens in one dented pot nobody photographs.",
     },
     {
       id: "phone",
       name: "wall phone",
-      hotspot: { x: 230, y: 44, w: 14, h: 26 },
-      interactionPoint: { x: 237, y: 106, facing: "n" },
+      hotspot: { x: 218, y: 40, w: 31, h: 49 },
+      interactionPoint: { x: 234, y: 108, facing: "n" },
       action: "contact",
-      look: "A wall phone with a curly cord. It only rings for good news.",
+      sound: "phone-ring",
+      look: "A wall phone with a curly cord, and a note that says CONTACT. It only rings for good news. Be the good news.",
+    },
+    {
+      id: "stove",
+      name: "stove",
+      sprite: sorrentoObjStove,
+      x: 250,
+      y: 84,
+      interactionPoint: { x: 268, y: 126, facing: "n" },
+      baselineY: STOVE_BASELINE,
+      look: "An enamel stove older than the internet, and more reliable.",
+      use: "It has two settings: off, and Neapolitan grandmother.",
+    },
+    {
+      id: "moka-pot",
+      name: "moka pot",
+      hotspot: { x: 271, y: 84, w: 11, h: 10 },
+      interactionPoint: { x: 272, y: 126, facing: "n" },
+      sound: "moka-gurgle",
+      look: "A moka pot, gurgling away. In this house, it's the only thing allowed to be under pressure.",
+      use: "That gurgle means it's ready. Two cups, as always.",
     },
     {
       id: "table",
-      name: "table with two espresso cups",
-      sprite: sorrentoObjPlaceholder,
-      x: 140,
-      y: 110,
-      baselineY: 137,
-      look: "Two espresso cups: one for me, one for you. Let's talk.",
+      name: "table for two",
+      sprite: sorrentoObjTable,
+      x: 172,
+      y: 107,
+      interactionPoint: { x: 193, y: 146, facing: "n" },
+      baselineY: TABLE_BASELINE,
+      look: `Two espresso cups: one for me, one for you. Let's talk. The phone is right there, under the ${CONTACT.toUpperCase()} note.`,
+      use: "Sit down, have a coffee. Nobody in Italy has ever discussed business without one.",
     },
     {
-      id: "window",
-      name: "window",
-      hotspot: { x: 110, y: 14, w: 88, h: 58 },
-      look: "The Gulf of Naples: Vesuvius, Ischia, and a ferry that runs on Italian time.",
+      id: "chair-left",
+      name: "chair",
+      sprite: sorrentoObjChairLeft,
+      x: 159,
+      y: 104,
+      interactionPoint: { x: 150, y: 142, facing: "e" },
+      baselineY: CHAIR_BASELINE,
+      look: "A rush-seated chair. Handmade, slightly wonky, full of character. We have a lot in common.",
+      use: "It creaks in a friendly way. That's the Italian welcome.",
+    },
+    {
+      id: "chair-right",
+      name: "chair",
+      sprite: sorrentoObjChairRight,
+      x: 213,
+      y: 104,
+      interactionPoint: { x: 236, y: 142, facing: "w" },
+      baselineY: CHAIR_BASELINE,
+      look: "The guest chair. It's been waiting for you. No pressure. Well, a little pressure.",
+      use: "Save it for the visitor. That's you, by the way.",
+    },
+    {
+      id: "lemon-tree",
+      name: "lemon tree",
+      hotspot: { x: 284, y: 76, w: 36, h: 84 },
+      interactionPoint: { x: 282, y: 142, facing: "e" },
+      look: "A Sorrento lemon tree. When life gives you lemons, you make limoncello and move to the coast.",
+      use: "I'd pick one, but they're for the limoncello. Priorities.",
     },
   ],
   animations: [
     {
-      id: "placeholder",
-      strip: sorrentoAnimPlaceholder,
+      // Short, hard glints on the water under the sun.
+      id: "glints",
+      strip: sorrentoAnimGlints,
+      frames: 4,
+      x: 126,
+      y: 49,
+      frameMs: 450,
+    },
+    {
+      // A ferry heading east across the gulf, round the clock.
+      id: "ferry",
+      strip: sorrentoAnimFerry,
       frames: 2,
-      x: 176,
-      y: 30,
-      frameMs: 300,
+      x: VIEW.x - 16,
+      y: 50,
+      frameMs: 400,
+      motion: { dx: VIEW.w + 16, dy: 0, durationMs: 60000 },
+      clip: VIEW,
+    },
+    {
+      // Steam from the moka pot, so it sorts with the stove.
+      id: "steam",
+      strip: sorrentoAnimSteam,
+      frames: 6,
+      x: 271,
+      y: 72,
+      frameMs: 160,
+      baselineY: STOVE_BASELINE,
     },
   ],
   slots: [
     {
+      // The bare lower fridge door: two rows of three 8x7 magnets.
       id: "magnets",
       kind: "magnet",
       source: "jobs:italy",
       positions: [
-        [22, 36],
-        [32, 36],
-        [42, 36],
-        [22, 48],
-        [32, 48],
-        [42, 48],
+        [51, 73],
+        [60, 73],
+        [69, 73],
+        [51, 84],
+        [60, 84],
+        [69, 84],
       ],
       fold: "slot-magnet-more",
     },
   ],
-  labels: [],
+  labels: [
+    {
+      // Lettered on the note stuck to the upper fridge door.
+      id: "fridge",
+      source: "section:about",
+      x: 66,
+      y: 57,
+      align: "center",
+      font: "small",
+      color: "#2a2328",
+    },
+    {
+      // Lettered on the note pinned above the phone.
+      id: "phone",
+      source: "section:contact",
+      x: 233,
+      y: 43,
+      align: "center",
+      font: "small",
+      color: "#2a2328",
+    },
+  ],
   exits: [
     {
       id: "door-hall",
       to: "hall",
       entry: "fromSorrento",
       name: "the airport",
-      hotspot: { x: 286, y: 32, w: 30, h: 68 },
-      interactionPoint: { x: 300, y: 108, facing: "e" },
+      sprite: sorrentoObjDoor,
+      states: { open: sorrentoObjDoorOpen },
+      x: 8,
+      y: 30,
+      hotspot: { x: 5, y: 27, w: 30, h: 76 },
+      interactionPoint: { x: 20, y: 107, facing: "n" },
+      look: "The way back to the airport. Down the steps, past the lemon trees, and try not to stop for gelato.",
     },
   ],
 };

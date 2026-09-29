@@ -1,0 +1,10 @@
+{
+  "id": "sorrento-obj-chair-right",
+  "output": "src/assets/scenes/sorrento/obj-chair-right.png",
+  "task": "B4",
+  "source": "opus",
+  "derivedFrom": "sorrento-bg",
+  "palette": "v1",
+  "cleanup": "obj-chair-left mirrored, for the guest's side of the table.",
+  "date": "2026-09-29"
+}

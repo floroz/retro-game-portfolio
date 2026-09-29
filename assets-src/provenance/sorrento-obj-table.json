@@ -1,0 +1,10 @@
+{
+  "id": "sorrento-obj-table",
+  "output": "src/assets/scenes/sorrento/obj-table.png",
+  "task": "B4",
+  "source": "opus",
+  "derivedFrom": "sorrento-bg",
+  "palette": "v1",
+  "cleanup": "The table for two, redrawn from candidate 02 and moved forward onto the floor (baseline 138): yellow gingham cloth (top face and drape), four legs, two espresso cups on saucers and a sugar bowl.",
+  "date": "2026-09-29"
+}

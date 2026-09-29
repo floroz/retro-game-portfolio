@@ -1,0 +1,10 @@
+{
+  "id": "sorrento-anim-steam",
+  "output": "src/assets/scenes/sorrento/anim-steam.png",
+  "task": "B4",
+  "source": "opus",
+  "derivedFrom": "sorrento-bg",
+  "palette": "v1",
+  "cleanup": "6 frames (7x12) of two puffs of steam curling up from the moka pot and thinning out, in cream and grey. Depth-sorted with the stove.",
+  "date": "2026-09-29"
+}
