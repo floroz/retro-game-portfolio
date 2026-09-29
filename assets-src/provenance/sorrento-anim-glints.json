@@ -1,10 +1,11 @@
 {
   "id": "sorrento-anim-glints",
   "output": "src/assets/scenes/sorrento/anim-glints.png",
-  "task": "B4",
+  "task": "RB4",
   "source": "opus",
   "derivedFrom": "sorrento-bg",
-  "palette": "v1",
-  "cleanup": "4 opaque frames (26x11) of the patch of gulf under the sun: short hard-edged glint dashes blinking on and off and shifting a pixel. Frame 0 matches bg.",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB4: 4 transparent 52x22 frames over the sun's trail at 2x: in each frame two or three short hard-edged 5/v dashes flash on and beside the trail's own dashes, with u/v tips on the longer ones.",
   "date": "2026-09-29"
 }

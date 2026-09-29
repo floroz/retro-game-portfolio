@@ -1,8 +1,9 @@
 /**
  * Sorrento: a kitchen at sunset, looking across the Gulf of Naples to
  * Naples, Vesuvius, and Ischia (docs/art-spec.md, scene card `sorrento`).
- * Built in task B4 from candidate 02. Every coordinate is in native pixels
- * (320x160), top-left origin.
+ * Built in task B4 from candidate 02, and rebuilt at 2x density in RB4 from
+ * remaster candidate 01 (the art is 640x320). Every coordinate is in logical
+ * pixels (320x160), top-left origin; the engine scales by the density.
  *
  * Walking depth: the table for two, its two chairs, and the stove stand out
  * on the floor, each with a `baselineY` on its front feet. The walkbox is one
@@ -194,7 +195,7 @@ export const SORRENTO_SCENE: SceneData = {
     {
       id: "lemon-tree",
       name: "lemon tree",
-      hotspot: { x: 284, y: 76, w: 36, h: 84 },
+      hotspot: { x: 284, y: 75, w: 36, h: 85 },
       interactionPoint: { x: 282, y: 142, facing: "e" },
       look: "A Sorrento lemon tree. When life gives you lemons, you make limoncello and move to the coast.",
       use: "I'd pick one, but they're for the limoncello. Priorities.",
