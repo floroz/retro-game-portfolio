@@ -2,7 +2,7 @@
 
 This is the asset side of [the expansion plan](expansion-plan.md). The plan's [Creative direction](expansion-plan.md#creative-direction) is the source of truth for what the world contains. This spec says how every asset is made and in what order.
 
-**Current work: [Phase R: Remaster](#phase-r-remaster-current-work).** The Codex orchestrator's tasks are in its [Codex lane](#codex-lane-the-codex-orchestrator-polls-this-table) table. Everything above Phase R still applies unless Phase R says otherwise.
+**Current work: [Phase H: HD hand-painted](#phase-h-hd-hand-painted-current-work).** The Codex orchestrator's tasks are in Phase H's Codex lane table, the first one in this document titled "Codex lane". Phase R is superseded for art.
 
 It's written for **two orchestrators**, one per model family. Each one runs every task in its own lane, starting each task as soon as its dependencies are met and running independent tasks in parallel. The work has three phases:
 
@@ -752,7 +752,67 @@ Everything in this phase starts once its dependencies are met, and runs in paral
   7. Walk every scene by hand and check that each section is reachable in two clicks or fewer. E2E tests and baselines are out of scope for v2.
   8. **G4:** final review by Daniele.
 
-## Phase R: Remaster (current work)
+## Phase H: HD hand-painted (current work)
+
+**Direction (Agreed with Daniele, 2026-09-29).** He reviewed the 2× remaster in the running app, and it was still too low-resolution. The target is **_The Curse of Monkey Island_ (MI3)**: hand-painted cartoon backgrounds and characters with bold ink outlines, at the full display resolution, with no visible pixels. The strategy, scenes, layouts, objects, moods, signposting, audio, and scene data stay the same. Phase H supersedes Phase R's art; Phase R's engine work (E3, density support) is the foundation.
+
+### Decisions
+
+- **Resolution:** art is authored at **1280×640**, which is density 4 over the unchanged 320×160 logical grid, and displayed 1:1. There's no palette limit and no palette remap. Partial alpha is allowed.
+- **Style:** MI3-like hand-painted cartoon. Bold, confident dark ink outlines, saturated but tasteful colour, painted shading with soft light, and slightly exaggerated, rounded forms. The moods per country are unchanged. **No text anywhere in the art**, as before.
+- **World scale (the "scale sheet"):** one scale for every scene.
+  - Daniele's standing height is **72 logical px (288 display px) at the front of the walkbox**, and 58 logical px at the back.
+  - Relative to his back-of-room height: doors are about **1.3×**, a fridge or filing cabinet about 0.95×, a desk or table about 0.45×, a chair back about 0.55×, and a bar counter about 0.6×.
+  - H1 draws a scale-sheet reference, and every prompt includes it.
+  - Depth scaling runs from 0.8 to 1.0.
+- **Character:** an MI3-proportioned cartoon Daniele: a head about 1/4.5 of his height, larger hands and feet, expressive. He's still recognisably the approved design: beard, short hair, navy crew-neck with a white collar, denim, brown shoes. He is animated as a **cut-out puppet**:
+  - one HD drawing per facing (side, front, back), split into parts: head, torso, upper arms, forearms with hands, thighs, shins with feet;
+  - head variants for the mouth shapes and the blink;
+  - the engine animates the parts with keyframed poses for walk, idle, use, and talk, so his likeness is identical in every frame.
+- **Layers are generated, not hand-cleaned.** For each scene, Codex makes:
+  - a full composite (for the pick and as the style and layout reference);
+  - an **empty-room plate** (the chosen composite with free-standing objects removed, made by editing);
+  - each **free-standing object** separately, on a transparent or magenta background;
+  - each **moving prop** separately (bus, ferry, planes, cuckoo bird).
+
+  Opus crops, keys, aligns, and writes the scene data. It doesn't paint pixels.
+
+- **Effects are procedural in the engine:** rain, steam, stars, sea glints, the split-flap flutter, and the fruit-machine lights. Moving props slide along paths.
+- **Text:** every speech line, label, sign, menu, and board is drawn as **crisp text at display resolution** in a bold, legible, openly licensed font with a clean outline (task T1, which lands before the art).
+- **Checkpoint:** Daniele sees the HD Zurich and Daniele anchors (gate HG1) before the fan-out. Every other gate stays delegated to the Opus orchestrator.
+
+### Codex lane (the Codex orchestrator polls this table)
+
+As before: a task is runnable when everything under **After** is `done` in this section's tables. Follow [Rules for Codex tasks](#rules-for-codex-tasks). Prompt files are in `assets-src/prompts/hd/`. Output goes to `assets-src/exchange/raw/<asset-id>@hd/` in `../rgp-codex/`, with `DONE` written last. Codex never commits. Prompt files may set `transparent_background: true` for separate sprites (the probe showed the option exists).
+
+| Task | Status | After      | Prompt files (`assets-src/prompts/hd/`)                                                                            | Candidates |
+| ---- | ------ | ---------- | ------------------------------------------------------------------------------------------------------------------ | ---------- |
+| HC1  | todo   | H1         | `zurich.md`, `char-turnaround.md`                                                                                  | 4 each     |
+| HC2  | todo   | HG1        | `hall.md`, `london.md`, `sorrento.md`, `travel-map.md`                                                             | 4 each     |
+| HC3  | todo   | HG1        | `char-parts.md` (the parts sheets for side, front, and back), `char-heads.md` (mouth shapes and blink)             | 3 each     |
+| HC4  | todo   | HG1        | `shared.md` (tap, photo frame, magnet, their fold objects, map plane, marker)                                      | 3          |
+| HC5  | todo   | HL-<scene> | `layers-<scene>.md` (the plate edit, object sprites, moving props), one per scene, written after that scene's pick | 3 per item |
+
+### Opus lane
+
+| Task       | Status | After                            | What                                                                                                                                              |
+| ---------- | ------ | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T1         | todo   | —                                | Crisp display-resolution text for speech, labels, signs, menus, and boards (works on the current art)                                             |
+| H0         | todo   | —                                | HD tooling: `prepare` (crop and resize with high-quality resampling, no remap), a soft key and alpha, validator rules for density 4, a rig packer |
+| E4         | todo   | —                                | Engine: density-4 scenes rendered smoothly, the cut-out rig, procedural effects, moving props, the new world scale                                |
+| H1         | todo   | —                                | The scale sheet and references, plus the HD prompt files for HC1–HC4                                                                              |
+| HA         | todo   | HC1, H0                          | Pick the HD Zurich and turnaround anchors, then gate **HG1** (Daniele's checkpoint)                                                               |
+| HL-<scene> | todo   | that scene's composite is picked | Write that scene's `layers-<scene>.md` prompt (plate edit, objects, props)                                                                        |
+| HB1–HB5    | todo   | HC5 for the scene, E4            | Assemble each scene (zurich, hall, london, sorrento, travel-map) from its layers and adjust the scene data to the new scale                       |
+| HB6        | todo   | HC4, E4                          | Shared sprites in HD                                                                                                                              |
+| HB7        | todo   | HC3, E4                          | Rig Daniele: slice the parts, set pivots, keyframe the poses, pack                                                                                |
+| I3         | todo   | HB1–HB7                          | Final cohesion, contrast walk, OG image, regression checks (ends at **G4**)                                                                       |
+
+| Gate | Status | Decided by                                                  |
+| ---- | ------ | ----------------------------------------------------------- |
+| HG1  | todo   | **Daniele** (checkpoint): the HD Zurich and Daniele anchors |
+
+## Phase R: Remaster (superseded by Phase H for art)
 
 **Direction (Agreed with Daniele, 2026-09-29).** Keep everything: the strategy, scenes, layouts, objects, moods, and atmosphere. Make it look like a **remaster**: sharper, higher-detail pixel art. The reference is _The Curse of Monkey Island_ (640×480, hand-crafted), rendered as crisp pixel art, never painterly or blurred. _Monkey Island 2_ and _Day of the Tentacle_ stay the references for staging and humour. The Opus orchestrator runs this phase end to end with delegated gates. Daniele reviews the whole branch at G4.
 

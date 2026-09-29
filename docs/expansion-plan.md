@@ -185,21 +185,21 @@ All four tracks share one motif, varied per country in the iMUSE style. Shared s
 
 Every creative decision has been settled with Daniele:
 
-| #   | Decision                 | Outcome                                                                                |
-| --- | ------------------------ | -------------------------------------------------------------------------------------- |
-| 1   | Hall style               | A 1990s airport terminal                                                               |
-| 2   | London setting           | A pub                                                                                  |
-| 3   | Section mapping          | London: Skills. Zurich: Experience, Resume. Sorrento: About, Contact                   |
-| 4   | Where each job lives     | By its `country` field: London, Zurich, or Sorrento                                    |
-| 5   | Country-to-country exits | Through the Hall only                                                                  |
-| 6   | Palette strategy         | One master palette with extra ramps per country                                        |
-| 7   | Hall music               | A new theme sharing one motif with the country tracks                                  |
-| 8   | Other characters         | None in the MVP                                                                        |
-| 9   | Animation budget         | About 13 small loops                                                                   |
-| 10  | Character outfit         | One outfit everywhere                                                                  |
-| 11  | Flavour props            | Keep the fruit machine and dartboard; a hotspot per tap                                |
-| 12  | Readable text            | Drawn by the engine in the pixel font, never painted into art                          |
-| 13  | Visual fidelity          | A remaster: the same scenes and atmosphere, redrawn as sharper pixel art at 2× density |
+| #   | Decision                 | Outcome                                                                                                                                                                   |
+| --- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Hall style               | A 1990s airport terminal                                                                                                                                                  |
+| 2   | London setting           | A pub                                                                                                                                                                     |
+| 3   | Section mapping          | London: Skills. Zurich: Experience, Resume. Sorrento: About, Contact                                                                                                      |
+| 4   | Where each job lives     | By its `country` field: London, Zurich, or Sorrento                                                                                                                       |
+| 5   | Country-to-country exits | Through the Hall only                                                                                                                                                     |
+| 6   | Palette strategy         | One master palette with extra ramps per country                                                                                                                           |
+| 7   | Hall music               | A new theme sharing one motif with the country tracks                                                                                                                     |
+| 8   | Other characters         | None in the MVP                                                                                                                                                           |
+| 9   | Animation budget         | About 13 small loops                                                                                                                                                      |
+| 10  | Character outfit         | One outfit everywhere                                                                                                                                                     |
+| 11  | Flavour props            | Keep the fruit machine and dartboard; a hotspot per tap                                                                                                                   |
+| 12  | Readable text            | Drawn by the engine in the pixel font, never painted into art                                                                                                             |
+| 13  | Visual fidelity          | HD hand-painted in the style of _The Curse of Monkey Island_ at 1280×640, with a cut-out-puppet Daniele and crisp text (Phase H). This replaces the 2× pixel-art remaster |
 
 ## Today
 
