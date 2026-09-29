@@ -1,7 +1,8 @@
 /**
  * The Hall: a 1990s airport departure lounge (docs/art-spec.md, scene card
- * `hall`). Built in task B2 from `hall-bg` candidate 01. Every coordinate is
- * in native pixels (320x160), top-left origin.
+ * `hall`). Built in task B2 from `hall-bg` candidate 01, and remastered at 2x
+ * density in RB2 from `hall-bg@2x` candidate 04. Every coordinate is in
+ * logical pixels (320x160), top-left origin; the art is 640x320.
  *
  * Signposting: the three gates are the exits, each under a hanging sign the
  * engine letters with its country and sections (`gate:<country>`). The
@@ -124,7 +125,7 @@ export const HALL_SCENE: SceneData = {
     {
       id: "monitors",
       name: "flight monitors",
-      hotspot: { x: 98, y: 31, w: 31, h: 13 },
+      hotspot: { x: 98, y: 31, w: 32, h: 13 },
       look: "Two CRT flight monitors. Same information as the big board, only smaller and with more static.",
       use: "I gave one a gentle thump. That's how we fixed things in the nineties.",
     },
@@ -203,7 +204,7 @@ export const HALL_SCENE: SceneData = {
       name: "row of seats",
       sprite: hallObjSeats,
       x: 145,
-      y: 99,
+      y: 98,
       interactionPoint: { x: 184, y: 128, facing: "n" },
       baselineY: SEATS_BASELINE,
       look: "Airport seating, with an armrest every fifty centimetres so that nobody can ever lie down. Ever.",
