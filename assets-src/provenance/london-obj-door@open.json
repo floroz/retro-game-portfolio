@@ -1,10 +1,11 @@
 {
   "id": "london-obj-door@open",
   "output": "src/assets/scenes/london/obj-door@open.png",
-  "task": "B3",
+  "task": "RB3",
   "source": "opus",
-  "derivedFrom": "london-bg",
-  "palette": "v1",
-  "cleanup": "Open state of obj-door: the same frame and fanlight, the leaf swung in against the left of the frame, showing the rainy street outside (overcast sky, a building with lit windows, a street lamp, a wet pavement with reflections, a few rain streaks).",
+  "derivedFrom": "london-obj-door",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB3: open state of obj-door, redrawn at 2x: the closed door's frame, fanlight and step kept, the leaf swung in against the hinge side (seen edge-on), and the rainy street outside: a dark sky, a brick building across the street with lit windows (one dark), a street lamp with a lit head and its hard-edged reflection in the wet pavement, a street wall and kerb, and a few 1 x 3 rain streaks.",
   "date": "2026-09-29"
 }

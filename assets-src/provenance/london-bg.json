@@ -1,14 +1,18 @@
 {
   "id": "london-bg",
   "output": "src/assets/scenes/london/bg.png",
-  "task": "B3",
+  "task": "RB3",
   "source": "codex",
-  "prompt": "assets-src/prompts/scenes/london.md",
-  "candidate": "05",
-  "references": ["assets-src/refs/style-anchor@8x.png"],
-  "approvedRaw": "assets-src/approved/london-bg.webp",
-  "palette": "v1",
-  "cleanup": "Pixelized with --scene london, then redrawn at native size on candidate 05's layout and colours, because the remap was too mushy to clean pixel by pixel (dark door, noisy panelling, light cones). Procedural shell: ceiling boards and cornice, deep red flock wallpaper with a pinstripe every 8 px above a dado rail, raised wainscot panels, baseboard, and plank rows that grow towards the viewer with staggered joints. Window: a transom with two glazing bars over one unbroken lower pane (so the bus animation passes cleanly); flat overcast sky with low clouds; the Shard (into the transom), the Gherkin with its lattice, and St Paul's (dome, lantern, drum, west towers) as flat silhouettes with a lit face; low lit buildings, the road, a wet pavement, a street lamp at the pane's right edge, and a red phone box with lit panes. The candidate's half-hidden bus is removed (it's the anim-bus loop) and so is its rain haze (anim-rain). Back bar: two bottle shelves with flat 2-tone bottles and upside-down pint glasses; the chalkboard enlarged and raised (x 140-204, y 6-80) with a wooden header for the engine's SKILLS lettering, a chalk surface sized for the skills:menu label, and a chalk ledge ending at y 80, so the 16 px tap row stands on the bar top (y 96) below it; two brass pendant lamps (the centre one dropped for the board), no light cones. Right wall: three brass picture lights (no cones) over bare wallpaper for the 3 x 2 London job photos (x 238-301, y 34-70); the dartboard moved to the top right and redrawn smaller (16 px, 8 segments, doubles and bull), with a stray dart in the wallpaper. Oval rug redrawn as a clean ellipse with one ring. The bar, table with stools, fruit machine, door and foreground stool are separate sprites, so the plate behind them is the procedural wall and floor. Core plus London ramp only; no text.",
-  "approvedBy": "opus-orchestrator (delegated pick)",
+  "prompt": "assets-src/prompts/remaster/london.md",
+  "candidate": "02",
+  "references": [
+    "assets-src/refs/remaster/london-current@4x.png",
+    "assets-src/refs/remaster/style-anchor@4x.png"
+  ],
+  "approvedRaw": "assets-src/approved/london-bg@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "RB3: candidate 02 of london-bg@2x, re-registered to the finished B3 layout before pixelizing: a scale of 0.970 vertically (it drew about 3% more floor) and a piecewise horizontal map (offsets from -2 px at the door to -13 px past the right shelf, measured band by band against london-current@4x.png at 640x320), then assets:pixelize --scene london --density 2; the dartboard and fruit machine come from the same raw at a flat -3 px offset, where the candidate already had them. After that every region aligns within 0-2 px (1 logical px). Cleanup in palette-index grids: rain streaks painted out of the window (bg has no rain; anim-rain draws it), keeping the Gherkin's lattice and the Shard's lit windows, and the transom clouds calmed with a 3x3 majority; the right-hand wall repainted as clean boards (L with a 2 px 6 seam every 16 px), which removes the candidate's pendant cords and red light cones; three brass picture lights restamped from one symmetric sprite at the B3 positions (no cords, no cones) above bare boards for the 3 x 2 job photos; the dartboard redrawn as a hard-edged 16-segment board (bull, treble and double rings, black surround, a drop shadow below) inside its hotspot and clear of the photo slots, with the candidate's stray dart kept in the wallpaper; the door's leaf lifted from e to , (0.095 OKLab from the hair browns instead of 0.073); single-pixel speckle cleaned from the walls, wainscot, floor and bar. The chalkboard's header and chalk surface stay blank for the engine's SKILLS lettering and skills:menu, the bar top stays bare for the tap row, and the wall under the picture lights stays bare. Clean plate: the bar, table and stools, fruit machine, door and corner stool are cut out; behind them the wainscot is tiled from one clean 44 px period of its own panels (phase-matched), the baseboard and floor planks continue with their seam rows and staggered joints, the wall boards and dado run on behind the door, and the fruit machine's floor shadow stays on the floor. Core plus London ramp only; no text.",
+  "approvedBy": "opus-orchestrator (delegated RB3 pick)",
   "date": "2026-09-29"
 }
