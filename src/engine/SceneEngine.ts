@@ -17,9 +17,12 @@ import { cycleStarted } from "./animation";
 import {
   CharacterAnimator,
   facingFor,
+  type AnimInput,
   type CharacterSheet,
   type Pose,
 } from "./character";
+import { RigAnimator, type RigState } from "./rig/animator";
+import type { Rig } from "./rig/rig";
 import {
   IRIS_HOLD_MS,
   IRIS_MS,
@@ -29,7 +32,13 @@ import {
   speechMs,
 } from "./constants";
 import { wrapText } from "./font";
-import { clampToPolygon, findPath, pointInPolygon, scaleAt } from "./geometry";
+import {
+  clampToPolygon,
+  findPath,
+  hasWorldScale,
+  pointInPolygon,
+  scaleAt,
+} from "./geometry";
 import { hoverText, lookText } from "./hover";
 import { fillSlotRow, type SlotItem } from "./slots";
 import {
@@ -86,9 +95,21 @@ export type SpriteInfo = (
 
 export interface Speech {
   lines: string[];
+  /** The whole line, for the rig's mouth shapes. */
+  text: string;
+  /** Engine time the line started. */
+  since: number;
   until: number;
   onDone?: () => void;
 }
+
+/**
+ * How Daniele is drawn this frame: from the sprite sheet, or as the cut-out
+ * rig (rig/), each with its own depth scale (1 is its own size).
+ */
+export type Figure =
+  | { kind: "sheet"; pose: Pose; scale: number }
+  | { kind: "rig"; rig: Rig; state: RigState; scale: number };
 
 export type Transition =
   | {
@@ -124,6 +145,17 @@ export interface EngineOptions {
   scenes: SceneRegistry;
   travelMap: TravelMapData;
   sheet: CharacterSheet;
+  /**
+   * The cut-out rig, once HB7 packs it. Without one, Daniele is always the
+   * sprite sheet.
+   */
+  rig?: Rig | null;
+  /**
+   * Whether a scene draws Daniele as the rig or the sprite sheet. Defaults
+   * to the rig in scenes built to the Phase H world scale (`farHeight` and
+   * `nearHeight`), and the sheet elsewhere.
+   */
+  rigFor?: (scene: SceneData) => boolean;
   host: EngineHost;
   start?: SceneId;
   rng?: () => number;
@@ -138,6 +170,9 @@ export class SceneEngine {
   private readonly host: EngineHost;
   private readonly animator: CharacterAnimator;
   private readonly figureHeight: number;
+  private readonly rig: Rig | null;
+  private readonly rigAnimator: RigAnimator | null;
+  private readonly rigFor: (scene: SceneData) => boolean;
   private current: SceneData;
   private slotItems: SlotItem[] = [];
   private actor: Actor;
@@ -163,6 +198,9 @@ export class SceneEngine {
     this.host = opts.host;
     this.animator = new CharacterAnimator(opts.sheet, opts.rng);
     this.figureHeight = opts.sheet.figureHeight;
+    this.rig = opts.rig ?? null;
+    this.rigAnimator = this.rig ? new RigAnimator(this.rig, opts.rng) : null;
+    this.rigFor = opts.rigFor ?? hasWorldScale;
     const start = opts.start ?? "hall";
     this.start = start;
     this.current = this.scenes[start];
@@ -206,11 +244,32 @@ export class SceneEngine {
    * over his own height.
    */
   get scale(): number {
-    return scaleAt(this.current.depth, this.actor.y, this.figureHeight);
+    return scaleAt(this.current.depth, this.actor.y, this.activeHeight());
   }
 
-  pose(): Pose {
-    return this.animator.pose();
+  /** True while this scene draws Daniele as the cut-out rig. */
+  private get rigActive(): boolean {
+    return this.rigAnimator !== null && this.rigFor(this.current);
+  }
+
+  /** The drawn character's own height, which the world scale is against. */
+  private activeHeight(): number {
+    return this.rig && this.rigActive
+      ? this.rig.figureHeight
+      : this.figureHeight;
+  }
+
+  /** How to draw Daniele this frame. */
+  figure(): Figure {
+    if (this.rig && this.rigAnimator && this.rigActive) {
+      return {
+        kind: "rig",
+        rig: this.rig,
+        state: this.rigAnimator.state(),
+        scale: this.scale,
+      };
+    }
+    return { kind: "sheet", pose: this.animator.pose(), scale: this.scale };
   }
 
   /** Current state of an object or exit ("open"), if any. */
@@ -411,6 +470,7 @@ export class SceneEngine {
   /** The content screen closed: finish the "use" animation, shut the object. */
   contentClosed() {
     this.animator.releaseUse();
+    this.rigAnimator?.releaseUse();
     if (this.opened) {
       this.states.delete(this.opened);
       this.opened = null;
@@ -450,13 +510,27 @@ export class SceneEngine {
       done?.();
     }
 
-    const footstep = this.animator.update(dt, {
+    const speech = this.speech;
+    const input: AnimInput = {
       moving: moved > 0,
       distance: moved,
-      scale: this.scale,
+      scale: scaleAt(this.current.depth, this.actor.y, this.figureHeight),
       facing: this.actor.facing,
-      talking: this.speech !== null,
+      talking: speech !== null,
+      speech: speech
+        ? { text: speech.text, elapsedMs: this.clock - speech.since }
+        : undefined,
+    };
+    // Both keep time, so a scene change mid-reach carries on; only the
+    // drawn one's feet make footsteps.
+    const sheetStep = this.animator.update(dt, input);
+    const rigStep = this.rigAnimator?.update(dt, {
+      ...input,
+      scale: this.rig
+        ? scaleAt(this.current.depth, this.actor.y, this.rig.figureHeight)
+        : input.scale,
     });
+    const footstep = this.rigActive ? rigStep : sheetStep;
     if (footstep) this.host.sound?.(`footstep-${this.current.floor ?? "wood"}`);
     this.animationSounds(before, this.clock);
 
@@ -521,6 +595,8 @@ export class SceneEngine {
   private say(text: string, onDone?: () => void) {
     this.speech = {
       lines: wrapText(text, SPEECH_WIDTH),
+      text,
+      since: this.clock,
       until: this.clock + speechMs(text),
       onDone,
     };
@@ -619,6 +695,7 @@ export class SceneEngine {
       this.opened = object.id;
     }
     this.animator.startUse();
+    this.rigAnimator?.startUse();
     this.host.sound?.(object?.sound ?? "ui-blip");
     this.after(150, () => this.host.openSection(section));
   }

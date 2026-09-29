@@ -3,7 +3,7 @@ import type { MouseEvent } from "react";
 import styles from "./Scene.module.scss";
 import { useGameStore } from "../../store/gameStore";
 import { useSceneKeyboard } from "../../hooks/useSceneKeyboard";
-import { CHARACTER_SHEET } from "../../engine/assets";
+import { CHARACTER_RIG, CHARACTER_SHEET } from "../../engine/assets";
 import { CANVAS_H, CANVAS_W, NATIVE_H, NATIVE_W } from "../../engine/constants";
 import { FONT_FAMILY, type TextLayer } from "../../engine/font";
 import { renderFrame } from "../../engine/render";
@@ -125,6 +125,7 @@ export function Scene() {
         engine,
         images,
         sheet: CHARACTER_SHEET,
+        rig: CHARACTER_RIG,
         map: TRAVEL_MAP_DATA,
         display: { w: box.width, h: box.height, dpr: devicePixelRatio || 1 },
       });

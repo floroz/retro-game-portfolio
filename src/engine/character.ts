@@ -177,6 +177,11 @@ export interface AnimInput {
   scale: number;
   facing: Facing;
   talking: boolean;
+  /**
+   * The line being spoken and how long ago it started, for the rig's
+   * mouth shapes (rig/animator.ts). The sprite sheet picks random mouths.
+   */
+  speech?: { text: string; elapsedMs: number };
 }
 
 /** Idle cycle: neutral, breath, neutral, blink. */

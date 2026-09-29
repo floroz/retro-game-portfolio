@@ -115,6 +115,13 @@ export function findPath(from: Vec, to: Vec, poly: readonly Vec[]): Vec[] {
   return path;
 }
 
+/** True if the scene gives a world scale (heights), as Phase H scenes do. */
+export function hasWorldScale(scene: { depth: DepthScale }): boolean {
+  return (
+    scene.depth.farHeight !== undefined && scene.depth.nearHeight !== undefined
+  );
+}
+
 /** 0 with the feet on `farY`, 1 on `nearY`, clamped outside. */
 function depthT(depth: DepthScale, y: number): number {
   const { farY, nearY } = depth;
