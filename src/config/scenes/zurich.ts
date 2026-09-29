@@ -67,7 +67,7 @@ export const ZURICH_SCENE: SceneData = {
   // The floor from the baseboard (y 101) to the front edge, less the plant's
   // pot corner (x 46 and y 127 clear its leaves and rim). Two keyhole slits
   // (x 170 and x 262) cut out the footprints of the desk and chair
-  // (x 136-203, y 119-134) and the cabinet (x 247-276, y 113-119).
+  // (x 136-203, y 119-134) and the cabinet (x 238-276, y 113-119).
   walkbox: [
     [4, 101],
     [170, 101],
@@ -84,8 +84,8 @@ export const ZURICH_SCENE: SceneData = {
     [170, 101],
     [262, 101],
     [262, 113],
-    [247, 113],
-    [247, 119],
+    [238, 113],
+    [238, 119],
     [276, 119],
     [276, 113],
     [262, 113],
@@ -175,10 +175,10 @@ export const ZURICH_SCENE: SceneData = {
       name: "filing cabinet",
       sprite: zurichObjCabinet,
       states: { open: zurichObjCabinetOpen },
-      // The 66x84 canvas is shared with the open state, whose drawer sticks
-      // out to the left of the body.
-      x: 242,
-      y: 76,
+      // The 84x94 art px canvas is shared with the open state, whose drawer
+      // sticks out to the left of the body.
+      x: 233,
+      y: 71,
       interactionPoint: { x: 261, y: 128, facing: "n" },
       baselineY: CABINET_BASELINE,
       action: "resume",
@@ -218,11 +218,11 @@ export const ZURICH_SCENE: SceneData = {
       clip: LAKE,
     },
     {
-      // The prompt cursor, under the marquee on the CRT's green screen.
+      // The prompt cursor, under the word on the CRT's green screen.
       kind: "lamps",
       id: "cursor",
-      points: [[152, 90]],
-      size: 2,
+      points: [[152.5, 89]],
+      size: 1,
       pattern: "alternate",
       stepMs: 530,
       on: "#7fae52",
@@ -272,29 +272,29 @@ export const ZURICH_SCENE: SceneData = {
   ],
   labels: [
     {
-      // "EXPERIENCE" scrolls across the CRT's screen (x 151-167, y 82-93)
-      // in phosphor green, above the prompt cursor: the word is too long
-      // for a 16 px screen, so it runs like the Windows marquee screensaver.
+      // "EXP" on the CRT's green screen (x 151-167, y 82-92): the full word
+      // is 74 art px at its smallest, on a 33 px screen, so the screen shows
+      // the RPG stat instead. The cursor blinks under it.
       id: "crt",
-      source: "section:experience",
-      x: 151,
+      source: "text:EXP",
+      x: 152.5,
       y: 84,
       font: "small",
+      maxWidth: 13.5,
       color: "#7fae52",
-      marquee: { clip: { x: 151, y: 82, w: 16, h: 11 }, pxPerSec: 12 },
       baselineY: DESK_BASELINE,
     },
     {
-      // Lettered on the card on the cabinet's top drawer (x 250-269). The
-      // word at the smallest size is 23 px, so it overhangs the card by two
-      // px each side, onto the drawer's grey face.
+      // Lettered on the card on the cabinet's top drawer (x 242-267, about
+      // 25 px wide). The word at its smallest size is 23 px, so it sits
+      // inside the card with a px to spare on each side.
       id: "cabinet",
       source: "section:resume",
-      x: 259.5,
-      y: 81.5,
+      x: 255,
+      y: 77.5,
       align: "center",
       font: "small",
-      maxWidth: 23,
+      maxWidth: 25,
       color: "#2a2328",
       baselineY: CABINET_BASELINE,
     },

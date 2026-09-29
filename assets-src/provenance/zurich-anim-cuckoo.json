@@ -9,7 +9,7 @@
   "approvedRaw": "assets-src/approved/zurich-cuckoo@hd.webp",
   "density": 2,
   "style": "painted",
-  "cleanup": "HB1: candidate 02 of zurich-cuckoo@hd, the carved bird calling with its beak open, facing left. Prepared with assets:prepare --painted --no-quantize (Lanczos, hard alpha) at the size given, registered to the style-anchor layout with --align, then quantized with the other eight Zurich layers to one shared 256-colour palette with assets:quantize (no dither); pixels still within 0.08 OKLab of a rig colour after quantizing were remapped inside the palette. Resized to 18x10 (9x5 logical px), a single frame used as a moving prop (scene.props), not a strip: it pops out of the clock's gable door, calls, and goes back in.",
+  "cleanup": "HB1: candidate 02 of zurich-cuckoo@hd, the carved bird calling with its beak open, facing left. Prepared with assets:prepare --painted --no-quantize (Lanczos, hard alpha) at the size given, registered to the style-anchor layout with --align, then quantized with the other eight Zurich layers to one shared 256-colour palette with assets:quantize (no dither); pixels still within 0.08 OKLab of a rig colour after quantizing were remapped inside the palette. Resized to 18x10 (9x5 logical px), a single frame used as a moving prop (scene.props), not a strip: it pops out of the clock's gable door, calls, and goes back in. HB1b: ink edge as on the other layers. Requantized with the other Zurich layers to one 255-colour palette (the view region weighted 3x so the window gets about 145 colours), then any pixel still within 0.083 OKLab of a rig colour was remapped inside the palette.",
   "approvedBy": "daniele",
   "date": "2026-09-29"
 }
