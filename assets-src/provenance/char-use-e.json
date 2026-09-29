@@ -1,14 +1,12 @@
 {
   "id": "char-use-e",
   "output": "assets-src/character/char-use-e.png",
-  "task": "B7",
-  "source": "codex",
-  "prompt": "assets-src/prompts/character/use-e.md",
-  "candidate": "01",
-  "references": ["assets-src/refs/char-turnaround@8x.png"],
-  "approvedRaw": "assets-src/approved/char-use-e.webp",
-  "palette": "v1",
-  "cleanup": "Hybrid: the turnaround's side-view body, head and legs, with candidate 01's reach redrawn on it in the anchor's style. The hanging near arm and hand were removed and the sweater and jeans filled in behind them; the arm is a sleeve (F lit edge and top, H highlight, G base, 0 underside) bent at chest height in frame 1 and straight out in frame 2, ending in a small open hand on skin C-E. Candidate pixels were used only as a pose reference.",
-  "approvedBy": "opus-orchestrator (delegated)",
+  "task": "RB7",
+  "source": "opus",
+  "derivedFrom": "char-turnaround",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Redrawn at 2x density (64x128 cells, feet on row 123, origin (32, 123), 115 px tall) on the approved remaster turnaround (assets-src/refs/remaster/char-turnaround@4x.png, RG1b), core palette only. The current 1x frames were nearest-upscaled as the pose and timing template and every frame was onion-skinned against them. The anchor's side body with its sleeve-and-hand sprite cut at the elbow (row 57): frame 1 (half reach) has the upper arm swung 16 degrees forward and the forearm turned to point forward, frame 2 (full reach) the whole arm raised to shoulder height with six plain sleeve rows taken out so the hand lands where the 1x hand does. The jeans behind the hanging hand are repainted from the plain rows below. Codex RC7 char-use-e@2x used as reference for the bent elbow.",
+  "approvedBy": "opus (RB7 build agent, delegated pick)",
   "date": "2026-09-29"
 }
