@@ -185,20 +185,21 @@ All four tracks share one motif, varied per country in the iMUSE style. Shared s
 
 Every creative decision has been settled with Daniele:
 
-| #   | Decision                 | Outcome                                                              |
-| --- | ------------------------ | -------------------------------------------------------------------- |
-| 1   | Hall style               | A 1990s airport terminal                                             |
-| 2   | London setting           | A pub                                                                |
-| 3   | Section mapping          | London: Skills. Zurich: Experience, Resume. Sorrento: About, Contact |
-| 4   | Where each job lives     | By its `country` field: London, Zurich, or Sorrento                  |
-| 5   | Country-to-country exits | Through the Hall only                                                |
-| 6   | Palette strategy         | One master palette with extra ramps per country                      |
-| 7   | Hall music               | A new theme sharing one motif with the country tracks                |
-| 8   | Other characters         | None in the MVP                                                      |
-| 9   | Animation budget         | About 13 small loops                                                 |
-| 10  | Character outfit         | One outfit everywhere                                                |
-| 11  | Flavour props            | Keep the fruit machine and dartboard; a hotspot per tap              |
-| 12  | Readable text            | Drawn by the engine in the pixel font, never painted into art        |
+| #   | Decision                 | Outcome                                                                                |
+| --- | ------------------------ | -------------------------------------------------------------------------------------- |
+| 1   | Hall style               | A 1990s airport terminal                                                               |
+| 2   | London setting           | A pub                                                                                  |
+| 3   | Section mapping          | London: Skills. Zurich: Experience, Resume. Sorrento: About, Contact                   |
+| 4   | Where each job lives     | By its `country` field: London, Zurich, or Sorrento                                    |
+| 5   | Country-to-country exits | Through the Hall only                                                                  |
+| 6   | Palette strategy         | One master palette with extra ramps per country                                        |
+| 7   | Hall music               | A new theme sharing one motif with the country tracks                                  |
+| 8   | Other characters         | None in the MVP                                                                        |
+| 9   | Animation budget         | About 13 small loops                                                                   |
+| 10  | Character outfit         | One outfit everywhere                                                                  |
+| 11  | Flavour props            | Keep the fruit machine and dartboard; a hotspot per tap                                |
+| 12  | Readable text            | Drawn by the engine in the pixel font, never painted into art                          |
+| 13  | Visual fidelity          | A remaster: the same scenes and atmosphere, redrawn as sharper pixel art at 2× density |
 
 ## Today
 
@@ -208,7 +209,7 @@ Every creative decision has been settled with Daniele:
 
 ## Decisions
 
-- **Resolution:** art is authored at a native 320×160 with a fixed palette and scaled 4× with pixelated rendering. The logical viewport stays 1280×640, so the coordinate system, toolbar layout, and tests keep working. The low native resolution enforces real pixel art instead of painterly "retro" images.
+- **Resolution (updated by the remaster, 2026-09-29):** scene data stays on a 320×160 logical grid, and all art is redrawn at **2× pixel density** (640×320, displayed at 2×) for a sharper, remastered look. See Phase R in the art spec. The original rule was: art is authored at a native 320×160 with a fixed palette and scaled 4× with pixelated rendering. The logical viewport stays 1280×640, so the coordinate system, toolbar layout, and tests keep working. The low native resolution enforces real pixel art instead of painterly "retro" images.
 - **Verb shortcuts:** the character walks to the nearest exit (limited by the existing `MAX_TRAVEL_TIME` of 1.5 seconds), the scene changes, and the section's content opens on arrival. A click during the sequence skips straight to the content. It still takes one click.
 - **No separate map screen** in the MVP. The Hall is the in-world way to choose a scene, and the travel map is only a transition. Scenes are reached through the Hall, the toolbar, the terminal, and exits.
 
