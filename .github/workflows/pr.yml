@@ -2,9 +2,27 @@ name: PR Review
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, v2]
 
 jobs:
+  plan-guard:
+    name: Plan Guard
+    if: github.base_ref == 'v2'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          # Full history, so the ancestor check can see every plan commit on v2
+          fetch-depth: 0
+
+      - name: Check the PR follows the plan on v2
+        run: ./scripts/ci/plan-guard.sh "$HEAD_BRANCH" "$HEAD_SHA" origin/v2
+        env:
+          HEAD_BRANCH: ${{ github.head_ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
