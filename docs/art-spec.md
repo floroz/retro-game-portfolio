@@ -787,13 +787,13 @@ A Codex task is runnable when everything under **After** is `done` in this secti
 
 | Task | Status | After | Prompt files (`assets-src/prompts/remaster/`)                                          | Output folders                                          | Candidates |
 | ---- | ------ | ----- | -------------------------------------------------------------------------------------- | ------------------------------------------------------- | ---------- |
-| RC1  | todo   | R1    | `zurich.md`, `char-turnaround.md`                                                      | `zurich-bg@2x/`, `char-turnaround@2x/`                  | 4 each     |
-| RC2  | todo   | RG1a  | `hall.md`                                                                              | `hall-bg@2x/`                                           | 4          |
-| RC3  | todo   | RG1a  | `london.md`                                                                            | `london-bg@2x/`                                         | 4          |
-| RC4  | todo   | RG1a  | `sorrento.md`                                                                          | `sorrento-bg@2x/`                                       | 4          |
-| RC5  | todo   | RG1a  | `travel-map.md`                                                                        | `travel-map-bg@2x/`                                     | 4          |
-| RC6  | todo   | RG1b  | `char-walk-e.md`, `char-walk-s.md`, `char-walk-n.md`                                   | `char-walk-e@2x/`, `char-walk-s@2x/`, `char-walk-n@2x/` | 3 each     |
-| RC7  | todo   | RG1b  | `char-idle-e.md`, `char-idle-s.md`, `char-idle-n.md`, `char-use-e.md`, `char-use-n.md` | one `char-<tag>@2x/` per file                           | 3 each     |
+| RC1  | done   | R1    | `zurich.md`, `char-turnaround.md`                                                      | `zurich-bg@2x/`, `char-turnaround@2x/`                  | 4 each     |
+| RC2  | done   | RG1a  | `hall.md`                                                                              | `hall-bg@2x/`                                           | 4          |
+| RC3  | done   | RG1a  | `london.md`                                                                            | `london-bg@2x/`                                         | 4          |
+| RC4  | done   | RG1a  | `sorrento.md`                                                                          | `sorrento-bg@2x/`                                       | 4          |
+| RC5  | done   | RG1a  | `travel-map.md`                                                                        | `travel-map-bg@2x/`                                     | 4          |
+| RC6  | done   | RG1b  | `char-walk-e.md`, `char-walk-s.md`, `char-walk-n.md`                                   | `char-walk-e@2x/`, `char-walk-s@2x/`, `char-walk-n@2x/` | 3 each     |
+| RC7  | done   | RG1b  | `char-idle-e.md`, `char-idle-s.md`, `char-idle-n.md`, `char-use-e.md`, `char-use-n.md` | one `char-<tag>@2x/` per file                           | 3 each     |
 
 RC2 to RC7 can all run in parallel sessions.
 
@@ -805,12 +805,12 @@ RC2 to RC7 can all run in parallel sessions.
 | E3   | done   | —                  | Engine density support and a 2× pixel font                                                      |
 | R1   | done   | —                  | Export the remaster references, and write all 14 remaster prompt files                          |
 | RA   | done   | RC1, R0            | Pick and clean up both remaster anchors (ends at gates **RG1a** Zurich and **RG1b** turnaround) |
-| RB1  | todo   | RG1a, E3           | Rebuild `zurich` at 2× from the remaster anchor                                                 |
+| RB1  | done   | RG1a, E3           | Rebuild `zurich` at 2× from the remaster anchor                                                 |
 | RB2  | todo   | RC2, RG1a, E3      | Rebuild `hall` at 2×                                                                            |
 | RB3  | todo   | RC3, RG1a, E3      | Rebuild `london` at 2×                                                                          |
 | RB4  | todo   | RC4, RG1a, E3      | Rebuild `sorrento` at 2×                                                                        |
 | RB5  | todo   | RC5, RG1a, E3      | Rebuild `travel-map` at 2×                                                                      |
-| RB6  | todo   | RG1a, R0           | Redraw the shared sprites at 2× (slots, folds, plane, marker)                                   |
+| RB6  | done   | RG1a, R0           | Redraw the shared sprites at 2× (slots, folds, plane, marker)                                   |
 | RB7  | todo   | RC6, RC7, RG1b, E3 | Character at 2×: all 31 body frames and 6 talk heads                                            |
 | I2   | todo   | RB1–RB7, I1        | Final cohesion and integration (ends at **G4**)                                                 |
 
@@ -837,6 +837,7 @@ RC2 to RC7 can all run in parallel sessions.
   - Review, pick, and clean up at 2×.
   - Export `refs/remaster/style-anchor@4x.png` and `refs/remaster/char-turnaround@4x.png`, the latter on magenta.
   - The orchestrator passes RG1a and RG1b and records them in the Gate log.
+- **Picks for RB2–RB5 and RB7** are delegated to each build agent, on objective criteria: layout fidelity measured region by region against the current scene, surface cleanliness, and the contrast rule. The pick and its measurements go in the PR description, and the orchestrator reviews the finished result.
 - **RB1–RB5 Rebuild a scene at 2×.** Same shape as B1–B5. **A scene switches density in one PR:** its bg, fg, objects, states, and animation strips all move to 2× together, because the engine takes object density from the scene's background (E3, PR #33). No scene-data changes are needed for density.
   - Review, pick, pixelize at density 2, run the cleanup brief, and cut objects out at 2×.
   - Keep **every logical position the current scene data uses**, adjusting the data only where the new art needs it.
