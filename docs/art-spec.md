@@ -770,7 +770,7 @@ Everything in this phase starts once its dependencies are met, and runs in paral
   - hand-placed dithering allowed on large surfaces, skies, and light falloff;
   - a selective 1px outline on sprites;
   - **still no text in the art**.
-- **Palette v2.** Every v1 index is kept. Up to 24 colours are appended, with punctuation indices: about 8 to the core (skin, navy, wood, and neutral midtones) and 4 to each scene ramp. The per-scene restriction is unchanged. **The character must never vanish into the background**: no floor or large surface may sit within one value step of the sweater, jeans, or hair, and the Hall carpet uses the Hall ramp's teal.
+- **Palette v2.** Every v1 index is kept. Up to 24 colours are appended, with punctuation indices: about 8 to the core (skin, navy, wood, and neutral midtones) and 4 to each scene ramp. The per-scene restriction is unchanged. **The character must never vanish into the background.** No floor, rug, or large surface behind the character may use a colour within **0.08 OKLab** of the character's clothing and hair colours (sweater `F`, `G`, `*`; jeans `H`, `+`, `I`; hair `6`–`8`). Dark wood behind a navy sweater is fine, because the hue differs; navy carpet or a jeans-blue floor isn't. The Hall carpet uses the teal `/` and `:`, and Sorrento's majolica floor uses `_` and `{` instead of core `I`. Palette v2 is merged (R0, PR #32): 24 appended colours, all 24 safe punctuation indices. The palette and `lib.ts` are read-only after R0.
 - **The engine draws labels with a 2× pixel font** (E3).
 
 ### What doesn't change
@@ -799,7 +799,7 @@ RC2 to RC7 can all run in parallel sessions.
 
 | Task | Status | After              | What                                                                                            |
 | ---- | ------ | ------------------ | ----------------------------------------------------------------------------------------------- |
-| R0   | todo   | —                  | Palette v2, and tooling at 2× density                                                           |
+| R0   | done   | —                  | Palette v2, and tooling at 2× density                                                           |
 | E3   | todo   | —                  | Engine density support and a 2× pixel font                                                      |
 | R1   | done   | —                  | Export the remaster references, and write all 14 remaster prompt files                          |
 | RA   | todo   | RC1, R0            | Pick and clean up both remaster anchors (ends at gates **RG1a** Zurich and **RG1b** turnaround) |
@@ -831,7 +831,7 @@ RC2 to RC7 can all run in parallel sessions.
 - **R1 References and prompts.** **Owns:** `assets-src/refs/remaster/`, `assets-src/prompts/remaster/`.
   - For each finished scene, export `refs/remaster/<scene>-current@4x.png`: bg plus objects plus fg composited, with no labels, slot sprites, or character. Also export the character: the turnaround and each tag strip at 8×, on magenta.
   - Write 14 prompt files from the remaster templates below: 5 scenes, the turnaround, and 8 tags.
-- **RA Remaster anchors.** Same shape as F5.
+- **RA Remaster anchors.** Same shape as F5. Also add `density` (1 or 2) to `assets-src/provenance/schema.json`.
   - Review, pick, and clean up at 2×.
   - Export `refs/remaster/style-anchor@4x.png` and `refs/remaster/char-turnaround@4x.png`, the latter on magenta.
   - The orchestrator passes RG1a and RG1b and records them in the Gate log.
@@ -841,7 +841,7 @@ RC2 to RC7 can all run in parallel sessions.
   - Keep every label, slot, sound, and line. **Redraw every animation strip at 2×** as well (fruit machine lights, moka steam, the CRT cursor, the stars, and so on); the remaster references don't include them.
   - Replace the files in place, and walk the real character through the scene to check for contrast.
 - **RB6 Shared sprites at 2×.** Redraw every file in `src/assets/shared/` at double size, keeping the same logical footprint, the core palette only, and matching the remaster anchor.
-- **RB7 Character at 2×.**
+- **RB7 Character at 2×.** Pass the measured talk-head offset to `pack` (the 2× default is (16, 8); v1 shipped (8, 3)).
   - Rebuild all 31 body frames and 6 talk heads at 64×128.
   - Use the current frames as the pose and timing templates: nearest-upscale them, then redraw at full detail. Use the Codex sheets (RC6, RC7) and the remastered turnaround for detail and likeness.
   - Keep the timing and the stride (in logical px), then repack.
