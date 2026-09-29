@@ -1,10 +1,11 @@
 {
   "id": "map-marker",
   "output": "src/assets/shared/map-marker.png",
-  "task": "B6",
+  "task": "RB6",
   "source": "opus",
-  "palette": "v1",
-  "cleanup": "Drawn by hand at native size as a palette-index grid (core palette only), matching the style anchor's density, flat 2-4 step shading and selective 1px outline (local ramp's darkest on the lit top-left side, 0 on the shadow side). 7x7 round red location marker with a cream highlight, drawn centred on each travel-map marker position.",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Remastered for Phase R: drawn by hand as a palette-index grid at density 2, exactly twice the B6 density-1 size so the engine's SHARED_LOGICAL_SIZES keeps the same logical footprint. Core palette only (v2, including the new core steps), matching the remastered Zurich style anchor (assets-src/refs/remaster/style-anchor@4x.png): hard pixel edges, 3-6 steps per material, finer material detail, no dithering on the sprite, and a selective 1px outline lit from the top left (the local ramp's darkest on the lit side, 0 on the shadow side). No text or logos. 14x14 round red marker (was 7x7), drawn centred: a red disc in three red steps with a cream specular highlight on the top left.",
   "approvedBy": "opus-orchestrator (delegated)",
   "date": "2026-09-29"
 }

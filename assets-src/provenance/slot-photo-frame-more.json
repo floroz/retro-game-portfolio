@@ -1,10 +1,11 @@
 {
   "id": "slot-photo-frame-more",
   "output": "src/assets/shared/slots/slot-photo-frame-more.png",
-  "task": "B6",
+  "task": "RB6",
   "source": "opus",
-  "palette": "v1",
-  "cleanup": "Drawn by hand at native size as a palette-index grid (core palette only), matching the style anchor's density, flat 2-4 step shading and selective 1px outline (local ramp's darkest on the lit top-left side, 0 on the shadow side). 20x16 fold object for the photo walls: a shoebox of old photos (red lid, cardboard box, blank snapshots poking out) on a small wall shelf with two brackets, so it reads on a wall in the last frame slot.",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Remastered for Phase R: drawn by hand as a palette-index grid at density 2, exactly twice the B6 density-1 size so the engine's SHARED_LOGICAL_SIZES keeps the same logical footprint. Core palette only (v2, including the new core steps), matching the remastered Zurich style anchor (assets-src/refs/remaster/style-anchor@4x.png): hard pixel edges, 3-6 steps per material, finer material detail, no dithering on the sprite, and a selective 1px outline lit from the top left (the local ramp's darkest on the lit side, 0 on the shadow side). No text or logos. 40x32 fold object (was 20x16): a shoebox of old photos on a small wall shelf. Four cream-bordered photos (hills, a portrait, a beach, a sunset), two of them leaning, each with its own outline, stand in a cardboard box with a red lid rim and a blank label; the shelf plank is lit on top with a darker front edge, on two wooden brackets.",
   "approvedBy": "opus-orchestrator (delegated)",
   "date": "2026-09-29"
 }
