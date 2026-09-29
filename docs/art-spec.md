@@ -2,6 +2,8 @@
 
 This is the asset side of [the expansion plan](expansion-plan.md). The plan's [Creative direction](expansion-plan.md#creative-direction) is the source of truth for what the world contains. This spec says how every asset is made and in what order.
 
+**Current work: [Phase R: Remaster](#phase-r-remaster-current-work).** The Codex orchestrator's tasks are in its [Codex lane](#codex-lane-the-codex-orchestrator-polls-this-table) table. Everything above Phase R still applies unless Phase R says otherwise.
+
 It's written for **two orchestrators**, one per model family. Each one runs every task in its own lane, starting each task as soon as its dependencies are met and running independent tasks in parallel. The work has three phases:
 
 1. **Foundations:** a short sequential chain that everything else depends on.
@@ -747,6 +749,128 @@ Everything in this phase starts once its dependencies are met, and runs in paral
   6. Regenerate the OG image with `npm run generate:og-image`. Confirm the Game Boy view and the SEO HTML are unchanged.
   7. Walk every scene by hand and check that each section is reachable in two clicks or fewer. E2E tests and baselines are out of scope for v2.
   8. **G4:** final review by Daniele.
+
+## Phase R: Remaster (current work)
+
+**Direction (Agreed with Daniele, 2026-09-29).** Keep everything: the strategy, scenes, layouts, objects, moods, and atmosphere. Make it look like a **remaster**: sharper, higher-detail pixel art. The reference is _The Curse of Monkey Island_ (640×480, hand-crafted), rendered as crisp pixel art, never painterly or blurred. _Monkey Island 2_ and _Day of the Tentacle_ stay the references for staging and humour. The Opus orchestrator runs this phase end to end with delegated gates. Daniele reviews the whole branch at G4.
+
+### What changes
+
+- **Pixel density doubles.** Every background and sprite is redrawn at **2× density**:
+  - backgrounds 640×320;
+  - the character cell 64×128, with the feet on row 123, the origin at (32, 123), and the figure 114–116 px tall;
+  - the shared sprites at twice their current size;
+  - the plane frames at 34×34.
+
+  Displayed at 2× instead of 4×, the viewport stays 1280×640.
+
+- **Art rules at 2×:**
+  - hard pixel edges, with no anti-aliasing, blur, or glow;
+  - 3–6 shading steps per material, and finer material detail (wood grain, fabric folds, reflections as hard-edged shapes);
+  - hand-placed dithering allowed on large surfaces, skies, and light falloff;
+  - a selective 1px outline on sprites;
+  - **still no text in the art**.
+- **Palette v2.** Every v1 index is kept. Up to 24 colours are appended, with punctuation indices: about 8 to the core (skin, navy, wood, and neutral midtones) and 4 to each scene ramp. The per-scene restriction is unchanged. **The character must never vanish into the background**: no floor or large surface may sit within one value step of the sweater, jeans, or hair, and the Hall carpet uses the Hall ramp's teal.
+- **The engine draws labels with a 2× pixel font** (E3).
+
+### What doesn't change
+
+- **Logical coordinates.** Scene data (walkboxes, hotspots, baselines, slots, labels, markers, routes) stays in 320×160 logical px, and the engine multiplies by the density. Existing scene configs keep working, and builds only fine-tune them.
+- **Ids and paths.** Remastered files replace the current files in place, and provenance records gain `"density": 2`. Approved raws are saved as `assets-src/approved/<asset-id>@2x.webp`.
+- **Everything else:** animation poses, timing and frame counts (the stride doubles in pixels), slot sizes in logical px and capacities, audio, and the signposting rules.
+
+### Codex lane (the Codex orchestrator polls this table)
+
+A Codex task is runnable when everything under **After** is `done` in this section's tables. Follow [Rules for Codex tasks](#rules-for-codex-tasks). Each prompt file lists its own references. Output goes to `assets-src/exchange/raw/<folder>/` in `../rgp-codex/`, with `DONE` written last. Codex never commits.
+
+| Task | Status | After | Prompt files (`assets-src/prompts/remaster/`)                                          | Output folders                                          | Candidates |
+| ---- | ------ | ----- | -------------------------------------------------------------------------------------- | ------------------------------------------------------- | ---------- |
+| RC1  | todo   | R1    | `zurich.md`, `char-turnaround.md`                                                      | `zurich-bg@2x/`, `char-turnaround@2x/`                  | 4 each     |
+| RC2  | todo   | RG1a  | `hall.md`                                                                              | `hall-bg@2x/`                                           | 4          |
+| RC3  | todo   | RG1a  | `london.md`                                                                            | `london-bg@2x/`                                         | 4          |
+| RC4  | todo   | RG1a  | `sorrento.md`                                                                          | `sorrento-bg@2x/`                                       | 4          |
+| RC5  | todo   | RG1a  | `travel-map.md`                                                                        | `travel-map-bg@2x/`                                     | 4          |
+| RC6  | todo   | RG1b  | `char-walk-e.md`, `char-walk-s.md`, `char-walk-n.md`                                   | `char-walk-e@2x/`, `char-walk-s@2x/`, `char-walk-n@2x/` | 3 each     |
+| RC7  | todo   | RG1b  | `char-idle-e.md`, `char-idle-s.md`, `char-idle-n.md`, `char-use-e.md`, `char-use-n.md` | one `char-<tag>@2x/` per file                           | 3 each     |
+
+RC2 to RC7 can all run in parallel sessions.
+
+### Opus lane
+
+| Task | Status | After              | What                                                                                            |
+| ---- | ------ | ------------------ | ----------------------------------------------------------------------------------------------- |
+| R0   | todo   | —                  | Palette v2, and tooling at 2× density                                                           |
+| E3   | todo   | —                  | Engine density support and a 2× pixel font                                                      |
+| R1   | todo   | —                  | Export the remaster references, and write all 14 remaster prompt files                          |
+| RA   | todo   | RC1, R0            | Pick and clean up both remaster anchors (ends at gates **RG1a** Zurich and **RG1b** turnaround) |
+| RB1  | todo   | RG1a, E3           | Rebuild `zurich` at 2× from the remaster anchor                                                 |
+| RB2  | todo   | RC2, RG1a, E3      | Rebuild `hall` at 2×                                                                            |
+| RB3  | todo   | RC3, RG1a, E3      | Rebuild `london` at 2×                                                                          |
+| RB4  | todo   | RC4, RG1a, E3      | Rebuild `sorrento` at 2×                                                                        |
+| RB5  | todo   | RC5, RG1a, E3      | Rebuild `travel-map` at 2×                                                                      |
+| RB6  | todo   | RG1a, R0           | Redraw the shared sprites at 2× (slots, folds, plane, marker)                                   |
+| RB7  | todo   | RC6, RC7, RG1b, E3 | Character at 2×: all 31 body frames and 6 talk heads                                            |
+| I2   | todo   | RB1–RB7, I1        | Final cohesion and integration (ends at **G4**)                                                 |
+
+| Gate | Status | Decided by                                                        |
+| ---- | ------ | ----------------------------------------------------------------- |
+| RG1a | todo   | Opus orchestrator (delegated): the remastered Zurich style anchor |
+| RG1b | todo   | Opus orchestrator (delegated): the remastered turnaround          |
+
+### Task cards
+
+- **R0 Palette v2 and tooling.** **Owns:** `assets-src/palette/`, `scripts/assets/` (density support only).
+  - Append the palette v2 colours per the rules above, proposed from the finished scenes' needs and frozen by the orchestrator.
+  - Add `--density 2` to `pixelize`, `review`, `preview`, `refs`, `cutout`, and `pack`, so native targets become 640×320 and 64×128.
+  - Make `lint:assets` accept density-2 sizes, and check the `density` field in provenance.
+  - Add unit tests.
+- **E3 Engine density.** **Owns:** E1's paths.
+  - Detect each asset's density from its image size against the logical size, and render the canvas at 640×320 while positions stay logical.
+  - Support a character cell of 64×128 at density 2, alongside density 1 during the transition, so scenes can switch one at a time with nothing breaking.
+  - Add a crisp 2× pixel font for every engine label, sign, menu, and speech line.
+- **R1 References and prompts.** **Owns:** `assets-src/refs/remaster/`, `assets-src/prompts/remaster/`.
+  - For each finished scene, export `refs/remaster/<scene>-current@4x.png`: bg plus objects plus fg composited, with no labels, slot sprites, or character. Also export the character: the turnaround and each tag strip at 8×, on magenta.
+  - Write 14 prompt files from the remaster templates below: 5 scenes, the turnaround, and 8 tags.
+- **RA Remaster anchors.** Same shape as F5.
+  - Review, pick, and clean up at 2×.
+  - Export `refs/remaster/style-anchor@4x.png` and `refs/remaster/char-turnaround@4x.png`, the latter on magenta.
+  - The orchestrator passes RG1a and RG1b and records them in the Gate log.
+- **RB1–RB5 Rebuild a scene at 2×.** Same shape as B1–B5.
+  - Review, pick, pixelize at density 2, run the cleanup brief, and cut objects out at 2×.
+  - Keep **every logical position the current scene data uses**, adjusting the data only where the new art needs it.
+  - Keep every label, slot, sound, and line.
+  - Replace the files in place, and walk the real character through the scene to check for contrast.
+- **RB6 Shared sprites at 2×.** Redraw every file in `src/assets/shared/` at double size, keeping the same logical footprint, the core palette only, and matching the remaster anchor.
+- **RB7 Character at 2×.**
+  - Rebuild all 31 body frames and 6 talk heads at 64×128.
+  - Use the current frames as the pose and timing templates: nearest-upscale them, then redraw at full detail. Use the Codex sheets (RC6, RC7) and the remastered turnaround for detail and likeness.
+  - Keep the timing and the stride (in logical px), then repack.
+- **I2 Final integration.** Everything in the I1 card's "Fixes found during Phase 2" list that touches art, plus:
+  - a contact sheet of all the remastered assets, fixing any mismatches;
+  - a contrast walk of every scene with the real character;
+  - regenerating the OG image;
+  - checking the Game Boy view, the shell, and SEO;
+  - walking two-click reachability by hand.
+
+  Ends at **G4**, Daniele's review of the whole branch.
+
+### Remaster prompt templates
+
+- **Preamble (R):**
+
+  > Remastered 1990s LucasArts point-and-click adventure game art, in the hand-crafted style of The Curse of Monkey Island, rendered as crisp, high-detail pixel art. Hard pixel edges, no anti-aliasing, no blur, no glow, no bloom, no lens effects, no painterly brushwork. Rich but restrained shading with 3 to 6 steps per material, and fine material detail. No text, letters, numbers, signage, logos, or watermarks anywhere; signs and boards are blank. Slightly exaggerated cartoon proportions and bold, readable silhouettes.
+
+- **Scene:**
+
+  > {preamble} This is a remastered redraw of the reference image, a finished adventure-game scene. Keep its composition exactly: every object's position, size, and silhouette, the colours, the light, and the mood. Redraw it sharper and more detailed, at twice the resolution. Areas that are bare in the reference stay bare. The room is empty of people.
+
+  References: `refs/remaster/<scene>-current@4x.png`. For every scene except Zurich, also `refs/remaster/style-anchor@4x.png`, with the line: "Match the second reference's pixel density, outline style, shading, and level of detail exactly."
+
+- **Character:**
+
+  > {preamble} A remastered redraw of the reference sprite sheet, on a flat, solid, pure magenta (#FF00FF) background: the same man, the same poses in the same order and layout, the same proportions and outfit, redrawn with sharper, more detailed pixel art at twice the resolution. No ground shadow, no motion lines.
+
+  References: that tag's `refs/remaster/char-<tag>-current@8x.png`, plus `refs/remaster/char-turnaround@4x.png` (from RC6 onwards).
 
 ## Done when
 
