@@ -27,18 +27,19 @@
     "generate:og-image": "npx tsx scripts/generate-og-image.ts",
     "dev:hd-placeholder": "tsx scripts/dev-hd-placeholder.ts",
     "assets:pixelize": "tsx scripts/assets/pixelize.ts",
+    "assets:prepare": "tsx scripts/assets/prepare.ts",
     "assets:review": "tsx scripts/assets/review.ts",
     "assets:grid": "tsx scripts/assets/grid.ts",
     "assets:preview": "tsx scripts/assets/preview.ts",
     "assets:cutout": "tsx scripts/assets/cutout.ts",
     "assets:pack": "tsx scripts/assets/pack.ts",
+    "assets:rig": "tsx scripts/assets/rig.ts",
     "assets:refs": "tsx scripts/assets/refs.ts",
     "assets:palette": "tsx scripts/assets/palette.ts",
     "assets:placeholders": "tsx scripts/assets/placeholders.ts",
     "assets:music": "tsx scripts/assets/music.ts",
     "assets:sfx": "tsx scripts/assets/sfx.ts",
-    "prepare": "[ -n \"$CI\" ] && exit 0 || husky",
-    "assets:rig": "tsx scripts/assets/rig.ts"
+    "prepare": "[ -n \"$CI\" ] && exit 0 || husky"
   },
   "dependencies": {
     "framer-motion": "^12.29.2",

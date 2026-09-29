@@ -4,16 +4,47 @@
  * validate.ts so they can be unit tested without touching the file system.
  */
 import {
-  DENSITIES,
+  LOGICAL_SCENE_SIZE,
   characterMetrics,
   characterTags,
-  isDensity,
   isSceneId,
-  sceneSize,
   type CharacterSheetJson,
   type Density,
   type SceneId,
 } from "./lib";
+
+/**
+ * Every density a shipped asset may have: 1 (the original art), 2 (the Phase
+ * R remaster), and 4 (Phase H's hand-painted HD art, 1280x640 scenes). All
+ * three are valid while scenes move to HD one at a time. `lib.ts` (read-only)
+ * knows only the pixel-art densities, 1 and 2.
+ */
+export const ASSET_DENSITIES = [1, 2, 4] as const;
+export type AssetDensity = (typeof ASSET_DENSITIES)[number];
+
+export function isAssetDensity(value: unknown): value is AssetDensity {
+  return (ASSET_DENSITIES as readonly unknown[]).includes(value);
+}
+
+/**
+ * HD (density 4) art is painted, with no palette and soft edges, so it skips
+ * the palette, ramp, and hard-alpha rules. Naming, provenance, sizes, and
+ * one density per scene folder still apply.
+ */
+export function usesPixelRules(density: AssetDensity): boolean {
+  return density !== 4;
+}
+
+/** Native scene size at a density: 320x160, 640x320, or 1280x640. */
+export function nativeSceneSize(density: AssetDensity): {
+  w: number;
+  h: number;
+} {
+  return {
+    w: LOGICAL_SCENE_SIZE.w * density,
+    h: LOGICAL_SCENE_SIZE.h * density,
+  };
+}
 
 /** Folders whose images ship and must pass the validator. */
 export const SHIPPED_ROOTS = [
@@ -36,7 +67,8 @@ export type AssetKind =
   | "anim"
   | "slot"
   | "shared"
-  | "character";
+  | "character"
+  | "rig";
 
 export interface ShippedAsset {
   path: string;
@@ -93,11 +125,12 @@ export function classifyAsset(path: string): ShippedAsset | string | null {
   }
 
   if (path.startsWith("src/assets/character/")) {
-    if (file === "daniele.json") return null;
-    if (path !== "src/assets/character/daniele.png") {
-      return `${path}: the character folder holds only daniele.png and daniele.json`;
-    }
-    return { path, id: "char-sheet", kind: "character", scene: null };
+    if (file === "daniele.json" || file === "daniele-rig.json") return null;
+    if (path === "src/assets/character/daniele.png")
+      return { path, id: "char-sheet", kind: "character", scene: null };
+    if (path === "src/assets/character/daniele-rig.png")
+      return { path, id: "char-rig", kind: "rig", scene: null };
+    return `${path}: the character folder holds only daniele.png, daniele.json, daniele-rig.png, and daniele-rig.json`;
   }
 
   return `${path}: not under ${SHIPPED_ROOTS.join(", ")}`;
@@ -111,9 +144,9 @@ export function checkAssetSize(
   asset: ShippedAsset,
   width: number,
   height: number,
-  density: Density = 1,
+  density: AssetDensity = 1,
 ): string[] {
-  const scene = sceneSize(density);
+  const scene = nativeSceneSize(density);
   const at = density === 1 ? "" : ` at density ${density}`;
   if (
     (asset.kind === "bg" || asset.kind === "fg") &&
@@ -131,20 +164,26 @@ export function checkAssetSize(
       `${asset.path}: larger than the ${scene.w}x${scene.h} scene${at} (${width}x${height})`,
     ];
   }
+  if (asset.kind === "rig" && density !== 4)
+    return [`${asset.path}: the cut-out rig is HD art, density 4`];
+  if (asset.kind === "character" && density === 4)
+    return [
+      `${asset.path}: the HD character is the cut-out rig (daniele-rig.png), not a density 4 sheet`,
+    ];
   return [];
 }
 
 /**
  * Every image in one scene folder shares a density: a scene switches to 2x
- * all at once (docs/art-spec.md, Phase R). Takes each asset with its density.
+ * (Phase R) or HD (Phase H) all at once. Takes each asset with its density.
  */
 export function checkSceneDensities(
-  assets: readonly { asset: ShippedAsset; density: Density }[],
+  assets: readonly { asset: ShippedAsset; density: AssetDensity }[],
 ): string[] {
-  const byScene = new Map<string, Map<Density, string[]>>();
+  const byScene = new Map<string, Map<AssetDensity, string[]>>();
   for (const { asset, density } of assets) {
     if (!asset.path.startsWith("src/assets/scenes/") || !asset.scene) continue;
-    const scene = byScene.get(asset.scene) ?? new Map<Density, string[]>();
+    const scene = byScene.get(asset.scene) ?? new Map<AssetDensity, string[]>();
     scene.set(density, [...(scene.get(density) ?? []), asset.path]);
     byScene.set(asset.scene, scene);
   }
@@ -155,7 +194,7 @@ export function checkSceneDensities(
       .sort(([a], [b]) => a - b)
       .map(([d, paths]) => `density ${d}: ${paths.join(", ")}`);
     errors.push(
-      `src/assets/scenes/${scene}: mixes densities; remaster the whole scene at once (${parts.join("; ")})`,
+      `src/assets/scenes/${scene}: mixes densities; move the whole scene at once (${parts.join("; ")})`,
     );
   }
   return errors;
@@ -176,8 +215,8 @@ export interface ProvenanceRecord {
   derivedFrom?: string;
   cleanup?: string;
   approvedBy?: string;
-  /** Pixel density; absent means 1. Remastered (Phase R) assets have 2. */
-  density?: Density;
+  /** Absent means 1. Remastered (Phase R) assets have 2, HD (Phase H) ones 4. */
+  density?: AssetDensity;
   date: string;
 }
 
@@ -185,10 +224,10 @@ export interface ProvenanceRecord {
  * The density a provenance record declares: its "density" field, or 1 when
  * it has none or the field is invalid (checkProvenance reports that).
  */
-export function provenanceDensity(record: unknown): Density {
+export function provenanceDensity(record: unknown): AssetDensity {
   if (typeof record !== "object" || record === null) return 1;
   const d = (record as { density?: unknown }).density;
-  return isDensity(d) ? d : 1;
+  return isAssetDensity(d) ? d : 1;
 }
 
 const isString = (v: unknown): v is string =>
@@ -249,9 +288,9 @@ export function checkProvenance(
         errors.push(`${where}: "${key}" is only for codex assets`);
     }
   }
-  if (r.density !== undefined && !isDensity(r.density)) {
+  if (r.density !== undefined && !isAssetDensity(r.density)) {
     errors.push(
-      `${where}: density must be one of ${DENSITIES.join(", ")} (a number)`,
+      `${where}: density must be one of ${ASSET_DENSITIES.join(", ")} (a number)`,
     );
   }
   if (

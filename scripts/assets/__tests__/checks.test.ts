@@ -4,7 +4,11 @@ import {
   checkAssetSize,
   checkCharacterJson,
   checkProvenance,
+  checkSceneDensities,
   classifyAsset,
+  provenanceDensity,
+  usesPixelRules,
+  type ShippedAsset,
 } from "../checks";
 
 describe("asset naming", () => {
@@ -124,5 +128,87 @@ describe("character json", () => {
     );
     expect(errors.join("\n")).toMatch(/size doesn't match/);
     expect(errors.join("\n")).toMatch(/missing tag walk-e/);
+  });
+});
+
+describe("HD (density 4)", () => {
+  const bg: ShippedAsset = {
+    path: "src/assets/scenes/zurich/bg.png",
+    id: "zurich-bg",
+    kind: "bg",
+    scene: "zurich",
+  };
+  const obj: ShippedAsset = {
+    path: "src/assets/scenes/zurich/obj-desk.png",
+    id: "zurich-obj-desk",
+    kind: "obj",
+    scene: "zurich",
+  };
+
+  test("sizes scenes at 1280x640 and keeps objects inside them", () => {
+    expect(checkAssetSize(bg, 1280, 640, 4)).toEqual([]);
+    expect(checkAssetSize(bg, 640, 320, 4).join()).toMatch(
+      /1280x640 at density 4/,
+    );
+    expect(checkAssetSize(bg, 1280, 640, 2)).toHaveLength(1);
+    expect(checkAssetSize(obj, 900, 500, 4)).toEqual([]);
+    expect(checkAssetSize(obj, 1281, 500, 4)).toHaveLength(1);
+  });
+
+  test("skips only the pixel-art rules", () => {
+    expect(usesPixelRules(1)).toBe(true);
+    expect(usesPixelRules(2)).toBe(true);
+    expect(usesPixelRules(4)).toBe(false);
+  });
+
+  test("still forbids a scene that mixes densities", () => {
+    expect(
+      checkSceneDensities([
+        { asset: bg, density: 4 },
+        { asset: obj, density: 4 },
+      ]),
+    ).toEqual([]);
+    expect(
+      checkSceneDensities([
+        { asset: bg, density: 4 },
+        { asset: obj, density: 2 },
+      ])[0],
+    ).toMatch(
+      /zurich: mixes densities.*density 4: src\/assets\/scenes\/zurich\/bg/,
+    );
+  });
+
+  test("accepts density 4 in provenance", () => {
+    const record = {
+      id: "zurich-bg",
+      output: "src/assets/scenes/zurich/bg.png",
+      task: "HB1",
+      source: "codex",
+      prompt: "assets-src/prompts/hd/zurich.md",
+      candidate: "02",
+      references: [],
+      approvedRaw: "assets-src/approved/zurich-bg@hd.webp",
+      density: 4,
+      date: "2026-10-05",
+    };
+    expect(checkProvenance(record, "zurich-bg.json", () => true)).toEqual([]);
+    expect(provenanceDensity(record)).toBe(4);
+    expect(
+      checkProvenance({ ...record, density: 3 }, "zurich-bg.json", () => true),
+    ).toHaveLength(1);
+  });
+
+  test("names the cut-out rig and ties it to density 4", () => {
+    const rig = classifyAsset("src/assets/character/daniele-rig.png");
+    expect(rig).toMatchObject({ id: "char-rig", kind: "rig", scene: null });
+    expect(classifyAsset("src/assets/character/daniele-rig.json")).toBeNull();
+    expect(typeof classifyAsset("src/assets/character/rig.png")).toBe("string");
+    const asset = rig as ShippedAsset;
+    expect(checkAssetSize(asset, 900, 700, 4)).toEqual([]);
+    expect(checkAssetSize(asset, 900, 700, 1).join()).toMatch(/density 4/);
+    const sheet = classifyAsset(
+      "src/assets/character/daniele.png",
+    ) as ShippedAsset;
+    expect(checkAssetSize(sheet, 64, 128, 4).join()).toMatch(/cut-out rig/);
   });
 });

@@ -8,8 +8,12 @@
  * art spec's rules and has a provenance record (with loop points for loops).
  *
  * Sizes follow each asset's density, from its provenance record's "density"
- * field (absent means 1), so density-1 and remastered density-2 scenes pass
- * side by side while the remaster lands one scene at a time.
+ * field (absent means 1), so density-1, remastered density-2, and HD
+ * density-4 scenes pass side by side while scenes move one at a time.
+ * Density-4 (Phase H) art is painted: it skips the palette, ramp, and
+ * hard-alpha rules, but keeps every naming, provenance, size, and
+ * one-density-per-scene rule. The HD character is the cut-out rig,
+ * daniele-rig.png, checked against daniele-rig.json.
  */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
@@ -32,8 +36,10 @@ import {
   checkSceneDensities,
   classifyAsset,
   provenanceDensity,
+  usesPixelRules,
   type ShippedAsset,
 } from "./checks";
+import { checkRigJson } from "./rigpack";
 
 function walk(dir: string): string[] {
   if (!existsSync(dir)) return [];
@@ -171,22 +177,24 @@ async function main() {
     const density = densityOf(asset.path);
     sizes.set(asset.path, { w: img.width, h: img.height });
     errors.push(...checkAssetSize(asset, img.width, img.height, density));
-    const report = checkImagePalette(img, palette, asset.scene);
-    const ramp = asset.scene ?? "core only";
-    if (report.offPalette.length) {
-      errors.push(
-        `${asset.path}: off-palette colours ${report.offPalette.slice(0, 8).join(" ")}`,
-      );
+    if (usesPixelRules(density)) {
+      const report = checkImagePalette(img, palette, asset.scene);
+      const ramp = asset.scene ?? "core only";
+      if (report.offPalette.length) {
+        errors.push(
+          `${asset.path}: off-palette colours ${report.offPalette.slice(0, 8).join(" ")}`,
+        );
+      }
+      if (report.wrongRamp.length) {
+        errors.push(
+          `${asset.path}: uses colours outside its ramp (${ramp}): ${report.wrongRamp.slice(0, 8).join(" ")}`,
+        );
+      }
+      if (report.partialAlpha)
+        errors.push(
+          `${asset.path}: ${report.partialAlpha} pixels have partial alpha`,
+        );
     }
-    if (report.wrongRamp.length) {
-      errors.push(
-        `${asset.path}: uses colours outside its ramp (${ramp}): ${report.wrongRamp.slice(0, 8).join(" ")}`,
-      );
-    }
-    if (report.partialAlpha)
-      errors.push(
-        `${asset.path}: ${report.partialAlpha} pixels have partial alpha`,
-      );
     if (asset.kind === "bg") {
       const transparent = img.data.some((v, i) => i % 4 === 3 && v !== 255);
       if (transparent)
@@ -197,7 +205,22 @@ async function main() {
         `${asset.path}: no provenance record in assets-src/provenance/ (expected ${asset.id}.json)`,
       );
     }
-    if (asset.kind === "character") {
+    if (asset.kind === "rig") {
+      const jsonPath = resolve(
+        REPO_ROOT,
+        "src/assets/character/daniele-rig.json",
+      );
+      if (!existsSync(jsonPath))
+        errors.push("src/assets/character/daniele-rig.json is missing");
+      else
+        errors.push(
+          ...checkRigJson(
+            JSON.parse(readFileSync(jsonPath, "utf8")) as unknown,
+            img,
+          ),
+        );
+    }
+    if (asset.kind === "character" && density !== 4) {
       const jsonPath = resolve(REPO_ROOT, "src/assets/character/daniele.json");
       if (!existsSync(jsonPath))
         errors.push("src/assets/character/daniele.json is missing");
