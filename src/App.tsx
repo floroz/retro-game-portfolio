@@ -65,24 +65,32 @@ function App() {
         onClose={() => {}} // No-op since desktop is always open
         gameContent={
           welcomeShown ? (
-            terminalScreenAction ? (
-              <TerminalScreen
-                action={terminalScreenAction}
-                onClose={closeTerminalScreen}
-              />
-            ) : (
-              <GameCanvas>
-                {/* Scene area - 1280x640 */}
-                <div className={gameCanvasStyles.scene}>
-                  <Scene />
-                </div>
+            <>
+              {terminalScreenAction && (
+                <TerminalScreen
+                  action={terminalScreenAction}
+                  onClose={closeTerminalScreen}
+                />
+              )}
+              {/* The scene stays mounted under the content screen, so the
+                  visitor comes back to the same room, mid-animation. */}
+              <div
+                className={styles.gameLayer}
+                hidden={terminalScreenAction !== null}
+              >
+                <GameCanvas>
+                  {/* Scene area - 1280x640 */}
+                  <div className={gameCanvasStyles.scene}>
+                    <Scene />
+                  </div>
 
-                {/* Toolbar area - 1280x160 */}
-                <div className={gameCanvasStyles.toolbar}>
-                  <Toolbar />
-                </div>
-              </GameCanvas>
-            )
+                  {/* Toolbar area - 1280x160 */}
+                  <div className={gameCanvasStyles.toolbar}>
+                    <Toolbar />
+                  </div>
+                </GameCanvas>
+              </div>
+            </>
           ) : undefined
         }
         welcomeContent={
