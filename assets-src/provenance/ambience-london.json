@@ -1,0 +1,61 @@
+{
+  "id": "ambience-london",
+  "output": "public/audio/ambience/london.mp3",
+  "task": "A2",
+  "source": "opus",
+  "date": "2026-09-29",
+  "recipe": "assets-src/audio/ambience/london.ts",
+  "description": "London ambience: rain on the pub window heard from inside (a gusting wash, drops ticking on the glass), a dozen regulars murmuring, and glasses clinking.",
+  "loop": {
+    "loopStart": 0.5,
+    "loopEnd": 32.5,
+    "loopStartFrame": 24000,
+    "loopEndFrame": 1560000,
+    "sampleRate": 48000,
+    "usage": "Decode with Web Audio and loop an AudioBufferSourceNode between loopStart and loopEnd (seconds). Start at 0."
+  },
+  "loudness": {
+    "integratedLufs": -28,
+    "lraLu": 1.1,
+    "truePeakDbtp": -16.6,
+    "samplePeakDbfs": -16.73,
+    "gainDb": -6.5,
+    "target": "-28 LUFS"
+  },
+  "seam": {
+    "wav": {
+      "windowFrames": 12000,
+      "identical": true,
+      "differenceDb": null,
+      "maxAbsDifference": 0,
+      "signalDbfs": -31.88,
+      "wrapStepRatio": 0.206,
+      "bestLag": 0
+    },
+    "mp3": {
+      "windowFrames": 12000,
+      "identical": false,
+      "differenceDb": -12.3,
+      "maxAbsDifference": 0.0241,
+      "signalDbfs": -32.26,
+      "wrapStepRatio": 0.734,
+      "bestLag": 0
+    },
+    "mp3WithDecoderOffset": {
+      "windowFrames": 10895,
+      "identical": false,
+      "differenceDb": -12.38,
+      "maxAbsDifference": 0.0241,
+      "signalDbfs": -32.28,
+      "wrapStepRatio": 0.21,
+      "bestLag": 0
+    }
+  },
+  "render": {
+    "synth": "scripts/assets/sfx.ts (seeded, deterministic)",
+    "seed": 42,
+    "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "sampleRate": 48000,
+    "channels": 2
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "sfx-split-flap",
+  "output": "public/audio/sfx/split-flap.mp3",
+  "task": "A2",
+  "source": "opus",
+  "date": "2026-09-29",
+  "recipe": "assets-src/audio/sfx/split-flap.ts",
+  "description": "Split-flap flutter: plastic flaps clattering over from several modules at once, slowing as they settle, over a faint motor whirr.",
+  "loudness": {
+    "integratedLufs": -19.4,
+    "lraLu": 0,
+    "truePeakDbtp": -3,
+    "samplePeakDbfs": -3.09,
+    "gainDb": 3.85,
+    "target": "-3 dBFS sample peak"
+  },
+  "render": {
+    "synth": "scripts/assets/sfx.ts (seeded, deterministic)",
+    "seed": 16,
+    "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "sampleRate": 48000,
+    "channels": 1
+  }
+}

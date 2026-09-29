@@ -1,0 +1,24 @@
+{
+  "id": "sfx-fruit-machine",
+  "output": "public/audio/sfx/fruit-machine.mp3",
+  "task": "A2",
+  "source": "opus",
+  "date": "2026-09-29",
+  "recipe": "assets-src/audio/sfx/fruit-machine.ts",
+  "description": "Fruit machine jingle: a square-wave chip plays a rising run, the motif's head in B-flat (D F Bb, then A F D), a warbling Bb chord, and coins in the tray.",
+  "loudness": {
+    "integratedLufs": -7.7,
+    "lraLu": 0,
+    "truePeakDbtp": -2.4,
+    "samplePeakDbfs": -2.41,
+    "gainDb": 1.84,
+    "target": "-3 dBFS sample peak"
+  },
+  "render": {
+    "synth": "scripts/assets/sfx.ts (seeded, deterministic)",
+    "seed": 18,
+    "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "sampleRate": 48000,
+    "channels": 1
+  }
+}
