@@ -1,11 +1,15 @@
 {
   "id": "slot-tap-more",
   "output": "src/assets/shared/slots/slot-tap-more.png",
-  "task": "RB6",
-  "source": "opus",
-  "palette": "v2",
+  "task": "HB6",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/shared.md",
+  "candidate": "01",
+  "references": ["assets-src/refs/hd/style-anchor.png"],
+  "approvedRaw": "assets-src/approved/slot-tap-more@hd.webp",
   "density": 2,
-  "cleanup": "Remastered for Phase R: drawn by hand as a palette-index grid at density 2, exactly twice the B6 density-1 size so the engine's SHARED_LOGICAL_SIZES keeps the same logical footprint. Core palette only (v2, including the new core steps), matching the remastered Zurich style anchor (assets-src/refs/remaster/style-anchor@4x.png): hard pixel edges, 3-6 steps per material, finer material detail, no dithering on the sprite, and a selective 1px outline lit from the top left (the local ramp's darkest on the lit side, 0 on the shadow side). No text or logos. 22x32 wooden cask (was 11x16), bottom-aligned with the tap by eight blank rows at the top: bulging staves shaded across the barrel in five wood steps ((, A, 9, 8, 7) with darker stave seams and a few grain flecks, a lit top chime, three iron hoops in neutral steps (4, %, 3, !, 2) with a lit top row, and a small brass spigot on the front between the lower hoops.",
-  "approvedBy": "opus-orchestrator (delegated)",
+  "style": "painted",
+  "cleanup": "Cut from the approved shared-sprites@hd sheet (HC4, assets-src/exchange/raw/shared-sprites@hd/), prepared to painted density 2 with assets:prepare --painted --no-quantize (Lanczos to exactly twice the density-1 logical footprint so SHARED_LOGICAL_SIZES is unchanged, hard alpha, saturation 1.2, levels 6,246,1), a 1px ink edge darkened on the silhouette, then all eight shared sprites quantized to one shared 256-colour palette with assets:quantize (no dither). Candidate 01 cask, fitted (bottom-centred) to 22x32; the cask is wider than tall so it is 22 px wide and shorter than the box.",
+  "approvedBy": "daniele",
   "date": "2026-09-29"
 }
