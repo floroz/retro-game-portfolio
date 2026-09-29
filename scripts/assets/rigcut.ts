@@ -47,6 +47,9 @@ import {
   inTube,
   paintElement,
   paintProc,
+  rimLight,
+  liftDetail,
+  tubeCentre,
   tidySilhouette,
   tone,
   toImage,
@@ -65,8 +68,10 @@ const APPROVED = join(REPO_ROOT, "assets-src/approved");
 
 /**
  * Every facing's body, in px above the soles (drawing px are y down, so
- * `-Y`). Head-heavy in the MI3 way: the head is 25.5 of 144 (1/5.65), the
- * hem sits at half his height, and the hands end on the thigh.
+ * `-Y`). Head-heavy in the MI3 way: the head is 25.5 of 144 (1/5.65); the
+ * sweater's hem is at 45% of his height with a long torso above it; the hands
+ * end on the thigh. The arms leave the shoulders 1 to 2 px clear of the torso
+ * (front and back), so they read as limbs and not as part of a block.
  */
 const M = {
   top: 144,
@@ -74,24 +79,26 @@ const M = {
   /** The torso's top edge at the neck. */
   neck: 119,
   /** The arms' joint: just under the shoulder line. */
-  shoulder: 108,
+  shoulder: 107,
   elbow: 84,
-  wrist: 66.5,
-  hip: 70,
+  wrist: 69,
+  hip: 68,
   /** The bottom of the sweater. */
-  hem: 67,
-  knee: 36,
+  hem: 65,
+  knee: 34,
   /** Where the jeans end on the shoe. */
   jeansEnd: 5.5,
-  /** Torso half width, and the x of the arms' and legs' joints. */
-  torsoHalf: 15,
-  armX: 14,
+  /** The x of the arms' and legs' joints (front and back). */
+  armX: 16,
   legX: 7,
   /** Widths (full) of the limbs, top to bottom. */
-  upperArm: [8, 8],
-  forearm: [8, 6],
+  upperArm: [7, 7],
+  forearm: [7, 5.6],
   thigh: [12, 12],
-  shin: [12, 10, 12],
+  shin: [12, 10, 10],
+  /** Sleeve tone against the torso, and the lit rim on a limb's left edge. */
+  sleeve: 1.22,
+  rim: 1.75,
 } as const;
 
 const Yd = (up: number) => -up;
@@ -245,37 +252,33 @@ const CREAM_SHADE: Rgb = [206, 194, 172];
  * right; the left hand is the mirror.
  */
 const HAND_FRONT = [
-  "..###..",
-  ".#####.",
-  "#####d#",
-  "#####d#",
-  "#####d#",
-  ".####d#",
-  ".####d.",
-  ".##d##.",
-  "..###..",
+  "..#####..",
+  ".#######.",
+  "#########",
+  "######d##",
+  "######d##",
+  ".#####d##",
+  ".#####d#.",
+  ".######..",
+  ".#d#d##..",
+  ".#d#d##..",
+  "..#####..",
+  "...###...",
 ];
-const HAND_BACK = [
-  "..###..",
-  ".#####.",
-  "#####d#",
-  "#####d#",
-  "#####d#",
-  ".####d#",
-  ".####d.",
-  ".##d##.",
-  "..###..",
-];
+const HAND_BACK = HAND_FRONT;
 const HAND_SIDE = [
-  "..###..",
-  ".#####.",
-  ".######",
-  ".#####d",
-  ".####d#",
-  ".####d.",
-  ".####d.",
-  ".##d##.",
-  "..###..",
+  "..####...",
+  ".######..",
+  ".#######.",
+  ".######d#",
+  ".######d#",
+  ".#####d##",
+  ".#####d#.",
+  ".######..",
+  ".#d#d##..",
+  ".#d#d#...",
+  "..#####..",
+  "...###...",
 ];
 
 interface HandSpec {
@@ -330,6 +333,8 @@ interface FacingSpec {
   /** x of each part's joints: r and l (screen x). */
   armX: [number, number];
   legX: [number, number];
+  /** How far the upper arm and forearm lean by their far ends: outwards, or forwards in the side view (px). */
+  lean: [number, number];
   /** Draw order, back to front. */
   order: RigPartId[];
   /** Head: the chin's row in the sheet, the neck's centre column (from the head region's left), and its x. */
@@ -385,6 +390,7 @@ const SPECS: Record<RigFacing, FacingSpec> = {
     shoeFrom: 735,
     armX: [0, 0],
     legX: [0, 0],
+    lean: [1, 1.5],
     order: ORDER_SIDE,
     headAt: { chinY: 598, neckX: 155, x: -0.5, pad: 8 },
     neckKeep: 2.5,
@@ -410,6 +416,7 @@ const SPECS: Record<RigFacing, FacingSpec> = {
     shoeFrom: 850,
     armX: [-M.armX, M.armX],
     legX: [-M.legX, M.legX],
+    lean: [1, 0.8],
     order: ORDER_FRONT,
     headAt: { chinY: 528, neckX: 182, x: 0 },
     neckKeep: 5,
@@ -435,6 +442,7 @@ const SPECS: Record<RigFacing, FacingSpec> = {
     shoeFrom: 1402,
     armX: [M.armX, -M.armX],
     legX: [M.legX, -M.legX],
+    lean: [1, 0.8],
     order: [
       "shin-r",
       "thigh-r",
@@ -495,6 +503,10 @@ interface Ctx {
   sheet: Sheet;
 }
 
+/** +1 if the arm's outside is towards +x (or forwards, in the side view), else -1. */
+const outward = (spec: FacingSpec, side: number) =>
+  spec.armX[side] === 0 ? 1 : Math.sign(spec.armX[side]);
+
 /** Where a limb's joint is, in the drawing. */
 function jointOf(id: RigPartId, spec: FacingSpec): RigPoint {
   const side = id.endsWith("-r") ? 0 : 1;
@@ -508,7 +520,10 @@ function jointOf(id: RigPartId, spec: FacingSpec): RigPoint {
       return { x: spec.armX[side], y: Yd(M.shoulder) };
     case "forearm-r":
     case "forearm-l":
-      return { x: spec.armX[side], y: Yd(M.elbow) };
+      return {
+        x: spec.armX[side] + outward(spec, side) * spec.lean[0],
+        y: Yd(M.elbow),
+      };
     case "thigh-r":
     case "thigh-l":
       return { x: spec.legX[side], y: Yd(M.hip) };
@@ -556,8 +571,15 @@ function limbPart(
       const R = wa / 2;
       const yTop = Yd(M.shoulder) - R;
       const yBot = Yd(M.elbow) + wb / 2;
-      tube = {
+      const lean = leaned(
         cx,
+        Yd(M.shoulder),
+        (outward(spec, side) * spec.lean[0]) / (M.shoulder - M.elbow),
+        yTop,
+        yBot,
+      );
+      tube = {
+        ...lean,
         yTop,
         yBot,
         widths: widthsOf(wa, wb, yTop, yBot),
@@ -565,15 +587,28 @@ function limbPart(
         capBot: wb / 2,
       };
       open = (_x, y) => y < Yd(M.shoulder) || y > Yd(M.elbow);
-      buf = boxFor(cx, wa, yTop, yBot);
+      buf = boxFor(
+        cx + (lean.dx ?? 0) / 2,
+        wa + Math.abs(lean.dx ?? 0),
+        yTop,
+        yBot,
+      );
       break;
     }
     case "forearm": {
       const R = wa / 2;
       const yTop = Yd(M.elbow) - R;
       const yBot = Yd(M.wrist) + 1;
-      tube = {
+      const o = outward(spec, side);
+      const lean = leaned(
         cx,
+        Yd(M.elbow),
+        (o * spec.lean[1]) / (M.elbow - M.wrist),
+        yTop,
+        yBot,
+      );
+      tube = {
+        ...lean,
         yTop,
         yBot,
         widths: [
@@ -585,14 +620,15 @@ function limbPart(
         capBot: 0,
       };
       open = (_x, y) => y < Yd(M.elbow);
-      buf = boxFor(cx, 12, yTop, yBot + 10);
+      buf = boxFor(cx, 16, yTop, yBot + 14);
       // The hand hangs under the cuff.
       const hand = handFor(facing, side);
+      const wristX = tubeCentre(tube, Yd(M.wrist));
       before.push((b) =>
         paintHand(b, ID.hand, {
           rows: hand.rows,
           flip: hand.flip,
-          x: Math.round(cx - hand.rows[0].length / 2 + hand.dx),
+          x: Math.round(wristX - hand.rows[0].length / 2 + hand.dx),
           y: Yd(M.wrist) - 1,
         }),
       );
@@ -623,9 +659,8 @@ function limbPart(
         yBot,
         widths: [
           [yTop, M.shin[0]],
-          [Yd(24), M.shin[0]],
-          [Yd(16), M.shin[1]],
-          [Yd(9), M.shin[1]],
+          [Yd(27), M.shin[0]],
+          [Yd(21), M.shin[1]],
           [yBot, M.shin[2]],
         ],
         capTop: M.shin[0] / 2,
@@ -647,18 +682,34 @@ function limbPart(
     contour,
   };
   paintElement(buf, el);
+  const arm = limb === "upper-arm" || limb === "forearm";
+  // A sleeve reads a little lighter than the body it hangs in front of.
+  if (arm) tone(buf, () => true, M.sleeve, ID.base);
   if (limb === "forearm") {
     // A rib cuff under a shadow line.
     tone(buf, (_x, y) => y > Yd(M.wrist + 1.5) && y <= Yd(M.wrist - 1), 1.12);
     tone(buf, (_x, y) => y > Yd(M.wrist + 2.5) && y <= Yd(M.wrist + 1.5), 0.55);
   }
   finish(buf, { open, despeckle: true, contour: contour ? [ID.base] : [] });
+  // ... and has a lit edge, so it is seen against the dark sweater.
+  if (arm) rimLight(buf, M.rim, ID.base);
   return {
     image: toImage(buf),
     offset: { x: buf.x0, y: buf.y0 },
     pivot: joint,
     variants: {},
   };
+}
+
+/** A tube leaning `slope` px of x per px of y through (`jx`, `jy`), from `yTop` to `yBot`. */
+function leaned(
+  jx: number,
+  jy: number,
+  slope: number,
+  yTop: number,
+  yBot: number,
+): { cx: number; dx: number } {
+  return { cx: jx + slope * (yTop - jy), dx: slope * (yBot - yTop) };
 }
 
 function limbWidths(limb: Limb): [number, number] {
@@ -740,7 +791,6 @@ function necklineY(facing: RigFacing, u: number): number {
 
 /** The torso's outline, right half from the neck down (drawing px), per facing. */
 function torsoOutline(facing: RigFacing): [number, number][] {
-  const H = M.torsoHalf;
   if (facing === "side") {
     // Chest forward (+x), back behind; a round sweater.
     return [
@@ -769,16 +819,21 @@ function torsoOutline(facing: RigFacing): [number, number][] {
     const u = i / steps;
     pts.push([neck * u, Yd(necklineY(facing, u))]);
   }
+  // Sloped shoulders (the sleeves start under their tips), a narrower chest
+  // so the arms can hang clear of it, a bloused hem.
   const right: [number, number][] = [
     ...pts,
     [neck + 1.2, Yd(M.neck - 0.8)],
-    [H - 0.5, Yd(113.5)],
-    [H, Yd(111)],
-    [H, Yd(97)],
-    [H - 0.5, Yd(M.hem + 12)],
-    [H, Yd(M.hem + 1)],
-    [H - 0.6, Yd(M.hem)],
-    [H / 2, Yd(M.hem - 0.4)],
+    [10, Yd(114.6)],
+    [14, Yd(110.6)],
+    [14.4, Yd(107)],
+    [13.6, Yd(104)],
+    [11.6, Yd(100)],
+    [11.4, Yd(M.hem + 14)],
+    [12.2, Yd(M.hem + 6)],
+    [13.6, Yd(M.hem + 1)],
+    [13.4, Yd(M.hem)],
+    [6, Yd(M.hem - 0.4)],
     [0, Yd(M.hem - 0.4)],
   ];
   return symmetric(right);
@@ -791,13 +846,13 @@ function paintTorso(ctx: Ctx, raw: Image, spans: Spans): Built {
   const [ya, yb] = spec.torsoRows;
   const cxRaw = spans.centre[spec.torsoWidthRow];
   const hwRaw = spans.half[spec.torsoWidthRow] - spans.band;
-  const half = facing === "side" ? 12 : M.torsoHalf;
+  const half = facing === "side" ? 12 : 13;
   const scaleY = (yb - ya) / (M.neck - M.hem + 1);
   const el: Element = {
     id: ID.base,
     raw,
     map: (x, y) => [
-      cxRaw + (x / half) * hwRaw * (facing === "side" ? 1 : 1),
+      cxRaw + Math.max(-1, Math.min(1, x / half)) * hwRaw,
       ya + (y - Yd(M.neck)) * scaleY,
     ],
     inside: (x, y) => inPolygon(poly, x, y),
@@ -845,13 +900,19 @@ const MOUTHS = [
   ["blink", 4],
 ] as const;
 
+const hasPixels = (img: Image) => img.data.some((v, i) => i % 4 === 3 && v > 0);
+
 async function paintHead(
   ctx: Ctx,
   load: (n: string) => Promise<Sheet>,
 ): Promise<Built> {
   const { spec } = ctx;
   const at = spec.headAt;
-  const paint = (raw: Image, shift: RigPoint, base: Region): Image => {
+  const paint = (
+    raw: Image,
+    shift: RigPoint,
+    base: Region,
+  ): { image: Image; ink: Image } => {
     const left = base.x;
     // Hair tip to chin is the head's height.
     const scale = (M.top - M.chin) / (at.chinY - base.y - (at.pad ?? 0));
@@ -875,27 +936,39 @@ async function paintHead(
     paintElement(buf, el);
     tidySilhouette(buf);
     finish(buf, { open: (_x, y) => y > Yd(M.chin - spec.neckKeep) - 1.2 });
-    return toImage(buf);
+    const ink = liftDetail(buf);
+    return { image: toImage(buf), ink };
   };
   const offset = { x: -19, y: Yd(M.top) - 3 };
   const pivot = jointOf("head", spec);
   if ("region" in spec.head) {
     const r = region(ctx.sheet, spec.head.region);
-    const image = paint(isolate(ctx.sheet, r.id), { x: 0, y: 0 }, r);
-    return { image, offset, pivot, variants: {} };
+    const rest = paint(isolate(ctx.sheet, r.id), { x: 0, y: 0 }, r);
+    return {
+      image: rest.image,
+      offset,
+      pivot,
+      variants: hasPixels(rest.ink) ? { ink: rest.ink } : {},
+    };
   }
   const hs = await load(spec.head.sheet);
   const regs = [...hs.regions].sort((a, b) => a.x - b.x);
   const base = regs[0];
-  const image = paint(isolate(hs, base.id), { x: 0, y: 0 }, base);
-  const variants: Record<string, Image> = {};
+  const rest = paint(isolate(hs, base.id), { x: 0, y: 0 }, base);
+  // Each head has an "-ink" twin holding only its drawn detail (pupils,
+  // mouth lines): the renderer snaps those to solid ink after resampling.
+  const variants: Record<string, Image> = hasPixels(rest.ink)
+    ? { ink: rest.ink }
+    : {};
   for (const [name, i] of MOUTHS) {
     const v = regs[i];
     const d = alignShift(hs, base, v);
     // The variant's pixel (sx + d) is the base's (sx).
-    variants[name] = paint(isolate(hs, v.id), d, base);
+    const drawn = paint(isolate(hs, v.id), d, base);
+    variants[name] = drawn.image;
+    if (hasPixels(drawn.ink)) variants[`${name}-ink`] = drawn.ink;
   }
-  return { image, offset, pivot, variants };
+  return { image: rest.image, offset, pivot, variants };
 }
 
 // --- Facing ------------------------------------------------------------------------------------------

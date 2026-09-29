@@ -10,7 +10,11 @@ import {
   poseFor,
   type Rig,
 } from "../../../src/engine/rig/rig";
-import type { PlacedPart, RigPose } from "../../../src/engine/rig/transform";
+import {
+  framePoint,
+  type PlacedPart,
+  type RigPose,
+} from "../../../src/engine/rig/transform";
 import {
   RIG_INK,
   type RigFacing,
@@ -105,7 +109,7 @@ describe("the shipped puppet has no seams at its joints", () => {
       const img = await atlas;
       const g = raster(img, placeRig(rig, facing, REST));
       // Joint rows in px above the soles (the drawing's body model).
-      for (const up of [108, 84, 36]) {
+      for (const up of [107, 84, 34]) {
         for (let y = -up - 2; y <= -up + 2; y++) {
           let run = 0;
           let worst = 0;
@@ -120,7 +124,7 @@ describe("the shipped puppet has no seams at its joints", () => {
     },
   );
 
-  test("every clip keeps the figure in one piece, and each joint inside its parent", async () => {
+  test("every clip keeps the figure in one piece, with each joint on its limb", async () => {
     const img = await atlas;
     const facingOf: Record<string, RigFacing> = {};
     for (const [name, clip] of Object.entries(POSE_CLIPS))
@@ -164,35 +168,33 @@ describe("the shipped puppet has no seams at its joints", () => {
             }
           }
         }
-        expect(seen.size, `${name} at ${phase}`).toBe(total);
-        // Each joint lies inside its parent's own image.
+        // (The renderer drops a lone stray pixel, outline.ts.)
+        expect(total - seen.size, `${name} at ${phase}`).toBeLessThanOrEqual(2);
+        // Each joint lies on the limb it turns: inside its own image, so the
+        // round cap covers it however it swings.
         for (const p of placed) {
-          const parentId = rig.facings[facingOf[name]].parts.find(
-            (q) => q.id === p.id,
-          )?.parent;
-          if (!parentId) continue;
-          const parent = placed.find((q) => q.id === parentId) as PlacedPart;
-          const [a, b, c, d, e, f] = parent.matrix;
+          // (The head turns on the neck, inside the collar.)
+          if (p.id === "head" || p.id === "torso") continue;
+          const [a, b, c, d, e, f] = p.matrix;
           const det = a * d - b * c;
           const px = p.joint.x - e;
           const py = p.joint.y - f;
-          const u = (d * px - c * py) / det + parent.frame.pivot.x;
-          const v = (-b * px + a * py) / det + parent.frame.pivot.y;
+          const u = (d * px - c * py) / det + p.frame.pivot.x;
+          const v = (-b * px + a * py) / det + p.frame.pivot.y;
           const qi =
-            ((parent.frame.y + Math.floor(v)) * img.width +
-              parent.frame.x +
+            ((p.frame.y + Math.floor(v)) * img.width +
+              p.frame.x +
               Math.floor(u)) *
             4;
           const inside =
             u >= 0 &&
             v >= 0 &&
-            u < parent.frame.w &&
-            v < parent.frame.h &&
+            u < p.frame.w &&
+            v < p.frame.h &&
             img.data[qi + 3] > 0;
-          expect(
-            inside,
-            `${name} ${p.id} joint in ${parentId} at ${phase}`,
-          ).toBe(true);
+          expect(inside, `${name} ${p.id} joint on its limb at ${phase}`).toBe(
+            true,
+          );
         }
       }
     }
@@ -263,4 +265,107 @@ describe("the shipped puppet's proportions", () => {
       expect(gap, `row ${-y}`).toBe(true);
     }
   });
+
+  test("the hem is at 45% of his height, over a long torso", () => {
+    for (const facing of FACINGS) {
+      const torso = part(facing, "torso");
+      const bottom = -torso.attach.y - (torso.frame.h - torso.frame.pivot.y);
+      expect(bottom / 144, facing).toBeGreaterThan(0.44);
+      expect(bottom / 144, facing).toBeLessThan(0.465);
+    }
+  });
+
+  test("front and back: the shoulders slope and the arms hang clear of the torso", async () => {
+    const img = await atlas;
+    for (const facing of ["front", "back"] as const) {
+      const g = raster(img, placeRig(rig, facing, REST));
+      // Below the armpit and above the hem: arm, gap, torso, gap, arm.
+      for (let up = 74; up <= 96; up++) {
+        let runs = 0;
+        let was = false;
+        for (let x = X0; x < X0 + GW; x++) {
+          const on = opaque(g, x, -up);
+          if (on && !was) runs++;
+          was = on;
+        }
+        expect(runs, `${facing} row ${up}`).toBe(3);
+      }
+      // The shoulder line drops away from the neck: the torso is wider
+      // 8 px below its top than at it.
+      const width = (up: number) => {
+        let n = 0;
+        for (let x = X0; x < X0 + GW; x++) if (opaque(g, x, -up)) n++;
+        return n;
+      };
+      expect(width(110)).toBeGreaterThan(width(117) + 8);
+    }
+  });
+
+  test("the hands are generous: 7 px of skin wide and 8 tall (9 x 12 with their outline)", async () => {
+    const img = await atlas;
+    const g = raster(img, placeRig(rig, "front", REST));
+    let x0 = 999;
+    let x1 = -999;
+    let y0 = 999;
+    let y1 = -999;
+    for (let y = -75; y < -50; y++)
+      for (let x = X0; x < 0; x++) {
+        const p = ((y - Y0) * GW + (x - X0)) * 4;
+        if (
+          opaque(g, x, y) &&
+          g.data[p] > 190 &&
+          g.data[p + 1] > 120 &&
+          g.data[p + 2] < 140
+        ) {
+          x0 = Math.min(x0, x);
+          x1 = Math.max(x1, x);
+          y0 = Math.min(y0, y);
+          y1 = Math.max(y1, y);
+        }
+      }
+    expect(x1 - x0 + 1).toBeGreaterThanOrEqual(7);
+    expect(y1 - y0 + 1).toBeGreaterThanOrEqual(8);
+  });
+});
+
+describe("the idle is alive, with the feet planted", () => {
+  for (const [name, facing] of [
+    ["idle-front", "front"],
+    ["idle-back", "back"],
+    ["idle-side", "side"],
+  ] as const) {
+    test(name, () => {
+      const clip = POSE_CLIPS[name];
+      const at = (phase: number) => {
+        const pose = poseFor(rig, clip, sampleClip(clip, phase));
+        const placed = placeRig(rig, facing, pose);
+        const head = placed.find((p) => p.id === "head") as PlacedPart;
+        const soles = placed
+          .filter((p) => p.id.startsWith("shin"))
+          .flatMap((p) => [
+            framePoint(p, { x: 0, y: p.frame.h }),
+            framePoint(p, { x: p.frame.w, y: p.frame.h }),
+          ]);
+        return {
+          head: head.joint,
+          feet: soles.map((q) => q.x).sort((a, b) => a - b),
+          ground: Math.max(...soles.map((q) => q.y)),
+        };
+      };
+      const lo = at(0);
+      let rise = 0;
+      for (let k = 0; k <= 24; k++) {
+        const here = at(k / 24);
+        rise = Math.max(rise, Math.abs(here.head.y - lo.head.y));
+        // The feet stay where they are, to a fifth of a pixel.
+        expect(Math.abs(here.ground - lo.ground)).toBeLessThan(0.2);
+        here.feet.forEach((x, i) =>
+          expect(Math.abs(x - lo.feet[i])).toBeLessThan(0.5),
+        );
+      }
+      // About a pixel of breathing (atlas px at density 2 are art px).
+      expect(rise).toBeGreaterThanOrEqual(1);
+      expect(rise).toBeLessThan(2.5);
+    });
+  }
 });

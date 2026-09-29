@@ -14,7 +14,7 @@
           },
           "pivot": {
             "x": 0,
-            "y": -70
+            "y": -68
           },
           "z": 7
         },
@@ -22,11 +22,11 @@
           "file": "side/upper-arm-r.png",
           "offset": {
             "x": -7,
-            "y": -114
+            "y": -113
           },
           "pivot": {
             "x": 0,
-            "y": -108
+            "y": -107
           },
           "z": 9,
           "parent": "torso"
@@ -35,11 +35,11 @@
           "file": "side/upper-arm-l.png",
           "offset": {
             "x": -7,
-            "y": -114
+            "y": -113
           },
           "pivot": {
             "x": 0,
-            "y": -108
+            "y": -107
           },
           "z": 1,
           "parent": "torso"
@@ -47,11 +47,11 @@
         "forearm-r": {
           "file": "side/forearm-r.png",
           "offset": {
-            "x": -9,
+            "x": -10,
             "y": -90
           },
           "pivot": {
-            "x": 0,
+            "x": 1,
             "y": -84
           },
           "z": 8,
@@ -60,11 +60,11 @@
         "forearm-l": {
           "file": "side/forearm-l.png",
           "offset": {
-            "x": -9,
+            "x": -10,
             "y": -90
           },
           "pivot": {
-            "x": 0,
+            "x": 1,
             "y": -84
           },
           "z": 0,
@@ -74,11 +74,11 @@
           "file": "side/thigh-r.png",
           "offset": {
             "x": -9,
-            "y": -78
+            "y": -76
           },
           "pivot": {
             "x": 0,
-            "y": -70
+            "y": -68
           },
           "z": 6,
           "parent": "torso"
@@ -87,11 +87,11 @@
           "file": "side/thigh-l.png",
           "offset": {
             "x": -9,
-            "y": -78
+            "y": -76
           },
           "pivot": {
             "x": 0,
-            "y": -70
+            "y": -68
           },
           "z": 3,
           "parent": "torso"
@@ -100,11 +100,11 @@
           "file": "side/shin-r.png",
           "offset": {
             "x": -16,
-            "y": -44
+            "y": -42
           },
           "pivot": {
             "x": 0,
-            "y": -36
+            "y": -34
           },
           "z": 5,
           "parent": "thigh-r"
@@ -113,11 +113,11 @@
           "file": "side/shin-l.png",
           "offset": {
             "x": -16,
-            "y": -44
+            "y": -42
           },
           "pivot": {
             "x": 0,
-            "y": -36
+            "y": -34
           },
           "z": 2,
           "parent": "thigh-l"
@@ -135,8 +135,22 @@
           "z": 4,
           "parent": "torso",
           "variants": {
+            "ink": {
+              "file": "side/head-ink.png",
+              "offset": {
+                "x": -19,
+                "y": -147
+              }
+            },
             "talk-1": {
               "file": "side/head-talk-1.png",
+              "offset": {
+                "x": -19,
+                "y": -147
+              }
+            },
+            "talk-1-ink": {
+              "file": "side/head-talk-1-ink.png",
               "offset": {
                 "x": -19,
                 "y": -147
@@ -149,6 +163,13 @@
                 "y": -147
               }
             },
+            "talk-2-ink": {
+              "file": "side/head-talk-2-ink.png",
+              "offset": {
+                "x": -19,
+                "y": -147
+              }
+            },
             "talk-3": {
               "file": "side/head-talk-3.png",
               "offset": {
@@ -156,8 +177,22 @@
                 "y": -147
               }
             },
+            "talk-3-ink": {
+              "file": "side/head-talk-3-ink.png",
+              "offset": {
+                "x": -19,
+                "y": -147
+              }
+            },
             "blink": {
               "file": "side/head-blink.png",
+              "offset": {
+                "x": -19,
+                "y": -147
+              }
+            },
+            "blink-ink": {
+              "file": "side/head-blink-ink.png",
               "offset": {
                 "x": -19,
                 "y": -147
@@ -181,19 +216,19 @@
           },
           "pivot": {
             "x": 0,
-            "y": -70
+            "y": -68
           },
           "z": 5
         },
         "upper-arm-r": {
           "file": "front/upper-arm-r.png",
           "offset": {
-            "x": -21,
-            "y": -114
+            "x": -24,
+            "y": -113
           },
           "pivot": {
-            "x": -14,
-            "y": -108
+            "x": -16,
+            "y": -107
           },
           "z": 7,
           "parent": "torso"
@@ -201,12 +236,12 @@
         "upper-arm-l": {
           "file": "front/upper-arm-l.png",
           "offset": {
-            "x": 7,
-            "y": -114
+            "x": 9,
+            "y": -113
           },
           "pivot": {
-            "x": 14,
-            "y": -108
+            "x": 16,
+            "y": -107
           },
           "z": 9,
           "parent": "torso"
@@ -214,11 +249,11 @@
         "forearm-r": {
           "file": "front/forearm-r.png",
           "offset": {
-            "x": -23,
+            "x": -28,
             "y": -90
           },
           "pivot": {
-            "x": -14,
+            "x": -17,
             "y": -84
           },
           "z": 6,
@@ -227,11 +262,11 @@
         "forearm-l": {
           "file": "front/forearm-l.png",
           "offset": {
-            "x": 5,
+            "x": 6,
             "y": -90
           },
           "pivot": {
-            "x": 14,
+            "x": 17,
             "y": -84
           },
           "z": 8,
@@ -241,11 +276,11 @@
           "file": "front/thigh-r.png",
           "offset": {
             "x": -16,
-            "y": -78
+            "y": -76
           },
           "pivot": {
             "x": -7,
-            "y": -70
+            "y": -68
           },
           "z": 1,
           "parent": "torso"
@@ -254,11 +289,11 @@
           "file": "front/thigh-l.png",
           "offset": {
             "x": -2,
-            "y": -78
+            "y": -76
           },
           "pivot": {
             "x": 7,
-            "y": -70
+            "y": -68
           },
           "z": 3,
           "parent": "torso"
@@ -267,11 +302,11 @@
           "file": "front/shin-r.png",
           "offset": {
             "x": -23,
-            "y": -44
+            "y": -42
           },
           "pivot": {
             "x": -7,
-            "y": -36
+            "y": -34
           },
           "z": 0,
           "parent": "thigh-r"
@@ -280,11 +315,11 @@
           "file": "front/shin-l.png",
           "offset": {
             "x": -9,
-            "y": -44
+            "y": -42
           },
           "pivot": {
             "x": 7,
-            "y": -36
+            "y": -34
           },
           "z": 2,
           "parent": "thigh-l"
@@ -302,8 +337,22 @@
           "z": 4,
           "parent": "torso",
           "variants": {
+            "ink": {
+              "file": "front/head-ink.png",
+              "offset": {
+                "x": -19,
+                "y": -147
+              }
+            },
             "talk-1": {
               "file": "front/head-talk-1.png",
+              "offset": {
+                "x": -19,
+                "y": -147
+              }
+            },
+            "talk-1-ink": {
+              "file": "front/head-talk-1-ink.png",
               "offset": {
                 "x": -19,
                 "y": -147
@@ -316,6 +365,13 @@
                 "y": -147
               }
             },
+            "talk-2-ink": {
+              "file": "front/head-talk-2-ink.png",
+              "offset": {
+                "x": -19,
+                "y": -147
+              }
+            },
             "talk-3": {
               "file": "front/head-talk-3.png",
               "offset": {
@@ -323,8 +379,22 @@
                 "y": -147
               }
             },
+            "talk-3-ink": {
+              "file": "front/head-talk-3-ink.png",
+              "offset": {
+                "x": -19,
+                "y": -147
+              }
+            },
             "blink": {
               "file": "front/head-blink.png",
+              "offset": {
+                "x": -19,
+                "y": -147
+              }
+            },
+            "blink-ink": {
+              "file": "front/head-blink-ink.png",
               "offset": {
                 "x": -19,
                 "y": -147
@@ -348,19 +418,19 @@
           },
           "pivot": {
             "x": 0,
-            "y": -70
+            "y": -68
           },
           "z": 4
         },
         "upper-arm-r": {
           "file": "back/upper-arm-r.png",
           "offset": {
-            "x": 7,
-            "y": -114
+            "x": 9,
+            "y": -113
           },
           "pivot": {
-            "x": 14,
-            "y": -108
+            "x": 16,
+            "y": -107
           },
           "z": 7,
           "parent": "torso"
@@ -368,12 +438,12 @@
         "upper-arm-l": {
           "file": "back/upper-arm-l.png",
           "offset": {
-            "x": -21,
-            "y": -114
+            "x": -24,
+            "y": -113
           },
           "pivot": {
-            "x": -14,
-            "y": -108
+            "x": -16,
+            "y": -107
           },
           "z": 9,
           "parent": "torso"
@@ -381,11 +451,11 @@
         "forearm-r": {
           "file": "back/forearm-r.png",
           "offset": {
-            "x": 5,
+            "x": 6,
             "y": -90
           },
           "pivot": {
-            "x": 14,
+            "x": 17,
             "y": -84
           },
           "z": 6,
@@ -394,11 +464,11 @@
         "forearm-l": {
           "file": "back/forearm-l.png",
           "offset": {
-            "x": -23,
+            "x": -28,
             "y": -90
           },
           "pivot": {
-            "x": -14,
+            "x": -17,
             "y": -84
           },
           "z": 8,
@@ -408,11 +478,11 @@
           "file": "back/thigh-r.png",
           "offset": {
             "x": -2,
-            "y": -78
+            "y": -76
           },
           "pivot": {
             "x": 7,
-            "y": -70
+            "y": -68
           },
           "z": 1,
           "parent": "torso"
@@ -421,11 +491,11 @@
           "file": "back/thigh-l.png",
           "offset": {
             "x": -16,
-            "y": -78
+            "y": -76
           },
           "pivot": {
             "x": -7,
-            "y": -70
+            "y": -68
           },
           "z": 3,
           "parent": "torso"
@@ -434,11 +504,11 @@
           "file": "back/shin-r.png",
           "offset": {
             "x": -9,
-            "y": -44
+            "y": -42
           },
           "pivot": {
             "x": 7,
-            "y": -36
+            "y": -34
           },
           "z": 0,
           "parent": "thigh-r"
@@ -447,11 +517,11 @@
           "file": "back/shin-l.png",
           "offset": {
             "x": -23,
-            "y": -44
+            "y": -42
           },
           "pivot": {
             "x": -7,
-            "y": -36
+            "y": -34
           },
           "z": 2,
           "parent": "thigh-l"
@@ -467,7 +537,16 @@
             "y": -114
           },
           "z": 5,
-          "parent": "torso"
+          "parent": "torso",
+          "variants": {
+            "ink": {
+              "file": "back/head-ink.png",
+              "offset": {
+                "x": -19,
+                "y": -147
+              }
+            }
+          }
         }
       }
     }

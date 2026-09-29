@@ -477,8 +477,10 @@ export function ramp(
 }
 
 export interface TubeShape {
-  /** Centre line, drawing px. */
+  /** Centre line at `yTop`, drawing px. */
   cx: number;
+  /** How far the centre line leans by `yBot` (px, + is towards +x). */
+  dx?: number;
   yTop: number;
   yBot: number;
   /** Full width at drawing y, as `[y, width]` stops. */
@@ -503,8 +505,12 @@ export function tubeHalf(t: TubeShape, y: number): number {
   return half;
 }
 
+/** The tube's centre line at `y`. */
+export const tubeCentre = (t: TubeShape, y: number) =>
+  t.cx + ((t.dx ?? 0) * (y - t.yTop)) / (t.yBot - t.yTop);
+
 export const inTube = (t: TubeShape, x: number, y: number) =>
-  Math.abs(x - t.cx) <= tubeHalf(t, y) && tubeHalf(t, y) > 0;
+  Math.abs(x - tubeCentre(t, y)) <= tubeHalf(t, y) && tubeHalf(t, y) > 0;
 
 // --- Sheet analysis -------------------------------------------------------------------------
 
@@ -590,7 +596,7 @@ export function tubeMap(
     );
     const hw = Math.max(1, spans.half[row] - spans.band);
     const out = Math.max(0.5, ramp(t.widths, y) / 2 - 1);
-    const u = Math.max(-1, Math.min(1, (x - t.cx) / out));
+    const u = Math.max(-1, Math.min(1, (x - tubeCentre(t, y)) / out));
     return [spans.centre[row] + u * hw, sy];
   };
 }
@@ -600,11 +606,13 @@ export function tone(
   b: Buf,
   pred: (x: number, y: number) => boolean,
   k: number,
+  owner?: number,
 ): void {
   for (let j = 0; j < b.h; j++) {
     for (let i = 0; i < b.w; i++) {
       const p = j * b.w + i;
       if (!b.inside[p] || b.ink[p]) continue;
+      if (owner !== undefined && b.owner[p] !== owner) continue;
       const [cx, cy] = centre(b, i, j);
       if (!pred(cx, cy)) continue;
       b.r[p] = Math.min(255, b.r[p] * k);
@@ -612,4 +620,84 @@ export function tone(
       b.b[p] = Math.min(255, b.b[p] * k);
     }
   }
+}
+
+/**
+ * A 1 px lighter rim inside the ring on each row's left (the lit) side, so a
+ * limb in front of a dark body has a light edge as well as an ink one. Only
+ * where a ring is drawn (not at the open joint ends). Run after `finish`.
+ */
+export function rimLight(b: Buf, k: number, owner?: number): void {
+  for (let j = 0; j < b.h; j++) {
+    for (let i = 0; i < b.w - 1; i++) {
+      const p = j * b.w + i;
+      if (!b.inside[p]) continue;
+      // The first pixel of the row that is in: the ring, then the rim.
+      if (b.ring[p]) {
+        const q = p + 1;
+        if (
+          b.inside[q] &&
+          !b.ink[q] &&
+          (owner === undefined || b.owner[q] === owner)
+        ) {
+          b.r[q] = Math.min(255, b.r[q] * k);
+          b.g[q] = Math.min(255, b.g[q] * k);
+          b.b[q] = Math.min(255, b.b[q] * k);
+        }
+      }
+      break;
+    }
+  }
+}
+
+/**
+ * Lifts the drawn detail (pupils, mouth lines) out of a finished part: the
+ * part keeps the colour around each detail pixel, and the detail comes back
+ * as an image of its own, in ink, on nothing. The renderer draws that twin
+ * on top and snaps it to solid ink, so a 1 px pupil never blurs to grey.
+ */
+export function liftDetail(b: Buf): Image {
+  const img = createImage(b.w, b.h);
+  const lifted: number[] = [];
+  for (let p = 0; p < b.w * b.h; p++) {
+    if (!b.inside[p] || !b.ink[p] || b.ring[p]) continue;
+    img.data.set([RIG_INK[0], RIG_INK[1], RIG_INK[2], 255], p * 4);
+    lifted.push(p);
+  }
+  for (const p of lifted) {
+    const i = p % b.w;
+    const j = (p - i) / b.w;
+    let r = 0;
+    let g = 0;
+    let bl = 0;
+    let n = 0;
+    for (let d = 1; d <= 2 && n === 0; d++) {
+      for (let dj = -d; dj <= d; dj++) {
+        for (let di = -d; di <= d; di++) {
+          const q = (j + dj) * b.w + i + di;
+          if (
+            i + di < 0 ||
+            j + dj < 0 ||
+            i + di >= b.w ||
+            j + dj >= b.h ||
+            !b.inside[q] ||
+            b.ink[q] ||
+            Number.isNaN(b.r[q])
+          )
+            continue;
+          r += b.r[q];
+          g += b.g[q];
+          bl += b.b[q];
+          n++;
+        }
+      }
+    }
+    if (n) {
+      b.r[p] = r / n;
+      b.g[p] = g / n;
+      b.b[p] = bl / n;
+    }
+  }
+  for (const p of lifted) b.ink[p] = 0;
+  return img;
 }
