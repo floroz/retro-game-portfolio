@@ -1,17 +1,15 @@
 {
   "id": "char-turnaround",
-  "output": "assets-src/refs/char-turnaround@8x.png",
-  "task": "F5",
+  "output": "assets-src/refs/remaster/char-turnaround@4x.png",
+  "task": "RA",
   "source": "codex",
-  "prompt": "assets-src/prompts/character/turnaround.md",
-  "candidate": "06",
-  "references": [
-    "src/assets/retro-daniele.png",
-    "src/assets/daniele-static.png"
-  ],
-  "approvedRaw": "assets-src/approved/char-turnaround.webp",
-  "palette": "v1",
-  "cleanup": "Sliced into three 32x64 frames (front, right, back), 57 px tall, feet on row 61, core palette only. Redrew every frame in the grid over the sliced silhouette with light from the upper left: faces on skin B-E only (removed the brass banding), with eyes, nose, a smile and a full dark-brown beard; hair and beard on wood 6-9; jeans lifted to denim (base H, highlight I broken at knee and hem, shadow G) against an F/G sweater with one shoulder highlight; white T-shirt collar (5) restored in front and hinted in the side view; dark-red key residue on hair tops and ears removed; selective outline (local ramp's darkest on the lit side, 0 on the shadow side); arms separated from the torso by an F line; clean brown shoes with 1 soles. The 8x reference is flattened onto pure magenta (#FF00FF) to match the animation prompts; the native frames stay transparent.",
-  "approvedBy": "opus-orchestrator (delegated G2)",
+  "prompt": "assets-src/prompts/remaster/char-turnaround.md",
+  "candidate": "02",
+  "references": ["assets-src/refs/remaster/char-turnaround-current@8x.png"],
+  "approvedRaw": "assets-src/approved/char-turnaround@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Keyed (OKLab flood fill) and sliced into three 64x128 frames (front, right, back), 115 px tall with the feet on row 123 and matching head sizes, core palette only, no partial alpha. Sweater brought back to the v1 anchor's value: body G with F folds and shadow side, the lit navy step * only on the upper-left shoulder and chest planes and the lit arm edges; hand-placed armpit, elbow and blousing creases and a hem band in all three views. Jeans: grey seam pixels removed, the shadow side of each leg stepped down one value (I to +, + to H) so the legs read round; the back view gained a V yoke, a centre seam and two patch pockets. Faces: grey hairline, brow and lip pixels repainted in wood and skin, keeping the eyes, nose, smile and full beard; the white crew-neck collar kept in the front and side views. Hands redrawn on skin B-E. Two red key-fringe pixels removed, grey scuffs cleaned off the back shoes, and a notch in the front left leg's outline filled. Selective outline on every edge: 0 on the shadow side (right and bottom), the local ramp's darkest (F navy, 6 wood, B skin) on the lit side. The 4x reference is flattened onto pure magenta (#FF00FF); every 4th pixel gives the native frames.",
+  "approvedBy": "opus-orchestrator (delegated RG1b)",
   "date": "2026-09-29"
 }
