@@ -1,9 +1,14 @@
 {
   "id": "zurich-bg",
   "output": "src/assets/scenes/zurich/bg.png",
-  "task": "F1",
-  "source": "opus",
-  "palette": "v0",
-  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Replaced in the zurich build task.",
+  "task": "F5",
+  "source": "codex",
+  "prompt": "assets-src/prompts/scenes/zurich.md",
+  "candidate": "01",
+  "references": ["assets-src/refs/zurich-layout@8x.png"],
+  "approvedRaw": "assets-src/approved/zurich-bg.webp",
+  "palette": "v1",
+  "cleanup": "F5 style anchor, exported as assets-src/refs/style-anchor@8x.png; B1 cuts the layers and ships bg.png from it. Pixelized with --scene zurich, then: regular 12 px wallpaper stripes (3 navy, 9 plum) with all specks removed; flat ceiling strip and baseboard; floor planks regularised to 1 px seams and 1 px joints, keeping the rows; window redrawn (frame lit from the lamp side with a cast shadow, sky in two flat steps, crescent moon, single-pixel stars, snowy Alps lit from the moon, dark hills with lit windows and one steeple, lake with short moonlight dashes instead of the pale streak); cuckoo clock redrawn with a pale dial and 2 hands, shut door, pendulum and pine-cone weights; door redrawn with a flat frosted pane (no checker), recessed panel and brass knob; desk, beige CRT with a blank screen, banker's lamp (green shade, warm underside, no light cone), pen cup, books, office chair and grey filing cabinet redrawn as flat fills with 2-4 steps, lit from the lamp; oval rug redrawn as a clean ellipse with one ring; foreground plant and terracotta pot redrawn with a selective outline. Upper-left wallpaper kept bare for the photo slots. Core plus Zurich ramp only.",
+  "approvedBy": "opus-orchestrator (delegated G2a)",
   "date": "2026-09-29"
 }
