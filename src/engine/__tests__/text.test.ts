@@ -97,6 +97,19 @@ describe("world text", () => {
     );
   });
 
+  test("the Zurich CRT word sits inside its screen with a px to spare", () => {
+    const crt = SCENES.zurich.labels?.find((l) => l.id === "crt");
+    const text = resolveLabel(crt?.source ?? "text:")[0];
+    const fit = fitText(text, crt?.maxWidth ?? 0, crt?.font ?? "regular");
+    const w = measureText(text, fit.font, fit.tracking);
+    // The screen is x 151-167, y 82-92.5 logical px; margins are half a px.
+    expect(crt?.marquee).toBeUndefined();
+    expect(crt?.x ?? 0).toBeGreaterThanOrEqual(151.5);
+    expect((crt?.x ?? 0) + w).toBeLessThanOrEqual(166.5);
+    expect(crt?.y ?? 0).toBeGreaterThanOrEqual(82.5);
+    expect((crt?.y ?? 0) + capHeight(fit.font)).toBeLessThanOrEqual(92);
+  });
+
   test("draws section icons inline, as one glyph each", () => {
     expect(measureText("{skills}")).toBe(measureText("{resume}"));
     expect(measureText("{skills} Skills")).toBeGreaterThan(
@@ -209,12 +222,6 @@ describe("marquee labels", () => {
   test("starts again once the text and the gap have passed", () => {
     const cycleMs = ((17 + 39 + MARQUEE_GAP) / 12) * 1000;
     expect(marqueeX(marquee, 39, cycleMs)).toBe(169);
-  });
-
-  test("the Zurich CRT names its section on screen", () => {
-    const crt = SCENES.zurich.labels?.find((l) => l.id === "crt");
-    expect(crt?.source).toBe("section:experience");
-    expect(crt?.marquee).toBeDefined();
   });
 });
 
