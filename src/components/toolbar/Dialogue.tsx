@@ -169,7 +169,12 @@ export function Dialogue() {
       </p>
 
       {ready && (
-        <div role="group" aria-label="Say" data-e2e="dialog-options">
+        <div
+          role="group"
+          aria-label="Say"
+          className={styles.choices}
+          data-e2e="dialog-options"
+        >
           {options.map((option, i) => (
             <button
               key={option.id}
