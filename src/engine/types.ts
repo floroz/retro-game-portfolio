@@ -376,7 +376,7 @@ export type LabelSource =
   | "departures"
   | `text:${string}`;
 
-/** Text drawn by the engine at display resolution (font.ts). Never paint text into art. */
+/** Text drawn by the engine in its bitmap serif font (font.ts). Never paint text into art. */
 export interface SceneLabel {
   id: string;
   source: LabelSource;
@@ -391,8 +391,9 @@ export interface SceneLabel {
   /** Hex outline colour, or false for none. Defaults to none. */
   outline?: string | false;
   /**
-   * Wraps lines longer than this many native px, and shrinks a single word
-   * that is still too long to fit.
+   * Wraps lines longer than this many native px. A word still too long
+   * closes up its letters, then steps down to a smaller size (font.ts,
+   * `fitText`); every line of the label is set alike.
    */
   maxWidth?: number;
   /**
