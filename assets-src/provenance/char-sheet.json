@@ -1,9 +1,11 @@
 {
   "id": "char-sheet",
   "output": "src/assets/character/daniele.png",
-  "task": "F1",
+  "task": "B7",
   "source": "opus",
-  "palette": "v0",
-  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Box figure; replaced in B7.",
+  "derivedFrom": "char-turnaround",
+  "palette": "v1",
+  "cleanup": "Packed with npm run assets:pack from the ten strips in assets-src/character/ (char-walk-e, char-walk-s, char-walk-n, char-idle-e, char-idle-s, char-idle-n, char-use-e, char-use-n, char-talk-e, char-talk-s; see their records): 31 body frames of 32x64 with feet on row 61 and origin (16, 61), plus 6 talk heads of 16x16 at talkHeadOffset (8, 3). Stride 26 native px, measured from walk-e's planted foot (13 px per step, two steps per cycle), so walk frames advance every 3.25 px. Replaces the F1 box-figure placeholder.",
+  "approvedBy": "opus-orchestrator (delegated)",
   "date": "2026-09-29"
 }

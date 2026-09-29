@@ -1,0 +1,11 @@
+{
+  "id": "char-walk-n",
+  "output": "assets-src/character/char-walk-n.png",
+  "task": "B7",
+  "source": "opus",
+  "derivedFrom": "char-turnaround",
+  "palette": "v1",
+  "cleanup": "Fallback, built from the turnaround's back view the same way as walk-s: the anchor's head and torso, a 1 px bob on the down frames, feet lifting for three frames each (1, 2, 3 px) with a second sole row showing the raised heel from behind, and the hands swinging 1 px. Candidate 03 in assets-src/exchange/raw/char-walk-n/ was used only as an alternation reference; its loop hitch (neutral first and last frames) is gone because no frame is neutral. Onion-skinned; core palette only.",
+  "approvedBy": "opus-orchestrator (delegated)",
+  "date": "2026-09-29"
+}
