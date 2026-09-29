@@ -22,7 +22,7 @@ It's written for **two orchestrators**, one per model family. Each one runs ever
 | **Codex orchestrator** (Codex, ChatGPT plan) | Every task marked Codex: runs prompt files with its built-in image tool (`image_gen` / `$imagegen`) and saves candidates                                     | Edit code, docs, `src/`, or anything outside `assets-src/exchange/` |
 | **Daniele**                                  | Gates: picking candidates, approving anchors and audio, the final review. Recording each passed gate in the Status column                                    | —                                                                   |
 
-**Delegated gates (from 2026-09-29).** Daniele has stepped out of the loop. Until he says otherwise, the Opus orchestrator (the main Claude Code session) passes gates G1, G2, and GA. From Phase H on, every candidate pick is Daniele's: the orchestrator shows labelled sheets with a recommendation and waits (see Phase H Decisions). It records each decision and its reasoning in the [Gate log](#gate-log), and Daniele can overturn any of them later. **G4, the final review before `v2` is merged into `main`, stays with Daniele.**
+**Delegated gates (from 2026-09-29).** Daniele has stepped out of the loop. Until he says otherwise, the Opus orchestrator (the main Claude Code session) passes gates G1, G2, and GA. Every candidate pick is the orchestrator's again (Daniele handed art choices back on 2026-09-29, after the Zurich layer picks; see Phase H Decisions). It records each decision and its reasoning in the [Gate log](#gate-log), and Daniele can overturn any of them later. **G4, the final review before `v2` is merged into `main`, stays with Daniele.**
 
 **Sub-agent model (Agreed, 2026-09-29):** the Opus orchestrator spawns every sub-agent on **Sonnet 5.5** unless Daniele names another model for a specific task. "Opus lane" names the Claude Code orchestrator's lane, not the sub-agents' model.
 
@@ -791,6 +791,7 @@ Everything in this phase starts once its dependencies are met, and runs in paral
   - **Hall layout:** its gate doors become about 1.3× Daniele's height, with smaller signs raised above them. HB2 moves the gate-sign hotspots to match.
   - **Depth range:** every HB build sets its scene's `depth` block to 0.8–1.0.
   - **Prompt format:** a prompt file may list several sheets under `items:` in its front matter, each with its own asset id and output folder.
+- **Picks are the orchestrator's again (Daniele, 2026-09-29, after the Zurich layer picks): "I will delegate control and choices of artwork back to you, just let me review the finished application after you are done."** The orchestrator makes every remaining Phase H pick, judged at ship density, and logs each in the Gate log with its reasoning. Build agents don't stop at the pick. Daniele's only remaining gate is **G4**. The rule it replaces:
 - **Picks are Daniele's (from 2026-09-29, once he was back in the loop):** every candidate pick in Phase H (scenes, character parts and heads, shared props, UI art) goes to Daniele, with the orchestrator's recommendation and candidates rendered as they'll ship. Build agents stop at the pick and wait. Other gates stay delegated to the Opus orchestrator.
 
 ### Codex lane (the Codex orchestrator polls this table)
