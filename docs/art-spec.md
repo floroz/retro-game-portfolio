@@ -799,18 +799,19 @@ As before: a task is runnable when everything under **After** is `done` in this 
 
 ### Opus lane
 
-| Task       | Status | After                            | What                                                                                                                                              |
-| ---------- | ------ | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| T1         | todo   | —                                | Crisp display-resolution text for speech, labels, signs, menus, and boards (works on the current art)                                             |
-| H0         | todo   | —                                | HD tooling: `prepare` (crop and resize with high-quality resampling, no remap), a soft key and alpha, validator rules for density 4, a rig packer |
-| E4         | todo   | —                                | Engine: density-4 scenes rendered smoothly, the cut-out rig, procedural effects, moving props, the new world scale                                |
-| H1         | done   | —                                | The scale sheet and references, plus the HD prompt files for HC1–HC4                                                                              |
-| HA         | todo   | HC1, H0                          | Pick the HD Zurich and turnaround anchors, then gate **HG1** (Daniele's checkpoint)                                                               |
-| HL-<scene> | todo   | that scene's composite is picked | Write that scene's `layers-<scene>.md` prompt (plate edit, objects, props)                                                                        |
-| HB1–HB5    | todo   | HC5 for the scene, E4            | Assemble each scene (zurich, hall, london, sorrento, travel-map) from its layers and adjust the scene data to the new scale                       |
-| HB6        | todo   | HC4, E4                          | Shared sprites in HD                                                                                                                              |
-| HB7        | todo   | HC3, E4                          | Rig Daniele: slice the parts, set pivots, keyframe the poses, pack                                                                                |
-| I3         | todo   | HB1–HB7                          | Final cohesion, contrast walk, OG image, regression checks (ends at **G4**)                                                                       |
+| Task       | Status | After                            | What                                                                                                                                                                                                           |
+| ---------- | ------ | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T1         | todo   | —                                | Crisp display-resolution text for speech, labels, signs, menus, and boards (works on the current art)                                                                                                          |
+| H0         | todo   | —                                | HD tooling: `prepare` (crop and resize with high-quality resampling, no remap), a soft key and alpha, validator rules for density 4, a rig packer                                                              |
+| E4         | todo   | —                                | Engine: density-4 scenes rendered smoothly, the cut-out rig, procedural effects, moving props, the new world scale                                                                                             |
+| T2         | todo   | —                                | Minimal in-world text and a toolbar that teaches the mapping (see "How visitors know where each section is" in the plan), plus the Hall HD prompt with small signs, a city-only board, and an unlabelled shelf |
+| H1         | done   | —                                | The scale sheet and references, plus the HD prompt files for HC1–HC4                                                                                                                                           |
+| HA         | todo   | HC1, H0                          | Pick the HD Zurich and turnaround anchors, then gate **HG1** (Daniele's checkpoint)                                                                                                                            |
+| HL-<scene> | todo   | that scene's composite is picked | Write that scene's `layers-<scene>.md` prompt (plate edit, objects, props)                                                                                                                                     |
+| HB1–HB5    | todo   | HC5 for the scene, E4            | Assemble each scene (zurich, hall, london, sorrento, travel-map) from its layers and adjust the scene data to the new scale                                                                                    |
+| HB6        | todo   | HC4, E4                          | Shared sprites in HD                                                                                                                                                                                           |
+| HB7        | todo   | HC3, E4                          | Rig Daniele: slice the parts, set pivots, keyframe the poses, pack                                                                                                                                             |
+| I3         | todo   | HB1–HB7                          | Final cohesion, contrast walk, OG image, regression checks (ends at **G4**)                                                                                                                                    |
 
 | Gate | Status | Decided by                                                  |
 | ---- | ------ | ----------------------------------------------------------- |
