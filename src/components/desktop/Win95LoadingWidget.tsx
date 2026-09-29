@@ -53,7 +53,7 @@ export function Win95LoadingWidget({
       minHeight={140}
       maxWidth={320}
       maxHeight={140}
-      disableResize={true}
+      enableResizing={false}
       dragHandleClassName={styles.titleBar}
       style={{ zIndex }}
       onMouseDown={onFocus}
