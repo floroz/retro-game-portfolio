@@ -1,9 +1,14 @@
 {
   "id": "travel-map-bg",
   "output": "src/assets/scenes/travel-map/bg.png",
-  "task": "F1",
-  "source": "opus",
-  "palette": "v0",
-  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Replaced in B5.",
+  "task": "B5",
+  "source": "codex",
+  "prompt": "assets-src/prompts/scenes/travel-map.md",
+  "candidate": "02",
+  "references": ["assets-src/refs/style-anchor@8x.png"],
+  "approvedRaw": "assets-src/approved/travel-map-bg.webp",
+  "palette": "v1",
+  "cleanup": "Pixelized with the core palette only (--scene travel-map, --crop auto, 1774x887 to 320x160). Rebuilt from a land/sea mask so every fill is flat: the sea is the large connected regions of the remapped sea tan, everything else is land. The three painted red markers (and their dark rings) and the scattered brass specks were treated as unknown and filled from their neighbours by majority, so the coast near London and Sorrento stayed put; the engine draws the B6 marker sprite at the real positions instead. Removed every inland line (the faint political borders and the generated chevron fields), islets under 6 px and lakes under 30 px, and single-pixel notches. Contrast raised one step: land is paper E (#e7bd98) instead of D, sea stays C (#9a7860), and the coastline is redrawn as one crisp 1 px line in 8 (#6d3f31) on the land side. Hand fixes on the mask: reopened the Strait of Gibraltar (3 px) and dropped a 1 px islet on the top edge. Redrew the mountains as 19 sparse hand-placed peaks (3x5 and 4x7: lit flank 9, shaded flank 8, D inside): the Alps arc from the Maritime Alps to Austria south of Zurich, the Apennines, the Pyrenees, one in the Meseta, the Carpathians, the Balkans and the Southern Uplands. Kept the bands where the engine draws 'City: Sections' above each marker clear of peaks. Northern Scotland stays cropped by the frame, as generated. No text.",
+  "approvedBy": "opus-orchestrator (delegated pick)",
   "date": "2026-09-29"
 }
