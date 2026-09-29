@@ -65,6 +65,18 @@
 
 /* A choice on the page. The canvas lights the line under it, so the ring
    the other controls use would only clutter the text. */
+// The choices' group spans the panel so it has a box (tests and assistive
+// tech see it as visible); only its rows take clicks.
+.choices {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
 .choice {
   @extend %control;
 
