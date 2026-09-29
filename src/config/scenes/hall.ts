@@ -9,7 +9,7 @@
  * sign with its gate number and city only (`gate:<country>`). The departures
  * board lists the cities, and the duty-free shelf sells one unlabelled
  * product per section. Hovering names the sections in the status line, and
- * the toolbar's country badges carry the rest.
+ * the toolbar's boarding passes carry the rest.
  *
  * Walking depth: the row of seats and the security arch stand out on the
  * carpet, each with a `baselineY` on its front feet. The walkbox is one
