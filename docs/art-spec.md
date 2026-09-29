@@ -841,7 +841,7 @@ As before: a task is runnable when everything under **After** is `done` in this 
 - **Ids and paths.** Remastered files replace the current files in place, and provenance records gain `"density": 2`. **One provenance record per shipped file, updated in place.** RB tasks fold anchor-only records, such as `zurich-bg@2x.json`, into the shipped file's record and delete them. Approved raws are saved as `assets-src/approved/<asset-id>@2x.webp`.
 - **Everything else:** animation poses, timing and frame counts (the stride doubles in pixels), slot sizes in logical px and capacities, audio, and the signposting rules.
 
-### Codex lane (the Codex orchestrator polls this table)
+### Codex lane (Phase R, superseded: don't run)
 
 A Codex task is runnable when everything under **After** is `done` in this section's tables. Follow [Rules for Codex tasks](#rules-for-codex-tasks). Each prompt file lists its own references. Output goes to `assets-src/exchange/raw/<folder>/` in `../rgp-codex/`, with `DONE` written last. Codex never commits.
 
