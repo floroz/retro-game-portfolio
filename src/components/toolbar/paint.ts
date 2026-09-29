@@ -14,21 +14,37 @@ import {
   capHeight,
   drawText,
   measureText,
+  type FontId,
   type TextLayer,
 } from "../../engine/font";
 import { iconRows } from "../../engine/icons";
 import type { CountrySceneId, Rect, SectionId } from "../../engine/types";
 import {
+  CHOICES_PAGE,
+  CHOICE_CAP_TOP,
   PANEL_H,
   PANEL_LAYOUT,
+  choiceRows,
   PANEL_W,
   type TicketLayout,
   type UtilityId,
 } from "./layout";
-import { EMBLEM, ICON, INK, Sprite, emblem, fittingIcon } from "./sprites";
+import {
+  ART,
+  BRASS,
+  LEATHER,
+  PAPER,
+  WOOD,
+  blit,
+  fill,
+  noise,
+  paintBrassStrip,
+  paintWood,
+  rivet,
+  type Ctx,
+} from "./materials";
+import { EMBLEM, ICON, INK, emblem, fittingIcon } from "./sprites";
 
-/** Canvas px per art px. */
-const ART = 2;
 export const CANVAS_PANEL_W = PANEL_W * ART;
 export const CANVAS_PANEL_H = PANEL_H * ART;
 
@@ -50,20 +66,6 @@ export interface PanelView {
 
 // --- Colours -----------------------------------------------------------------
 
-const WOOD = ["#2a1812", "#3a2219", "#4a2d20", "#5a3726", "#6b4330"];
-const BRASS = {
-  dark: "#7a5518",
-  mid: "#b8862a",
-  light: "#e2b54a",
-  hi: "#f7de8a",
-};
-const PAPER = {
-  light: "#efe3c4",
-  mid: "#e2d2ac",
-  shade: "#c9b58a",
-  edge: "#9c855e",
-};
-const LEATHER = "#2e1712";
 const STAMP = "#c0281f";
 const SENTENCE = "#f4ecd8";
 const SENTENCE_IDLE = "#bba882";
@@ -78,70 +80,7 @@ const COUNTRY_INK: Record<CountrySceneId, { mid: string; dark: string }> = {
 
 // --- Drawing helpers -----------------------------------------------------------
 
-type Ctx = CanvasRenderingContext2D;
-
-function fill(ctx: Ctx, x: number, y: number, w: number, h: number, c: string) {
-  ctx.fillStyle = c;
-  ctx.fillRect(x * ART, y * ART, w * ART, h * ART);
-}
-
-function blit(ctx: Ctx, s: Sprite, x: number, y: number) {
-  for (let j = 0; j < s.h; j++) {
-    for (let i = 0; i < s.w; i++) {
-      const c = s.get(i, j);
-      if (c) fill(ctx, x + i, y + j, 1, 1, c);
-    }
-  }
-}
-
-/** A deterministic hash in [0, 1), so the grain is the same every time. */
-function noise(x: number, y: number, seed = 0): number {
-  let h = (x * 374761393 + y * 668265263 + seed * 2147483647) | 0;
-  h = Math.imul(h ^ (h >>> 13), 1274126177);
-  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
-}
-
 // --- The static trunk ----------------------------------------------------------
-
-function paintWood(ctx: Ctx) {
-  // Horizontal planks with dark seams, streaky grain, and the odd knot.
-  const planks = [0, 22, 50, 80];
-  for (let p = 0; p < planks.length - 1; p++) {
-    const top = planks[p];
-    const bottom = planks[p + 1];
-    fill(ctx, 0, top, PANEL_W, bottom - top, WOOD[2]);
-    for (let y = top + 1; y < bottom - 1; y++) {
-      let x = 0;
-      while (x < PANEL_W) {
-        const n = noise(x, y, p);
-        const len = 6 + Math.floor(noise(y, x, p + 7) * 40);
-        const tone = n < 0.18 ? WOOD[1] : n > 0.86 ? WOOD[3] : null;
-        if (tone) fill(ctx, x, y, Math.min(len, PANEL_W - x), 1, tone);
-        x += len;
-      }
-    }
-    // The lit top edge and the dark seam under each plank.
-    fill(ctx, 0, top, PANEL_W, 1, WOOD[3]);
-    fill(ctx, 0, bottom - 1, PANEL_W, 1, WOOD[0]);
-    const knotX = 40 + Math.floor(noise(p, 3) * 560);
-    const knotY = top + Math.floor((bottom - top) / 2);
-    fill(ctx, knotX - 2, knotY, 5, 1, WOOD[1]);
-    fill(ctx, knotX - 1, knotY - 1, 3, 3, WOOD[0]);
-  }
-}
-
-function paintBrassStrip(ctx: Ctx) {
-  // The trunk's top edge: an ink line, then a brass band.
-  fill(ctx, 0, 0, PANEL_W, 1, INK);
-  fill(ctx, 0, 1, PANEL_W, 1, BRASS.light);
-  fill(ctx, 0, 2, PANEL_W, 1, BRASS.dark);
-}
-
-function rivet(ctx: Ctx, x: number, y: number) {
-  fill(ctx, x - 1, y - 1, 3, 3, INK);
-  fill(ctx, x, y - 1, 2, 2, BRASS.mid);
-  fill(ctx, x, y - 1, 1, 1, BRASS.hi);
-}
 
 function paintSentenceGroove(ctx: Ctx) {
   const { x, y, w, h } = PANEL_LAYOUT.sentence;
@@ -247,7 +186,7 @@ function paintTicket(ctx: Ctx, t: TicketLayout) {
 }
 
 /** A round brass fitting, lit from the top left. */
-function paintFitting(ctx: Ctx, r: Rect, lit: boolean, dim: boolean) {
+export function paintFitting(ctx: Ctx, r: Rect, lit: boolean, dim: boolean) {
   const cx = r.x + r.w / 2 - 0.5;
   const cy = r.y + r.h / 2 - 0.5;
   const outer = r.w / 2;
@@ -288,8 +227,8 @@ function staticTrunk(): HTMLCanvasElement | null {
   canvas.height = CANVAS_PANEL_H;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
-  paintWood(ctx);
-  paintBrassStrip(ctx);
+  paintWood(ctx, PANEL_W, PANEL_H);
+  paintBrassStrip(ctx, PANEL_W);
   paintSentenceGroove(ctx);
   PANEL_LAYOUT.tickets.forEach((t) => paintTicket(ctx, t));
   trunk = canvas;
@@ -302,7 +241,7 @@ function staticTrunk(): HTMLCanvasElement | null {
  * A passport entry stamp in red ink at the ticket's far end, "you are
  * here": a double ring round a little plane, worn in places.
  */
-const PLANE = [
+export const PLANE = [
   ".....##....",
   "......##...",
   "#......##..",
@@ -363,7 +302,7 @@ function text(
   s: string,
   artX: number,
   artY: number,
-  font: "regular" | "small",
+  font: FontId,
   color: string,
   outline: string | false,
 ) {
@@ -376,7 +315,7 @@ function text(
 }
 
 /** A font's cap height in art px, for vertical centring. */
-const cap = (font: "regular" | "small") => capHeight(font) * LOGICAL;
+const cap = (font: FontId) => capHeight(font) * LOGICAL;
 
 function paintSectionRow(
   ctx: Ctx,
@@ -467,4 +406,105 @@ export function paintPanel(ctx: Ctx, view: PanelView) {
   }
 
   paintSentence(layer, view);
+}
+
+// --- The conversation's page -------------------------------------------------------
+
+/** What the panel shows while Daniele talks with the visitor. */
+export interface ChoicesView {
+  /** The choices, top to bottom; none while Daniele is still speaking. */
+  labels: string[];
+  /** The choice under the pointer or the keyboard focus. */
+  active: number | null;
+}
+
+const CHOICE = "#c9b58a";
+const CHOICE_ACTIVE = "#ffe58a";
+const PAGE = "#1e100c";
+const PAGE_GRAIN = "#28150f";
+const HINT = "#8a7654";
+
+let lid: HTMLCanvasElement | null = null;
+
+/** The lid with a leather page laid across it and nothing on the page. */
+function staticLid(): HTMLCanvasElement | null {
+  if (lid) return lid;
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = CANVAS_PANEL_W;
+  canvas.height = CANVAS_PANEL_H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  paintWood(ctx, PANEL_W, PANEL_H);
+  paintBrassStrip(ctx, PANEL_W);
+  const { x, y, w, h } = CHOICES_PAGE;
+  // The page: an ink rim, the leather with a little grain, and stitching
+  // down the sides, pinned at the corners with brass.
+  fill(ctx, x - 1, y - 1, w + 2, h + 2, INK);
+  fill(ctx, x, y, w, h, PAGE);
+  for (let j = y; j < y + h; j++) {
+    for (let i = x; i < x + w; i++) {
+      if (noise(i, j, 21) < 0.07) fill(ctx, i, j, 1, 1, PAGE_GRAIN);
+    }
+  }
+  fill(ctx, x, y, w, 1, WOOD[0]);
+  fill(ctx, x, y + h - 1, w, 1, WOOD[4]);
+  for (let j = y + 6; j < y + h - 6; j += 3) {
+    fill(ctx, x + 3, j, 1, 2, WOOD[3]);
+    fill(ctx, x + w - 4, j, 1, 2, WOOD[3]);
+  }
+  for (const [rx, ry] of [
+    [x + 6, y + 6],
+    [x + w - 7, y + 6],
+    [x + 6, y + h - 7],
+    [x + w - 7, y + h - 7],
+  ]) {
+    rivet(ctx, rx, ry);
+  }
+  lid = canvas;
+  return lid;
+}
+
+/**
+ * The conversation's choices as lines of serif text on the leather page: one
+ * colour normally, a brighter one for the choice the pointer or keyboard is
+ * on. Before Daniele has finished a line there are none, only a dim nudge
+ * that a click moves it along.
+ */
+export function paintChoices(ctx: Ctx, view: ChoicesView) {
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0, 0, CANVAS_PANEL_W, CANVAS_PANEL_H);
+  const base = staticLid();
+  if (base) ctx.drawImage(base, 0, 0);
+  const layer: TextLayer = { ctx, scale: ART * LOGICAL };
+
+  if (view.labels.length === 0) {
+    const nudge = "Click to skip";
+    const w = measureText(nudge, "regular") * LOGICAL;
+    const x = Math.round(CHOICES_PAGE.x + (CHOICES_PAGE.w - w) / 2);
+    const y =
+      CHOICES_PAGE.y + Math.round((CHOICES_PAGE.h - cap("regular")) / 2);
+    text(layer, nudge, x, y, "regular", HINT, INK);
+    return;
+  }
+
+  const rows = choiceRows(view.labels.length);
+  view.labels.forEach((label, i) => {
+    const r = rows[i];
+    const on = view.active === i;
+    const color = on ? CHOICE_ACTIVE : CHOICE;
+    text(layer, label, r.x + 14, r.y + CHOICE_CAP_TOP, "regular", color, INK);
+  });
+  text(
+    layer,
+    "ESC LEAVES",
+    CHOICES_PAGE.x +
+      CHOICES_PAGE.w -
+      12 -
+      measureText("ESC LEAVES", "tiny") * LOGICAL,
+    CHOICES_PAGE.y + CHOICES_PAGE.h - 8 - cap("tiny"),
+    "tiny",
+    HINT,
+    INK,
+  );
 }

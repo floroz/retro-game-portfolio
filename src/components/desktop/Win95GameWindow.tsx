@@ -33,7 +33,6 @@ interface Win95GameWindowProps {
   isActive: boolean;
   onFocus: () => void;
   zIndex: number;
-  dialogContent?: ReactNode; // Dialog content to render inside window
   welcomeContent?: ReactNode; // Welcome screen content to render before game
 }
 
@@ -101,8 +100,7 @@ function clampPosition(
 /**
  * Windows 95 style game window
  * Wraps the game scene in a Win95 window frame
- * Can show welcome screen or game content
- * Dialogs are rendered inside the content area for containment
+ * Can show the title card or game content
  *
  * Uses controlled mode for Rnd so the window automatically adapts
  * when the browser viewport is resized.
@@ -114,7 +112,6 @@ export function Win95GameWindow({
   isActive,
   onFocus,
   zIndex,
-  dialogContent,
   welcomeContent,
 }: Win95GameWindowProps) {
   const [windowState, setWindowState] = useState(() => {
@@ -172,8 +169,6 @@ export function Win95GameWindow({
       <div className={styles.innerContent} data-e2e="win95-game-window">
         {/* Show welcome screen if provided, otherwise show game content */}
         {welcomeContent || children}
-        {/* Dialogs rendered inside window for containment */}
-        {dialogContent}
       </div>
     </Win95Window>
   );

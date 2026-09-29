@@ -29,16 +29,17 @@ Vite prints the local URL, usually `http://localhost:5173`.
 
 ## Find the right code
 
-| Concern                                     | Start with                                                                          |
-| ------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Desktop/mobile selection                    | `src/App.tsx`, `src/hooks/useIsMobile.ts`                                           |
-| Desktop windows and game scene              | `src/components/desktop/`, `src/components/game/`, `src/components/toolbar/`        |
-| Mobile console                              | `src/components/mobile/`                                                            |
-| Character movement, actions, dialogs, sound | `src/store/gameStore.ts`, `src/hooks/`                                              |
-| Personal details and portfolio copy         | `src/config/profile.ts`                                                             |
-| Dialogue, terminal commands, scene hotspots | `src/config/dialogTrees.ts`, `src/config/commands.ts`, `src/config/scene.ts`        |
-| SEO and generated HTML                      | `src/config/profile.ts`, `scripts/generate-html.ts`, `scripts/generate-og-image.ts` |
-| Styling                                     | Component `*.module.scss` files and `src/styles/`                                   |
+| Concern                                     | Start with                                                                                      |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Desktop/mobile selection                    | `src/App.tsx`, `src/hooks/useIsMobile.ts`                                                       |
+| Desktop windows and game scene              | `src/components/desktop/`, `src/components/game/`, `src/components/toolbar/`                    |
+| Mobile console                              | `src/components/mobile/`                                                                        |
+| Character movement, actions, dialogs, sound | `src/store/gameStore.ts`, `src/hooks/`                                                          |
+| Title card, conversation choices            | `src/components/dialog/`, `src/components/toolbar/Dialogue.tsx`, `src/hooks/useConversation.ts` |
+| Personal details and portfolio copy         | `src/config/profile.ts`                                                                         |
+| Dialogue, terminal commands, scene hotspots | `src/config/dialogTrees.ts`, `src/config/commands.ts`, `src/config/scene.ts`                    |
+| SEO and generated HTML                      | `src/config/profile.ts`, `scripts/generate-html.ts`, `scripts/generate-og-image.ts`             |
+| Styling                                     | Component `*.module.scss` files and `src/styles/`                                               |
 
 `src/config/profile.ts` supplies shared personal information to desktop, mobile, terminal, and SEO views. Dialogue text lives in `src/config/dialogTrees.ts`. The game store starts fresh on each page load; it does not persist state.
 
