@@ -4,7 +4,8 @@
  * Fails if any shipped asset is off-palette, uses another scene's ramp, has
  * partial alpha, is the wrong size, is badly named, or has no provenance
  * record. Also checks the palette files, every provenance record, and the
- * character sheet JSON.
+ * character sheet JSON, and that every file in public/audio/ is named by the
+ * art spec's rules and has a provenance record (with loop points for loops).
  */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
@@ -13,6 +14,7 @@ import {
   PROVENANCE_DIR,
   REPO_ROOT,
   checkImagePalette,
+  isSceneId,
   loadPalette,
   readImage,
   toGpl,
@@ -37,6 +39,63 @@ function walk(dir: string): string[] {
 
 const rel = (p: string) => relative(REPO_ROOT, p).split("\\").join("/");
 
+/** Shipped audio (docs/art-spec.md, File layout and Audio). */
+const AUDIO_ROOT = "public/audio";
+const AUDIO_FILE =
+  /^public\/audio\/(music|ambience|sfx)\/([a-z0-9]+(?:-[a-z0-9]+)*)\.mp3$/;
+
+/**
+ * Check one shipped audio file against its provenance record (undefined when
+ * it has none). A loop's record must carry Web Audio loop points.
+ */
+function checkAudio(
+  path: string,
+  recordFile: string | undefined,
+  record: Record<string, unknown> | undefined,
+): string[] {
+  const m = AUDIO_FILE.exec(path);
+  if (!m) {
+    return [
+      `${path}: audio files are public/audio/music/<track>.mp3, public/audio/ambience/<scene>.mp3, or public/audio/sfx/<name>.mp3 (kebab-case)`,
+    ];
+  }
+  const [, kind, name] = m;
+  const id = `${kind}-${name}`;
+  const errors: string[] = [];
+  if (kind === "ambience" && !isSceneId(name))
+    errors.push(`${path}: unknown scene "${name}"`);
+  if (!recordFile || !record) {
+    return [
+      ...errors,
+      `${path}: no provenance record in assets-src/provenance/ (expected ${id}.json)`,
+    ];
+  }
+  if (recordFile !== `${id}.json`)
+    errors.push(
+      `${path}: its provenance record must be ${id}.json, not ${recordFile}`,
+    );
+  const loop = record.loop as Record<string, unknown> | undefined;
+  if (loop === undefined) {
+    if (kind === "ambience")
+      errors.push(
+        `assets-src/provenance/${recordFile}: an ambience loop needs "loop" points`,
+      );
+  } else {
+    const { loopStart, loopEnd, sampleRate } = loop;
+    if (
+      typeof loopStart !== "number" ||
+      typeof loopEnd !== "number" ||
+      typeof sampleRate !== "number" ||
+      !(loopStart >= 0 && loopEnd > loopStart)
+    ) {
+      errors.push(
+        `assets-src/provenance/${recordFile}: "loop" needs numeric loopStart < loopEnd (seconds) and sampleRate`,
+      );
+    }
+  }
+  return errors;
+}
+
 async function main() {
   const errors: string[] = [];
   let palette: Palette;
@@ -59,6 +118,7 @@ async function main() {
 
   // Provenance records, indexed by output.
   const byOutput = new Map<string, string>();
+  const records = new Map<string, Record<string, unknown>>();
   const exists = (p: string) => existsSync(resolve(REPO_ROOT, p));
   for (const file of existsSync(PROVENANCE_DIR)
     ? readdirSync(PROVENANCE_DIR)
@@ -72,6 +132,8 @@ async function main() {
       continue;
     }
     errors.push(...checkProvenance(value, file, exists));
+    if (typeof value === "object" && value !== null && !Array.isArray(value))
+      records.set(file, value as Record<string, unknown>);
     const output = (value as { output?: unknown }).output;
     if (typeof output === "string") {
       const prev = byOutput.get(output);
@@ -152,13 +214,27 @@ async function main() {
     }
   }
 
+  // Shipped audio: every file in public/audio/ has a provenance record.
+  const audio = walk(resolve(REPO_ROOT, AUDIO_ROOT)).map(rel);
+  for (const path of audio) {
+    if (path.endsWith("/.gitkeep")) continue;
+    const recordFile = byOutput.get(path);
+    errors.push(
+      ...checkAudio(
+        path,
+        recordFile,
+        recordFile ? records.get(recordFile) : undefined,
+      ),
+    );
+  }
+
   if (errors.length) {
     for (const e of errors) console.error(`error: ${e}`);
     console.error(`\nlint:assets failed with ${errors.length} error(s).`);
     process.exit(1);
   }
   console.log(
-    `lint:assets: ${assets.length} assets and ${byOutput.size} provenance records OK (palette ${palette.version}).`,
+    `lint:assets: ${assets.length} images, ${audio.length} audio files, and ${byOutput.size} provenance records OK (palette ${palette.version}).`,
   );
 }
 

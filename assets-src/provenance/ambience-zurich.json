@@ -1,0 +1,61 @@
+{
+  "id": "ambience-zurich",
+  "output": "public/audio/ambience/zurich.mp3",
+  "task": "A2",
+  "source": "opus",
+  "date": "2026-09-29",
+  "recipe": "assets-src/audio/ambience/zurich.ts",
+  "description": "Zurich ambience: a wall clock ticking once a second in a quiet office, a low room tone, soft wind off the lake, and once a loop a tram's bell far away.",
+  "loop": {
+    "loopStart": 0.5,
+    "loopEnd": 30.5,
+    "loopStartFrame": 24000,
+    "loopEndFrame": 1464000,
+    "sampleRate": 48000,
+    "usage": "Decode with Web Audio and loop an AudioBufferSourceNode between loopStart and loopEnd (seconds). Start at 0."
+  },
+  "loudness": {
+    "integratedLufs": -28,
+    "lraLu": 3.9,
+    "truePeakDbtp": -8,
+    "samplePeakDbfs": -8.07,
+    "gainDb": -0.1,
+    "target": "-28 LUFS"
+  },
+  "seam": {
+    "wav": {
+      "windowFrames": 12000,
+      "identical": true,
+      "differenceDb": null,
+      "maxAbsDifference": 0,
+      "signalDbfs": -27.99,
+      "wrapStepRatio": 0.501,
+      "bestLag": 0
+    },
+    "mp3": {
+      "windowFrames": 12000,
+      "identical": false,
+      "differenceDb": -34.85,
+      "maxAbsDifference": 0.0038,
+      "signalDbfs": -28.43,
+      "wrapStepRatio": 0.567,
+      "bestLag": 0
+    },
+    "mp3WithDecoderOffset": {
+      "windowFrames": 10895,
+      "identical": false,
+      "differenceDb": -35.04,
+      "maxAbsDifference": 0.0038,
+      "signalDbfs": -28.35,
+      "wrapStepRatio": 0.976,
+      "bestLag": 0
+    }
+  },
+  "render": {
+    "synth": "scripts/assets/sfx.ts (seeded, deterministic)",
+    "seed": 43,
+    "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "sampleRate": 48000,
+    "channels": 2
+  }
+}

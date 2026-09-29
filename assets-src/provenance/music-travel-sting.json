@@ -1,0 +1,46 @@
+{
+  "id": "music-travel-sting",
+  "output": "public/audio/music/travel-sting.mp3",
+  "task": "A2",
+  "source": "opus",
+  "date": "2026-09-29",
+  "midiSource": "assets-src/audio/music/travel-sting.ts",
+  "description": "Travel-map sting: the shared motif's first bar (assets-src/audio/music/motif.ts), landing on F, for the plane crossing the map.",
+  "tempoBpm": 120,
+  "meter": "4/4",
+  "key": "F major",
+  "bars": 1,
+  "loudness": {
+    "integratedLufs": -20,
+    "lraLu": 16.6,
+    "truePeakDbtp": -10.7,
+    "samplePeakDbfs": -10.71,
+    "gainDb": 6.8,
+    "targetLufs": -20
+  },
+  "render": {
+    "soundfont": {
+      "name": "FluidR3_GM",
+      "sha256": "74594e8f4250680adf590507a306655a299935343583256f3b722c48a1bc1cb0",
+      "licence": "MIT",
+      "copyright": "2000-2002, 2008 Frank Wen; 2008 Toby Smithe",
+      "source": "https://deb.debian.org/debian/pool/main/f/fluid-soundfont/fluid-soundfont-gm_3.1-6_all.deb",
+      "sourceSha256": "9965fbcc6acee17d6f72b685d28c7f968ec64eba14645445b476d5c6cc2eee4c"
+    },
+    "fluidsynth": "FluidSynth runtime version 2.6.1",
+    "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "settings": {
+      "gain": 0.5,
+      "reverb": {
+        "synth.reverb.room-size": 0.5,
+        "synth.reverb.damp": 0.4,
+        "synth.reverb.width": 0.8,
+        "synth.reverb.level": 0.6
+      },
+      "chorus": false,
+      "polyphony": 256
+    },
+    "sampleRate": 48000,
+    "mp3": "libmp3lame CBR 128k, stereo"
+  }
+}

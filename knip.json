@@ -6,6 +6,5 @@
   "playwright": {
     "entry": ["test/**/*.test.ts"],
     "config": ["playwright.config.ts"]
-  },
-  "ignoreDependencies": ["midi-writer-js"]
+  }
 }
