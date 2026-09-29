@@ -1,9 +1,12 @@
 /**
  * Native image to an 8x reference PNG for Codex (docs/art-spec.md, Tooling).
  *
- *   npm run assets:refs -- <native.png> [--name <id>] [--scale 8]
+ *   npm run assets:refs -- <native.png> [--name <id>] [--scale 8] [--density 1|2]
  *
- * Writes assets-src/refs/<id>@8x.png, where <id> defaults to the file name.
+ * Writes assets-src/refs/<id>@<scale>x.png, where <id> defaults to the file
+ * name (a --name like "remaster/zurich-current" writes into a subfolder). The
+ * scale defaults to 8, or 4 for density-2 art, so a reference is the same
+ * physical size at either density.
  */
 import { basename, join } from "node:path";
 import { parseArgs } from "node:util";
@@ -12,6 +15,8 @@ import {
   cliPath,
   fail,
   hasTransparency,
+  parseDensity,
+  previewScale,
   readImage,
   upscale,
   writePng,
@@ -22,13 +27,16 @@ async function main() {
     allowPositionals: true,
     options: {
       name: { type: "string" },
-      scale: { type: "string", default: "8" },
+      scale: { type: "string" },
+      density: { type: "string" },
     },
   });
   const [input] = positionals;
   if (!input) fail("usage: assets:refs -- <native.png> [--name <id>]");
   const img = await readImage(cliPath(input));
-  const scale = Number(values.scale);
+  const scale = values.scale
+    ? Number(values.scale)
+    : previewScale(8, parseDensity(values.density));
   const out = join(
     REFS_DIR,
     `${values.name ?? basename(input, ".png")}@${scale}x.png`,

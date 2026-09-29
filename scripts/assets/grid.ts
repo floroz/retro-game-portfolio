@@ -2,24 +2,27 @@
  * PNG <-> palette-index text grid (docs/art-spec.md, Grid format).
  *
  *   npm run assets:grid -- export <image.png> [--region x,y,w,h | --frame N --cell 32x64]
- *                          [--asset <id>] [--out <grid.txt>]
+ *                          [--density 1|2] [--asset <id>] [--out <grid.txt>]
  *   npm run assets:grid -- import <grid.txt> --out <image.png>
  *   npm run assets:grid -- patch <image.png> <grid.txt> [--at x,y]
  *
  * `export` prints the grid (or writes it with --out). `patch` writes the grid
  * back into the image at --at, or at the region recorded in the grid header,
- * replacing whole rows. Grids are rejected if any row is ragged.
+ * replacing whole rows. Grids are rejected if any row is ragged. --density 2
+ * makes the default --cell the 64x128 character cell.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
 import { parseArgs } from "node:util";
 import {
+  characterMetrics,
   cliPath,
   crop,
   fail,
   gridToImage,
   imageToGrid,
   loadPalette,
+  parseDensity,
   parseGrid,
   parsePoint,
   parseRect,
@@ -36,7 +39,8 @@ async function main() {
     options: {
       region: { type: "string" },
       frame: { type: "string" },
-      cell: { type: "string", default: "32x64" },
+      cell: { type: "string" },
+      density: { type: "string" },
       asset: { type: "string" },
       out: { type: "string" },
       at: { type: "string" },
@@ -54,7 +58,9 @@ async function main() {
       asset: values.asset ?? basename(input, ".png"),
     };
     if (values.frame !== undefined) {
-      const cell = parseSize(values.cell);
+      const cell = values.cell
+        ? parseSize(values.cell)
+        : characterMetrics(parseDensity(values.density)).body;
       const n = Number(values.frame);
       region = { x: n * cell.w, y: 0, w: cell.w, h: cell.h };
       header.frame = String(n).padStart(2, "0");

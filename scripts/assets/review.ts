@@ -6,13 +6,17 @@
  *     [--exchange <dir>]       defaults to ../rgp-codex/assets-src/exchange if it
  *                              exists, else assets-src/exchange in this worktree
  *     [--scene <id>|core]      defaults to the scene named by the asset id
- *     [--size 320x160] [--crop auto|x,y,w,h]
+ *     [--density 1|2]          defaults to 2 for an "<id>@2x" folder (the remaster),
+ *                              else 1; sets the size, cell, and scale defaults
+ *     [--size 320x160]         default: the scene at --density (640x320 at 2)
+ *     [--crop auto|x,y,w,h]
  *     [--key auto|ff00ff] [--key-tolerance 0.08] [--fringe-tolerance 0.22] [--min-hole 64]
  *                              OKLab flood-fill keying (see key.ts and pixelize.ts)
- *     [--sprites 32x64]        for character sheets (implies --key auto)
- *     [--scale 4]              review sheet scale
+ *     [--sprites 32x64]        for character sheets (implies --key auto); cells of
+ *                              64x128 at --density 2, feet on row 61 (123 at 2)
+ *     [--scale 4]              review sheet scale (default 4, or 2 at --density 2)
  *
- * Writes assets-src/review/<asset-id>/NN.png (native) and sheet@4x.png.
+ * Writes assets-src/review/<asset-id>/NN.png (native) and sheet@<scale>x.png.
  * Judge at native size: a beautiful raw image can pixelize into mush.
  */
 import { existsSync, readdirSync } from "node:fs";
@@ -24,18 +28,22 @@ import {
   REPO_ROOT,
   REVIEW_DIR,
   allowedColours,
+  characterMetrics,
   cliPath,
   contactSheet,
   fail,
   figuresToCells,
   findFigures,
   loadPalette,
+  parseDensity,
   parseRect,
   parseSceneOption,
   parseSize,
   pixelize,
+  previewScale,
   readImage,
   sceneForAssetId,
+  sceneSize,
   upscale,
   writePng,
 } from "./lib";
@@ -55,14 +63,15 @@ async function main() {
     options: {
       exchange: { type: "string" },
       scene: { type: "string" },
-      size: { type: "string", default: "320x160" },
+      density: { type: "string" },
+      size: { type: "string" },
       crop: { type: "string", default: "auto" },
       key: { type: "string" },
       "key-tolerance": { type: "string" },
       "fringe-tolerance": { type: "string" },
       "min-hole": { type: "string" },
       sprites: { type: "string" },
-      scale: { type: "string", default: "4" },
+      scale: { type: "string" },
     },
   });
   const [assetId] = positionals;
@@ -84,6 +93,10 @@ async function main() {
     .sort();
   if (files.length === 0) fail(`No NN.png candidates in ${rawDir}`);
 
+  const density = parseDensity(
+    values.density ?? (assetId.endsWith("@2x") ? "2" : undefined),
+  );
+  const metrics = characterMetrics(density);
   const scene = values.scene
     ? parseSceneOption(values.scene)
     : sceneForAssetId(assetId);
@@ -115,12 +128,12 @@ async function main() {
       native = figuresToCells(sheet, findFigures(sheet), {
         cellW: cell.w,
         cellH: cell.h,
-        feetRow: 61,
-        figureHeight: 57,
+        feetRow: metrics.feetRow,
+        figureHeight: metrics.figureHeight,
         colours,
       });
     } else {
-      const size = parseSize(values.size);
+      const size = values.size ? parseSize(values.size) : sceneSize(density);
       native = pixelize(src, {
         width: size.w,
         height: size.h,
@@ -135,14 +148,16 @@ async function main() {
     );
   }
 
-  const scale = Number(values.scale);
+  const scale = values.scale ? Number(values.scale) : previewScale(4, density);
   const sheet = upscale(
     contactSheet(natives, { cols: Math.min(2, natives.length) }),
     scale,
   );
   const sheetPath = join(outDir, `sheet@${scale}x.png`);
   await writePng(sheetPath, sheet);
-  console.log(`Review sheet: ${sheetPath} (scene: ${scene ?? "core"})`);
+  console.log(
+    `Review sheet: ${sheetPath} (scene: ${scene ?? "core"}, density ${density})`,
+  );
 }
 
 main().catch((e: unknown) => fail(e instanceof Error ? e.message : String(e)));
