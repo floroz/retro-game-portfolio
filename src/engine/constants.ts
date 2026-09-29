@@ -10,7 +10,7 @@ export const NATIVE_H = 160;
  * and the pixel font draw 1:1, and density-1 art draws at 2x
  * nearest-neighbour, exactly as it looked on the old 320x160 canvas.
  */
-export const RENDER_SCALE = 2;
+const RENDER_SCALE = 2;
 export const CANVAS_W = NATIVE_W * RENDER_SCALE;
 export const CANVAS_H = NATIVE_H * RENDER_SCALE;
 /**

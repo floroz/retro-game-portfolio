@@ -33,12 +33,18 @@
 .statusText {
   @include truncate;
 
-  font-family: "Press Start 2P", "Courier New", monospace;
-  font-size: to-rem(14px);
+  /* The world text's face (font.ts), outlined like speech */
+  padding: to-rem(4px) to-rem(6px);
+  font-family: Fredoka, "Trebuchet MS", sans-serif;
+  font-size: to-rem(26px);
+  font-weight: 600;
+  line-height: 1.2;
   color: var(--color-accent);
-  text-transform: uppercase;
-  text-shadow: to-rem(2px) to-rem(2px) 0 #000;
+  word-spacing: 0.12em;
   text-align: center;
+  paint-order: stroke fill;
+  -webkit-text-stroke: to-rem(6px) #0f0d12;
+  text-shadow: to-rem(2px) to-rem(3px) 0 rgb(15 13 18 / 55%);
 }
 
 /* Icon buttons section (20%) */

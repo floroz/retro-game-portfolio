@@ -245,13 +245,14 @@ export const ZURICH_SCENE: SceneData = {
       baselineY: DESK_BASELINE,
     },
     {
-      // Lettered on the card on the cabinet's top drawer.
+      // Lettered on the card on the cabinet's top drawer (x 249-274).
       id: "cabinet",
       source: "section:resume",
       x: 261,
       y: 85,
       align: "center",
       font: "small",
+      maxWidth: 23,
       color: "#2a2328",
       baselineY: CABINET_BASELINE,
     },
