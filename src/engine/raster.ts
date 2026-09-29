@@ -20,11 +20,15 @@ export function hardenAlpha(data: Uint8ClampedArray, cut = ALPHA_CUT) {
   }
 }
 
-let scratchCanvas: HTMLCanvasElement | null = null;
+const scratchCanvases: (HTMLCanvasElement | null)[] = [null, null];
 
-function scratch(w: number, h: number): CanvasRenderingContext2D | null {
-  const c = scratchCanvas ?? document.createElement("canvas");
-  scratchCanvas = c;
+function scratch(
+  w: number,
+  h: number,
+  which = 0,
+): CanvasRenderingContext2D | null {
+  const c = scratchCanvases[which] ?? document.createElement("canvas");
+  scratchCanvases[which] = c;
   if (c.width < w || c.height < h) {
     c.width = Math.max(c.width, w);
     c.height = Math.max(c.height, h);
@@ -50,14 +54,23 @@ export interface GridBox {
  * (whose transform is in logical px) at `grid` pixels per logical px. The
  * scratch context comes smoothing-enabled (high quality) with an identity
  * transform. `finish`, if given, edits the hardened pixels (RGBA, not
- * premultiplied) before they are stamped.
+ * premultiplied) before they are stamped. `snap`, if given, paints thin
+ * detail (a 1 px pupil) into a second scratch the same way, and `finish` gets
+ * a mask of the pixels it covers by `snap.cut` (0 to 1) or more, which smoothing
+ * the main image would otherwise have blurred away.
  */
 export function stampOnGrid(
   ctx: CanvasRenderingContext2D,
   grid: number,
   box: GridBox,
   paint: (sctx: CanvasRenderingContext2D) => void,
-  finish?: (data: Uint8ClampedArray, w: number, h: number) => void,
+  finish?: (
+    data: Uint8ClampedArray,
+    w: number,
+    h: number,
+    snapped?: Uint8Array,
+  ) => void,
+  snap?: { paint: (sctx: CanvasRenderingContext2D) => void; cut: number },
 ) {
   const { left, top, w, h } = box;
   if (w < 1 || h < 1) return;
@@ -70,7 +83,22 @@ export function stampOnGrid(
   sctx.restore();
   const image = sctx.getImageData(0, 0, w, h);
   hardenAlpha(image.data);
-  finish?.(image.data, w, h);
+  let snapped: Uint8Array | undefined;
+  if (snap) {
+    const s2 = scratch(w, h, 1);
+    if (s2) {
+      s2.imageSmoothingEnabled = true;
+      s2.imageSmoothingQuality = "low";
+      s2.save();
+      snap.paint(s2);
+      s2.restore();
+      const detail = s2.getImageData(0, 0, w, h).data;
+      snapped = new Uint8Array(w * h);
+      for (let i = 0; i < w * h; i++)
+        snapped[i] = detail[i * 4 + 3] >= snap.cut * 255 ? 1 : 0;
+    }
+  }
+  finish?.(image.data, w, h, snapped);
   sctx.putImageData(image, 0, 0);
   ctx.save();
   ctx.imageSmoothingEnabled = false;

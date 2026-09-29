@@ -90,5 +90,33 @@ export function drawRig(
       }
     },
     outlineSilhouette,
+    parts.some((p) => p.ink)
+      ? {
+          // A pupil is a pixel or two wide: at full size it must not spread
+          // over two by rotating a degree, and scaled down it must still be
+          // caught by the pixel most of it lands in.
+          cut: Math.max(0.25, 0.55 * Math.min(1, 1.2 * scale)),
+          paint: (sctx) => {
+            sctx.setTransform(sx, 0, 0, k, -left, -top);
+            for (const { ink: f, matrix: m } of parts) {
+              if (!f) continue;
+              sctx.save();
+              sctx.transform(m[0], m[1], m[2], m[3], m[4], m[5]);
+              sctx.drawImage(
+                atlas,
+                f.x,
+                f.y,
+                f.w,
+                f.h,
+                -f.pivot.x,
+                -f.pivot.y,
+                f.w,
+                f.h,
+              );
+              sctx.restore();
+            }
+          },
+        }
+      : undefined,
   );
 }

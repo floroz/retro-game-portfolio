@@ -98,6 +98,12 @@ export interface PlacedPart {
   /** The image: the part's `frame`, or the variant the pose asks for. */
   frame: RigFrame;
   /**
+   * The image's twin holding only its drawn detail (the pupils), if the part
+   * has one: the variant's `<name>-ink`, or `ink` for the rest image. Drawn
+   * on the same joint; the renderer snaps what it covers to solid ink.
+   */
+  ink?: RigFrame;
+  /**
    * Atlas px of the frame (relative to its top-left) to feet-relative atlas
    * px: draw the frame at `-pivot` under this matrix.
    */
@@ -139,9 +145,17 @@ export function solveRig(facing: RigFacingData, pose: RigPose): PlacedPart[] {
   return facing.parts.map((part) => {
     const at = jointMat(part.id);
     const variant = pose.variants[part.id];
-    const frame = (variant && part.variants[variant]) || part.frame;
+    const shown = variant && part.variants[variant] ? variant : null;
+    const frame = (shown && part.variants[shown]) || part.frame;
+    const ink = part.variants[shown ? `${shown}-ink` : "ink"];
     const matrix = multiply(at, scale(1, pose.stretch[part.id] ?? 1));
-    return { id: part.id, frame, matrix, joint: apply(at, { x: 0, y: 0 }) };
+    return {
+      id: part.id,
+      frame,
+      ink,
+      matrix,
+      joint: apply(at, { x: 0, y: 0 }),
+    };
   });
 }
 

@@ -86,4 +86,18 @@ describe("the puppet's outline", () => {
     outlineSilhouette(d, W, H);
     expect(isInk(d, 5, 4)).toBe(true);
   });
+
+  test("drawn detail the smoothing greyed is snapped back to solid ink", () => {
+    const d = figure(BLOCK);
+    // a pupil that resampling turned grey
+    d.set([120, 118, 116, 255], (4 * W + 5) * 4);
+    const snapped = new Uint8Array(W * H);
+    snapped[4 * W + 5] = 1;
+    // a snap outside the figure changes nothing
+    snapped[9 * W + 9] = 1;
+    outlineSilhouette(d, W, H, snapped);
+    expect(isInk(d, 5, 4)).toBe(true);
+    expect(at(d, 9, 9)[3]).toBe(0);
+    expect(at(d, 4, 4)).toEqual([...FILL, 255]);
+  });
 });

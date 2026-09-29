@@ -30,6 +30,7 @@ export function outlineSilhouette(
   data: Uint8ClampedArray,
   width: number,
   height: number,
+  snapped?: Uint8Array,
 ): void {
   const opaque = (x: number, y: number) =>
     x >= 0 && y >= 0 && x < width && y < height
@@ -76,6 +77,16 @@ export function outlineSilhouette(
     data[p * 4 + 1] = RIG_INK[1];
     data[p * 4 + 2] = RIG_INK[2];
     data[p * 4 + 3] = 255;
+  }
+  // Drawn detail the smoothing thinned to grey (a pupil at depth scale 0.8)
+  // is set back to solid ink, the way the outline is.
+  if (snapped) {
+    for (let p = 0; p < width * height; p++) {
+      if (snapped[p] !== 1 || data[p * 4 + 3] !== 255) continue;
+      data[p * 4] = RIG_INK[0];
+      data[p * 4 + 1] = RIG_INK[1];
+      data[p * 4 + 2] = RIG_INK[2];
+    }
   }
 }
 
