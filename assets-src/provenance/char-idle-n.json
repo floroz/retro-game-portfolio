@@ -1,0 +1,11 @@
+{
+  "id": "char-idle-n",
+  "output": "assets-src/character/char-idle-n.png",
+  "task": "B7",
+  "source": "opus",
+  "derivedFrom": "char-turnaround",
+  "palette": "v1",
+  "cleanup": "The turnaround's back view, unchanged.",
+  "approvedBy": "opus-orchestrator (delegated)",
+  "date": "2026-09-29"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "char-use-e",
+  "output": "assets-src/character/char-use-e.png",
+  "task": "B7",
+  "source": "codex",
+  "prompt": "assets-src/prompts/character/use-e.md",
+  "candidate": "01",
+  "references": ["assets-src/refs/char-turnaround@8x.png"],
+  "approvedRaw": "assets-src/approved/char-use-e.webp",
+  "palette": "v1",
+  "cleanup": "Hybrid: the turnaround's side-view body, head and legs, with candidate 01's reach redrawn on it in the anchor's style. The hanging near arm and hand were removed and the sweater and jeans filled in behind them; the arm is a sleeve (F lit edge and top, H highlight, G base, 0 underside) bent at chest height in frame 1 and straight out in frame 2, ending in a small open hand on skin C-E. Candidate pixels were used only as a pose reference.",
+  "approvedBy": "opus-orchestrator (delegated)",
+  "date": "2026-09-29"
+}

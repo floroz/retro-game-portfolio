@@ -1,0 +1,11 @@
+{
+  "id": "char-walk-s",
+  "output": "assets-src/character/char-walk-s.png",
+  "task": "B7",
+  "source": "opus",
+  "derivedFrom": "char-turnaround",
+  "palette": "v1",
+  "cleanup": "Fallback, built from the turnaround's front view: the anchor's head and torso in every frame, with a 1 px bob on the two down frames. Legs and arms drawn per frame: each foot lifts for three frames (1, 2, then 3 px, the passing frame tucked 1 px inwards), following the timing of candidate 01 in assets-src/exchange/raw/char-walk-s/ (used only as a reference), and the hands swing 1 px against the stepping leg. Onion-skinned frame to frame; core palette only.",
+  "approvedBy": "opus-orchestrator (delegated)",
+  "date": "2026-09-29"
+}

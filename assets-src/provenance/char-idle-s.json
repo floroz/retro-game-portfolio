@@ -1,0 +1,11 @@
+{
+  "id": "char-idle-s",
+  "output": "assets-src/character/char-idle-s.png",
+  "task": "B7",
+  "source": "opus",
+  "derivedFrom": "char-turnaround",
+  "palette": "v1",
+  "cleanup": "The turnaround's front view (neutral), a breath frame that lifts the collar and shoulders 1 px with the head fixed, and a blink as frame 3 with both eye pixels closed to skin D.",
+  "approvedBy": "opus-orchestrator (delegated)",
+  "date": "2026-09-29"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "char-walk-e",
+  "output": "assets-src/character/char-walk-e.png",
+  "task": "B7",
+  "source": "codex",
+  "prompt": "assets-src/prompts/character/walk-e.md",
+  "candidate": "03",
+  "references": ["assets-src/refs/char-turnaround@8x.png"],
+  "approvedRaw": "assets-src/approved/char-walk-e.webp",
+  "palette": "v1",
+  "cleanup": "Candidate 03 was picked for its true contact, down, passing, up structure in both rows. At native size its heads, torsos and limbs were too noisy and too bulky (sweater about 14 px deep, collar lost), so the frames were rebuilt on the approved turnaround and follow 03's poses rather than its pixels: the anchor's side-view head and torso (about 10 px deep, white collar hint) in every frame, a 1 px bob only on the two down frames (03's low passing frame fixed), and the body centred on the anchor's position (origin x=16) so idle and walk don't pop. Legs and the swinging near arm were redrawn in the grid in the anchor's style: denim with an F lit edge, I highlight, H base, G shadow and 0 shadow-side outline; the far leg and far arm one ramp step darker; brown shoes from the anchor's shoe in flat, heel-strike, push-off and swing poses. The planted foot moves back 3, 3, 4, 3 px per frame (13 px per step), which gives the packed stride of 26 native px. Onion-skinned frame to frame; no stray pixels, core palette only.",
+  "approvedBy": "opus-orchestrator (delegated)",
+  "date": "2026-09-29"
+}
