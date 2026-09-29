@@ -1,6 +1,6 @@
 {
-  "id": "zurich-fg",
-  "output": "src/assets/scenes/zurich/fg.png",
+  "id": "zurich-obj-door",
+  "output": "src/assets/scenes/zurich/obj-door.png",
   "task": "B1",
   "source": "codex",
   "prompt": "assets-src/prompts/scenes/zurich.md",
@@ -8,6 +8,6 @@
   "references": ["assets-src/refs/zurich-layout@8x.png"],
   "approvedRaw": "assets-src/approved/zurich-bg.webp",
   "palette": "v1",
-  "cleanup": "The anchor's rubber plant and terracotta pot, cut out onto a transparent layer (every pixel that differs from the procedural wall and floor). No redraw.",
+  "cleanup": "The anchor's door, frame and frosted pane, cut unchanged.",
   "date": "2026-09-29"
 }

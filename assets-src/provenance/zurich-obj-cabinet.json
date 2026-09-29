@@ -1,0 +1,10 @@
+{
+  "id": "zurich-obj-cabinet",
+  "output": "src/assets/scenes/zurich/obj-cabinet.png",
+  "task": "B1",
+  "source": "opus",
+  "derivedFrom": "zurich-bg",
+  "palette": "v1",
+  "cleanup": "Redrawn from the anchor's grey filing cabinet at 30 px wide (was 22) so the engine can letter RESUME on a paper card on the top drawer: same three drawers, lit top, label holders, pulls and side, features centred. Wall cast shadow dropped, 1-row floor contact shadow added. 1 px transparent margin each side for the open drawer.",
+  "date": "2026-09-29"
+}
