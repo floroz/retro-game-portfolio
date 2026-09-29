@@ -1,0 +1,10 @@
+{
+  "id": "london-obj-bar",
+  "output": "src/assets/scenes/london/obj-bar.png",
+  "task": "B3",
+  "source": "opus",
+  "derivedFrom": "london-bg",
+  "palette": "v1",
+  "cleanup": "The bar counter, redrawn from candidate 05 and moved forward onto the floor (front feet at baseline 126) so Daniele can walk behind it. Lit top (the taps' bottom row sits on y 96) with a front lip and shadow, a face of raised panels in the core wood ramp, a brass foot rail on brackets, a plinth, and a 1-row contact shadow. Bare along its whole top for the tap slot row. No stools in front of it.",
+  "date": "2026-09-29"
+}
