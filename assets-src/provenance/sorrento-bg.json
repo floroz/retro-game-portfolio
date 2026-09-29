@@ -1,18 +1,15 @@
 {
   "id": "sorrento-bg",
   "output": "src/assets/scenes/sorrento/bg.png",
-  "task": "RB4",
+  "task": "HB4",
   "source": "codex",
-  "prompt": "assets-src/prompts/remaster/sorrento.md",
+  "prompt": "assets-src/prompts/hd/layers-sorrento.md",
   "candidate": "01",
-  "references": [
-    "assets-src/refs/remaster/sorrento-current@4x.png",
-    "assets-src/refs/remaster/style-anchor@4x.png"
-  ],
-  "approvedRaw": "assets-src/approved/sorrento-bg@2x.webp",
-  "palette": "v2",
+  "references": ["assets-src/refs/hd/sorrento-chosen.png"],
+  "approvedRaw": "assets-src/approved/sorrento-plate@hd.webp",
   "density": 2,
-  "cleanup": "RB4: candidate 01 of sorrento-bg@2x (picked on measured layout fidelity to the shipped scene, see PR), pixelized at 640x320 with --scene sorrento --density 2 (core plus the Sorrento ramp, palette v2), then re-laid on the shipped layout at 2x: each wall element pasted at its measured best offset (plate +6,+2; window, shutters, sill, bowl and bottle +4,+1; the phone's note +6,+2; phone and curly cord +4,+3; copper pans 0,+1; ceiling +6,+1), and the door alcove and fridge moved +2/+5 px with 4 wall rows added so the baseboard sits on y 196-205 and the floor starts at y 206 (logical 103), as the walkbox expects. The wall is the candidate's flat terracotta M, so the stove, table, chairs and lemon tree leave a clean plate; the baseboard is rebuilt from the candidate's own rows. Floor: the candidate's jeans-blue I tiles replaced by a procedural majolica floor in one-point perspective (texture-mapped, 4x4 supersampled): periwinkle _ glaze, { quatrefoils and corner rosettes, small cobalt x hearts at the corners, a lemon u centre, and a quiet warm-grey 3 grout, calmer than B4's yellow-on-blue; every floor colour is at least 0.108 OKLab from the clothing and hair colours (the rule's nearest: 3 to I). A dithered contact shadow along the wall, and hard-edged 3/2 contact shadows under the stove, table and chairs. View: the candidate's sun glow and yellow halo painted out (glow is off-model): a hard-edged v sun, a banded t/u horizon, Ischia kept as the distinct dark island on the left, Vesuvius and the line of Naples kept; the noisy sea redrawn as + fading into w with a hand-dithered seam, and the sun trail as eight crisp dashes (the glints animation sparkles on top). Fridge: the candidate's reflective bottom trim replaced by plain door rows, navy feet recoloured to 1; the pale note (ABOUT) and the bare lower door for the magnets kept. The phone's note (CONTACT) is blank. Added furnishing, in the candidate's style: a bunch of dried herbs and a garlic braid on nails between the fridge and the window, and a pottery shelf above the phone's note (a majolica jug, a green-glazed pot, a jar of lemon preserves, a small bowl), each with a hard r wall shadow. The doorway behind the door leaf is repainted at 2x as a sunny lane (the open state without its leaf): sunset sky, a tiled eave, a lemon-yellow house with two shuttered windows, a door and a potted geranium, paving and four steps down to the doorstep.",
-  "approvedBy": "opus-orchestrator (delegated RB pick)",
+  "style": "painted",
+  "cleanup": "HB4: candidate 01 of sorrento-plate@hd (1774x887, the chosen composite with the door, stove, table, chairs and lemon tree edited out) prepared with assets:prepare --painted --no-quantize to 640x320 (Lanczos, hard alpha). Three deterministic changes, no hand painting: (1) hard-edged two-step contact shadows baked under the table, both chairs, the stove and the lemon-tree pot (multiply by 0.82/0.79/0.86 inside, 0.91/0.90/0.94 in the outer ring), because the sprites carry no shadow; (2) contrast: every floor pixel (art y 208 and below) within 0.11 OKLab of the character's sweater, jeans or hair colours (the master F/G/*, H/+/I and 6-8, and every rig colour of the HB7 puppet with at least 6 px) is lightened in small steps in L only (hue kept) until it clears them, which lifts the pale blue tile flowers away from the jeans; (3) quantized together with the seven object sprites and the ferry to one 256-colour palette with no dither. The wall, window, fridge, phone, pans and shelf are the candidate as painted. The magnets go on the bare lower fridge door (two rows of three at logical 52,71 and 52,83).",
+  "approvedBy": "orchestrator",
   "date": "2026-09-29"
 }
