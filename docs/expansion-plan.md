@@ -6,19 +6,32 @@ Turn the single painted scene into a small point-and-click world: a Hall plus th
 
 **`v2` is the trunk.** All v2 work happens on the long-lived `v2` branch, the source of truth for this version. `main` stays on v1 until `v2` is ready, and only then is `v2` merged into `main`.
 
-Every agent works in its own git worktree, so parallel work never collides. Work only comes back together through pull requests into `v2`:
+**Agents never touch `main`:** no branches from it, no commits to it, no PRs against it, no merges into it. Every agent that does work creates a feature branch from `origin/v2`, completes the work, and merges it back into `v2` itself.
 
-| Worktree                                | Branch                                                     | Who                                               | Commits?                                                       |
-| --------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------- |
-| `retro-game-portfolio/` (main checkout) | `v2`                                                       | Daniele only: reviewing, merging, updating Status | Daniele only                                                   |
-| `../rgp-codex/`                         | Detached at `origin/v2`                                    | The Codex orchestrator and its sessions           | Never: it writes only to the gitignored `assets-src/exchange/` |
-| `../rgp-opus/`                          | Detached at `origin/v2`                                    | The Opus orchestrator, for coordinating           | Never                                                          |
-| `../rgp-<task-id>/`                     | `assets/<task-id>` or `engine/<task-id>`, from `origin/v2` | One Opus agent per task                           | Yes: one PR per task, against `v2`                             |
+Every agent works in its own git worktree, so parallel work never collides. Work only comes back together through pull requests into `v2`, which each agent merges itself:
+
+| Worktree                                | Branch                                                     | Who                                      | Commits?                                                       |
+| --------------------------------------- | ---------------------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------- |
+| `retro-game-portfolio/` (main checkout) | `v2`                                                       | Daniele only: reviewing, recording gates | Daniele only                                                   |
+| `../rgp-codex/`                         | Detached at `origin/v2`                                    | The Codex orchestrator and its sessions  | Never: it writes only to the gitignored `assets-src/exchange/` |
+| `../rgp-opus/`                          | Detached at `origin/v2`                                    | The Opus orchestrator, for coordinating  | Never                                                          |
+| `../rgp-<task-id>/`                     | `assets/<task-id>` or `engine/<task-id>`, from `origin/v2` | One Opus agent per task                  | Yes: one PR per task, merged into `v2` by the agent            |
 
 - **Create a task worktree** with `git fetch origin && git worktree add ../rgp-<task-id> -b <branch> origin/v2`.
 - **Refresh an orchestrator worktree** after merges with `git fetch origin && git checkout --detach origin/v2`. A branch can be checked out in only one worktree, so orchestrators never check out `v2` itself.
-- **Open every pull request against `v2`, never `main`.** Daniele merges.
-- **Reconciling:** each task writes only the paths in its **Owns** line, so PRs don't overlap. If a PR conflicts anyway, its agent rebases onto `origin/v2`, re-runs `npm run lint`, and pushes again. Only the final integration task may touch every scene.
+- **Open every pull request against `v2`, never `main`.**
+- **Agents merge their own work,** with no approval step:
+  1. When the task is finished, and after any gate it needs, `git fetch origin && git rebase origin/v2`, resolving any conflicts (below).
+  2. Re-run `npm run lint`, `npm run test:unit`, and `npm run build`, then `git push --force-with-lease` to the task's own branch.
+  3. Wait for CI on the PR. When it's green, merge with `gh pr merge --squash --delete-branch`.
+  4. If the merge is refused because `v2` moved or a conflict appeared, go back to step 1. After 3 failed attempts, stop and report to the orchestrator.
+- **Resolving conflicts:** each task writes only the paths in its **Owns** line, so conflicts should be rare.
+  - **In the task's own paths:** resolve so that both sides' intent survives, then re-test.
+  - **In another task's paths:** keep `v2`'s version. If the task really needs a change there, stop and escalate.
+  - **`package-lock.json`:** keep `v2`'s version, then re-run `npm install` to add the task's own dependencies.
+  - **Binary files (images, audio):** never merge by line. The owning task's version wins.
+  - **`docs/`:** always keep `v2`'s version.
+  - Only the final integration task may touch every scene.
 - **Cleaning up:** remove a task's worktree once its PR is merged, with `git worktree remove ../rgp-<task-id>`.
 
 ### Keeping the plan in sync
