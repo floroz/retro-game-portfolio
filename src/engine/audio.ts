@@ -20,6 +20,33 @@ const LEVEL: Record<Channel | "sfx", number> = {
 
 const FADE_S = 0.8;
 
+/**
+ * Loudness cap for one-shot effects, in LUFS. Effects are mastered to a
+ * −3 dBFS sample peak, so the tonal ones measure far louder than the
+ * −20 LUFS music (the fruit machine −7.7 LUFS); each is turned down to at
+ * most this. Short transients such as footsteps sit well under it.
+ */
+export const EFFECT_LUFS_CAP = -16;
+
+/**
+ * Per-effect gain in dB, by file name (`public/audio/sfx/<name>.mp3`):
+ * `min(0, EFFECT_LUFS_CAP − integrated LUFS)`, with the loudness from
+ * `assets-src/provenance/sfx-<name>.json`. The engine can't read provenance
+ * at runtime, so the values are copied here; a unit test keeps them in step
+ * with the records. Effects under the cap are left out (0 dB).
+ */
+export const EFFECT_GAIN_DB: Readonly<Record<string, number>> = {
+  cuckoo: -6,
+  "fruit-machine": -8.3,
+  "phone-ring": -2.4,
+};
+
+/** Gain in dB for a sound file's URL (0 for anything but a capped effect). */
+export function effectGainDb(url: string): number {
+  const m = /^\/audio\/sfx\/([a-z0-9-]+)\.mp3$/.exec(url);
+  return (m && EFFECT_GAIN_DB[m[1]]) || 0;
+}
+
 interface Playing {
   key: string;
   source: AudioBufferSourceNode;
@@ -119,11 +146,12 @@ export class SceneAudio {
     const ctx = this.ctx;
     const master = this.master;
     if (!ctx || !master) return;
-    void this.buffer(soundUrl(name)).then((buffer) => {
+    const url = soundUrl(name);
+    void this.buffer(url).then((buffer) => {
       if (!buffer || !this.enabled) return;
       const source = ctx.createBufferSource();
       const gain = ctx.createGain();
-      gain.gain.value = LEVEL.sfx;
+      gain.gain.value = LEVEL.sfx * 10 ** (effectGainDb(url) / 20);
       source.buffer = buffer;
       source.connect(gain).connect(master);
       source.start();

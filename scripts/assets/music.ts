@@ -216,6 +216,54 @@ export const GM = Object.fromEntries(
 ) as Record<GmProgramName, number>;
 
 /**
+ * FluidR3_GM's variation presets outside General MIDI's bank 0, as FluidSynth
+ * lists them (`inst 1`). A part picks one with `bank` and `program`, e.g.
+ * `...FLUIDR3_PRESETS["Mandolin"]`. Unlike the GM stand-ins, these are real
+ * instruments: bank 16 has a mandolin, bank 8 an Italian accordion.
+ */
+export const FLUIDR3_PRESETS = {
+  "Detuned EP 1": { bank: 8, program: 4 },
+  "Detuned EP 2": { bank: 8, program: 5 },
+  "Coupled Harpsichord": { bank: 8, program: 6 },
+  "Church Bell": { bank: 8, program: 14 },
+  "Detuned Organ 1": { bank: 8, program: 16 },
+  "Detuned Organ 2": { bank: 8, program: 17 },
+  "Church Organ 2": { bank: 8, program: 19 },
+  "Italian Accordion": { bank: 8, program: 21 },
+  Ukulele: { bank: 8, program: 24 },
+  "12 String Guitar": { bank: 8, program: 25 },
+  "Hawaiian Guitar": { bank: 8, program: 26 },
+  "Funk Guitar": { bank: 8, program: 28 },
+  "Feedback Guitar": { bank: 8, program: 30 },
+  "Guitar Feedback": { bank: 8, program: 31 },
+  "Synth Bass 3": { bank: 8, program: 38 },
+  "Synth Bass 4": { bank: 8, program: 39 },
+  "Slow Violin": { bank: 8, program: 40 },
+  "Orchestral Pad": { bank: 8, program: 48 },
+  "Synth Strings 3": { bank: 8, program: 50 },
+  "Brass 2": { bank: 8, program: 61 },
+  "Synth Brass 3": { bank: 8, program: 62 },
+  "Synth Brass 4": { bank: 8, program: 63 },
+  "Sine Wave": { bank: 8, program: 80 },
+  "Taisho Koto": { bank: 8, program: 107 },
+  Castanets: { bank: 8, program: 115 },
+  "Concert Bass Drum": { bank: 8, program: 116 },
+  "Melo Tom 2": { bank: 8, program: 117 },
+  "808 Tom": { bank: 8, program: 118 },
+  "Burst Noise": { bank: 9, program: 125 },
+  Mandolin: { bank: 16, program: 25 },
+} as const satisfies Record<string, { bank: number; program: number }>;
+
+/** Instrument name for a bank and program: a FluidR3_GM variation, or General MIDI. */
+export function presetName(program: number, bank = 0): string {
+  if (bank === 0) return GM_PROGRAMS[program];
+  const hit = Object.entries(FLUIDR3_PRESETS).find(
+    ([, p]) => p.bank === bank && p.program === program,
+  );
+  return hit ? hit[0] : `bank ${bank} program ${program}`;
+}
+
+/**
  * Drum kits on channel 10, by program number (FluidR3_GM bank 128). In General
  * MIDI terms these are the GS kit numbers; 0 is the standard kit.
  */
@@ -429,6 +477,13 @@ export interface Part {
   channel: number;
   /** 0-based GM program (`GM["Vibraphone"]`), or a `DRUM_KITS` entry on channel 10. */
   program: number;
+  /**
+   * Soundfont bank for `program`, sent as bank select (CC0) before the
+   * program change. Default 0, General MIDI. Use it for FluidR3_GM's real
+   * instruments outside GM (`FLUIDR3_PRESETS`). Not on channel 10, which
+   * FluidSynth plays from the drum bank.
+   */
+  bank?: number;
   /** Channel volume, CC7 (0–127). Default 100. */
   volume?: number;
   /** Pan, CC10 (0 left, 64 centre, 127 right). Default 64. */
@@ -592,6 +647,12 @@ export function checkTrack(track: MusicTrack): string[] {
       part.program > 127
     )
       errors.push(`${where}: program must be 0–127`);
+    if (part.bank !== undefined) {
+      if (!Number.isInteger(part.bank) || part.bank < 0 || part.bank > 127)
+        errors.push(`${where}: bank must be 0–127`);
+      if (part.channel === 10)
+        errors.push(`${where}: channel 10 plays drum kits; leave out bank`);
+    }
     for (const [key, v] of [
       ["volume", part.volume],
       ["pan", part.pan],
@@ -672,6 +733,9 @@ export function buildMidi(
     const t = new MidiWriter.Track();
     t.addTrackName(part.name);
     const channel = part.channel;
+    // Bank select (MSB only: FluidSynth's default "gs" mode ignores CC32).
+    // Only when a part asks for a bank, so GM-only tracks write the same file.
+    if (part.bank !== undefined) t.controllerChange(0, part.bank, channel);
     // midi-writer-js numbers channels from 0 here, and from 1 everywhere else.
     t.addEvent(
       new MidiWriter.ProgramChangeEvent({
@@ -1229,6 +1293,9 @@ export function renderMidi(
     String(SAMPLE_RATE),
     "-o",
     `synth.polyphony=${FLUIDSYNTH_SETTINGS.polyphony}`,
+    // FluidSynth's default, pinned: CC0 alone selects the bank (see Part.bank).
+    "-o",
+    "synth.midi-bank-select=gs",
     ...Object.entries(FLUIDSYNTH_SETTINGS.reverb).flatMap(([k, v]) => [
       "-o",
       `${k}=${v}`,
@@ -1306,7 +1373,8 @@ export function describeTrack(track: MusicTrack) {
         channel: p.channel,
         instrument: drums
           ? `drum kit: ${kit ?? p.program}`
-          : GM_PROGRAMS[p.program],
+          : presetName(p.program, p.bank),
+        bank: drums ? 128 : (p.bank ?? 0),
         program: p.program,
         notes: p.notes.length,
         range:
@@ -1557,6 +1625,15 @@ export function writeMusicProvenance(
     meter: (track.meter ?? [4, 4]).join("/"),
     key: track.key,
     bars: track.bars,
+    instruments: describeTrack(track).parts.map(
+      ({ name, channel, instrument, bank, program }) => ({
+        name,
+        channel,
+        instrument,
+        bank,
+        program,
+      }),
+    ),
     ...(result.loop
       ? {
           loop: {

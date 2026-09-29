@@ -4,6 +4,7 @@ import hall from "../../../assets-src/audio/music/hall";
 import { MOTIF, motif } from "../../../assets-src/audio/music/motif";
 import {
   CHANNELS,
+  FLUIDR3_PRESETS,
   GM,
   GM_PROGRAMS,
   PPQ,
@@ -23,6 +24,7 @@ import {
   parseEbur128,
   phrase,
   phraseBeats,
+  presetName,
   seamReport,
   swing,
   type MusicTrack,
@@ -293,6 +295,42 @@ describe("MIDI generation", () => {
     expect(midi.notes).toEqual(expected);
   });
 
+  test("selects a soundfont bank before the program change", () => {
+    const track = tiny({
+      parts: [
+        {
+          name: "Mandolin",
+          channel: 1,
+          ...FLUIDR3_PRESETS["Mandolin"],
+          notes: phrase("C4:1"),
+        },
+        { name: "Guitar", channel: 2, program: 24, notes: phrase("C4:1") },
+      ],
+    });
+    expect(checkTrack(track)).toEqual([]);
+    const bytes = buildMidi(track);
+    const midi = readMidi(bytes);
+    expect(midi.programs.get(1)).toBe(25);
+    const banks = midi.controllers.filter((c) => c.cc === 0);
+    expect(banks).toEqual([{ channel: 1, cc: 0, value: 16, tick: 0 }]);
+    // CC0 on channel 1 (0xb0 0x00 0x10) comes before its program change (0xc0 25).
+    const hex = Buffer.from(bytes).toString("hex");
+    expect(hex.indexOf("b00010")).toBeGreaterThan(-1);
+    expect(hex.indexOf("b00010")).toBeLessThan(hex.indexOf("c019"));
+  });
+
+  test("a part without a bank writes no bank select", () => {
+    const midi = readMidi(buildMidi(tiny()));
+    expect(midi.controllers.filter((c) => c.cc === 0)).toEqual([]);
+  });
+
+  test("names FluidR3_GM's variation presets", () => {
+    expect(presetName(25, 16)).toBe("Mandolin");
+    expect(presetName(21, 8)).toBe("Italian Accordion");
+    expect(presetName(21)).toBe("Accordion");
+    expect(presetName(3, 16)).toBe("bank 16 program 3");
+  });
+
   test("a repeated pitch is released before it's struck again", () => {
     const midi = readMidi(buildMidi(tiny()));
     const cs = midi.notes.filter((n) => n.channel === 1 && n.pitch === 60);
@@ -315,6 +353,7 @@ describe("MIDI generation", () => {
           program: 200,
           notes: [{ pitch: 60, start: 1 / 7, beats: 1 }],
         },
+        { name: "c", channel: 10, program: 0, bank: 200, notes: [] },
       ],
     });
     const errors = checkTrack(bad).join("\n");
@@ -323,6 +362,8 @@ describe("MIDI generation", () => {
     expect(errors).toMatch(/shares channel 1/);
     expect(errors).toMatch(/program must be 0–127/);
     expect(errors).toMatch(/whole number of ticks/);
+    expect(errors).toMatch(/bank must be 0–127/);
+    expect(errors).toMatch(/channel 10 plays drum kits/);
   });
 });
 

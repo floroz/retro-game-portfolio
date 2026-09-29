@@ -15,8 +15,18 @@ export const SORRENTO_SCENE: SceneData = {
   name: "Sorrento",
   background: sorrentoBg,
   foreground: sorrentoFg,
-  music: "/audio/music/sorrento.mp3",
-  ambience: "/audio/ambience/sorrento.mp3",
+  // Loop points from assets-src/provenance/music-sorrento.json and
+  // ambience-sorrento.json.
+  music: {
+    src: "/audio/music/sorrento.mp3",
+    loopStart: 0.375,
+    loopEnd: 63.375,
+  },
+  ambience: {
+    src: "/audio/ambience/sorrento.mp3",
+    loopStart: 0.5,
+    loopEnd: 36.5,
+  },
   floor: "tile",
   walkbox: [
     [4, 102],

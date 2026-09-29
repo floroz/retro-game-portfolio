@@ -7,9 +7,10 @@
  * running eighths (A C F E C A | Bb A G), and the minor strain opens with
  * the same motif in D minor (F A D C# A F | G F E).
  *
- * General MIDI has no mandolin, so the mandolin is a steel-string guitar
- * played the way a mandolin sustains: every note longer than an eighth is a
- * tremolo of alternating sixteenth-note strokes.
+ * The mandolin and the accordion are FluidR3_GM's real instruments outside
+ * General MIDI: the Mandolin (bank 16) and the Italian Accordion (bank 8).
+ * The mandolin is played the way a mandolin sustains: every note longer than
+ * an eighth is a tremolo of alternating sixteenth-note strokes.
  *
  * F major (with a D minor strain), 160 bpm (a dotted quarter about 107),
  * 6/8, 56 bars (63 s):
@@ -26,6 +27,7 @@
 import {
   DRUMS,
   DRUM_KITS,
+  FLUIDR3_PRESETS,
   GM,
   noteToMidi,
   phrase,
@@ -194,10 +196,10 @@ for (let bar = 1; bar <= BARS; bar++) {
 
 const track: MusicTrack = {
   id: "sorrento",
-  task: "A2",
+  task: "E2",
   title: "Tarantella del Golfo (Sorrento theme)",
   description:
-    "Sorrento theme: a light Neapolitan tarantella in 6/8 for mandolin (a tremolo steel guitar), accordion, nylon guitar, and upright bass, with the shared motif (assets-src/audio/music/motif.ts) home in F and, in the strain, in D minor.",
+    "Sorrento theme: a light Neapolitan tarantella in 6/8 for mandolin (tremolo), Italian accordion, nylon guitar, and upright bass, with the shared motif (assets-src/audio/music/motif.ts) home in F and, in the strain, in D minor. Composed in A2; E2 swapped the General MIDI stand-ins for FluidR3_GM's Mandolin (bank 16) and Italian Accordion (bank 8).",
   bpm: 160,
   meter: [6, 8],
   bars: BARS,
@@ -234,19 +236,21 @@ const track: MusicTrack = {
   ],
   parts: [
     {
-      name: "Mandolin (steel guitar tremolo)",
+      name: "Mandolin",
       channel: 1,
-      program: GM["Acoustic Guitar (steel)"],
-      volume: 100,
+      ...FLUIDR3_PRESETS["Mandolin"],
+      // 110 and 104 keep the A2 balance: each stem measures within 0.1 LU of
+      // the General MIDI stand-in it replaces.
+      volume: 110,
       pan: 76,
       reverb: 40,
       notes: mandolin,
     },
     {
-      name: "Accordion",
+      name: "Italian accordion",
       channel: 2,
-      program: GM["Accordion"],
-      volume: 112,
+      ...FLUIDR3_PRESETS["Italian Accordion"],
+      volume: 104,
       pan: 48,
       reverb: 44,
       notes: accordion,

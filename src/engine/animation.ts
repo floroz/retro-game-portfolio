@@ -44,3 +44,27 @@ export function animationFrame(
   }
   return { frame, x: anim.x, y: anim.y };
 }
+
+/**
+ * How often the animation starts over (ms): every `everyMs`, or back to back
+ * (one frame cycle, or one `motion` pass) without it. Matches
+ * `animationFrame`.
+ */
+function animationPeriod(anim: SceneAnimation): number {
+  if (anim.motion) return Math.max(anim.everyMs ?? anim.motion.durationMs, 1);
+  return Math.max(anim.everyMs ?? anim.frames * anim.frameMs, 1);
+}
+
+/**
+ * True when a cycle (or `motion` pass) starts in the engine time range
+ * `(from, to]`: when to play the animation's `sound`. The start at time 0
+ * doesn't count, so nothing plays before the first frame update.
+ */
+export function cycleStarted(
+  anim: SceneAnimation,
+  from: number,
+  to: number,
+): boolean {
+  const period = animationPeriod(anim);
+  return Math.floor(to / period) > Math.floor(from / period);
+}
