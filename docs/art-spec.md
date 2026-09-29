@@ -672,6 +672,12 @@ Everything in this phase starts once its dependencies are met, and runs in paral
   4. Draw the clean plate behind each cutout at native size. Continue regular patterns (carpet, tiles, planks) procedurally. Where a background isn't regular, a clean plate may use one Codex edit; ask Daniele to run it with the exact prompt.
   5. Draw the scene's animation strips (see its card) and any `@open` states.
   6. Write the scene data: walkbox, depth, entry points, objects, animations, slot positions (placed where B6's sprites will sit), labels, and exits. Check it in the dev overlay with placeholder slot sprites. For `travel-map` (B5), write the route geometry and marker positions instead of a walkbox.
+- **Lessons from B1** (see PR #24):
+  - **Walkboxes have no holes.** Cut free-standing furniture out with thin "keyhole" slits from the walkbox's back edge, as B1 did.
+  - **Hotspots are checked in list order, not by depth,** so list nearer objects last.
+  - **Animation strips must be 320 px wide or less.**
+  - Generated furniture tends to be tall and set against the wall. Move it forward, and shorten it if needed, so walking behind it reads clearly.
+- **Every primary object names its section** with an engine-drawn label: a card, a sign, a menu, or text on a screen (for example the cabinet's "RESUME" card). It reinforces the signposting rules in the plan.
 - **Audio:** A2 is merged, so set `music` and `ambience` as `{ src, loopStart, loopEnd }`, with the loop points copied from `assets-src/provenance/music-<scene>.json` and `ambience-<scene>.json`.
 - **Contract:** write the scene data against the implemented types (see "As implemented by E1" in the Scene data contract), including `name`, `look`, and `use` lines for every object, `floor`, and the entry keys. Replace your scene's placeholder config, and delete its `obj-placeholder` and `anim-placeholder` files.
 - **Hand-off prompt addition:** "Scene: {scene}. Chosen candidate: {NN}. Scene card changes: {…}."
@@ -725,7 +731,7 @@ Everything in this phase starts once its dependencies are met, and runs in paral
 - **Steps:**
   1. Put all five scenes, the shared sprites, and the character on one contact sheet. Fix mismatches in outline weight, shading steps, ramp use, and light direction.
   2. Check each scene with the real character and real `profile.ts` data: scale at the near and far walkbox edges, `baselineY` occlusion, interaction points, and slot rows (including a full row folding).
-  3. Check the signposting rules from the plan: gate signs, map labels, arrival lines, and primary objects all name their sections.
+  3. Give the Zurich CRT an engine-drawn "EXPERIENCE" label on its screen, to match the cabinet's "RESUME" card, and check that every primary object in every scene names its section. Check the signposting rules from the plan: gate signs, map labels, arrival lines, and primary objects all name their sections.
   4. Check that preloading stops scene changes and the travel map from flashing.
   5. Regenerate the OG image with `npm run generate:og-image`. Confirm the Game Boy view and the SEO HTML are unchanged.
   6. Walk every scene by hand and check that each section is reachable in two clicks or fewer. E2E tests and baselines are out of scope for v2.
