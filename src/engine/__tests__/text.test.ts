@@ -1,5 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { measureText, unknownChars, wrapText } from "../font";
+import {
+  iconRows,
+  lineHeight,
+  measureText,
+  parseGlyphs,
+  unknownChars,
+  wrapText,
+} from "../font";
 import { resolveLabel } from "../labels";
 import { hoverText } from "../hover";
 import { SCENES } from "../scenes";
@@ -27,6 +34,28 @@ describe("pixel font", () => {
 
   test("reports characters it can't draw", () => {
     expect(unknownChars("snowman ☃")).toEqual(["☃"]);
+  });
+
+  test("keeps the 1x fonts' metrics, so labels fit where they did", () => {
+    expect(measureText("Hello, sailor!")).toBe(54);
+    expect(measureText("GATE 1 LONDON", "small")).toBe(51);
+    expect(measureText("{resume} RESUME", "small")).toBe(33);
+    expect(lineHeight("regular")).toBe(10);
+    expect(lineHeight("small")).toBe(7);
+  });
+
+  test("section icons are drawn at canvas resolution", () => {
+    const rows = iconRows("skills");
+    expect(rows).toHaveLength(14);
+    for (const row of rows) expect(row).toHaveLength(14);
+  });
+
+  test("glyphs are parsed at two canvas pixels per logical px", () => {
+    const glyphs = parseGlyphs("A 4\n.##.\n#..#\n\nspace 2", 2);
+    expect(glyphs.get("A")?.rows).toEqual([".##.", "#..#", "....", "...."]);
+    expect(glyphs.get(" ")?.w).toBe(2);
+    expect(() => parseGlyphs("A 3\n###", 2)).toThrow(/header/);
+    expect(() => parseGlyphs("A 2\n###", 2)).toThrow(/bigger/);
   });
 });
 

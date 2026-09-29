@@ -8,6 +8,7 @@ import { useGameStore } from "../store/gameStore";
 import {
   CHARACTER_SHEET,
   ImageStore,
+  densityRules,
   sceneImages,
   travelMapImages,
 } from "./assets";
@@ -38,7 +39,9 @@ export function getEngine(): SceneEngine {
   return engine;
 }
 
-export const images = new ImageStore();
+export const images = new ImageStore(
+  densityRules(Object.values(SCENES), TRAVEL_MAP_DATA, CHARACTER_SHEET),
+);
 
 /** Every image in the game, for preloading before the first frame. */
 export function allImages(): string[] {
