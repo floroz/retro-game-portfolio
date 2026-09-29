@@ -14,5 +14,5 @@
     "assets-src/refs/hd/scale-sheet.png"
   ],
   "approvedRaw": "assets-src/approved/london-fruit-machine@hd.webp",
-  "cleanup": "HB3: candidate 01 of london-fruit-machine@hd (nine plain gold lamps, unlit), keyed from its own alpha, registered onto the chosen composite with assets:prepare --align (scale 0.1326 of raw), prepared to painted density 2 with assets:prepare --painted --no-quantize, then quantized jointly with the rest of the London folder (assets:quantize, one palette of at most 244 colours (243 used), no dither) so the scene stays under 256 colours with room for the bus. 66x102 art px at logical (287, 74). The lamps' chase is drawn by the engine (a lamps effect)."
+  "cleanup": "HB3: candidate 01 of london-fruit-machine@hd (nine plain gold lamps, unlit), keyed from its own alpha, registered onto the chosen composite with assets:prepare --align (scale 0.1326 of raw), prepared to painted density 2 with assets:prepare --painted --no-quantize, then quantized jointly with the other London layers (assets:quantize, one palette of at most 244 colours, no dither; the folder totals 256 colours with the bus, which added 13 of its own). 66x102 art px at logical (287, 74). The lamps' chase is drawn by the engine (a lamps effect)."
 }

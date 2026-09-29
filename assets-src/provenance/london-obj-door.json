@@ -14,5 +14,5 @@
     "assets-src/refs/hd/scale-sheet.png"
   ],
   "approvedRaw": "assets-src/approved/london-door@hd.webp",
-  "cleanup": "HB3: candidate 01 of london-door@hd (the closed green door with its fanlight, frame and step), keyed from its own alpha, prepared to painted density 2 with assets:prepare --painted --no-quantize at scale 0.183 of raw, then quantized jointly with the rest of the London folder (assets:quantize, one palette of at most 244 colours (243 used), no dither) so the scene stays under 256 colours with room for the bus. 58x134 art px at logical (1, 37). Drawn a little wider than the door in the composite; the plate has bare red wall where the door stood."
+  "cleanup": "HB3: candidate 01 of london-door@hd (the closed green door with its fanlight, frame and step), keyed from its own alpha, prepared to painted density 2 with assets:prepare --painted --no-quantize at scale 0.183 of raw, then quantized jointly with the other London layers (assets:quantize, one palette of at most 244 colours, no dither; the folder totals 256 colours with the bus, which added 13 of its own). 58x134 art px at logical (1, 37). Drawn a little wider than the door in the composite; the plate has bare red wall where the door stood."
 }

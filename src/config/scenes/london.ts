@@ -4,7 +4,7 @@
  * layers: candidate 02 of `london-plate@hd` (the empty pub), and the table
  * with its two stools (01), the bar (02), the fruit machine (01) and the
  * door with its open state (01) as separate sprites, all painted at
- * density 2 (640x320, 2x nearest-neighbour, one 243-colour palette). Every
+ * density 2 (640x320, 2x nearest-neighbour, one 256-colour palette). Every
  * coordinate is in logical pixels (320x160), top-left origin; the art has
  * two pixels per logical px.
  *
@@ -16,9 +16,9 @@
  * photos hang as a 3 x 2 slot row on the bare red wall by the dartboard.
  *
  * The rain on the window and the fruit machine's chasing lamps are
- * procedural effects (`effects`). The passing double-decker (`props`) is
- * pending: london-bus@hd is still being generated, and the scene ships
- * without it.
+ * procedural effects (`effects`), and the passing double-decker is a moving
+ * prop (`props`) clipped to the stretch of window between the phone box and
+ * the lamp post.
  *
  * Walking depth: the bar counter, the table with its two stools, and the
  * fruit machine stand out on the floor, each with a `baselineY` just above
@@ -26,13 +26,12 @@
  * one polygon: he walks round the table and the bar in front (the window,
  * shelves and chalkboard behind them are as dark as his sweater), and
  * behind the bar's right end and the fruit machine, where the wall is red
- * panelling and the sprites sort in front of his legs. His depth is the
- * Phase H world scale: 58 px tall at the back of the floor and 72 at the
- * front.
+ * panelling and the sprites sort in front of his legs. His depth is
+ * measured against the painted furniture (see `depth`): 55 px tall at the
+ * back of the floor and 66 at the front.
  *
  * Check it with the dev overlay: `npm run dev`, then `?debug=scene`.
  */
-import { HD_WORLD_SCALE } from "../../engine/constants";
 import { SECTIONS } from "../sections";
 import type { SceneData, Vec } from "../../engine/types";
 import londonBg from "../../assets/scenes/london/bg.png";
@@ -41,6 +40,7 @@ import londonObjTable from "../../assets/scenes/london/obj-table.png";
 import londonObjFruitMachine from "../../assets/scenes/london/obj-fruit-machine.png";
 import londonObjDoor from "../../assets/scenes/london/obj-door.png";
 import londonObjDoorOpen from "../../assets/scenes/london/obj-door@open.png";
+import londonAnimBus from "../../assets/scenes/london/anim-bus.png";
 
 const SKILLS = SECTIONS.skills.label;
 const CONTACT = SECTIONS.contact.label;
@@ -57,15 +57,23 @@ const TAP_X0 = 135;
 
 /**
  * The fruit machine's nine gold lamps, three rows of three (the sprite sits
- * at 287,74), as 3 px squares centred on the painted domes, in reading
- * order so the chase runs along each row and down.
+ * at 287,74), as 5 art px squares centred on the painted domes (which are
+ * 7 px across, so a lit lamp keeps its gold rim), in reading order so the
+ * chase runs along each row and down.
  */
+const LAMP_SIZE = 2.5;
 const FRUIT_LAMPS: Vec[] = [79, 85.2, 102.7].flatMap((y) =>
-  [294, 301.5, 309].map((x): Vec => [x - 1.5, y - 1.5]),
+  [294, 301.5, 309].map((x): Vec => [x - LAMP_SIZE / 2, y - LAMP_SIZE / 2]),
 );
 
 /** The window's glass, inside its wooden frame: the rain is clipped to it. */
 const WINDOW_GLASS = { x: 33, y: 10, w: 76, h: 64 };
+
+/** Daniele's standing height at the back and front of the floor, in px. */
+const LONDON_HEIGHTS = { farHeight: 55, nearHeight: 66 } as const;
+
+/** The stretch of window between the phone box and the lamp post. */
+const BUS_VIEW = { x: 45, y: 40, w: 57, h: 30 };
 
 export const LONDON_SCENE: SceneData = {
   id: "london",
@@ -108,7 +116,14 @@ export const LONDON_SCENE: SceneData = {
     [312, 158],
     [8, 158],
   ],
-  depth: { farY: 106, nearY: 158, ...HD_WORLD_SCALE },
+  // Daniele's height, measured against the painted furniture rather than the
+  // shared world scale (58 to 72): the door (67 px, taken as 2.1 m), the
+  // counter (34 px, 1.1 m), the table top (26 px up, 0.75 m) and the fruit
+  // machine (51 px, 1.7 m) come to 30-35 px a metre at any depth, so a
+  // 1.8 m man is 54-62 px at the floor lines of the door, table, bar and
+  // machine (y 104-125). 55 px at the back and 66 at the front keeps him
+  // within 10% of every one of them (worldScale.test.ts, london.test.ts).
+  depth: { farY: 106, nearY: 158, ...LONDON_HEIGHTS },
   entryPoints: { fromHall: { x: 20, y: 113, facing: "e" } },
   entryLine: `London, where I learned the trade. ${SKILLS} are on tap.`,
   // Topmost last: nearer things come after the things behind them.
@@ -235,11 +250,28 @@ export const LONDON_SCENE: SceneData = {
       kind: "lamps",
       id: "fruit-lamps",
       points: FRUIT_LAMPS,
-      size: 3,
+      size: LAMP_SIZE,
       pattern: "chase",
-      stepMs: 200,
-      on: "#fff3b0",
+      stepMs: 150,
+      on: "#fff4b8",
       baselineY: FRUIT_MACHINE_BASELINE,
+    },
+  ],
+  props: [
+    {
+      // The double-decker crawls along the far embankment, between the phone
+      // box and the lamp post (it is drawn over the plate, so the clip keeps
+      // it from crossing them), one pass in twelve seconds.
+      id: "bus",
+      sprite: londonAnimBus,
+      path: [
+        { at: 0, x: 19, y: 51 },
+        { at: 1, x: 102, y: 51 },
+      ],
+      durationMs: 7000,
+      everyMs: 15000,
+      delayMs: 2500,
+      clip: BUS_VIEW,
     },
   ],
   slots: [
