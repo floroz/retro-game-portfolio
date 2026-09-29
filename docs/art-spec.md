@@ -671,6 +671,7 @@ Everything in this phase starts once its dependencies are met, and runs in paral
   4. Draw the clean plate behind each cutout at native size. Continue regular patterns (carpet, tiles, planks) procedurally. Where a background isn't regular, a clean plate may use one Codex edit; ask Daniele to run it with the exact prompt.
   5. Draw the scene's animation strips (see its card) and any `@open` states.
   6. Write the scene data: walkbox, depth, entry points, objects, animations, slot positions (placed where B6's sprites will sit), labels, and exits. Check it in the dev overlay with placeholder slot sprites. For `travel-map` (B5), write the route geometry and marker positions instead of a walkbox.
+- **Audio:** A2 is merged, so set `music` and `ambience` as `{ src, loopStart, loopEnd }`, with the loop points copied from `assets-src/provenance/music-<scene>.json` and `ambience-<scene>.json`.
 - **Contract:** write the scene data against the implemented types (see "As implemented by E1" in the Scene data contract), including `name`, `look`, and `use` lines for every object, `floor`, and the entry keys. Replace your scene's placeholder config, and delete its `obj-placeholder` and `anim-placeholder` files.
 - **Hand-off prompt addition:** "Scene: {scene}. Chosen candidate: {NN}. Scene card changes: {…}."
 - **Done when:** the scene renders in the dev overlay, `lint` passes, and the PR is merged.
@@ -698,18 +699,20 @@ Everything in this phase starts once its dependencies are met, and runs in paral
 #### A2 Remaining audio
 
 - **Lane:** Opus; the three country tracks may run as parallel sub-agents. **After:** GA.
-- **Owns:** `assets-src/audio/music/` (country tracks and sting), `assets-src/audio/sfx/`, `assets-src/audio/ambience/`, `public/audio/`, audio provenance records, plus the audio part of `scripts/assets/validate.ts` and `knip.json`.
+- **Owns:** `assets-src/audio/music/` (country tracks and sting), `assets-src/audio/sfx/`, `assets-src/audio/ambience/`, `assets-src/audio/lib/`, `public/audio/`, audio provenance records, plus the audio part of `scripts/assets/validate.ts` and `knip.json`.
 - **Steps:** compose `london`, `zurich`, and `sorrento` as variations on the motif, plus `music-travel-sting`. Synthesise the four ambience loops and every sound effect in the Audio section. Make the boarding chime the motif's first three notes (A C F) on tubular bells, matching the Hall theme. Extend `lint:assets` to require a provenance record for every file in `public/audio/`, and drop `midi-writer-js` from knip's `ignoreDependencies`. Check loop seams and loudness, and report objective evidence (loudness, seam checks) to the orchestrator.
 - **Done when:** every audio asset is merged.
 
 #### E2 Engine follow-ups
 
 - **Lane:** Opus. **After:** E1 (done), A2.
-- **Owns:** the same paths as E1, plus `public/theme.mp3` (delete it; the new Hall theme replaces it).
+- **Owns:** the same paths as E1, plus `public/theme.mp3` (delete it; the new Hall theme replaces it), `scripts/assets/music.ts`, `assets-src/audio/music/sorrento.ts`, and the Sorrento music files and record.
 - **Steps:**
   1. Add an optional `sound` field to objects and animations, and wire the object effects A2 produces: dart thunk, cuckoo, phone ring, moka gurgle, fruit machine jingle, split-flap flutter.
   2. Check that every audio path the engine expects exists after A2 (music, ambience, the sting, and all effects), and that the scene configs carry the loop points from the provenance records. Where a build task has already merged, add missing loop points only in the `music` and `ambience` fields of its config.
-  3. Record the `lint:types` change (`tsc -b` in `package.json`) in the PR description.
+  3. Add a per-sound gain (or a loudness cap of about −16 LUFS) for effects. At a −3 dBFS peak, the tonal effects are much louder than the −20 LUFS music: the fruit machine is about −8 LUFS and the cuckoo about −10.
+  4. Add a `bank` field to `Part` in `music.ts`, and re-render `sorrento` with the soundfont's real mandolin (bank 16, program 25) and the Italian accordion, instead of the General MIDI stand-ins. Keep −20 LUFS and a seamless loop, and update the provenance record.
+  5. Record the `lint:types` change (`tsc -b` in `package.json`) in the PR description.
 - **Done when:** every object effect plays in the running app, and no expected audio file is missing.
 
 ### Phase 3 — Integration
