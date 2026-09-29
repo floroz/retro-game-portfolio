@@ -779,6 +779,10 @@ Everything in this phase starts once its dependencies are met, and runs in paral
 
 - **Effects are procedural in the engine:** rain, steam, stars, sea glints, the split-flap flutter, and the fruit-machine lights. Moving props slide along paths.
 - **Text:** every speech line, label, sign, menu, and board is drawn as **crisp text at display resolution** in a bold, legible, openly licensed font with a clean outline (task T1, which lands before the art).
+- **Notes from H1:**
+  - **Hall layout:** its gate doors become about 1.3× Daniele's height, with smaller signs raised above them. HB2 moves the gate-sign hotspots to match.
+  - **Depth range:** every HB build sets its scene's `depth` block to 0.8–1.0.
+  - **Prompt format:** a prompt file may list several sheets under `items:` in its front matter, each with its own asset id and output folder.
 - **Checkpoint:** Daniele sees the HD Zurich and Daniele anchors (gate HG1) before the fan-out. Every other gate stays delegated to the Opus orchestrator.
 
 ### Codex lane (the Codex orchestrator polls this table)
@@ -800,7 +804,7 @@ As before: a task is runnable when everything under **After** is `done` in this 
 | T1         | todo   | —                                | Crisp display-resolution text for speech, labels, signs, menus, and boards (works on the current art)                                             |
 | H0         | todo   | —                                | HD tooling: `prepare` (crop and resize with high-quality resampling, no remap), a soft key and alpha, validator rules for density 4, a rig packer |
 | E4         | todo   | —                                | Engine: density-4 scenes rendered smoothly, the cut-out rig, procedural effects, moving props, the new world scale                                |
-| H1         | todo   | —                                | The scale sheet and references, plus the HD prompt files for HC1–HC4                                                                              |
+| H1         | done   | —                                | The scale sheet and references, plus the HD prompt files for HC1–HC4                                                                              |
 | HA         | todo   | HC1, H0                          | Pick the HD Zurich and turnaround anchors, then gate **HG1** (Daniele's checkpoint)                                                               |
 | HL-<scene> | todo   | that scene's composite is picked | Write that scene's `layers-<scene>.md` prompt (plate edit, objects, props)                                                                        |
 | HB1–HB5    | todo   | HC5 for the scene, E4            | Assemble each scene (zurich, hall, london, sorrento, travel-map) from its layers and adjust the scene data to the new scale                       |
