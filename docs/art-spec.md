@@ -415,7 +415,7 @@ Audio is written entirely as code by Opus. It needs no generated images and no m
 - **Sound effects:** footsteps on carpet, wood, and tile (3 variants each), door open, door close, boarding chime, plane on the map, UI blip, split-flap flutter, dart thunk, fruit machine jingle, cuckoo, phone ring, and moka gurgle. `sfx.ts` synthesises them. If one sounds fake, one CC0 sample from Freesound is acceptable; record its URL and licence.
 - **Rendering:** FluidSynth with a free General MIDI soundfont (for example FluidR3_GM, MIT licence), then ffmpeg to MP3. Commit the MP3s and MIDI sources. Leave rendered WAVs uncommitted.
 - **Looping:** MP3 encoder padding breaks `<audio loop>`. Decode with Web Audio and loop with `loopStart`/`loopEnd`. Record the loop points in the provenance record.
-- **Levels:** music about −20 LUFS, ambience about −28 LUFS, sound effects peaking at −3 dBFS. The existing sound toggle controls everything.
+- **Levels:** music about −20 LUFS, ambience about −28 LUFS, sound effects peaking at −3 dBFS and **capped at −16 LUFS on playback** by the gain table in `src/engine/audio.ts`. Update that table whenever an effect is re-rendered; a unit test fails if it's out of date. The existing sound toggle controls everything.
 
 ## Execution plan
 
@@ -677,6 +677,7 @@ Everything in this phase starts once its dependencies are met, and runs in paral
   - **Hotspots are checked in list order, not by depth,** so list nearer objects last.
   - **Animation strips must be 320 px wide or less.**
   - Generated furniture tends to be tall and set against the wall. Move it forward, and shorten it if needed, so walking behind it reads clearly.
+- **Object sounds** (the `sound` field, from E2): Hall `split-flap` on the departures-board animation. London `dart-thunk` on the dartboard and `fruit-machine` on the fruit machine object (no sound on its lights animation). Sorrento `phone-ring` on the wall phone and `moka-gurgle` on the moka pot. Zurich `cuckoo` on the cuckoo animation, added in I1.
 - **Every primary object names its section** with an engine-drawn label: a card, a sign, a menu, or text on a screen (for example the cabinet's "RESUME" card). It reinforces the signposting rules in the plan.
 - **Audio:** A2 is merged, so set `music` and `ambience` as `{ src, loopStart, loopEnd }`, with the loop points copied from `assets-src/provenance/music-<scene>.json` and `ambience-<scene>.json`.
 - **Contract:** write the scene data against the implemented types (see "As implemented by E1" in the Scene data contract), including `name`, `look`, and `use` lines for every object, `floor`, and the entry keys. Replace your scene's placeholder config, and delete its `obj-placeholder` and `anim-placeholder` files.
@@ -731,7 +732,7 @@ Everything in this phase starts once its dependencies are met, and runs in paral
 - **Steps:**
   1. Put all five scenes, the shared sprites, and the character on one contact sheet. Fix mismatches in outline weight, shading steps, ramp use, and light direction.
   2. Check each scene with the real character and real `profile.ts` data: scale at the near and far walkbox edges, `baselineY` occlusion, interaction points, and slot rows (including a full row folding).
-  3. Give the Zurich CRT an engine-drawn "EXPERIENCE" label on its screen, to match the cabinet's "RESUME" card, and check that every primary object in every scene names its section. Check the signposting rules from the plan: gate signs, map labels, arrival lines, and primary objects all name their sections.
+  3. In `zurich.ts`, add `sound: "cuckoo"` to the cuckoo animation. Give the Zurich CRT an engine-drawn "EXPERIENCE" label on its screen, to match the cabinet's "RESUME" card, and check that every primary object in every scene names its section. Check the signposting rules from the plan: gate signs, map labels, arrival lines, and primary objects all name their sections.
   4. Check that preloading stops scene changes and the travel map from flashing.
   5. Regenerate the OG image with `npm run generate:og-image`. Confirm the Game Boy view and the SEO HTML are unchanged.
   6. Walk every scene by hand and check that each section is reachable in two clicks or fewer. E2E tests and baselines are out of scope for v2.
