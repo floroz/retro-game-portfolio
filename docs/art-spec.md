@@ -461,7 +461,7 @@ Audio is written entirely as code by Opus. It needs no generated images and no m
 | B7      | todo   | Opus    | 2     | C5, C6        | Character frames, talk heads, packing                                    |
 | A2      | todo   | Opus    | 2     | GA            | Three country tracks, the travel sting, four ambience loops, all effects |
 | E2      | todo   | Opus    | 2     | E1, A2        | Engine follow-ups: object sounds, audio loop points, leftovers           |
-| I1      | todo   | Opus    | 3     | B1–B7, A2, E2 | Cohesion, integration, baselines (ends at **G4**)                        |
+| I1      | done   | Opus    | 3     | B1–B7, A2, E2 | Cohesion, integration, baselines (ends at **G4**)                        |
 
 ```mermaid
 flowchart LR
@@ -806,12 +806,12 @@ RC2 to RC7 can all run in parallel sessions.
 | R1   | done   | —                  | Export the remaster references, and write all 14 remaster prompt files                          |
 | RA   | done   | RC1, R0            | Pick and clean up both remaster anchors (ends at gates **RG1a** Zurich and **RG1b** turnaround) |
 | RB1  | done   | RG1a, E3           | Rebuild `zurich` at 2× from the remaster anchor                                                 |
-| RB2  | todo   | RC2, RG1a, E3      | Rebuild `hall` at 2×                                                                            |
-| RB3  | todo   | RC3, RG1a, E3      | Rebuild `london` at 2×                                                                          |
-| RB4  | todo   | RC4, RG1a, E3      | Rebuild `sorrento` at 2×                                                                        |
-| RB5  | todo   | RC5, RG1a, E3      | Rebuild `travel-map` at 2×                                                                      |
+| RB2  | done   | RC2, RG1a, E3      | Rebuild `hall` at 2×                                                                            |
+| RB3  | done   | RC3, RG1a, E3      | Rebuild `london` at 2×                                                                          |
+| RB4  | done   | RC4, RG1a, E3      | Rebuild `sorrento` at 2×                                                                        |
+| RB5  | done   | RC5, RG1a, E3      | Rebuild `travel-map` at 2×                                                                      |
 | RB6  | done   | RG1a, R0           | Redraw the shared sprites at 2× (slots, folds, plane, marker)                                   |
-| RB7  | todo   | RC6, RC7, RG1b, E3 | Character at 2×: all 31 body frames and 6 talk heads                                            |
+| RB7  | done   | RC6, RC7, RG1b, E3 | Character at 2×: all 31 body frames and 6 talk heads                                            |
 | I2   | todo   | RB1–RB7, I1        | Final cohesion and integration (ends at **G4**)                                                 |
 
 | Gate | Status | Decided by                                                        |
