@@ -2,9 +2,11 @@
  * Scene data contract (docs/art-spec.md, "Scene data contract").
  *
  * The engine reads these shapes and the build tasks write them, one file per
- * scene in `src/config/scenes/<scene>.ts`. Every coordinate is in native
- * pixels (320x160) with a top-left origin. The engine scales by 4 when it
- * draws and never asks the art for any other unit.
+ * scene in `src/config/scenes/<scene>.ts`. Every coordinate is in native,
+ * or logical, pixels (320x160) with a top-left origin, whatever the density
+ * of the art: the engine works out each image's density from its size
+ * (density.ts) and scales when it draws, so remastered art at density 2
+ * replaces the old files with no change here.
  */
 
 /** Walkable scenes. The travel map is a transition, not a scene you walk in. */

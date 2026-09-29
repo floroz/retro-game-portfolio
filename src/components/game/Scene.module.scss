@@ -1,7 +1,7 @@
 @use "../../styles/functions" as *;
 @use "../../styles/mixins" as *;
 
-/* The 1280x640 scene area: a native 320x160 canvas scaled 4x */
+/* The 1280x640 scene area: a 640x320 canvas scaled 2x */
 .scene {
   position: relative;
   inline-size: to-rem(1280px);

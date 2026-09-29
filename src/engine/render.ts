@@ -1,6 +1,10 @@
 /**
- * Draws one frame at native resolution (320x160). CSS scales the canvas 4x
- * with `image-rendering: pixelated`, so every pixel stays on the grid.
+ * Draws one frame on a 640x320 canvas, in logical px (320x160) scaled by
+ * RENDER_SCALE. CSS scales the canvas 2x with `image-rendering: pixelated`,
+ * so every pixel stays on the grid. Each image draws at its own density
+ * (density.ts): density-1 art at 2x nearest-neighbour, pixel for pixel as
+ * it looked on the old 320x160 canvas, and density-2 art 1:1. The pixel
+ * font draws at canvas resolution.
  *
  * Layers, back to front (docs/art-spec.md, "Layers, depth, and slots"):
  * 1. `bg`
@@ -13,10 +17,11 @@
 import { sectionList, COUNTRIES } from "../config/sections";
 import type { ImageStore } from "./assets";
 import { slotSpriteUrl } from "./assets";
-import type { CharacterSheet } from "./character";
+import { placeCell, type CharacterSheet } from "./character";
 import { animationFrame } from "./animation";
 import { paintOrder, type Paintable } from "./depth";
-import { CORE, IRIS_MS, NATIVE_H, NATIVE_W } from "./constants";
+import { CORE, IRIS_MS, NATIVE_H, NATIVE_W, RENDER_SCALE } from "./constants";
+import { snap } from "./density";
 import { drawText, lineHeight, measureText, wrapText } from "./font";
 import { resolveLabel } from "./labels";
 import type { SceneEngine, Transition } from "./SceneEngine";
@@ -51,6 +56,7 @@ export interface RenderContext {
 
 export function renderFrame(rc: RenderContext) {
   const { ctx, engine } = rc;
+  ctx.setTransform(RENDER_SCALE, 0, 0, RENDER_SCALE, 0, 0);
   ctx.imageSmoothingEnabled = false;
   const tr = engine.transition;
   if (tr?.kind === "map") {
@@ -61,8 +67,7 @@ export function renderFrame(rc: RenderContext) {
   ctx.fillStyle = CORE.black;
   ctx.fillRect(0, 0, NATIVE_W, NATIVE_H);
   const scene = engine.scene;
-  const bg = rc.images.get(scene.background);
-  if (bg) ctx.drawImage(bg, 0, 0);
+  drawImageAt(rc, scene.background, 0, 0);
 
   const items: Drawable[] = [];
   const add = (y: number | undefined, draw: () => void, actor = false) =>
@@ -73,10 +78,7 @@ export function renderFrame(rc: RenderContext) {
     const url = (state && thing.states?.[state]) || thing.sprite;
     if (!url || thing.x === undefined || thing.y === undefined) continue;
     const { x, y } = thing;
-    add(thing.baselineY, () => {
-      const img = rc.images.get(url);
-      if (img) ctx.drawImage(img, x, y);
-    });
+    add(thing.baselineY, () => drawImageAt(rc, url, x, y));
   }
   for (const anim of scene.animations ?? []) {
     add(anim.baselineY, () => drawAnimation(rc, anim));
@@ -93,13 +95,24 @@ export function renderFrame(rc: RenderContext) {
 
   paintOrder(items).forEach((i) => i.draw());
 
-  if (scene.foreground) {
-    const fg = rc.images.get(scene.foreground);
-    if (fg) ctx.drawImage(fg, 0, 0);
-  }
+  if (scene.foreground) drawImageAt(rc, scene.foreground, 0, 0);
 
   drawSpeech(rc);
   if (tr?.kind === "iris") drawIris(ctx, tr);
+}
+
+/** Draws a whole image with its top-left at logical `x`,`y`. */
+function drawImageAt(rc: RenderContext, url: string, x: number, y: number) {
+  const img = rc.images.get(url);
+  if (!img) return;
+  const d = rc.images.density(url);
+  rc.ctx.drawImage(
+    img,
+    snap(x, d),
+    snap(y, d),
+    img.naturalWidth / d,
+    img.naturalHeight / d,
+  );
 }
 
 function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
@@ -107,6 +120,8 @@ function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
   const f = animationFrame(anim, rc.engine.now);
   if (!img || !f) return;
   const { ctx } = rc;
+  const d = rc.images.density(anim.strip);
+  // Frame size in image pixels.
   const w = Math.floor(img.naturalWidth / anim.frames);
   const h = img.naturalHeight;
   if (anim.clip) {
@@ -121,10 +136,10 @@ function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
     0,
     w,
     h,
-    Math.round(f.x),
-    Math.round(f.y),
-    w,
-    h,
+    snap(f.x, d),
+    snap(f.y, d),
+    w / d,
+    h / d,
   );
   if (anim.clip) ctx.restore();
 }
@@ -132,8 +147,7 @@ function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
 function drawSlotRow(rc: RenderContext, row: SlotRow, items: SlotItem[]) {
   for (const item of items) {
     const url = slotSpriteUrl(item.sprite);
-    const img = url ? rc.images.get(url) : undefined;
-    if (img) rc.ctx.drawImage(img, item.x, item.y);
+    if (url) drawImageAt(rc, url, item.x, item.y);
     if (row.caption) {
       drawText(
         rc.ctx,
@@ -171,6 +185,30 @@ function drawLabel(ctx: Ctx, label: SceneLabel) {
   });
 }
 
+let characterCanvas: HTMLCanvasElement | null = null;
+
+/** A cleared scratch canvas of at least `w`x`h`, reused every frame. */
+function scratch(w: number, h: number): HTMLCanvasElement {
+  const c = characterCanvas ?? document.createElement("canvas");
+  characterCanvas = c;
+  if (c.width < w || c.height < h) {
+    c.width = Math.max(c.width, w);
+    c.height = Math.max(c.height, h);
+  }
+  const sctx = c.getContext("2d");
+  if (sctx) {
+    sctx.setTransform(1, 0, 0, 1, 0, 0);
+    sctx.clearRect(0, 0, c.width, c.height);
+  }
+  return c;
+}
+
+/**
+ * Daniele, depth-scaled with nearest-neighbour. He's scaled at his sheet's
+ * own resolution first, on a scratch canvas, then drawn at its density: a
+ * density-1 sheet at 2x, pixel for pixel as on the old 320x160 canvas, and
+ * a density-2 sheet 1:1.
+ */
 function drawCharacter(rc: RenderContext) {
   const { ctx, engine, sheet } = rc;
   const img = rc.images.get(sheet.image);
@@ -178,26 +216,25 @@ function drawCharacter(rc: RenderContext) {
   const pose = engine.pose();
   const { x, y } = engine.position;
   const s = engine.scale;
-  const cellW = pose.body.w;
-  const w = Math.round(cellW * s);
-  const h = Math.round(pose.body.h * s);
-  const left = Math.round(x - sheet.origin.x * s);
-  const top = Math.round(y - sheet.origin.y * s);
+  const d = sheet.density;
+  const { left, top, w, h } = placeCell(sheet, pose.body, x, y, s);
+  if (w < 1 || h < 1) return;
 
-  ctx.save();
+  const cell = scratch(w, h);
+  const cctx = cell.getContext("2d");
+  if (!cctx) return;
+  cctx.imageSmoothingEnabled = false;
   if (pose.mirror) {
-    ctx.translate(left + w, top);
-    ctx.scale(-1, 1);
-  } else {
-    ctx.translate(left, top);
+    cctx.translate(w, 0);
+    cctx.scale(-1, 1);
   }
   const b = pose.body;
-  ctx.drawImage(img, b.x, b.y, b.w, b.h, 0, 0, w, h);
+  cctx.drawImage(img, b.x, b.y, b.w, b.h, 0, 0, w, h);
   if (pose.head) {
     const hd = pose.head;
     const ox = Math.round(sheet.talkHeadOffset.x * s);
     const oy = Math.round(sheet.talkHeadOffset.y * s);
-    ctx.drawImage(
+    cctx.drawImage(
       img,
       hd.x,
       hd.y,
@@ -209,6 +246,10 @@ function drawCharacter(rc: RenderContext) {
       Math.round(hd.h * s),
     );
   }
+
+  ctx.save();
+  ctx.scale(1 / d, 1 / d);
+  ctx.drawImage(cell, 0, 0, w, h, left, top, w, h);
   ctx.restore();
 }
 
@@ -216,10 +257,12 @@ function drawCharacter(rc: RenderContext) {
 function drawSpeech(rc: RenderContext) {
   const speech = rc.engine.speech;
   if (!speech) return;
-  const { ctx, engine } = rc;
+  const { ctx, engine, sheet } = rc;
   const { x, y } = engine.position;
   const lh = lineHeight("regular");
-  const headTop = y - 60 * engine.scale;
+  // The top of the cell, just above the hair, in logical px above the feet.
+  const head = sheet.origin.y / sheet.density - 1;
+  const headTop = y - head * engine.scale;
   const top = Math.max(2, Math.round(headTop - 3 - speech.lines.length * lh));
   const widest = Math.max(...speech.lines.map((l) => measureText(l)));
   const center = Math.max(
@@ -298,17 +341,15 @@ function drawTravelMap(
   const { ctx, map, images } = rc;
   ctx.fillStyle = CORE.paper;
   ctx.fillRect(0, 0, NATIVE_W, NATIVE_H);
-  const bg = images.get(map.background);
-  if (bg) ctx.drawImage(bg, 0, 0);
+  drawImageAt(rc, map.background, 0, 0);
 
   const markerImg = map.marker ? images.get(map.marker) : undefined;
-  if (markerImg) {
+  if (map.marker && markerImg) {
+    const d = images.density(map.marker);
+    const mw = markerImg.naturalWidth / d;
+    const mh = markerImg.naturalHeight / d;
     for (const [mx, my] of Object.values(map.markers)) {
-      ctx.drawImage(
-        markerImg,
-        Math.round(mx - markerImg.naturalWidth / 2),
-        Math.round(my - markerImg.naturalHeight / 2),
-      );
+      drawImageAt(rc, map.marker, mx - mw / 2, my - mh / 2);
     }
   }
 
@@ -352,8 +393,10 @@ function drawPlane(
   const [px, py] = pointOnRoute(tr.route, progress);
   const angle = headingAt(tr.route, Math.min(0.999, Math.max(0.001, progress)));
   const sprite = map.plane ? images.get(map.plane.strip) : undefined;
+  const d = sprite && map.plane ? images.density(map.plane.strip) : 1;
   ctx.save();
-  ctx.translate(Math.round(px), Math.round(py));
+  ctx.translate(snap(px, d), snap(py, d));
+  // Sizes in image pixels; the sprite is centred on the route.
   if (sprite && map.plane?.headings === 8) {
     const w = Math.floor(sprite.naturalWidth / 8);
     const h = sprite.naturalHeight;
@@ -364,10 +407,10 @@ function drawPlane(
       0,
       w,
       h,
-      -Math.floor(w / 2),
-      -Math.floor(h / 2),
-      w,
-      h,
+      -Math.floor(w / 2) / d,
+      -Math.floor(h / 2) / d,
+      w / d,
+      h / d,
     );
   } else {
     const img = sprite ?? fallbackPlane();
@@ -376,7 +419,13 @@ function drawPlane(
     ctx.rotate(Math.round(angle / step) * step);
     const w = img instanceof HTMLImageElement ? img.naturalWidth : img.width;
     const h = img instanceof HTMLImageElement ? img.naturalHeight : img.height;
-    ctx.drawImage(img, -Math.floor(w / 2), -Math.floor(h / 2));
+    ctx.drawImage(
+      img,
+      -Math.floor(w / 2) / d,
+      -Math.floor(h / 2) / d,
+      w / d,
+      h / d,
+    );
   }
   ctx.restore();
 }

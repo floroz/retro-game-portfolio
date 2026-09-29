@@ -1,6 +1,18 @@
-/** Native art resolution (docs/art-spec.md, "Resolution and coordinates"). */
+/**
+ * Logical scene size (docs/art-spec.md, "Resolution and coordinates"). All
+ * scene data is in these px, whatever the density of the art (density.ts).
+ */
 export const NATIVE_W = 320;
 export const NATIVE_H = 160;
+
+/**
+ * Canvas pixels per logical px. The canvas is 640x320, so density-2 art
+ * and the pixel font draw 1:1, and density-1 art draws at 2x
+ * nearest-neighbour, exactly as it looked on the old 320x160 canvas.
+ */
+export const RENDER_SCALE = 2;
+export const CANVAS_W = NATIVE_W * RENDER_SCALE;
+export const CANVAS_H = NATIVE_H * RENDER_SCALE;
 /**
  * Logical viewport: a 1280x640 scene over a 1280x160 toolbar. The Win95
  * window scales it to fit; game code never sees screen pixels.
@@ -12,7 +24,7 @@ export const VIEWPORT = {
   toolbarHeight: 160,
 } as const;
 
-/** Native px to logical viewport px (1280x640). */
+/** Logical scene px to logical viewport px (1280x640). */
 const PIXEL_SCALE = 4;
 
 /**
