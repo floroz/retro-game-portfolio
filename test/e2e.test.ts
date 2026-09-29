@@ -194,7 +194,7 @@ test.describe("Visual Regression Tests", () => {
     await expect(page.locator("[data-e2e=toolbar]")).toBeVisible();
 
     // Click on the Skills button in the toolbar to open the terminal screen
-    const skillsButton = page.getByTitle("Skills");
+    const skillsButton = page.getByRole("button", { name: /^Skills, in / });
     await expect(skillsButton).toBeVisible({ timeout: 5000 });
     await skillsButton.click();
 
@@ -235,7 +235,7 @@ test.describe("Visual Regression Tests", () => {
     await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
 
     // Open Skills terminal screen
-    await page.getByTitle("Skills").click();
+    await page.getByRole("button", { name: /^Skills, in / }).click();
     const terminalScreen = page.locator("[data-e2e=terminal-screen]");
     await expect(terminalScreen).toBeVisible({ timeout: 15000 });
     await expect(
@@ -295,7 +295,7 @@ test.describe("Visual Regression Tests", () => {
     await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
 
     // Open Skills terminal screen
-    await page.getByTitle("Skills").click();
+    await page.getByRole("button", { name: /^Skills, in / }).click();
     const terminalScreen = page.locator("[data-e2e=terminal-screen]");
     await expect(terminalScreen).toBeVisible({ timeout: 15000 });
     await expect(
@@ -326,7 +326,7 @@ test.describe("Visual Regression Tests", () => {
     await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
 
     // Open Experience terminal screen
-    await page.getByTitle("Experience").click();
+    await page.getByRole("button", { name: /^Experience, in / }).click();
     const terminalScreen = page.locator(
       "[data-e2e=terminal-screen][data-action=experience]",
     );
@@ -359,7 +359,7 @@ test.describe("Visual Regression Tests", () => {
     await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
 
     // Open About terminal screen
-    await page.getByTitle("About").click();
+    await page.getByRole("button", { name: /^About, in / }).click();
     const terminalScreen = page.locator(
       "[data-e2e=terminal-screen][data-action=about]",
     );
@@ -392,7 +392,7 @@ test.describe("Visual Regression Tests", () => {
     await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
 
     // Open Contact terminal screen
-    await page.getByTitle("Contact").click();
+    await page.getByRole("button", { name: /^Contact, in / }).click();
     const terminalScreen = page.locator(
       "[data-e2e=terminal-screen][data-action=contact]",
     );
@@ -425,7 +425,7 @@ test.describe("Visual Regression Tests", () => {
     await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
 
     // Open Resume terminal screen
-    await page.getByTitle("Resume").click();
+    await page.getByRole("button", { name: /^Resume, in / }).click();
     const terminalScreen = page.locator(
       "[data-e2e=terminal-screen][data-action=resume]",
     );
