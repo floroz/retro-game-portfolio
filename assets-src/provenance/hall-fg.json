@@ -1,10 +1,18 @@
 {
   "id": "hall-fg",
   "output": "src/assets/scenes/hall/fg.png",
-  "task": "B2",
-  "source": "opus",
-  "derivedFrom": "hall-bg",
-  "cleanup": "The candidate's square beige pillar (narrowed to 11 px at the right edge) and its rubber plant in a beige pot, redrawn on a transparent layer: eight flat leaves lit from the back window with a dark lower edge, brown stems, a pot with three shade steps. Always drawn over Daniele.",
-  "palette": "v1",
-  "date": "2026-09-29"
+  "task": "RB2",
+  "source": "codex",
+  "prompt": "assets-src/prompts/remaster/hall.md",
+  "candidate": "04",
+  "references": [
+    "assets-src/refs/remaster/hall-current@4x.png",
+    "assets-src/refs/remaster/style-anchor@4x.png"
+  ],
+  "approvedRaw": "assets-src/approved/hall-bg@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "approvedBy": "opus-orchestrator (delegated pick, RB2)",
+  "date": "2026-09-29",
+  "cleanup": "RB2: the rubber plant and its pot cut from candidate 04 at (0,-6), segmented by palette index (leaves O, P and ,; stems; the pot from its rim down), and the square beige pillar at the right edge at (0,0), 11 logical px as shipped. Contrast-limited despeckle on the leaves; the pot body rebuilt as a straight taper (a lit left band, a highlight edge, the body and a shaded right side) in place of the candidate's stepped sides; the pillar continued behind the pot to the bottom edge. Always drawn over Daniele."
 }

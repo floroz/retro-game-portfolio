@@ -1,10 +1,11 @@
 {
   "id": "hall-obj-seats",
   "output": "src/assets/scenes/hall/obj-seats.png",
-  "task": "B2",
+  "task": "RB2",
   "source": "opus",
   "derivedFrom": "hall-bg",
-  "cleanup": "Row of five joined 1990s seats, redrawn front-on from the candidate's angled row: navy backs and pans with a lighter roll, chrome armrests, beam and three splayed legs, a 1 px contact shadow. Moved forward onto the carpet (baseline y 120) so Daniele walks behind and in front of it.",
-  "palette": "v1",
-  "date": "2026-09-29"
+  "palette": "v2",
+  "density": 2,
+  "date": "2026-09-29",
+  "cleanup": "RB2: a row of five joined seats redrawn at 2x (156x50) from candidate 04's seat design, as one hand-drawn module tiled five times so the row is exactly the shipped 78 logical px (the candidate's row is 82 wide, with irregular 29-30 px pitches and carpet fringe on its rims): rounded backs with a piping seam and a lit headrest stripe, lit pan fronts, capped steel armrests, the beam, three legs with feet, and a teal contact shadow. The upholstery is recoloured from navy (H, +, I: 0.000 from the jeans) to daylight blue (< and X, with I only in thin shade lines): behind the seats, the character's edge contrast went from 43% of edge pixels under 0.08 OKLab to 7% (median 0.43). Position (145, 98), 1 logical px higher than B2's, because the new feet are taller; the baseline stays at 120 and the keyhole is unchanged."
 }

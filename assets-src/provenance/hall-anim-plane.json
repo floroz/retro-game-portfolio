@@ -1,10 +1,11 @@
 {
   "id": "hall-anim-plane",
   "output": "src/assets/scenes/hall/anim-plane.png",
-  "task": "B2",
+  "task": "RB2",
   "source": "opus",
   "derivedFrom": "hall-bg",
-  "cleanup": "A 14x5 white airliner, nose left and climbing, with its gear up. The scene data moves it up and away over the horizon in the right-hand window pane, clipped to that pane.",
-  "palette": "v1",
-  "date": "2026-09-29"
+  "palette": "v2",
+  "density": 2,
+  "date": "2026-09-29",
+  "cleanup": "RB2: the taking-off airliner redrawn at 2x (28x10, 14x5 logical as before): nose left, a cockpit window and a row of cabin windows, a lit fin, belly shading, the tail cone, the wing and an engine, gear up. The scene data still moves it up and away over the horizon in the right-hand pane, clipped to that pane."
 }
