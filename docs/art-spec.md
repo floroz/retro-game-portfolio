@@ -801,7 +801,7 @@ RC2 to RC7 can all run in parallel sessions.
 | ---- | ------ | ------------------ | ----------------------------------------------------------------------------------------------- |
 | R0   | todo   | —                  | Palette v2, and tooling at 2× density                                                           |
 | E3   | todo   | —                  | Engine density support and a 2× pixel font                                                      |
-| R1   | todo   | —                  | Export the remaster references, and write all 14 remaster prompt files                          |
+| R1   | done   | —                  | Export the remaster references, and write all 14 remaster prompt files                          |
 | RA   | todo   | RC1, R0            | Pick and clean up both remaster anchors (ends at gates **RG1a** Zurich and **RG1b** turnaround) |
 | RB1  | todo   | RG1a, E3           | Rebuild `zurich` at 2× from the remaster anchor                                                 |
 | RB2  | todo   | RC2, RG1a, E3      | Rebuild `hall` at 2×                                                                            |
@@ -838,7 +838,7 @@ RC2 to RC7 can all run in parallel sessions.
 - **RB1–RB5 Rebuild a scene at 2×.** Same shape as B1–B5.
   - Review, pick, pixelize at density 2, run the cleanup brief, and cut objects out at 2×.
   - Keep **every logical position the current scene data uses**, adjusting the data only where the new art needs it.
-  - Keep every label, slot, sound, and line.
+  - Keep every label, slot, sound, and line. **Redraw every animation strip at 2×** as well (fruit machine lights, moka steam, the CRT cursor, the stars, and so on); the remaster references don't include them.
   - Replace the files in place, and walk the real character through the scene to check for contrast.
 - **RB6 Shared sprites at 2×.** Redraw every file in `src/assets/shared/` at double size, keeping the same logical footprint, the core palette only, and matching the remaster anchor.
 - **RB7 Character at 2×.**
@@ -849,6 +849,7 @@ RC2 to RC7 can all run in parallel sessions.
   - a contact sheet of all the remastered assets, fixing any mismatches;
   - a contrast walk of every scene with the real character;
   - regenerating the OG image;
+  - checking Sorrento's floor after the remaster before toning it down further (`sorrento.md` already asks for a calmer floor);
   - checking the Game Boy view, the shell, and SEO;
   - walking two-click reachability by hand.
 
@@ -863,6 +864,10 @@ RC2 to RC7 can all run in parallel sessions.
 - **Scene:**
 
   > {preamble} This is a remastered redraw of the reference image, a finished adventure-game scene. Keep its composition exactly: every object's position, size, and silhouette, the colours, the light, and the mood. Redraw it sharper and more detailed, at twice the resolution. Areas that are bare in the reference stay bare. The room is empty of people.
+
+  Deliberate exceptions to "keep the colours exactly": the Hall carpet becomes teal, and the Zurich desk chair goes lighter, both for character contrast.
+
+  Prompts reference files that RA creates later (`style-anchor@4x.png`, `char-turnaround@4x.png`) by path. Codex must not run a prompt whose references don't exist yet.
 
   References: `refs/remaster/<scene>-current@4x.png`. For every scene except Zurich, also `refs/remaster/style-anchor@4x.png`, with the line: "Match the second reference's pixel density, outline style, shading, and level of detail exactly."
 
