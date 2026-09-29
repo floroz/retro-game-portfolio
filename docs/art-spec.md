@@ -367,30 +367,32 @@ Audio is written entirely as code by Opus. It needs no generated images and no m
 
 **Run** says how a task relates to others: **sequential** tasks start only after everything under **After** is done and merged, and **parallel** tasks can run at the same time as the tasks listed. Gates (G) are approvals only you can give. Agents stop and wait at them.
 
-| Task        | Agent | Run                                         | After                   | What                                                       |
-| ----------- | ----- | ------------------------------------------- | ----------------------- | ---------------------------------------------------------- |
-| T0.1        | You   | sequential                                  | —                       | Housekeeping                                               |
-| T1.1        | Opus  | parallel with T1.2, T1.3                    | T0.1                    | Tooling, palette, placeholders                             |
-| T1.2        | Opus  | parallel with everything until T4.1         | T0.1                    | Engine track (expansion plan items 1–8)                    |
-| T1.3        | Codex | parallel with T1.1, T1.2                    | T0.1                    | Probe the image tool                                       |
-| **G1**      | You   | gate                                        | T1.1, T1.3              | Freeze palette v1, read probe findings                     |
-| T1.4        | Opus  | sequential                                  | G1                      | Adjust tooling to findings, write all prompt files         |
-| T2.1        | Codex | parallel with T2.2, T2.3                    | T1.4                    | Hub composite candidates                                   |
-| T2.2        | Codex | parallel with T2.1, T2.3                    | T1.4                    | Turnaround candidates                                      |
-| T2.3        | Opus  | parallel with all of Stage 2                | T1.1                    | Audio pilot: tools, hub music, all sound effects           |
-| T2.4        | Opus  | parallel with T2.5                          | T2.1                    | Build the hub (includes pick **G2a**)                      |
-| T2.5        | Opus  | parallel with T2.4                          | T2.2                    | Clean up the turnaround (includes pick and **G2b**)        |
-| T2.6        | Codex | sequential                                  | T2.5                    | `walk-e` and `idle-e` sheets                               |
-| T2.7        | Opus  | sequential                                  | T2.6                    | Clean up and pack `walk-e`, `idle-e`                       |
-| **G2**      | You   | gate                                        | T2.3, T2.4, T2.7        | Vertical slice review                                      |
-| T2.8        | Opus  | sequential                                  | G2                      | Apply fixes from G2 to tooling and prompt files            |
-| T3.1        | Codex | parallel with T3.2, T3.3                    | T2.8                    | Five room composites                                       |
-| T3.2        | Codex | parallel with T3.1, T3.3                    | T2.8                    | Remaining character sheets                                 |
-| T3.3        | Opus  | parallel with all of Stage 3                | T2.8                    | Five room music tracks                                     |
-| T3.4        | Opus  | sequential                                  | T3.1                    | Review candidates for all five rooms (**G3a**)             |
-| T3.5 – T3.9 | Opus  | **parallel with each other** and with T3.10 | T3.4                    | Build `about`, `skills`, `experience`, `contact`, `resume` |
-| T3.10       | Opus  | parallel with T3.5 – T3.9                   | T3.2                    | Remaining character frames, talk heads, repack             |
-| T4.1        | Opus  | sequential                                  | all Stage 3 tasks, T1.2 | Cohesion, integration, baselines (ends at **G4**)          |
+**Status** is one of `todo`, `in progress`, or `done`. A task is `done` once its PR is merged to `v2`, or once you've passed the gate. You keep this column up to date on `v2`. Agents read it but never edit it, so parallel PRs don't conflict on this table.
+
+| Task        | Status | Agent | Run                                         | After                   | What                                                       |
+| ----------- | ------ | ----- | ------------------------------------------- | ----------------------- | ---------------------------------------------------------- |
+| T0.1        | done   | You   | sequential                                  | —                       | Housekeeping                                               |
+| T1.1        | todo   | Opus  | parallel with T1.2, T1.3                    | T0.1                    | Tooling, palette, placeholders                             |
+| T1.2        | todo   | Opus  | parallel with everything until T4.1         | T0.1                    | Engine track (expansion plan items 1–8)                    |
+| T1.3        | todo   | Codex | parallel with T1.1, T1.2                    | T0.1                    | Probe the image tool                                       |
+| **G1**      | todo   | You   | gate                                        | T1.1, T1.3              | Freeze palette v1, read probe findings                     |
+| T1.4        | todo   | Opus  | sequential                                  | G1                      | Adjust tooling to findings, write all prompt files         |
+| T2.1        | todo   | Codex | parallel with T2.2, T2.3                    | T1.4                    | Hub composite candidates                                   |
+| T2.2        | todo   | Codex | parallel with T2.1, T2.3                    | T1.4                    | Turnaround candidates                                      |
+| T2.3        | todo   | Opus  | parallel with all of Stage 2                | T1.1                    | Audio pilot: tools, hub music, all sound effects           |
+| T2.4        | todo   | Opus  | parallel with T2.5                          | T2.1                    | Build the hub (includes pick **G2a**)                      |
+| T2.5        | todo   | Opus  | parallel with T2.4                          | T2.2                    | Clean up the turnaround (includes pick and **G2b**)        |
+| T2.6        | todo   | Codex | sequential                                  | T2.5                    | `walk-e` and `idle-e` sheets                               |
+| T2.7        | todo   | Opus  | sequential                                  | T2.6                    | Clean up and pack `walk-e`, `idle-e`                       |
+| **G2**      | todo   | You   | gate                                        | T2.3, T2.4, T2.7        | Vertical slice review                                      |
+| T2.8        | todo   | Opus  | sequential                                  | G2                      | Apply fixes from G2 to tooling and prompt files            |
+| T3.1        | todo   | Codex | parallel with T3.2, T3.3                    | T2.8                    | Five room composites                                       |
+| T3.2        | todo   | Codex | parallel with T3.1, T3.3                    | T2.8                    | Remaining character sheets                                 |
+| T3.3        | todo   | Opus  | parallel with all of Stage 3                | T2.8                    | Five room music tracks                                     |
+| T3.4        | todo   | Opus  | sequential                                  | T3.1                    | Review candidates for all five rooms (**G3a**)             |
+| T3.5 – T3.9 | todo   | Opus  | **parallel with each other** and with T3.10 | T3.4                    | Build `about`, `skills`, `experience`, `contact`, `resume` |
+| T3.10       | todo   | Opus  | parallel with T3.5 – T3.9                   | T3.2                    | Remaining character frames, talk heads, repack             |
+| T4.1        | todo   | Opus  | sequential                                  | all Stage 3 tasks, T1.2 | Cohesion, integration, baselines (ends at **G4**)          |
 
 ```mermaid
 flowchart LR
