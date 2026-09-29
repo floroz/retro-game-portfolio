@@ -10,14 +10,18 @@ import { LONDON_SCENE } from "../config/scenes/london";
 import { SORRENTO_SCENE } from "../config/scenes/sorrento";
 import { TRAVEL_MAP } from "../config/scenes/travel-map";
 import { ZURICH_SCENE } from "../config/scenes/zurich";
+import { withDemoEffects } from "./dev/effectsDemo";
 import { HD_PREVIEW, hdPreviewScene } from "./dev/hdPreview";
 import type { SceneRegistry } from "./SceneEngine";
 import type { SceneData, TravelMapData } from "./types";
 
-/** The scene, or its HD stand-in under `npm run dev` with `?hd=<scene>`. */
+/**
+ * The scene, or under `npm run dev` with `?hd=<scene>`, its Phase H preview:
+ * the world scale, plus a demo of the effects and moving props.
+ */
 const preview = (scene: SceneData) =>
   import.meta.env.DEV && HD_PREVIEW === scene.id
-    ? hdPreviewScene(scene)
+    ? withDemoEffects(hdPreviewScene(scene))
     : scene;
 
 export const SCENES: SceneRegistry = {

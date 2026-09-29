@@ -176,6 +176,166 @@ export interface SceneAnimation {
   sound?: EffectName;
 }
 
+/**
+ * Procedural effects (docs/art-spec.md, "Phase H": effects are procedural
+ * in the engine), drawn from data on the art's pixel grid with hard pixels.
+ * Every one is deterministic in engine time, so it's the same on every
+ * visit and testable. Colours are hex. Each may have a `baselineY` to
+ * depth-sort like an object, and a `clip` to stay inside a window.
+ */
+interface EffectBase {
+  id: string;
+  clip?: Rect;
+  baselineY?: number;
+}
+
+/** Slanted streaks falling through `area`: London's rain on the window. */
+export interface RainEffect extends EffectBase {
+  kind: "rain";
+  area: Rect;
+  /** Streaks in the area at once. */
+  drops: number;
+  /** Fall speed in logical px a second. */
+  speed: number;
+  /** Streak length in logical px. */
+  length: number;
+  /** Degrees from vertical; positive leans the top to the right. */
+  slant?: number;
+  color: string;
+}
+
+/** Puffs rising from a spout, growing then shrinking: moka, kettle, fryer. */
+export interface SteamEffect extends EffectBase {
+  kind: "steam";
+  /** Where the puffs start (the spout). */
+  x: number;
+  y: number;
+  /** A new puff every `everyMs`. */
+  everyMs: number;
+  /** How long a puff lives. */
+  lifeMs: number;
+  /** How far a puff rises over its life, and drifts sideways (logical px). */
+  rise: number;
+  drift?: number;
+  /** Largest puff radius, logical px. */
+  size: number;
+  color: string;
+  /** 0-1, for a see-through puff. Defaults to 1. */
+  opacity?: number;
+}
+
+/** Stars that twinkle in turn, in the night sky of a window. */
+export interface StarsEffect extends EffectBase {
+  kind: "stars";
+  /** Each star's position. */
+  points: Vec[];
+  /** One twinkle cycle per star, offset star to star. */
+  periodMs: number;
+  color: string;
+  /** Colour at its dimmest. Defaults to half-way to transparent. */
+  dim?: string;
+}
+
+/** Short bright dashes that come and go on water: the lake, the bay. */
+export interface GlintsEffect extends EffectBase {
+  kind: "glints";
+  area: Rect;
+  /** Glints showing at once. */
+  count: number;
+  /** How long each glint lives, then moves elsewhere. */
+  lifeMs: number;
+  /** Longest glint, logical px. */
+  length: number;
+  color: string;
+}
+
+/**
+ * Lamps that blink in a pattern: the fruit machine's lights.
+ * - `chase`: one lamp lit at a time, running along `points`;
+ * - `alternate`: every other lamp, swapping each step;
+ * - `random`: each lamp on or off at random each step.
+ */
+export interface LampsEffect extends EffectBase {
+  kind: "lamps";
+  points: Vec[];
+  /** Lamp size, logical px (a square). */
+  size: number;
+  pattern: "chase" | "alternate" | "random";
+  stepMs: number;
+  on: string;
+  /** Unlit colour; leave it out to show nothing. */
+  off?: string;
+}
+
+/**
+ * A split-flap board flutter: the slats of each row flip through for
+ * `durationMs` every `everyMs`, top row first. The board's text is a label.
+ */
+export interface FlutterEffect extends EffectBase {
+  kind: "flutter";
+  /** One rectangle per row of flaps. */
+  rows: Rect[];
+  everyMs: number;
+  durationMs: number;
+  /** Row delay after the one above it. */
+  staggerMs?: number;
+  /** Slat edge and face colours. */
+  edge: string;
+  face: string;
+  /** Played as each flutter starts (`"split-flap"`). */
+  sound?: EffectName;
+}
+
+export type SceneEffect =
+  | RainEffect
+  | SteamEffect
+  | StarsEffect
+  | GlintsEffect
+  | LampsEffect
+  | FlutterEffect;
+
+/** Where a moving prop is at a point in its pass. */
+export interface PropKey {
+  /** From 0 (the pass starts) to 1 (it ends). */
+  at: number;
+  /** Sprite top-left, logical px. */
+  x: number;
+  y: number;
+  /** Size, 1 by default: a plane shrinks as it climbs away. */
+  scale?: number;
+}
+
+/**
+ * A sprite that travels a path (docs/art-spec.md, "Phase H": moving props
+ * slide along paths): the bus past the window, the ferry across the bay,
+ * planes taking off, the cuckoo bird popping out. Each pass takes
+ * `durationMs` and starts every `everyMs` (back to back without it), first
+ * at `delayMs`; it's hidden between passes.
+ */
+export interface MovingProp {
+  id: string;
+  /** Imported asset URL: one image, or a strip of `frames` equal frames. */
+  sprite: string;
+  frames?: number;
+  frameMs?: number;
+  /** In order of `at`, the first at 0 and the last at 1. */
+  path: PropKey[];
+  durationMs: number;
+  everyMs?: number;
+  delayMs?: number;
+  /**
+   * Speed along the pass: `in` starts slow (a plane taking off), `out`
+   * ends slow, `inOut` both. Linear by default.
+   */
+  ease?: "linear" | "in" | "out" | "inOut";
+  /** Mirror the sprite while it travels left. */
+  faceTravel?: boolean;
+  clip?: Rect;
+  baselineY?: number;
+  /** Played as each pass starts (`"cuckoo"`). */
+  sound?: EffectName;
+}
+
 /** Generic slot sprites, in `src/assets/shared/slots/slot-<kind>.png`. */
 export type SlotKind = "tap" | "photo-frame" | "magnet";
 
@@ -298,6 +458,10 @@ export interface SceneData {
   entryLine?: string;
   objects: SceneObject[];
   animations?: SceneAnimation[];
+  /** Procedural effects: rain, steam, stars, glints, lamps, flutter. */
+  effects?: SceneEffect[];
+  /** Sprites moving along paths: the bus, the ferry, planes, the cuckoo. */
+  props?: MovingProp[];
   slots?: SlotRow[];
   labels?: SceneLabel[];
   exits: SceneExit[];
