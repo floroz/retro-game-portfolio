@@ -49,13 +49,15 @@ export interface GridBox {
  * pixel (`box.left`, `box.top`), hardens its alpha, and draws it on `ctx`
  * (whose transform is in logical px) at `grid` pixels per logical px. The
  * scratch context comes smoothing-enabled (high quality) with an identity
- * transform.
+ * transform. `finish`, if given, edits the hardened pixels (RGBA, not
+ * premultiplied) before they are stamped.
  */
 export function stampOnGrid(
   ctx: CanvasRenderingContext2D,
   grid: number,
   box: GridBox,
   paint: (sctx: CanvasRenderingContext2D) => void,
+  finish?: (data: Uint8ClampedArray, w: number, h: number) => void,
 ) {
   const { left, top, w, h } = box;
   if (w < 1 || h < 1) return;
@@ -68,6 +70,7 @@ export function stampOnGrid(
   sctx.restore();
   const image = sctx.getImageData(0, 0, w, h);
   hardenAlpha(image.data);
+  finish?.(image.data, w, h);
   sctx.putImageData(image, 0, 0);
   ctx.save();
   ctx.imageSmoothingEnabled = false;

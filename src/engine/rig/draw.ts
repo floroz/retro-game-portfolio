@@ -5,12 +5,14 @@
  * The parts are posed (transform.ts) and rasterized onto a scratch canvas
  * at the grid's resolution, 2 px per logical px for the 640x320 art, with
  * smoothing inside the grid so rotated parts keep clean colour. Then every
- * pixel is made fully opaque or fully transparent, and the result is
- * stamped onto the scene on whole grid pixels, nearest-neighbour. The CSS
+ * pixel is made fully opaque or fully transparent, the whole figure gets
+ * one solid ink outline (outline.ts), and the result is stamped onto the
+ * scene on whole grid pixels, nearest-neighbour. The CSS
  * 2x upscale then keeps him crisp, on the same pixel grid as the scene.
  */
 import type { RigState } from "./animator";
 import { stampOnGrid } from "../raster";
+import { outlineSilhouette } from "./outline";
 import { placeRig, type Rig } from "./rig";
 import { apply } from "./transform";
 
@@ -68,8 +70,10 @@ export function drawRig(
     { left: feetX + left, top: feetY + top, w, h },
     (sctx) => {
       sctx.setTransform(sx, 0, 0, k, -left, -top);
-      for (const { frame: f, matrix: m } of parts) {
+      for (const { id, frame: f, matrix: m } of parts) {
         sctx.save();
+        // The head keeps its eyes: high-quality smoothing turns a 1 px pupil grey.
+        sctx.imageSmoothingQuality = id === "head" ? "low" : "high";
         sctx.transform(m[0], m[1], m[2], m[3], m[4], m[5]);
         sctx.drawImage(
           atlas,
@@ -85,5 +89,6 @@ export function drawRig(
         sctx.restore();
       }
     },
+    outlineSilhouette,
   );
 }
