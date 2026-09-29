@@ -170,7 +170,7 @@ Skills and jobs will change, so **the art provides containers and `profile.ts` f
 | Exits                    | 3                                                                                           | 1                | 1           | 1      | Plus an `@open` state for any door                                        |
 | Readable text            | None in the art. The engine draws all signs and labels in the pixel font                    |
 | Travel map               | 1 map background, a route line, a small plane, and 3 location markers, shared by all scenes |
-| Character                | Unchanged from the art spec: 37 body frames and 6 talk heads                                |
+| Character                | Unchanged from the art spec: 31 body frames and 6 talk heads                                |
 
 **Audio**
 

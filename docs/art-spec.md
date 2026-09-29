@@ -107,7 +107,7 @@ One master palette, version-controlled at `assets-src/palette/master.hex`. It ha
 | `use-e`, `use-n`   | 2 each | Codex sheet | Reach out for 150 ms, hold while the action runs, then return               |
 | `talk-e`, `talk-s` | 3 each | Opus draws  | 16×16 head overlay, random mouth frame every 100–140 ms, only while idle    |
 
-That's 37 body frames plus 6 talk heads. The stride is how far a foot travels during one `walk-e` cycle. It's measured during packing and recorded in `daniele.json`, so the engine can sync the feet to movement and avoid sliding.
+That's 31 body frames plus 6 talk heads, 37 frames in all. The stride is how far a foot travels during one `walk-e` cycle. It's measured during packing and recorded in `daniele.json`, so the engine can sync the feet to movement and avoid sliding.
 
 ### Layers, depth, and slots
 
@@ -162,7 +162,7 @@ scripts/assets/                 # tooling
 ```
 
 - **Scene ids:** `hall`, `london`, `zurich`, `sorrento`, `travel-map`.
-- **Asset ids:** `<scene>-bg`, `<scene>-fg`, `<scene>-obj-<id>`, `<scene>-obj-<id>@<state>`, `<scene>-anim-<id>`, `slot-<kind>`, `char-turnaround`, `char-<tag>`, `char-talk-<facing>`, `music-<track>`, `ambience-<scene>`, `sfx-<name>`. All kebab-case.
+- **Asset ids:** `<scene>-bg`, `<scene>-fg`, `<scene>-obj-<id>`, `<scene>-obj-<id>@<state>`, `<scene>-anim-<id>`, `slot-<kind>`, `char-turnaround`, `char-<tag>`, `char-sheet` (the packed `daniele.png`), `char-talk-<facing>`, `music-<track>`, `ambience-<scene>`, `sfx-<name>`. All kebab-case.
 - **Style anchor:** the approved and cleaned `zurich-bg` composite, exported as `assets-src/refs/style-anchor@8x.png`. Every other composite references it.
 
 ### How files move between the lanes
@@ -419,7 +419,7 @@ Audio is written entirely as code by Opus. It needs no generated images and no m
 | F1     | todo   | Opus    | 1     | T0.2, T0.3    | Tooling, palette v0, placeholders, all dependencies and npm scripts      |
 | F2     | todo   | Codex   | 1     | T0.1          | Probe the image tool                                                     |
 | E1     | todo   | Opus    | 1–2   | T0.3          | Engine lane (expansion plan MVP features), on placeholders               |
-| **G1** | todo   | Daniele | 1     | F1, F2        | Freeze palette v1, read probe findings                                   |
+| **G1** | done   | Daniele | 1     | F1, F2        | Freeze palette v1, read probe findings                                   |
 | F3     | todo   | Opus    | 1     | G1            | Adjust tooling to the findings, write every prompt file                  |
 | F4     | todo   | Codex   | 1     | F3            | Anchor candidates: `zurich-bg` and `char-turnaround`, in parallel        |
 | F5     | todo   | Opus    | 1     | F4            | Pick, clean up, and export both anchors (ends at **G2**)                 |
@@ -502,8 +502,10 @@ The Codex orchestrator polls, so it picks up new prompt files and passed gates b
 
 Every gate and pick, newest last. The Opus orchestrator appends to it in `docs:` commits on `v2` while gates are delegated.
 
-| Gate or pick | Decided by | Date | Decision | Reasoning |
-| ------------ | ---------- | ---- | -------- | --------- |
+| Gate or pick      | Decided by        | Date       | Decision                               | Reasoning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ----------------- | ----------------- | ---------- | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| G1 palette        | Opus orchestrator | 2026-09-29 | Palette v0 frozen as **v1**, unchanged | The character stays on-model with the core (skin banding is left to cleanup), and the Zurich ramp keeps prototype B's look. The core's gaps (no teal, only warm greys) affect only v1 art, which v2 doesn't reuse. Zurich's metal is shaded from its own snow and navy colours rather than by reshuffling a palette whose indices are all in use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| G1 probe findings | Opus orchestrator | 2026-09-29 | Rules for F3                           | 1) Composites come out at 1774×887, already 2:1, and asking for a wider image changes nothing, so crop with `--crop auto`. Sheets and turnarounds come out at 1536×1024. 2) The "magenta" is never exact `#FF00FF` (mostly `#FA03FA`), so key with an OKLab tolerance plus a flood fill from the edges. Keep `transparent_background: false`: the option exists but hasn't been tested. 3) The model paints slot items (taps, photo frames) and pictures in frames even when asked not to. Prompts must leave slot areas as **bare wall or bare bar top**, never "empty frames", and cleanup removes whatever still appears. 4) There's more soft lighting and reflection than asked for, so the prompts stress flat shading, and cleanup flattens the rest. 5) Unmasked edits mostly preserve the layout but change things subtly, so a clean plate made by an edit must be diffed before use. 6) Parallel sessions work, and four images used about 0.15% of the plan limit, so candidate counts go up. 7) `zurich-layout@8x.png` contains text (the "HALL OF FAME" plaque and letters in the frames): the Zurich prompt must say it follows only the layout and mood, with blank plaques and no frames. |
 
 ### Rules for Opus tasks
 
@@ -547,14 +549,14 @@ Every gate and pick, newest last. The Opus orchestrator appends to it in `docs:`
 
 #### F1 Tooling, palette v0, placeholders
 
-- **Lane:** Opus. **After:** T0.2. **Runs alongside:** F2, E1.
+- **Lane:** Opus. **After:** T0.2, T0.3. **Runs alongside:** F2, E1.
 - **Owns:** `scripts/assets/`, `assets-src/palette/`, `assets-src/provenance/` (schema only), placeholder assets in `src/assets/`, `.gitignore`, `package.json`, `vitest.config.ts`, knip config.
 - **Steps:**
   1. Add every new dependency now (`sharp`, `midi-writer-js`) and every `assets:*` npm script, even those later tasks implement, so no later task touches `package.json`.
   2. Build every script in the Tooling table except `music.ts` and `sfx.ts`, with unit tests for area downscale, OKLab remap, per-scene colour restriction, chroma key, alpha threshold, sprite slicing, and grid round-trip.
   3. Write `master.hex` and `master.gpl`: the core seed plus a proposed 9-colour ramp per scene, from the scene cards' moods. Save before/after previews to `assets-src/review/palette/`: pixelize `src/assets/background.png` and `src/assets/retro-daniele.png` with the core, and the prototype captures with each scene's ramp.
   4. Add `assets-src/exchange/` and `assets-src/review/` to `.gitignore`. Wire `lint:assets` into `npm run lint`.
-  5. Generate placeholders for all five scenes, the slot sprites, and the character sheet, with provenance records (`"source": "opus"`).
+  5. Generate placeholders for all five scenes, the slot sprites, and the character sheet, with provenance records (`"source": "opus"`). F1 owns these placeholder records. Each build task replaces its own, and deletes its scene's `obj-placeholder` and `anim-placeholder` files.
 - **Done when:** `npm run lint`, `npm run test:unit`, and `npm run build` pass, and the palette previews are ready for G1.
 
 #### F2 Probe the image tool
@@ -572,8 +574,8 @@ Every gate and pick, newest last. The Opus orchestrator appends to it in `docs:`
 #### E1 Engine lane
 
 - **Lane:** Opus (one or more sessions, in the expansion plan's order). **After:** T0.1. **Runs alongside:** everything until I1.
-- **Owns:** everything in `src/` except `src/assets/scenes/`, `src/assets/shared/`, `src/assets/character/`, and `src/config/scenes/`.
-- **Steps:** implement the expansion plan's MVP features against the scene data contract (including slots, animations, engine-drawn labels, and the travel map) and the `daniele.json` format. Use F1's placeholders once they land. Include a dev-only overlay (`?debug=scene`) that draws walkboxes, hotspots, interaction points, baselines, and slot positions; the build tasks rely on it. Add the `country` field to jobs in `profile.ts` and the unit test for slot capacity.
+- **Owns:** everything in `src/` except `src/assets/scenes/`, `src/assets/shared/`, `src/assets/character/`, and `src/config/scenes/`; plus the `tsconfig*.json` files.
+- **Steps:** implement the expansion plan's MVP features against the scene data contract (including slots, animations, engine-drawn labels, and the travel map) and the `daniele.json` format. Use F1's placeholders once they land. Include a dev-only overlay (`?debug=scene`) that draws walkboxes, hotspots, interaction points, baselines, and slot positions; the build tasks rely on it. Add the `country` field to jobs in `profile.ts` and the unit test for slot capacity. Fix `npm run lint:types`: today `tsc --noEmit` checks nothing, because the root config has `files: []`. Type-check `scripts/` too, by adding it to `tsconfig.node.json`.
 - **Done when:** the MVP features work with placeholder assets.
 
 #### G1 Palette and findings (Daniele)
@@ -589,7 +591,7 @@ Every gate and pick, newest last. The Opus orchestrator appends to it in `docs:`
 - **Steps:**
   1. Pixelize the probe images. Adjust the `pixelize` crop and slicing defaults to the real output sizes and background quality. If the magenta came back with gradients, widen the chroma-key tolerance or add a flood fill from the image edges.
   2. Write **all 14 prompt files** now, so the fan-out never waits on prompts: 5 scenes (`zurich`, `hall`, `london`, `sorrento`, `travel-map`) and 9 character files (turnaround plus 8 tags). Fan-out prompts reference `style-anchor@8x.png` and `char-turnaround@8x.png` by path; those files arrive in F5.
-  3. Candidate counts: 4 per composite, 4 for the turnaround, 3 per animation sheet. Adjust the wording where the probe showed problems.
+  3. Candidate counts: 6 per composite, 6 for the turnaround, 4 per animation sheet. The probe showed images are cheap, and more candidates make better picks. Adjust the wording where the probe showed problems (see the G1 row in the Gate log).
 - **Done when:** all 14 prompt files are merged to `v2`.
 
 #### F4 Anchor candidates
@@ -661,7 +663,7 @@ Everything in this phase starts once its dependencies are met, and runs in paral
   4. **Fallback:** if a tag's frames still drift too far after 2 cleanup passes, build them from parts instead. Reuse the head and torso with a 1px bob, and draw only the legs and arms per frame. Tell Daniele when you switch.
   5. Draw the `talk-e` and `talk-s` heads (3 mouth frames each) from the idle heads.
   6. Measure the stride, and run `assets:pack`.
-- **Done when:** all 37 frames and 6 heads are packed and play correctly in the HTML preview.
+- **Done when:** all 31 body frames and 6 talk heads are packed and play correctly in the HTML preview.
 
 #### A2 Remaining audio
 
@@ -690,7 +692,7 @@ Everything in this phase starts once its dependencies are met, and runs in paral
 - Every asset in `src/assets/scenes/`, `src/assets/shared/`, and `src/assets/character/` passes `lint:assets`, uses only the core and its own scene's ramp, and has a provenance record. Generated ones also have their approved raw.
 - Every country scene has a walkbox, depth data, an exit back to the Hall, a primary object for each of its sections, and its slot rows filled from `profile.ts`.
 - The Hall has three gates and a duty-free shelf that opens every section.
-- The character has all 37 frames and 6 talk heads, and the feet don't slide at `CHARACTER_SPEED` or at shortcut speeds.
+- The character has all 31 body frames and 6 talk heads, and the feet don't slide at `CHARACTER_SPEED` or at shortcut speeds.
 - Music and ambience loop without a gap, and the sound toggle mutes everything.
 - No generated image contains text; every sign and label is drawn by the engine.
 - Each section is reachable in two clicks or fewer from any scene (expansion plan, Testing).
