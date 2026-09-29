@@ -777,10 +777,11 @@ Everything in this phase starts once its dependencies are met, and runs in paral
   - **Measured exception (orchestrator, 2026-09-29, after reviewing #68):** when a generated plate's own perspective disagrees with this scale by more than about 10% (the Hall's doors are 0.64× his back-of-room height, so he stood taller than them), the scene gets its own `depth` with `farHeight`/`nearHeight` measured from the painted doors, furniture, and floor pattern. The measurement goes in the scene file's comment. Every other scene keeps `HD_WORLD_SCALE`.
   - H1 draws a scale-sheet reference, and every prompt includes it.
   - Depth scaling runs from 0.8 to 1.0.
-- **Character:** an MI3-proportioned cartoon Daniele: a head about 1/4.5 of his height, larger hands and feet, expressive. He's still recognisably the approved design: beard, short hair, navy crew-neck with a white collar, denim, brown shoes. He is animated as a **cut-out puppet**:
+- **Character:** an MI3-proportioned cartoon Daniele: a head about 1/5.65 of his height (25.5 of 144 art px; HR1 measured MI3's characters at 1/5.5 to 1/6), hands ending on the thigh, larger feet, expressive. He's still recognisably the approved design: beard, short hair, navy crew-neck with a white collar, denim, brown shoes. He is animated as a **cut-out puppet**:
   - one HD drawing per facing (side, front, back), split into parts: head, torso, upper arms, forearms with hands, thighs, shins with feet;
   - head variants for the mouth shapes and the blink;
   - the engine animates the parts with keyframed poses for walk, idle, use, and talk, so his likeness is identical in every frame.
+  - **One outline, no seams (HR1):** the parts are painted straight in the drawing's px from one body model shared by all three facings (`scripts/assets/rigcut.ts`, `rigpaint.ts`), so limbs are the same thickness from every side, and each part carries its 1 px ink ring except at its joint ends, where it blends into its neighbour. The renderer then inks the posed union once (`src/engine/rig/outline.ts`, ink `RIG_INK`), so a bent knee or a scaled-down figure keeps one solid, continuous outline and nothing crosses a joint.
 - **Layers are generated, not hand-cleaned.** For each scene, Codex makes:
   - a full composite (for the pick and as the style and layout reference);
   - an **empty-room plate** (the chosen composite with free-standing objects removed, made by editing);

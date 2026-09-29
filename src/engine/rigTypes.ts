@@ -22,6 +22,14 @@
  * right, so in `side` the `r` limbs are nearest the viewer.
  */
 
+/**
+ * The one ink colour of the puppet's outline. The parts are painted with it
+ * (scripts/assets/rigpaint.ts), and the renderer inks the posed figure's
+ * silhouette with it (rig/draw.ts), so a joint that bends still gets a
+ * single outline.
+ */
+export const RIG_INK = [6, 5, 12] as const;
+
 export const RIG_FACINGS = ["side", "front", "back"] as const;
 export type RigFacing = (typeof RIG_FACINGS)[number];
 
