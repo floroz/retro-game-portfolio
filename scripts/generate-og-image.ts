@@ -6,10 +6,9 @@
  * Usage:
  *   npm run generate:og-image
  *
- * It builds the site into a temporary folder, serves it on a free port
- * (Vite's preview server, `strictPort`, so it never clashes with a dev
- * server), plays the start of the game in Chromium, and waits for what it
- * needs rather than for a fixed time:
+ * It builds the site and serves it on a free port (serve-build.ts), plays
+ * the start of the game in Chromium, and waits for what it needs rather than
+ * for a fixed time:
  *
  * 1. the title card, then Space;
  * 2. the canvas saying it has drawn the Hall (`data-drawn`, set by
@@ -24,15 +23,11 @@
  */
 
 import { chromium } from "@playwright/test";
-import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
-import { createServer } from "node:net";
-import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { build, preview } from "vite";
 import { PROFILE } from "../src/config/profile.js";
+import { serveBuild } from "./serve-build.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -42,47 +37,10 @@ const OG_IMAGE_HEIGHT = 630;
 /** Big enough that the game window opens at its full 1292x838. */
 const VIEWPORT = { width: 1600, height: 1000 };
 
-/** A port nobody is listening on. */
-function freePort(): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const server = createServer();
-    server.once("error", reject);
-    server.listen(0, "127.0.0.1", () => {
-      const address = server.address();
-      const port = typeof address === "object" && address ? address.port : 0;
-      server.close(() => resolve(port));
-    });
-  });
-}
-
 async function generateOGImage() {
   console.log("Generating OG image...\n");
 
-  // index.html is generated from profile.ts and not committed.
-  if (!existsSync(join(root, "index.html"))) {
-    execFileSync("npx", ["tsx", "scripts/generate-html.ts"], {
-      cwd: root,
-      stdio: "inherit",
-    });
-  }
-
-  const outDir = mkdtempSync(join(tmpdir(), "og-image-"));
-  const server = await (async () => {
-    await build({
-      root,
-      logLevel: "warn",
-      build: { outDir, emptyOutDir: true },
-    });
-    return preview({
-      root,
-      logLevel: "warn",
-      build: { outDir },
-      preview: { host: "127.0.0.1", port: await freePort(), strictPort: true },
-    });
-  })();
-  const url = server.resolvedUrls?.local[0];
-  if (!url) throw new Error("The preview server has no URL");
-  console.log(`Serving the build at ${url}`);
+  const site = await serveBuild();
 
   const browser = await chromium.launch();
   try {
@@ -91,7 +49,7 @@ async function generateOGImage() {
       deviceScaleFactor: 1,
     });
     const page = await context.newPage();
-    await page.goto(url);
+    await page.goto(site.url);
 
     // The title card, then the game.
     await page.waitForSelector("[data-e2e=welcome-screen]", {
@@ -151,8 +109,7 @@ async function generateOGImage() {
     console.log(`   Dimensions: ${OG_IMAGE_WIDTH}x${OG_IMAGE_HEIGHT}px\n`);
   } finally {
     await browser.close();
-    await server.close();
-    rmSync(outDir, { recursive: true, force: true });
+    await site.close();
   }
 }
 
