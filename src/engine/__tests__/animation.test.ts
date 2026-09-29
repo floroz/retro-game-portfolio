@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { animationFrame } from "../animation";
+import { animationFrame, cycleStarted } from "../animation";
 import type { SceneAnimation } from "../types";
 
 const base: SceneAnimation = {
@@ -41,5 +41,21 @@ describe("anim-* strips", () => {
   test("move back to back without everyMs", () => {
     const ferry = { ...base, motion: { dx: 0, dy: 10, durationMs: 1000 } };
     expect(animationFrame(ferry, 1500)).toMatchObject({ y: 25 });
+  });
+
+  test("start a cycle once per everyMs, for the sound", () => {
+    const cuckoo = { ...base, everyMs: 15000 };
+    expect(cycleStarted(cuckoo, 0, 16)).toBe(false);
+    expect(cycleStarted(cuckoo, 14990, 15006)).toBe(true);
+    expect(cycleStarted(cuckoo, 15006, 15022)).toBe(false);
+    expect(cycleStarted(cuckoo, 29990, 30000)).toBe(true);
+  });
+
+  test("start a cycle every loop or pass without everyMs", () => {
+    expect(cycleStarted(base, 390, 410)).toBe(true);
+    expect(cycleStarted(base, 410, 430)).toBe(false);
+    const ferry = { ...base, motion: { dx: 0, dy: 10, durationMs: 1000 } };
+    expect(cycleStarted(ferry, 990, 1010)).toBe(true);
+    expect(cycleStarted(ferry, 390, 410)).toBe(false);
   });
 });

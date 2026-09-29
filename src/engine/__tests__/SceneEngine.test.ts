@@ -4,14 +4,17 @@ import { SceneEngine, type EngineHost } from "../SceneEngine";
 import { SCENES, TRAVEL_MAP_DATA } from "../scenes";
 import type { SceneData, SectionId } from "../types";
 
-function setup(start: "hall" | "london" | "zurich" | "sorrento" = "hall") {
+function setup(
+  start: "hall" | "london" | "zurich" | "sorrento" = "hall",
+  scenes = SCENES,
+) {
   const host = {
     openSection: vi.fn<(s: SectionId) => void>(),
     sceneChanged: vi.fn(),
     sound: vi.fn(),
   } satisfies EngineHost;
   const engine = new SceneEngine({
-    scenes: SCENES,
+    scenes,
     travelMap: TRAVEL_MAP_DATA,
     sheet: CHARACTER_SHEET,
     host,
@@ -239,5 +242,87 @@ describe("SceneEngine", () => {
     engine.walkTo(20, 140);
     run(engine, 2000);
     expect(host.sound).toHaveBeenCalledWith("footstep-tile");
+  });
+
+  describe("object and animation sounds", () => {
+    /** Sorrento with a sounding phone, moka pot, and a timed animation. */
+    const withSounds = (): typeof SCENES => {
+      const sorrento = SCENES.sorrento;
+      return {
+        ...SCENES,
+        sorrento: {
+          ...sorrento,
+          objects: [
+            ...sorrento.objects.map((o) =>
+              o.id === "phone" ? { ...o, sound: "phone-ring" as const } : o,
+            ),
+            {
+              id: "moka",
+              name: "moka pot",
+              hotspot: { x: 100, y: 60, w: 10, h: 12 },
+              look: "A moka pot.",
+              use: "Blub blub.",
+              sound: "moka-gurgle",
+            },
+          ],
+          animations: [
+            {
+              id: "steam",
+              strip: "anim.png",
+              frames: 2,
+              x: 100,
+              y: 50,
+              frameMs: 200,
+              everyMs: 1000,
+              sound: "split-flap",
+            },
+          ],
+        },
+      };
+    };
+
+    test("a flavour object plays its sound when used", () => {
+      const { engine, host } = setup("sorrento", withSounds());
+      engine.activate(object(engine.scene, "moka"));
+      expect(host.sound).toHaveBeenCalledWith("moka-gurgle");
+      expect(engine.speech?.lines.join(" ")).toContain("Blub");
+    });
+
+    test("looking doesn't play it", () => {
+      const { engine, host } = setup("sorrento", withSounds());
+      engine.look(object(engine.scene, "moka"));
+      expect(host.sound).not.toHaveBeenCalledWith("moka-gurgle");
+    });
+
+    test("a primary object's sound replaces the UI blip", () => {
+      const { engine, host } = setup("sorrento", withSounds());
+      engine.activate(object(engine.scene, "phone"));
+      runUntil(engine, () => host.openSection.mock.calls.length > 0);
+      expect(host.openSection).toHaveBeenCalledWith("contact");
+      expect(host.sound).toHaveBeenCalledWith("phone-ring");
+      expect(host.sound).not.toHaveBeenCalledWith("ui-blip");
+    });
+
+    test("the toolbar shortcut plays it too", () => {
+      const { engine, host } = setup("sorrento", withSounds());
+      engine.goToSection("contact");
+      runUntil(engine, () => host.openSection.mock.calls.length > 0);
+      expect(host.sound).toHaveBeenCalledWith("phone-ring");
+    });
+
+    test("an animation plays its sound once per cycle", () => {
+      const { engine, host } = setup("sorrento", withSounds());
+      run(engine, 2500);
+      const plays = host.sound.mock.calls.filter(
+        ([name]) => name === "split-flap",
+      );
+      expect(plays).toHaveLength(2);
+    });
+
+    test("only the current scene's animations sound", () => {
+      const { engine, host } = setup("hall", withSounds());
+      run(engine, 3000);
+      expect(host.sound).not.toHaveBeenCalledWith("split-flap");
+    });
   });
 });

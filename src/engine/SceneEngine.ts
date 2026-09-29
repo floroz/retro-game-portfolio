@@ -13,6 +13,7 @@
  *   flies, and opens the content on arrival. A click skips to the content.
  */
 import { SECTIONS, isCountryScene } from "../config/sections";
+import { cycleStarted } from "./animation";
 import {
   CharacterAnimator,
   facingFor,
@@ -40,6 +41,7 @@ import {
 } from "./travelMap";
 import type {
   CountrySceneId,
+  EffectName,
   Facing,
   FloorSurface,
   Rect,
@@ -60,14 +62,11 @@ export type Interactable =
   | { kind: "exit"; exit: SceneExit }
   | { kind: "slot"; item: SlotItem };
 
+/** Every sound the engine asks the host for: effects, footsteps, the sting. */
 export type SoundName =
   | `footstep-${FloorSurface}`
-  | "door-open"
-  | "door-close"
-  | "travel-sting"
-  | "map-plane"
-  | "boarding-chime"
-  | "ui-blip";
+  | EffectName
+  | "travel-sting";
 
 export interface EngineHost {
   /** Open a section's content screen. */
@@ -264,8 +263,9 @@ export class SceneEngine {
     }
     const { object } = target;
     const act = () => {
-      if (object.action) this.useAndOpen(object.action, object);
-      else this.say(object.use ?? object.look);
+      if (object.action) return this.useAndOpen(object.action, object);
+      if (object.sound) this.host.sound?.(object.sound);
+      this.say(object.use ?? object.look);
     };
     const ip = object.interactionPoint;
     if (ip) {
@@ -402,6 +402,7 @@ export class SceneEngine {
 
   update(dtMs: number) {
     const dt = Math.min(100, Math.max(0, dtMs));
+    const before = this.clock;
     this.clock += dt;
 
     const due = this.timers.filter((t) => t.at <= this.clock);
@@ -429,6 +430,7 @@ export class SceneEngine {
       talking: this.speech !== null,
     });
     if (footstep) this.host.sound?.(`footstep-${this.current.floor ?? "wood"}`);
+    this.animationSounds(before, this.clock);
 
     const skippable = this.skipFn !== null || this.transition?.kind === "map";
     if (skippable !== this.wasSkippable) {
@@ -438,6 +440,16 @@ export class SceneEngine {
   }
 
   // --- Internals -------------------------------------------------------------
+
+  /** The cuckoo calls, the board flips: sounds of cycles that just started. */
+  private animationSounds(from: number, to: number) {
+    if (this.transition?.kind === "map") return;
+    for (const anim of this.current.animations ?? []) {
+      if (anim.sound && cycleStarted(anim, from, to)) {
+        this.host.sound?.(anim.sound);
+      }
+    }
+  }
 
   private get keyboardActive() {
     return this.keyboard[0] !== 0 || this.keyboard[1] !== 0;
@@ -574,7 +586,7 @@ export class SceneEngine {
       this.opened = object.id;
     }
     this.animator.startUse();
-    this.host.sound?.("ui-blip");
+    this.host.sound?.(object?.sound ?? "ui-blip");
     this.after(150, () => this.host.openSection(section));
   }
 

@@ -59,6 +59,24 @@ export interface DepthScale {
 export type FloorSurface = "carpet" | "wood" | "tile";
 
 /**
+ * A one-shot effect, `public/audio/sfx/<name>.mp3`. Objects and animations
+ * name one in `sound`; the engine plays the rest itself (doors, the boarding
+ * chime, the map plane, the UI blip).
+ */
+export type EffectName =
+  | "boarding-chime"
+  | "cuckoo"
+  | "dart-thunk"
+  | "door-close"
+  | "door-open"
+  | "fruit-machine"
+  | "map-plane"
+  | "moka-gurgle"
+  | "phone-ring"
+  | "split-flap"
+  | "ui-blip";
+
+/**
  * A music or ambience loop. A plain URL loops the whole decoded file. Give
  * loop points (seconds, from the track's provenance record) when the track
  * has a pickup before the loop or padding after it: playback starts at 0,
@@ -106,6 +124,12 @@ export interface SceneObject {
    * Objects with an `action` open their section instead of talking.
    */
   use?: string;
+  /**
+   * Played when the object is used (left click), as the character reaches
+   * it: `"dart-thunk"`, `"fruit-machine"`, `"phone-ring"`, `"moka-gurgle"`.
+   * For an object with an `action`, it replaces the UI blip.
+   */
+  sound?: EffectName;
 }
 
 /** A small loop from an `anim-<id>.png` strip of equal-width frames. */
@@ -130,6 +154,11 @@ export interface SceneAnimation {
   clip?: Rect;
   /** Depth-sorts it like an object. Leave it out for wall and window loops. */
   baselineY?: number;
+  /**
+   * Played as each cycle (or `motion` pass) starts: `"cuckoo"`,
+   * `"split-flap"`. Give it an `everyMs`, or it plays on every loop.
+   */
+  sound?: EffectName;
 }
 
 /** Generic slot sprites, in `src/assets/shared/slots/slot-<kind>.png`. */
