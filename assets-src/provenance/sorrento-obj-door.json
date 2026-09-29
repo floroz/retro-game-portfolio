@@ -1,0 +1,10 @@
+{
+  "id": "sorrento-obj-door",
+  "output": "src/assets/scenes/sorrento/obj-door.png",
+  "task": "B4",
+  "source": "opus",
+  "derivedFrom": "sorrento-bg",
+  "palette": "v1",
+  "cleanup": "Closed door leaf, sea green as the prompt asked (02's pixelized door came out slate grey), 24x72: four glazed panes showing sky and a lemon grove, two recessed lower panels, a brass knob and keyhole. Lit edge on the right, shadow edge on the hinge side.",
+  "date": "2026-09-29"
+}
