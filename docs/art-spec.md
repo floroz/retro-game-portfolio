@@ -20,6 +20,8 @@ It's written for **two orchestrators**, one per model family. Each one runs ever
 | **Codex orchestrator** (Codex, ChatGPT plan) | Every task marked Codex: runs prompt files with its built-in image tool (`image_gen` / `$imagegen`) and saves candidates                                     | Edit code, docs, `src/`, or anything outside `assets-src/exchange/` |
 | **Daniele**                                  | Gates: picking candidates, approving anchors and audio, the final review. Recording each passed gate in the Status column                                    | —                                                                   |
 
+**Delegated gates (from 2026-09-29).** Daniele has stepped out of the loop. Until he says otherwise, the Opus orchestrator (the main Claude Code session) passes gates G1, G2, and GA, and makes every candidate pick. It records each decision and its reasoning in the [Gate log](#gate-log), and Daniele can overturn any of them later. **G4, the final review before `v2` is merged into `main`, stays with Daniele.**
+
 No task calls a model API. Image generation happens only inside Codex sessions, billed to the ChatGPT plan, as a one-off batch of about 50 images. The scripts exist to turn each generated image into real pixel art and keep it that way.
 
 ## How an asset gets made
@@ -495,6 +497,13 @@ Start each orchestrator with a fresh session and this prompt:
 - **Codex orchestrator:** "You are the Codex orchestrator for `docs/art-spec.md`. Work only in your own worktree, `../rgp-codex/`, detached at `origin/v2`: create it with `git fetch origin && git worktree add --detach ../rgp-codex origin/v2` if it doesn't exist, otherwise refresh it with `git fetch origin && git checkout --detach origin/v2`. Never write to the main checkout, and never commit. Before starting each batch, fetch `origin` and refresh the worktree if `docs/` or `assets-src/prompts/` changed. Then run every task in the Codex lane whose Status is `todo` and whose dependencies are met, in parallel sessions inside `../rgp-codex/` as far as plan usage allows, each writing only its own `assets-src/exchange/raw/<asset-id>/` folders and each following Rules for Codex tasks exactly. When nothing is runnable, report what is waiting and stop."
 
 Daniele restarts an orchestrator after each gate, or when the other lane has produced something it needs.
+
+### Gate log
+
+Every gate and pick, newest last. The Opus orchestrator appends to it in `docs:` commits on `v2` while gates are delegated.
+
+| Gate or pick | Decided by | Date | Decision | Reasoning |
+| ------------ | ---------- | ---- | -------- | --------- |
 
 ### Rules for Opus tasks
 
