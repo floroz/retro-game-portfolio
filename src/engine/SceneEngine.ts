@@ -29,7 +29,6 @@ import {
   IRIS_MS,
   MAX_TRAVEL_TIME,
   SPEECH_WIDTH,
-  WALK_SPEED,
   speechMs,
 } from "./constants";
 import { wrapText } from "./font";
@@ -41,6 +40,7 @@ import {
   scaleAt,
 } from "./geometry";
 import { hoverText, lookText } from "./hover";
+import { groundDistance, groundSpeed, walkTime } from "./walkSpeed";
 import { fillSlotRow, type SlotItem } from "./slots";
 import {
   FLIGHT_MS,
@@ -133,7 +133,8 @@ interface Actor {
   y: number;
   facing: Facing;
   path: Vec[];
-  speed: number;
+  /** Multiplies the natural walking speed (walkSpeed.ts): 1, or more for a shortcut. */
+  pace: number;
   onArrive: (() => void) | null;
 }
 
@@ -206,7 +207,7 @@ export class SceneEngine {
     this.start = start;
     this.current = this.scenes[start];
     const ep = this.entryPoint(this.current, "start");
-    this.actor = { ...ep, path: [], speed: WALK_SPEED, onArrive: null };
+    this.actor = { ...ep, path: [], pace: 1, onArrive: null };
     this.visited.add(start);
     if (isCountryScene(start)) this.lastCountry = start;
     this.slotItems = this.fillSlots(this.current);
@@ -630,9 +631,15 @@ export class SceneEngine {
       prev = p;
     }
     this.actor.path = path;
-    this.actor.speed = opts.fast
-      ? Math.max(WALK_SPEED, length / MAX_TRAVEL_TIME)
-      : WALK_SPEED;
+    // A shortcut walk speeds up just enough to take at most MAX_TRAVEL_TIME.
+    // The speed varies with depth, so the time is summed over the path.
+    this.actor.pace = opts.fast
+      ? Math.max(
+          1,
+          walkTime(this.current.depth, [this.actor.x, this.actor.y], path) /
+            MAX_TRAVEL_TIME,
+        )
+      : 1;
     this.actor.onArrive = opts.onArrive ?? null;
     if (length < 0.5) this.arrive();
   }
@@ -644,20 +651,31 @@ export class SceneEngine {
     cb?.();
   }
 
-  /** Moves the actor; returns the distance covered this frame. */
+  /**
+   * Moves the actor; returns the screen distance covered this frame. The
+   * walk animation advances by that, not by ground distance: its frames are
+   * drawn in screen px, so the feet stay planted however slowly he goes up
+   * or down the screen (walkSpeed.ts).
+   */
   private move(dt: number): number {
     const a = this.actor;
+    const depth = this.current.depth;
     if (this.keyboardActive && a.path.length === 0) {
       const [kx, ky] = this.keyboard;
       const len = Math.hypot(kx, ky);
-      const step = (WALK_SPEED * dt) / 1000;
       const poly = this.current.walkbox;
-      const tryMove = (nx: number, ny: number) =>
-        pointInPolygon([nx, ny], poly) ? ([nx, ny] as Vec) : null;
+      // A step along the screen direction (ux, uy), if it stays on the floor.
+      const attempt = (ux: number, uy: number): Vec | null => {
+        const ground = (groundSpeed(depth, a.y) * dt) / 1000;
+        const screen = ground / groundDistance(ux, uy);
+        const nx = a.x + ux * screen;
+        const ny = a.y + uy * screen;
+        return pointInPolygon([nx, ny], poly) ? [nx, ny] : null;
+      };
       const next =
-        tryMove(a.x + (kx / len) * step, a.y + (ky / len) * step) ??
-        tryMove(a.x + Math.sign(kx) * step, a.y) ??
-        tryMove(a.x, a.y + Math.sign(ky) * step);
+        attempt(kx / len, ky / len) ??
+        attempt(Math.sign(kx), 0) ??
+        attempt(0, Math.sign(ky));
       a.facing = facingFor(kx, ky, a.facing);
       if (!next) return 0;
       const d = Math.hypot(next[0] - a.x, next[1] - a.y);
@@ -666,25 +684,29 @@ export class SceneEngine {
       return d;
     }
     if (a.path.length === 0) return 0;
-    let budget = (a.speed * dt) / 1000;
+    // Time left in this frame, in seconds. The speed is that at the feet
+    // when each stretch starts, so it follows the depth from frame to frame.
+    let left = dt / 1000;
     let moved = 0;
-    while (budget > 0 && a.path.length > 0) {
+    while (left > 0 && a.path.length > 0) {
       const [tx, ty] = a.path[0];
       const dx = tx - a.x;
       const dy = ty - a.y;
-      const d = Math.hypot(dx, dy);
+      const ground = groundDistance(dx, dy);
+      const speed = groundSpeed(depth, a.y) * a.pace;
       a.facing = facingFor(dx, dy, a.facing);
-      if (d <= budget) {
+      if (ground <= speed * left) {
         a.x = tx;
         a.y = ty;
         a.path.shift();
-        budget -= d;
-        moved += d;
+        left -= ground / speed;
+        moved += Math.hypot(dx, dy);
       } else {
-        a.x += (dx / d) * budget;
-        a.y += (dy / d) * budget;
-        moved += budget;
-        budget = 0;
+        const f = (speed * left) / ground;
+        a.x += dx * f;
+        a.y += dy * f;
+        moved += Math.hypot(dx, dy) * f;
+        left = 0;
       }
     }
     if (a.path.length === 0) this.arrive();

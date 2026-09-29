@@ -36,10 +36,26 @@ export const HD_WORLD_SCALE = { farHeight: 58, nearHeight: 72 } as const;
 const PIXEL_SCALE = 4;
 
 /**
- * Walking speed in native px per second: 350 logical px/s, as in v1.
- * Walk frames advance by distance, so the feet keep up at any speed.
+ * Walking speed in native px per second at the front edge of a scene
+ * (`depth.nearY`): 350 logical px/s, as in v1. Further back it scales with
+ * Daniele's height there, so he covers the same number of body-heights a
+ * second at every depth (walkSpeed.ts). Walk frames advance by the
+ * distance moved, so the feet keep up at any speed.
  */
 export const WALK_SPEED = 350 / PIXEL_SCALE;
+
+/**
+ * How fast Daniele moves up and down the screen against across it, as in
+ * SCUMM games (vertical is half of horizontal there): the floor is
+ * foreshortened, so a vertical pixel is further along it than a horizontal
+ * one. The Hall's carpet triangles are about 0.4 as tall as they are wide,
+ * so the floor would justify 0.4, but the depth scaling (walkSpeed.ts)
+ * already slows every walk towards the back. Walking from the Hall's front
+ * to a gate takes 1.7 s with no vertical scaling, 2.2 s at 0.6 (which
+ * dragged) and 2.0 s at 0.7: a walk into the room a little slower than one
+ * across it, as in SCUMM, without making a visitor wait.
+ */
+export const VERTICAL_SPEED = 0.7;
 
 /**
  * Longest a shortcut walk may take, in seconds (docs/expansion-plan.md,
