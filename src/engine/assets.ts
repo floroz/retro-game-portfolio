@@ -253,6 +253,9 @@ export class ImageStore {
         this.pending.delete(url);
         this.failed.add(url);
         console.warn(`Couldn't load ${url}`);
+        // A failed image counts as ready (`ready`), so whoever waits on the
+        // store hears about it too.
+        this.listeners.forEach((l) => l());
         resolve();
       };
       img.src = url;
