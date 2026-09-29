@@ -293,6 +293,73 @@ describe("useMobileTerminal", () => {
       }, 400);
     });
 
+    test("section commands send the game to the section", () => {
+      const goToSection = vi.fn();
+      vi.mocked(useGameStore).mockReturnValue(createMockStore({ goToSection }));
+      const { result } = renderHook(() => useMobileTerminal());
+
+      act(() => {
+        result.current.executeInput("skills");
+      });
+      act(() => {
+        result.current.executeInput("resume");
+      });
+
+      expect(goToSection).toHaveBeenCalledWith("skills");
+      expect(goToSection).toHaveBeenCalledWith("resume");
+    });
+
+    test("fly travels to a destination by city or country", () => {
+      const travelTo = vi.fn();
+      vi.mocked(useGameStore).mockReturnValue(createMockStore({ travelTo }));
+      const { result } = renderHook(() => useMobileTerminal());
+
+      act(() => {
+        result.current.executeInput("fly Italy");
+      });
+      act(() => {
+        result.current.executeInput("goto airport");
+      });
+
+      expect(travelTo).toHaveBeenNthCalledWith(1, "sorrento");
+      expect(travelTo).toHaveBeenNthCalledWith(2, "hall");
+    });
+
+    test("fly without a destination lists departures", () => {
+      const travelTo = vi.fn();
+      vi.mocked(useGameStore).mockReturnValue(createMockStore({ travelTo }));
+      const { result } = renderHook(() => useMobileTerminal());
+
+      act(() => {
+        result.current.executeInput("fly");
+      });
+
+      const out = findLastLine(
+        result.current.history,
+        (l) => l.type === "output",
+      );
+      expect(out?.content).toContain("Departures");
+      expect(out?.content).toContain("zurich");
+      expect(travelTo).not.toHaveBeenCalled();
+    });
+
+    test("fly to an unknown place is an error", () => {
+      const travelTo = vi.fn();
+      vi.mocked(useGameStore).mockReturnValue(createMockStore({ travelTo }));
+      const { result } = renderHook(() => useMobileTerminal());
+
+      act(() => {
+        result.current.executeInput("fly mars");
+      });
+
+      const err = findLastLine(
+        result.current.history,
+        (l) => l.type === "error",
+      );
+      expect(err?.content).toContain("mars");
+      expect(travelTo).not.toHaveBeenCalled();
+    });
+
     test("should show error for unknown command", () => {
       vi.mocked(useGameStore).mockReturnValue(createMockStore());
 

@@ -61,6 +61,21 @@ export const COUNTRIES: Record<CountrySceneId, CountryInfo> = {
 
 export const COUNTRY_ORDER: CountrySceneId[] = ["london", "zurich", "sorrento"];
 
+/** Words the terminal's `fly` accepts for each scene. */
+const DESTINATIONS: Record<SceneId, string[]> = {
+  hall: ["hall", "airport", "home"],
+  london: ["london", "england", "uk", "pub"],
+  zurich: ["zurich", "switzerland", "office"],
+  sorrento: ["sorrento", "italy", "naples", "kitchen"],
+};
+
+export function destinationFor(word: string): SceneId | undefined {
+  const w = word.toLowerCase();
+  return (Object.keys(DESTINATIONS) as SceneId[]).find((id) =>
+    DESTINATIONS[id].includes(w),
+  );
+}
+
 export function isCountryScene(id: SceneId): id is CountrySceneId {
   return id !== "hall";
 }
