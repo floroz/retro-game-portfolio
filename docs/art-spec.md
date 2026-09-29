@@ -24,6 +24,8 @@ It's written for **two orchestrators**, one per model family. Each one runs ever
 
 **Delegated gates (from 2026-09-29).** Daniele has stepped out of the loop. Until he says otherwise, the Opus orchestrator (the main Claude Code session) passes gates G1, G2, and GA, and makes every candidate pick. It records each decision and its reasoning in the [Gate log](#gate-log), and Daniele can overturn any of them later. **G4, the final review before `v2` is merged into `main`, stays with Daniele.**
 
+**Sub-agent model (Agreed, 2026-09-29):** the Opus orchestrator spawns every sub-agent on **Sonnet 5.5** unless Daniele names another model for a specific task. "Opus lane" names the Claude Code orchestrator's lane, not the sub-agents' model.
+
 No task calls a model API. Image generation happens only inside Codex sessions, billed to the ChatGPT plan, as a one-off batch of about 50 images. The scripts exist to turn each generated image into real pixel art and keep it that way.
 
 ## How an asset gets made
