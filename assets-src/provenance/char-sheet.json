@@ -1,11 +1,12 @@
 {
   "id": "char-sheet",
   "output": "src/assets/character/daniele.png",
-  "task": "B7",
+  "task": "RB7",
   "source": "opus",
   "derivedFrom": "char-turnaround",
-  "palette": "v1",
-  "cleanup": "Packed with npm run assets:pack from the ten strips in assets-src/character/ (char-walk-e, char-walk-s, char-walk-n, char-idle-e, char-idle-s, char-idle-n, char-use-e, char-use-n, char-talk-e, char-talk-s; see their records): 31 body frames of 32x64 with feet on row 61 and origin (16, 61), plus 6 talk heads of 16x16 at talkHeadOffset (8, 3). Stride 26 native px, measured from walk-e's planted foot (13 px per step, two steps per cycle), so walk frames advance every 3.25 px. Replaces the F1 box-figure placeholder.",
-  "approvedBy": "opus-orchestrator (delegated)",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Packed with npm run assets:pack -- --density 2 --stride 52 --head-offset 17,3 from the ten 2x strips in assets-src/character/ (see their records): 31 body frames of 64x128 with feet on row 123 and origin (32, 123), plus 6 talk heads of 32x32 at talkHeadOffset (17, 3). Stride 52 sheet px, twice the logical 26 (walk-e's planted foot moves back 6, 6, 8, 6 px per frame, 26 px per step), so walk frames still advance every 3.25 logical px and the feet don't slide. Replaces the 1x B7 sheet.",
+  "approvedBy": "opus (RB7 build agent, delegated pick)",
   "date": "2026-09-29"
 }

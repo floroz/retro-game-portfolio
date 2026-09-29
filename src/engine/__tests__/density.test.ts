@@ -51,7 +51,7 @@ describe("density rules", () => {
         expect(rules.get(a.strip)).toEqual({ like: scene.background });
       }
     }
-    expect(rules.get(CHARACTER_SHEET.image)).toEqual({ density: 1 });
+    expect(rules.get(CHARACTER_SHEET.image)).toEqual({ density: 2 });
   });
 
   test("a scene's sprites follow its background", () => {
@@ -89,32 +89,39 @@ describe("density rules", () => {
 
 describe("character sheet density", () => {
   const cell = { x: 0, y: 0, w: 64, h: 128 };
-  const doubled = {
-    ...sheetJson,
-    stride: sheetJson.stride * 2,
-    origin: { x: 32, y: 123 },
-    talkHeadOffset: { x: 16, y: 6 },
+  // The shipped sheet is the 2x remaster (RB7); `single` is the same sheet
+  // at density 1, as B7 shipped it.
+  const fields = { ...sheetJson, density: undefined };
+  const single = {
+    ...fields,
+    stride: sheetJson.stride / 2,
+    origin: { x: 16, y: 61 },
+    talkHeadOffset: { x: 8, y: 3 },
     frames: sheetJson.frames.map((f) => ({
-      x: f.x * 2,
-      y: f.y * 2,
-      w: f.w * 2,
-      h: f.h * 2,
+      x: f.x / 2,
+      y: f.y / 2,
+      w: f.w / 2,
+      h: f.h / 2,
     })),
   };
 
-  test("today's 32x64 sheet is density 1", () => {
-    expect(CHARACTER_SHEET.density).toBe(1);
+  test("the shipped 64x128 sheet is density 2", () => {
+    expect(sheetJson.density).toBe(2);
+    expect(CHARACTER_SHEET.density).toBe(2);
+    expect(sheetJson.frames[0]).toEqual({ x: 0, y: 0, w: 64, h: 128 });
   });
 
-  test("a 64x128 sheet is density 2, from its cells or its field", () => {
-    expect(parseSheet(doubled, "x.png").density).toBe(2);
-    expect(parseSheet({ ...doubled, density: 2 }, "x.png").density).toBe(2);
-    expect(() => parseSheet({ ...doubled, density: 3 }, "x.png")).toThrow();
+  test("a sheet's density comes from its cells or its field", () => {
+    expect(parseSheet(single, "x.png").density).toBe(1);
+    expect(parseSheet(fields, "x.png").density).toBe(2);
+    expect(parseSheet({ ...fields, density: 2 }, "x.png").density).toBe(2);
+    expect(() => parseSheet({ ...fields, density: 3 }, "x.png")).toThrow();
   });
 
   test("the stride is in sheet pixels, and the same in logical px", () => {
-    expect(CHARACTER_SHEET.stride).toBe(sheetJson.stride);
-    expect(parseSheet(doubled, "x.png").stride).toBe(sheetJson.stride);
+    expect(sheetJson.stride).toBe(52);
+    expect(CHARACTER_SHEET.stride).toBe(26);
+    expect(parseSheet(single, "x.png").stride).toBe(26);
   });
 
   test("a density-1 cell lands on whole logical px, as before", () => {

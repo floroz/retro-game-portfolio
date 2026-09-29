@@ -1,11 +1,12 @@
 {
   "id": "char-idle-n",
   "output": "assets-src/character/char-idle-n.png",
-  "task": "B7",
+  "task": "RB7",
   "source": "opus",
   "derivedFrom": "char-turnaround",
-  "palette": "v1",
-  "cleanup": "The turnaround's back view, unchanged.",
-  "approvedBy": "opus-orchestrator (delegated)",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Redrawn at 2x density (64x128 cells, feet on row 123, origin (32, 123), 115 px tall) on the approved remaster turnaround (assets-src/refs/remaster/char-turnaround@4x.png, RG1b), core palette only. The current 1x frames were nearest-upscaled as the pose and timing template and every frame was onion-skinned against them. The anchor's back view, unchanged.",
+  "approvedBy": "opus (RB7 build agent, delegated pick)",
   "date": "2026-09-29"
 }
