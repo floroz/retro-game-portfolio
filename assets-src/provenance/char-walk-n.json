@@ -1,11 +1,12 @@
 {
   "id": "char-walk-n",
   "output": "assets-src/character/char-walk-n.png",
-  "task": "B7",
+  "task": "RB7",
   "source": "opus",
   "derivedFrom": "char-turnaround",
-  "palette": "v1",
-  "cleanup": "Fallback, built from the turnaround's back view the same way as walk-s: the anchor's head and torso, a 1 px bob on the down frames, feet lifting for three frames each (1, 2, 3 px) with a second sole row showing the raised heel from behind, and the hands swinging 1 px. Candidate 03 in assets-src/exchange/raw/char-walk-n/ was used only as an alternation reference; its loop hitch (neutral first and last frames) is gone because no frame is neutral. Onion-skinned; core palette only.",
-  "approvedBy": "opus-orchestrator (delegated)",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Redrawn at 2x density (64x128 cells, feet on row 123, origin (32, 123), 115 px tall) on the approved remaster turnaround (assets-src/refs/remaster/char-turnaround@4x.png, RG1b), core palette only. The current 1x frames were nearest-upscaled as the pose and timing template and every frame was onion-skinned against them. The anchor's back view, built like walk-s: 2 px bob, each foot lifting 2, 4, 6 px (the passing frame tucked 2 px inwards), forearms swinging 2 px. Lifted shoes are squashed a row or two and show the sole's edge, as seen from behind. Codex RC6 char-walk-n@2x consulted for the lifted-heel shape only.",
+  "approvedBy": "opus (RB7 build agent, delegated pick)",
   "date": "2026-09-29"
 }

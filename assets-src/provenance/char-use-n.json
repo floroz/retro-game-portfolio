@@ -1,14 +1,12 @@
 {
   "id": "char-use-n",
   "output": "assets-src/character/char-use-n.png",
-  "task": "B7",
-  "source": "codex",
-  "prompt": "assets-src/prompts/character/use-n.md",
-  "candidate": "02",
-  "references": ["assets-src/refs/char-turnaround@8x.png"],
-  "approvedRaw": "assets-src/approved/char-use-n.webp",
-  "palette": "v1",
-  "cleanup": "Hybrid: the turnaround's back-view body at full body height (57 px, not scaled to the raised hand as the review sheet was), with candidate 02's reach redrawn in the anchor's style: the image-right arm removed below the shoulder and redrawn as a sleeve going out and up (half reach, hand beside the head) and then straight up (hand above the head, rows 1-4). Candidate 02's extra white back collar is not used; the anchor's back view has none. Candidate pixels were used only as a pose reference.",
-  "approvedBy": "opus-orchestrator (delegated)",
+  "task": "RB7",
+  "source": "opus",
+  "derivedFrom": "char-turnaround",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Redrawn at 2x density (64x128 cells, feet on row 123, origin (32, 123), 115 px tall) on the approved remaster turnaround (assets-src/refs/remaster/char-turnaround@4x.png, RG1b), core palette only. The current 1x frames were nearest-upscaled as the pose and timing template and every frame was onion-skinned against them. The anchor's back view with the viewer-right arm lifted off (the torso's side re-outlined) and redrawn raised: frame 1 has the upper arm out at shoulder height and the forearm up, frame 2 the whole arm reaching up and slightly outwards, the hand at the top, matching the 1x reach. Codex RC7 char-use-n@2x used as reference for the raised fist.",
+  "approvedBy": "opus (RB7 build agent, delegated pick)",
   "date": "2026-09-29"
 }

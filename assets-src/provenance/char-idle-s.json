@@ -1,11 +1,12 @@
 {
   "id": "char-idle-s",
   "output": "assets-src/character/char-idle-s.png",
-  "task": "B7",
+  "task": "RB7",
   "source": "opus",
   "derivedFrom": "char-turnaround",
-  "palette": "v1",
-  "cleanup": "The turnaround's front view (neutral), a breath frame that lifts the collar and shoulders 1 px with the head fixed, and a blink as frame 3 with both eye pixels closed to skin D.",
-  "approvedBy": "opus-orchestrator (delegated)",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Redrawn at 2x density (64x128 cells, feet on row 123, origin (32, 123), 115 px tall) on the approved remaster turnaround (assets-src/refs/remaster/char-turnaround@4x.png, RG1b), core palette only. The current 1x frames were nearest-upscaled as the pose and timing template and every frame was onion-skinned against them. Neutral is the anchor's front view unchanged; the breath frame lifts the collar and shoulders 2 px while the head stays put; the blink closes both eyes to a two-pixel lash line (C, &) with skin D lids. Codex RC7 char-idle-s@2x not needed beyond confirming the pose.",
+  "approvedBy": "opus (RB7 build agent, delegated pick)",
   "date": "2026-09-29"
 }

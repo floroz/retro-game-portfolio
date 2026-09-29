@@ -1,11 +1,12 @@
 {
   "id": "char-talk-s",
   "output": "assets-src/character/char-talk-s.png",
-  "task": "B7",
+  "task": "RB7",
   "source": "opus",
   "derivedFrom": "char-turnaround",
-  "palette": "v1",
-  "cleanup": "Three 16x16 mouth frames cut from the turnaround's front head (rows 5-14, drawn at talkHeadOffset 8,3): closed (the grin replaced by a dark wood 6 line), the anchor's grin, and open (a sole-black 1 row under the teeth). Everything outside the head is transparent so the body frame shows through.",
-  "approvedBy": "opus-orchestrator (delegated)",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Three 32x32 mouth frames cut from the anchor's front head (head pixels only, rows 0-28, so the overlay sits cleanly on every idle frame including the breath and blink): closed (the teeth painted over in lip B), the anchor's grin, and open (a dark 1 mouth under the teeth, the lower lip dropped a row). talkHeadOffset (17, 3), measured by centring the union of the front and side head bounding boxes (x 22-42, y 9-28) in the 32x32 cell.",
+  "approvedBy": "opus (RB7 build agent, delegated pick)",
   "date": "2026-09-29"
 }
