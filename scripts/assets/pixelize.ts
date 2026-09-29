@@ -3,7 +3,9 @@
  *
  *   npm run assets:pixelize -- <input.png> --out <native.png>
  *     [--scene <id>|core]        allowed colours: the core plus that scene's ramp (default core)
- *     [--size 320x160]           native size (default 320x160; ignored with --sprites)
+ *     [--density 1|2]            pixel density; sets the defaults below (default 1)
+ *     [--size 320x160]           native size (default: the scene at --density, 320x160 or
+ *                                640x320; ignored with --sprites)
  *     [--crop auto|x,y,w,h]      crop before downscaling (default auto)
  *     [--key auto|ff00ff]        key out the background first (default: auto with --sprites, none otherwise)
  *     [--key-tolerance 0.08]     OKLab distance from the key that counts as background
@@ -11,7 +13,10 @@
  *     [--min-hole 64]            enclosed background pockets of at least this many raw px are keyed too
  *     [--alpha-threshold 128]    alpha at or above this is opaque
  *     [--sprites 32x64]          slice figures into cells, feet on --feet-row, as a strip
- *     [--feet-row 61] [--figure-height 57]
+ *                                (64x128 at --density 2)
+ *     [--feet-row 61] [--figure-height 57]   (123 and 115 at --density 2)
+ *
+ * Explicit sizes and rows are native px; --density only changes the defaults.
  *
  * Real Codex sizes (G1): composites come out at 1774x887, already 2:1, so the
  * default `--crop auto` keeps the whole frame. Sheets come out at 1536x1024 on
@@ -25,6 +30,7 @@ import {
   alphaBounds,
   allowedColours,
   centredAspectCrop,
+  characterMetrics,
   cliPath,
   crop,
   fail,
@@ -32,11 +38,13 @@ import {
   findFigures,
   hasTransparency,
   loadPalette,
+  parseDensity,
   parseRect,
   parseSceneOption,
   parseSize,
   pixelize,
   readImage,
+  sceneSize,
   toHex,
   writePng,
   type Rect,
@@ -52,7 +60,8 @@ async function main() {
     options: {
       out: { type: "string" },
       scene: { type: "string" },
-      size: { type: "string", default: "320x160" },
+      density: { type: "string" },
+      size: { type: "string" },
       crop: { type: "string", default: "auto" },
       key: { type: "string" },
       "key-tolerance": { type: "string" },
@@ -60,14 +69,16 @@ async function main() {
       "min-hole": { type: "string" },
       "alpha-threshold": { type: "string", default: "128" },
       sprites: { type: "string" },
-      "feet-row": { type: "string", default: "61" },
-      "figure-height": { type: "string", default: "57" },
+      "feet-row": { type: "string" },
+      "figure-height": { type: "string" },
     },
   });
   const [input] = positionals;
   if (!input || !values.out)
     fail("usage: assets:pixelize -- <input> --out <output.png> [options]");
 
+  const density = parseDensity(values.density);
+  const metrics = characterMetrics(density);
   const palette = loadPalette();
   const colours = allowedColours(palette, parseSceneOption(values.scene));
   const key = parseKeyArg(values.key) ?? (values.sprites ? "auto" : undefined);
@@ -105,8 +116,9 @@ async function main() {
     const strip = figuresToCells(sheet, figures, {
       cellW: cell.w,
       cellH: cell.h,
-      feetRow: Number(values["feet-row"]),
-      figureHeight: Number(values["figure-height"]),
+      feetRow: numberOption(values["feet-row"]) ?? metrics.feetRow,
+      figureHeight:
+        numberOption(values["figure-height"]) ?? metrics.figureHeight,
       colours,
       alphaThreshold,
     });
@@ -119,7 +131,7 @@ async function main() {
     return;
   }
 
-  const size = parseSize(values.size);
+  const size = values.size ? parseSize(values.size) : sceneSize(density);
   const explicit = values.crop !== "auto" ? parseRect(values.crop) : undefined;
   // The region lib.pixelize will use, so a stretched crop is reported.
   const region: Rect =
@@ -138,7 +150,7 @@ async function main() {
   });
   await writePng(cliPath(values.out), out);
   console.log(
-    `${values.out}: ${size.w}x${size.h} from ${region.w}x${region.h} at ${region.x},${region.y}, ${colours.length} allowed colours`,
+    `${values.out}: ${size.w}x${size.h} (density ${density}) from ${region.w}x${region.h} at ${region.x},${region.y}, ${colours.length} allowed colours`,
   );
 }
 

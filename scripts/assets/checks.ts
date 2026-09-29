@@ -4,10 +4,14 @@
  * validate.ts so they can be unit tested without touching the file system.
  */
 import {
-  BODY_CELL,
-  CHARACTER_TAGS,
+  DENSITIES,
+  characterMetrics,
+  characterTags,
+  isDensity,
   isSceneId,
+  sceneSize,
   type CharacterSheetJson,
+  type Density,
   type SceneId,
 } from "./lib";
 
@@ -99,29 +103,62 @@ export function classifyAsset(path: string): ShippedAsset | string | null {
   return `${path}: not under ${SHIPPED_ROOTS.join(", ")}`;
 }
 
-/** Size rules per kind. Returns error strings. */
+/**
+ * Size rules per kind, at the asset's density (from its provenance record;
+ * 1 when it has none). Returns error strings.
+ */
 export function checkAssetSize(
   asset: ShippedAsset,
   width: number,
   height: number,
+  density: Density = 1,
 ): string[] {
+  const scene = sceneSize(density);
+  const at = density === 1 ? "" : ` at density ${density}`;
   if (
     (asset.kind === "bg" || asset.kind === "fg") &&
-    (width !== 320 || height !== 160)
+    (width !== scene.w || height !== scene.h)
   ) {
     return [
-      `${asset.path}: ${asset.kind} must be 320x160, is ${width}x${height}`,
+      `${asset.path}: ${asset.kind} must be ${scene.w}x${scene.h}${at}, is ${width}x${height}`,
     ];
   }
   if (
     (asset.kind === "obj" || asset.kind === "anim") &&
-    (width > 320 || height > 160)
+    (width > scene.w || height > scene.h)
   ) {
     return [
-      `${asset.path}: larger than the 320x160 scene (${width}x${height})`,
+      `${asset.path}: larger than the ${scene.w}x${scene.h} scene${at} (${width}x${height})`,
     ];
   }
   return [];
+}
+
+/**
+ * Every image in one scene folder shares a density: a scene switches to 2x
+ * all at once (docs/art-spec.md, Phase R). Takes each asset with its density.
+ */
+export function checkSceneDensities(
+  assets: readonly { asset: ShippedAsset; density: Density }[],
+): string[] {
+  const byScene = new Map<string, Map<Density, string[]>>();
+  for (const { asset, density } of assets) {
+    if (!asset.path.startsWith("src/assets/scenes/") || !asset.scene) continue;
+    const scene = byScene.get(asset.scene) ?? new Map<Density, string[]>();
+    scene.set(density, [...(scene.get(density) ?? []), asset.path]);
+    byScene.set(asset.scene, scene);
+  }
+  const errors: string[] = [];
+  for (const [scene, densities] of byScene) {
+    if (densities.size < 2) continue;
+    const parts = [...densities]
+      .sort(([a], [b]) => a - b)
+      .map(([d, paths]) => `density ${d}: ${paths.join(", ")}`);
+    errors.push(
+      `src/assets/scenes/${scene}: mixes densities; remaster the whole scene at once (${parts.join("; ")})`,
+    );
+  }
+  return errors;
 }
 
 // --- Provenance ----------------------------------------------------------------------
@@ -139,7 +176,19 @@ export interface ProvenanceRecord {
   derivedFrom?: string;
   cleanup?: string;
   approvedBy?: string;
+  /** Pixel density; absent means 1. Remastered (Phase R) assets have 2. */
+  density?: Density;
   date: string;
+}
+
+/**
+ * The density a provenance record declares: its "density" field, or 1 when
+ * it has none or the field is invalid (checkProvenance reports that).
+ */
+export function provenanceDensity(record: unknown): Density {
+  if (typeof record !== "object" || record === null) return 1;
+  const d = (record as { density?: unknown }).density;
+  return isDensity(d) ? d : 1;
 }
 
 const isString = (v: unknown): v is string =>
@@ -200,6 +249,21 @@ export function checkProvenance(
         errors.push(`${where}: "${key}" is only for codex assets`);
     }
   }
+  if (r.density !== undefined && !isDensity(r.density)) {
+    errors.push(
+      `${where}: density must be one of ${DENSITIES.join(", ")} (a number)`,
+    );
+  }
+  if (
+    r.density === 2 &&
+    r.source === "codex" &&
+    isString(r.approvedRaw) &&
+    !r.approvedRaw.endsWith("@2x.webp")
+  ) {
+    errors.push(
+      `${where}: a density 2 codex asset's approved raw is assets-src/approved/<id>@2x.webp, not ${r.approvedRaw}`,
+    );
+  }
   for (const key of ["derivedFrom", "cleanup", "approvedBy"]) {
     if (r[key] !== undefined && !isString(r[key]))
       errors.push(`${where}: "${key}" must be a string`);
@@ -218,9 +282,14 @@ export function checkProvenance(
 
 // --- Character sheet ---------------------------------------------------------------------
 
+/**
+ * Check daniele.json against its sheet at `density` (from the char-sheet
+ * provenance record; default 1): tags, frame counts, cell sizes, and origin.
+ */
 export function checkCharacterJson(
   value: unknown,
   sheet: { width: number; height: number },
+  density: Density = 1,
 ): string[] {
   const where = "src/assets/character/daniele.json";
   if (typeof value !== "object" || value === null)
@@ -249,7 +318,12 @@ export function checkCharacterJson(
       errors.push(`${where}: frame ${i} falls outside the sheet`);
     }
   });
-  for (const [tag, spec] of Object.entries(CHARACTER_TAGS)) {
+  if ((json.density ?? 1) !== density) {
+    errors.push(
+      `${where}: density ${String(json.density ?? 1)} doesn't match the char-sheet provenance record's density ${density}`,
+    );
+  }
+  for (const [tag, spec] of Object.entries(characterTags(density))) {
     const t = json.tags?.[tag];
     if (!t) {
       errors.push(`${where}: missing tag ${tag}`);
@@ -268,11 +342,12 @@ export function checkCharacterJson(
       }
     }
   }
+  const { origin } = characterMetrics(density);
   if (
     json.origin &&
-    (json.origin.x !== BODY_CELL.w / 2 || json.origin.y !== 61)
+    (json.origin.x !== origin.x || json.origin.y !== origin.y)
   ) {
-    errors.push(`${where}: origin must be (16, 61)`);
+    errors.push(`${where}: origin must be (${origin.x}, ${origin.y})`);
   }
   return errors;
 }

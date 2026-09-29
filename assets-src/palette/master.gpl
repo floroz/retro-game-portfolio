@@ -1,5 +1,5 @@
 GIMP Palette
-Name: retro-game-portfolio v1
+Name: retro-game-portfolio v2
 Columns: 9
 #
  15  13  18	0 core
@@ -64,3 +64,27 @@ Columns: 9
  44 124 196	x sorrento
 124 202 234	y sorrento
 240 106  82	z sorrento
+104  83  83	! core
+142 136 143	% core
+ 38  20  18	& core
+189 126  87	( core
+215 158 120	) core
+ 40  50  83	* core
+ 48  76 126	+ core
+ 39  76  47	, core
+186 134  35	- core
+ 73 161 156	/ hall
+122 190 184	: hall
+161 109 143	; hall
+145 197 234	< hall
+127  41  37	= london
+ 74  97 123	> london
+131  71  47	? london
+ 20  30  69	@ zurich
+119  97 139	[ zurich
+146 124 161	] zurich
+135 159 203	^ zurich
+122 131 177	_ sorrento
+153 162 203	{ sorrento
+211 116  56	} sorrento
+202 184 155	~ sorrento
