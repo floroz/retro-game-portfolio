@@ -1,18 +1,15 @@
 {
   "id": "hall-bg",
   "output": "src/assets/scenes/hall/bg.png",
-  "task": "RB2",
+  "task": "HB2",
   "source": "codex",
-  "prompt": "assets-src/prompts/remaster/hall.md",
-  "candidate": "04",
-  "references": [
-    "assets-src/refs/remaster/hall-current@4x.png",
-    "assets-src/refs/remaster/style-anchor@4x.png"
-  ],
-  "approvedRaw": "assets-src/approved/hall-bg@2x.webp",
-  "palette": "v2",
+  "prompt": "assets-src/prompts/hd/layers-hall.md",
+  "candidate": "01",
+  "references": ["assets-src/refs/hd/hall-chosen.png"],
+  "approvedRaw": "assets-src/approved/hall-plate@hd.webp",
   "density": 2,
-  "approvedBy": "opus-orchestrator (delegated pick, RB2)",
-  "date": "2026-09-29",
-  "cleanup": "RB2 remaster at 2x from candidate 04 of hall-bg@2x, pixelized with --scene hall --density 2 (core plus the Hall ramp, palette v2). Chosen by region-by-region layout fidelity against hall-current@4x read back at 640x320 (best-offset search within +/-8 px): every region of 04 aligned within the window, at a near-uniform dy of -4, where 01-03 needed up to -16. The candidate is slightly warped against the shipped layout (dy 0 at the ceiling, -4 mid-height, -6 at the front; dx 0 on the left to -10 at the gates), so it was rebuilt region by region on the shipped coordinates: the ceiling as-is; the duty-free shop at (-2,-4) and its right post at (-3,-4), keeping the fascia and both shelf lips exactly where the engine letters them; the pillar, apron window, parked airliner, carousel and lost-luggage desk at (-7,-4), which puts the mullion on x 136 for the take-off plane's clip. Redrawn at 2x on the shipped geometry: the departures board (a bevelled frame and split flaps whose rows sit under the engine's three text lines, with a hinge line, lit edges and axle pins); the gate wall (clerestory with mullions, round clouds and a lighter lower band; the three sign panels, 37, 53 and 41 logical px as shipped, with bevelled frames and flat recessed faces for the labels; the beam, the wall with pilasters and a dithered shadow under the beam, the skirting); the three gate doors, recoloured from navy to glazed steel doors (daylight-blue glass with reflection streaks, steel stile, pull bars and kick panels), because navy leaves measured within 0.08 OKLab of the jeans; the gate desks with their CRTs, cut from the candidate's London desk (its Zurich desk is hidden by its own arch) and placed on the three shipped desk positions. Cleanup: contrast-limited despeckle of the candidate regions (559 isolated low-contrast pixels; plane windows, lamps and glints kept); the window sky repainted flat (X, the candidate's cloud shapes, a dithered < band above the tree line); the CRT flight monitors' screens flattened with a glint; the whisky's pictorial label painted plain; the ceiling trim and the window head cleaned of the candidate's clerestory speckle. The carpet is regenerated procedurally from the shipped carpet's six perspective rows of scalene triangles, recoloured to the teal the ramp intended (base /, sunlit fibres : near the glass, a woven dot of V, and an ordered-dither falloff to V towards the front) with the mauve ; triangles on a 1 px W base line, and V contact shadows at the skirting, the counter and the desks; its colours are all at least 0.126 OKLab from the character's clothing and hair (/ 0.183, : 0.271, ; 0.147, V 0.126), where the shipped navy H was 0.000 from the jeans. The seats, arch, pillar and plant are separate layers; the bg under them is a clean plate. No text; the gate panels, board, monitors, fascia and shelf lips are blank for the engine."
+  "style": "painted",
+  "cleanup": "HB2: candidate 01 of hall-plate@hd (1774x887, the chosen composite with the seats, arch and plant edited out; the only difference from 02 is the carpet texture) prepared with assets:prepare --painted --no-quantize to 640x320 (Lanczos, hard alpha), then recoloured for the contrast rule (no surface behind Daniele within 0.08 OKLab of the rig's sweater, jeans or hair colours; measured against assets-src/character-rig): solid navy surfaces at least 9x9 art px within 0.105 OKLab of the sweater (the gate sign boards, the departures board panel, the two monitors, the duty-free back wall, the arch display) darkened to near black; smaller dark patches within 0.105 (skirting shadows, desk screens, header slots) lifted in lightness; the duty-free awning hue-rotated 14 degrees from brick to crimson (brick sat within 0.09 of the hair); the shelf planks and the lost-luggage suitcase lifted in lightness, and the whisky's wooden frame remapped to brass; the door-glass blues lifted (0.13 L) off the jeans. Then quantized jointly with the four Hall sprites by assets:quantize to one 256-colour palette with no dither. The departures board, the sign boards and the desk screens stay blank for the engine's text and flutter. Nothing was hand-painted; the hotspots, labels and walkbox in src/config/scenes/hall.ts were measured on this file.",
+  "approvedBy": "orchestrator",
+  "date": "2026-09-29"
 }
