@@ -1,11 +1,15 @@
 {
   "id": "hall-anim-plane",
   "output": "src/assets/scenes/hall/anim-plane.png",
-  "task": "RB2",
-  "source": "opus",
-  "derivedFrom": "hall-bg",
-  "palette": "v2",
+  "task": "HB2",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/layers-hall.md",
+  "candidate": "02",
+  "references": ["assets-src/refs/hd/hall-chosen.png"],
+  "approvedRaw": "assets-src/approved/hall-plane@hd.webp",
   "density": 2,
-  "date": "2026-09-29",
-  "cleanup": "RB2: the taking-off airliner redrawn at 2x (28x10, 14x5 logical as before): nose left, a cockpit window and a row of cabin windows, a lit fin, belly shading, the tail cone, the wing and an engine, gear up. The scene data still moves it up and away over the horizon in the right-hand pane, clipped to that pane."
+  "style": "painted",
+  "cleanup": "HB2: candidate 02 of hall-plane@hd, the take-off airliner, keyed from its own alpha and resized (Lanczos) to 52x16 art px with assets:prepare --painted --no-quantize, hard alpha, quantized jointly with the Hall plate. One frame: the scene data slides it along a path up the right-hand pane of the glass wall, shrinking as it climbs.",
+  "approvedBy": "orchestrator",
+  "date": "2026-09-29"
 }

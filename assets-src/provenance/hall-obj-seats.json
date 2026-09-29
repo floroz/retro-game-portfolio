@@ -1,11 +1,18 @@
 {
   "id": "hall-obj-seats",
   "output": "src/assets/scenes/hall/obj-seats.png",
-  "task": "RB2",
-  "source": "opus",
-  "derivedFrom": "hall-bg",
-  "palette": "v2",
+  "task": "HB2",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/layers-hall.md",
+  "candidate": "01",
+  "references": [
+    "assets-src/refs/hd/hall-chosen.png",
+    "assets-src/refs/hd/scale-sheet.png"
+  ],
+  "approvedRaw": "assets-src/approved/hall-seats@hd.webp",
   "density": 2,
-  "date": "2026-09-29",
-  "cleanup": "RB2: a row of five joined seats redrawn at 2x (156x50) from candidate 04's seat design, as one hand-drawn module tiled five times so the row is exactly the shipped 78 logical px (the candidate's row is 82 wide, with irregular 29-30 px pitches and carpet fringe on its rims): rounded backs with a piping seam and a lit headrest stripe, lit pan fronts, capped steel armrests, the beam, three legs with feet, and a teal contact shadow. The upholstery is recoloured from navy (H, +, I: 0.000 from the jeans) to daylight blue (< and X, with I only in thin shade lines): behind the seats, the character's edge contrast went from 43% of edge pixels under 0.08 OKLab to 7% (median 0.43). Position (145, 98), 1 logical px higher than B2's, because the new feet are taller; the baseline stays at 120 and the keyhole is unchanged."
+  "style": "painted",
+  "cleanup": "HB2: candidate 01 of hall-seats@hd, keyed from its own alpha, resized (Lanczos) and registered on the chosen composite with assets:prepare --painted --no-quantize --align (scale 1.03, 182x54 art px at 271,192, feet on art row 246), hard alpha. The upholstery was hue-rotated from blue to red (hue 20 degrees, chroma x1.12) and its shading darkened: the blue cushions stood within 0.08 OKLab of the jeans whenever Daniele stood in front of the seats. Quantized jointly with the Hall plate.",
+  "approvedBy": "orchestrator",
+  "date": "2026-09-29"
 }
