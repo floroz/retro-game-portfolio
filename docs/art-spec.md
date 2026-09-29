@@ -843,7 +843,16 @@ As before: a task is runnable when everything under **After** is `done` in this 
 | HB6         | done        | HC4, E4                                      | Shared sprites in HD                                                                                                                                                                                                                                                                                 |
 | HB7         | done        | HC3, E4                                      | Rig Daniele: slice the parts, set pivots, keyframe the poses, pack                                                                                                                                                                                                                                   |
 | HR1         | in progress | HB7                                          | Puppet quality, after Daniele's review ("issues with the character to fix"): seams at every joint, pauldron-like front arms, limb thickness that changes between facings, a small head, merged back legs, and a ragged outline. Fix: one silhouette outline, joint caps, recut parts                 |
+| UI2         | in progress | UI1, T3                                      | MI3-style conversations (spoken lines as overhead serif text, choices in the bottom panel instead of the trunk, no portrait modal) and a title card that matches the trunk. Found in the orchestrator's QA pass                                                                                      |
 | I3          | todo        | HB1–HB7                                      | Final cohesion, contrast walk, OG image, regression checks (ends at **G4**)                                                                                                                                                                                                                          |
+
+**Orchestrator QA findings (2026-09-29), for I3 unless already assigned:**
+
+- Fixed: the loading widget passed an unknown `disableResize` DOM prop (#69). The Fredoka preload warning came from a stale generated `index.html`, which was regenerated.
+- The dev-only `?hd=<scene>` preview (`src/engine/dev/hdPreview.ts`, `effectsDemo.ts`) forces `HD_WORLD_SCALE` onto a scene, which now overrides the scenes' own depth (the Hall's measured perspective). All four scenes are built, so remove it.
+- In the Hall, the use-n reach (towards the duty-free shelf) isn't visible in the running game (HB7 report).
+- Sorrento's terracotta wall is 0.053–0.062 OKLab from the three brightest hair shades. The ink outline keeps the head readable (HB4 report).
+- **Question for Daniele at G4:** the copy says he's "based in Switzerland" (`profile.ts`, `dialogTrees.ts`), while the Sorrento kitchen is framed as the move to Italy. Don't change it without him.
 
 | Gate | Status | Decided by                                                  |
 | ---- | ------ | ----------------------------------------------------------- |
