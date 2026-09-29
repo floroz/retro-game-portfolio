@@ -1,0 +1,10 @@
+{
+  "id": "zurich-obj-cabinet@open",
+  "output": "src/assets/scenes/zurich/obj-cabinet@open.png",
+  "task": "B1",
+  "source": "opus",
+  "derivedFrom": "zurich-bg",
+  "palette": "v1",
+  "cleanup": "Open state of obj-cabinet: the middle drawer pulled out 2 px towards the viewer and 1 px wider each side, showing coloured folder tabs, with a 1-row shadow on the drawer below.",
+  "date": "2026-09-29"
+}

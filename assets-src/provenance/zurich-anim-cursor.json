@@ -1,0 +1,9 @@
+{
+  "id": "zurich-anim-cursor",
+  "output": "src/assets/scenes/zurich/anim-cursor.png",
+  "task": "B1",
+  "source": "opus",
+  "palette": "v1",
+  "cleanup": "2 frames of a 2x3 green cursor blinking on the CRT's blank screen.",
+  "date": "2026-09-29"
+}

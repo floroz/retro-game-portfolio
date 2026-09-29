@@ -1,0 +1,10 @@
+{
+  "id": "zurich-obj-door@open",
+  "output": "src/assets/scenes/zurich/obj-door@open.png",
+  "task": "B1",
+  "source": "opus",
+  "derivedFrom": "zurich-bg",
+  "palette": "v1",
+  "cleanup": "Open state of obj-door: the leaf swung away into the corridor on its right-hand hinge (foreshortened, lit free edge, knob), showing a lit corridor in one-point perspective in core greys.",
+  "date": "2026-09-29"
+}

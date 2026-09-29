@@ -1,0 +1,10 @@
+{
+  "id": "zurich-anim-stars",
+  "output": "src/assets/scenes/zurich/anim-stars.png",
+  "task": "B1",
+  "source": "opus",
+  "derivedFrom": "zurich-bg",
+  "palette": "v1",
+  "cleanup": "4 transparent frames over the window's sky: single stars brighten, dim, or flash a 1 px cross. Frame 0 is empty (the bg's stars).",
+  "date": "2026-09-29"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "zurich-anim-lake",
+  "output": "src/assets/scenes/zurich/anim-lake.png",
+  "task": "B1",
+  "source": "opus",
+  "derivedFrom": "zurich-bg",
+  "palette": "v1",
+  "cleanup": "4 opaque frames of the moonlight dashes on the lake, each dash drifting a pixel either way. Frame 0 matches bg.",
+  "date": "2026-09-29"
+}
