@@ -1,9 +1,10 @@
 {
   "id": "hall-fg",
   "output": "src/assets/scenes/hall/fg.png",
-  "task": "F1",
+  "task": "B2",
   "source": "opus",
-  "palette": "v0",
-  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Replaced in the hall build task.",
+  "derivedFrom": "hall-bg",
+  "cleanup": "The candidate's square beige pillar (narrowed to 11 px at the right edge) and its rubber plant in a beige pot, redrawn on a transparent layer: eight flat leaves lit from the back window with a dark lower edge, brown stems, a pot with three shade steps. Always drawn over Daniele.",
+  "palette": "v1",
   "date": "2026-09-29"
 }
