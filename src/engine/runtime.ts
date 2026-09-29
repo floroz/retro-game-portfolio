@@ -6,6 +6,7 @@
  */
 import { useGameStore } from "../store/gameStore";
 import {
+  CHARACTER_RIG,
   CHARACTER_SHEET,
   ImageStore,
   densityRules,
@@ -27,6 +28,9 @@ export function getEngine(): SceneEngine {
       scenes: SCENES,
       travelMap: TRAVEL_MAP_DATA,
       sheet: CHARACTER_SHEET,
+      rig: CHARACTER_RIG,
+      // Scenes built to the Phase H world scale (`farHeight`, `nearHeight`)
+      // draw the rig; the rest keep the sprite sheet until they're rebuilt.
       host: {
         openSection: (section) =>
           useGameStore.getState().openTerminalScreen(section),
@@ -49,6 +53,7 @@ export function allImages(): string[] {
   return [
     ...new Set([
       CHARACTER_SHEET.image,
+      ...(CHARACTER_RIG ? [CHARACTER_RIG.image] : []),
       ...Object.values(SCENES).flatMap(sceneImages),
       ...travelMapImages(TRAVEL_MAP_DATA),
     ]),

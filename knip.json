@@ -1,6 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@latest/schema.json",
-  "entry": ["src/main.tsx", "scripts/assets/*.ts"],
+  "entry": [
+    "src/main.tsx",
+    "scripts/assets/*.ts",
+    "src/engine/rig/dev/preview.ts"
+  ],
   "project": ["src/**/*.{ts,tsx}", "scripts/assets/**/*.ts"],
   "ignore": ["src/vite-env.d.ts"],
   "playwright": {

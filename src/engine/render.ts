@@ -27,10 +27,12 @@ import { COUNTRIES } from "../config/sections";
 import type { ImageStore } from "./assets";
 import { sceneImages, slotSpriteUrl, travelMapImages } from "./assets";
 import { placeCell, type CharacterSheet } from "./character";
+import { drawRig } from "./rig/draw";
+import type { Rig } from "./rig/rig";
 import { animationFrame } from "./animation";
 import { paintOrder, type Paintable } from "./depth";
 import { backingSize, type Display } from "./backing";
-import { CORE, IRIS_MS, NATIVE_H, NATIVE_W } from "./constants";
+import { CANVAS_W, CORE, IRIS_MS, NATIVE_H, NATIVE_W } from "./constants";
 import { isSmooth, snap, type Density } from "./density";
 import {
   drawText,
@@ -74,6 +76,8 @@ export interface RenderContext {
   engine: SceneEngine;
   images: ImageStore;
   sheet: CharacterSheet;
+  /** The cut-out rig, if there is one (assets.ts, `CHARACTER_RIG`). */
+  rig?: Rig | null;
   map: TravelMapData;
   /**
    * Where the canvas is on screen, for an HD frame's backing store. Without
@@ -178,6 +182,7 @@ export function renderFrame(rc: RenderContext) {
       : needed(engine.scene, () => [
           ...sceneImages(engine.scene),
           rc.sheet.image,
+          ...(rc.rig ? [rc.rig.image] : []),
         ]);
   if (!rc.images.ready(urls)) return;
   const hd = prepareCanvas(rc);
@@ -394,11 +399,21 @@ function scratch(w: number, h: number): HTMLCanvasElement {
  */
 function drawCharacter(rc: RenderContext) {
   const { ctx, engine, sheet } = rc;
+  const figure = engine.figure();
+  const { x, y } = engine.position;
+  if (figure.kind === "rig") {
+    // Rasterized on the art's pixel grid: 2 px per logical px for the
+    // 640x320 art (and density-1 art, drawn 2x on the same canvas).
+    const atlas = rc.images.get(figure.rig.image);
+    const grid = Math.max(CANVAS_W / NATIVE_W, frameDensity(rc));
+    if (atlas) {
+      drawRig(ctx, atlas, figure.rig, figure.state, x, y, figure.scale, grid);
+    }
+    return;
+  }
   const img = rc.images.get(sheet.image);
   if (!img) return;
-  const pose = engine.pose();
-  const { x, y } = engine.position;
-  const s = engine.scale;
+  const { pose, scale: s } = figure;
   const d = sheet.density;
   const { left, top, w, h } = placeCell(sheet, pose.body, x, y, s);
   if (w < 1 || h < 1) return;
@@ -446,9 +461,14 @@ function drawSpeech(rc: RenderContext) {
   const { engine, sheet } = rc;
   const { x, y } = engine.position;
   const lh = lineHeight("regular");
-  // The top of the cell, just above the hair, in logical px above the feet.
-  const head = sheet.origin.y / sheet.density - 1;
-  const headTop = y - head * engine.scale;
+  // The top of the sheet's cell, just above the hair, or the top of the
+  // rig's drawing, in logical px above the feet.
+  const figure = engine.figure();
+  const head =
+    figure.kind === "rig"
+      ? figure.rig.figureHeight + 1
+      : sheet.origin.y / sheet.density - 1;
+  const headTop = y - head * figure.scale;
   const top = Math.max(2, Math.round(headTop - 3 - speech.lines.length * lh));
   const widest = Math.max(...speech.lines.map((l) => measureText(l)));
   // Kept clear of the edges by the margin plus the outline.

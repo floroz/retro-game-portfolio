@@ -1,20 +1,27 @@
 /**
- * Dev-only HD preview (docs/art-spec.md, "Phase H: HD hand-painted"). Under
- * `npm run dev`, `?hd=<scene>` swaps that scene's art for the density-4
- * stand-ins made by `npm run dev:hd-placeholder -- <scene>` in `dev-hd/`,
- * so the HD engine can be checked on a real scene before the HD art exists.
- * It also takes the Phase H world scale (`HD_WORLD_SCALE`), as the HB
- * builds will. The scene data is otherwise unchanged. Production builds
- * never read it.
+ * Dev-only Phase H preview (docs/art-spec.md, "Phase H"). Under `npm run
+ * dev`, `?hd=<scene>` gives that scene the Phase H world scale
+ * (`HD_WORLD_SCALE`), as the HB builds will, so Daniele is drawn as the
+ * cut-out rig at 72 px on the scene's current 640x320 art (add
+ * `&rig=placeholder` for the rectangle rig before HB7 packs the real one).
+ *
+ * `&smooth` also swaps the art for the density-4 stand-ins made by `npm run
+ * dev:hd-placeholder -- <scene>` in `dev-hd/`, for the density-4 smooth
+ * path, which Phase H no longer uses. Production builds never read it.
  */
 import { HD_WORLD_SCALE } from "../constants";
 import type { SceneData, SceneId } from "../types";
 
-/** The scene to preview in HD, from `?hd=<scene>`, under `npm run dev` only. */
-export const HD_PREVIEW: string | null =
+const params =
   import.meta.env.DEV && typeof window !== "undefined"
-    ? new URLSearchParams(window.location.search).get("hd")
+    ? new URLSearchParams(window.location.search)
     : null;
+
+/** The scene to preview, from `?hd=<scene>`, under `npm run dev` only. */
+export const HD_PREVIEW: string | null = params?.get("hd") ?? null;
+
+/** `&smooth`: also swap in the density-4 stand-in art. */
+const SMOOTH = params?.has("smooth") ?? false;
 
 /** `/src/assets/scenes/zurich/bg.png?v=1` to `/dev-hd/zurich/bg.png`. */
 function standIn(scene: SceneId, url: string): string {
@@ -22,15 +29,19 @@ function standIn(scene: SceneId, url: string): string {
   return `/dev-hd/${scene}/${file}`;
 }
 
-/** `scene` with every image of its own replaced by its HD stand-in. */
-export function hdPreviewScene(scene: SceneData): SceneData {
+/**
+ * `scene` at the Phase H world scale, and with `smooth`, every image of its
+ * own replaced by its density-4 stand-in.
+ */
+export function hdPreviewScene(scene: SceneData, smooth = SMOOTH): SceneData {
+  const scaled = { ...scene, depth: { ...scene.depth, ...HD_WORLD_SCALE } };
+  if (!smooth) return scaled;
   const hd = (url: string) => standIn(scene.id, url);
   const states = (s?: Record<string, string>) =>
     s && Object.fromEntries(Object.entries(s).map(([k, url]) => [k, hd(url)]));
   return {
-    ...scene,
+    ...scaled,
     background: hd(scene.background),
-    depth: { ...scene.depth, ...HD_WORLD_SCALE },
     foreground: scene.foreground && hd(scene.foreground),
     objects: scene.objects.map((o) => ({
       ...o,

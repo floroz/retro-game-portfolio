@@ -7,6 +7,8 @@
 import sheetJson from "../assets/character/daniele.json";
 import sheetUrl from "../assets/character/daniele.png";
 import { parseSheet, type CharacterSheet } from "./character";
+import { placeholderAtlas, placeholderRig } from "./rig/placeholder";
+import { parseRig, type Rig } from "./rig/rig";
 import { NATIVE_H, NATIVE_W } from "./constants";
 import {
   SHARED_LOGICAL_SIZES,
@@ -46,6 +48,38 @@ function sharedLogicalSize(url: string): Size | undefined {
 }
 
 export const CHARACTER_SHEET: CharacterSheet = parseSheet(sheetJson, sheetUrl);
+
+/** The packed rig (`npm run assets:rig`), once HB7 has shipped it. */
+const RIG_JSON = import.meta.glob<unknown>(
+  "../assets/character/daniele-rig.json",
+  { eager: true, import: "default" },
+);
+const RIG_PNG = import.meta.glob<string>(
+  "../assets/character/daniele-rig.png",
+  {
+    eager: true,
+    import: "default",
+  },
+);
+
+/** `?rig=placeholder` under `npm run dev`: the rectangle rig (rig/placeholder.ts). */
+const PLACEHOLDER_RIG =
+  import.meta.env.DEV &&
+  typeof window !== "undefined" &&
+  new URLSearchParams(window.location.search).get("rig") === "placeholder";
+
+/**
+ * Daniele as a cut-out rig (rig/), or null until `daniele-rig.json` and its
+ * atlas exist, when the sprite sheet stays in use everywhere.
+ */
+export const CHARACTER_RIG: Rig | null = (() => {
+  if (PLACEHOLDER_RIG) {
+    return parseRig(placeholderRig().json, placeholderAtlas());
+  }
+  const json = Object.values(RIG_JSON)[0];
+  const png = Object.values(RIG_PNG)[0];
+  return json && png ? parseRig(json, png) : null;
+})();
 
 interface Entry {
   img: HTMLImageElement;

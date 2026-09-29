@@ -45,8 +45,14 @@ describe("canvas backing store", () => {
 });
 
 describe("dev HD preview", () => {
+  test("by default only sets the Phase H world scale", () => {
+    const hd = hdPreviewScene(SCENES.zurich, false);
+    expect(hd.background).toBe(SCENES.zurich.background);
+    expect(hd.depth).toMatchObject({ farHeight: 58, nearHeight: 72 });
+  });
+
   test("swaps every image in the scene for its dev-hd stand-in", () => {
-    const hd = hdPreviewScene(SCENES.zurich);
+    const hd = hdPreviewScene(SCENES.zurich, true);
     expect(hd.background).toMatch(/^\/dev-hd\/zurich\/bg\.png$/);
     const urls = [
       hd.background,
