@@ -1,0 +1,9 @@
+{
+  "id": "sorrento-bg",
+  "output": "src/assets/scenes/sorrento/bg.png",
+  "task": "F1",
+  "source": "opus",
+  "palette": "v0",
+  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Replaced in the sorrento build task.",
+  "date": "2026-09-29"
+}

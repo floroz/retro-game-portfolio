@@ -1,0 +1,9 @@
+{
+  "id": "sorrento-anim-placeholder",
+  "output": "src/assets/scenes/sorrento/anim-placeholder.png",
+  "task": "F1",
+  "source": "opus",
+  "palette": "v0",
+  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Deleted in the sorrento build task.",
+  "date": "2026-09-29"
+}

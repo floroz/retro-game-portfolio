@@ -1,0 +1,9 @@
+{
+  "id": "slot-magnet",
+  "output": "src/assets/shared/slots/slot-magnet.png",
+  "task": "F1",
+  "source": "opus",
+  "palette": "v0",
+  "cleanup": "Placeholder from scripts/assets/placeholders.ts. Replaced in B6.",
+  "date": "2026-09-29"
+}
