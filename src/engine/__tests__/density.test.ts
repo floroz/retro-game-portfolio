@@ -9,7 +9,7 @@ import {
   type DensityRule,
 } from "../assets";
 import { parseSheet, placeCell } from "../character";
-import { detectDensity, snap } from "../density";
+import { detectDensity, isSmooth, snap } from "../density";
 import { SCENES, TRAVEL_MAP_DATA } from "../scenes";
 import type { Size } from "../density";
 
@@ -19,6 +19,25 @@ describe("density detection", () => {
   test("a background is density 1 at 320x160 and density 2 at 640x320", () => {
     expect(detectDensity({ w: 320, h: 160 }, BG)).toBe(1);
     expect(detectDensity({ w: 640, h: 320 }, BG)).toBe(2);
+  });
+
+  test("an HD background is density 4 at 1280x640", () => {
+    expect(detectDensity({ w: 1280, h: 640 }, BG)).toBe(4);
+    // An HD cutout a little off its footprint still reads as HD.
+    expect(detectDensity({ w: 124, h: 250 }, { w: 30, h: 64 })).toBe(4);
+    expect(detectDensity({ w: 62, h: 124 }, { w: 30, h: 64 })).toBe(2);
+  });
+
+  test("only HD art is drawn smoothly; density 1 and 2 stay pixel art", () => {
+    expect(isSmooth(1)).toBe(false);
+    expect(isSmooth(2)).toBe(false);
+    expect(isSmooth(4)).toBe(true);
+  });
+
+  test("density 4 snaps to a quarter logical px, one 1280x640 pixel", () => {
+    expect(snap(10.3, 4)).toBe(10.25);
+    expect(snap(10.3, 2)).toBe(10.5);
+    expect(snap(10.3, 1)).toBe(10);
   });
 
   test("a sprite redrawn a few px off its footprint still reads right", () => {
@@ -61,6 +80,12 @@ describe("density rules", () => {
     expect(resolveDensity(desk, rules, sizeOf)).toBe(1);
     sizes.set(zurich.background, { w: 640, h: 320 });
     expect(resolveDensity(desk, rules, sizeOf)).toBe(2);
+  });
+
+  test("an HD scene's sprites follow its density-4 background", () => {
+    sizes.set(zurich.background, { w: 1280, h: 640 });
+    expect(resolveDensity(zurich.background, rules, sizeOf)).toBe(4);
+    expect(resolveDensity(desk, rules, sizeOf)).toBe(4);
   });
 
   test("scenes switch density one at a time", () => {

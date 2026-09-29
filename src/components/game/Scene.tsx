@@ -37,8 +37,9 @@ function nativePoint(e: MouseEvent<HTMLElement>): [number, number] {
 }
 
 /**
- * The game scene: a 640x320 canvas drawn by the engine every frame in
- * 320x160 logical px (render.ts), with invisible buttons over each hotspot
+ * The game scene: a canvas drawn by the engine every frame in 320x160
+ * logical px (render.ts), 640x320 and pixelated for pixel-art scenes and at
+ * display resolution for HD ones (backing.ts), with invisible buttons over each hotspot
  * for the pointer, the keyboard, and screen readers. Left click walks or
  * uses; right click looks.
  */
@@ -83,12 +84,15 @@ export function Scene() {
     const frame = (t: number) => {
       engine.update(t - last);
       last = t;
+      // On screen size, for an HD scene's display-resolution canvas.
+      const box = ctx.canvas.getBoundingClientRect();
       renderFrame({
         ctx,
         engine,
         images,
         sheet: CHARACTER_SHEET,
         map: TRAVEL_MAP_DATA,
+        display: { w: box.width, h: box.height, dpr: devicePixelRatio || 1 },
       });
       raf = requestAnimationFrame(frame);
     };

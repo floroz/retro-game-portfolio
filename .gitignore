@@ -35,3 +35,6 @@ index.html
 # Asset pipeline: Codex hand-off and Opus review previews (docs/art-spec.md)
 /assets-src/exchange/
 /assets-src/review/
+
+# Dev-only HD stand-in art (scripts/dev-hd-placeholder.ts)
+/dev-hd/
