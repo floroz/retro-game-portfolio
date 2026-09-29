@@ -2,7 +2,7 @@
 
 _What one developer, two model families, and about sixty-five pull requests taught us about planning work for agents, including the parts that went wrong._
 
-> **Status: living post.** Updated against `origin/v2` at commit `4c1e683` (2026-09-30, 00:08 local time). The second update was written at `e69c0c3` (2026-09-29, 22:13) and the first version at `2d06f64` (21:40). The revamp is not finished, and this post will be updated as it lands. See the [Changelog](#changelog). It is drafted by an AI agent (Sonnet) from the plan, the git history, and the pull request descriptions. Anything that is not visible in git or in a PR is marked as such. One pull request, the puppet fix (#76), merged at 00:13 while this update was being written. It is not covered here.
+> **Status: living post.** Updated against `origin/v2` at commit `4c1e683` (2026-09-30, 00:08 local time). The second update was written at `e69c0c3` (2026-09-29, 22:13) and the first version at `2d06f64` (21:40). The revamp is not finished, and this post will be updated as it lands. See the [Changelog](#changelog). It is drafted by an AI agent (Sonnet) from the plan, the git history, and the pull request descriptions. Anything that is not visible in git or in a PR is marked as such. One pull request, the puppet fix (#76), merged at 00:13 while this update was being written, and the plan then marked HR1 done and opened a follow-up, HR2 (puppet polish, from the orchestrator's review). Neither is covered here.
 
 ## TL;DR
 
