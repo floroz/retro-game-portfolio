@@ -25,6 +25,7 @@
     "test:e2e:docker:update": "./scripts/playwright-docker.sh --update-snapshots",
     "generate:html": "npx tsx scripts/generate-html.ts",
     "generate:og-image": "npx tsx scripts/generate-og-image.ts",
+    "dev:hd-placeholder": "tsx scripts/dev-hd-placeholder.ts",
     "assets:pixelize": "tsx scripts/assets/pixelize.ts",
     "assets:review": "tsx scripts/assets/review.ts",
     "assets:grid": "tsx scripts/assets/grid.ts",

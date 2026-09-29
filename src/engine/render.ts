@@ -1,10 +1,13 @@
 /**
- * Draws one frame on a 640x320 canvas, in logical px (320x160) scaled by
- * RENDER_SCALE. CSS scales the canvas 2x with `image-rendering: pixelated`,
- * so every pixel stays on the grid. Each image draws at its own density
- * (density.ts): density-1 art at 2x nearest-neighbour, pixel for pixel as
- * it looked on the old 320x160 canvas, and density-2 art 1:1. The pixel
- * font draws at canvas resolution.
+ * Draws one frame in logical px (320x160), scaled by the canvas transform.
+ * Pixel-art frames (density 1 and 2) draw on a 640x320 canvas that CSS
+ * scales 2x with `image-rendering: pixelated`, so every pixel stays on the
+ * grid: density-1 art at 2x nearest-neighbour, pixel for pixel as it looked
+ * on the old 320x160 canvas, and density-2 art 1:1. HD frames (density 4)
+ * draw on a canvas backed at display resolution (backing.ts), with
+ * high-quality smoothing for HD images only; anything still pixel art in
+ * an HD frame (the sprite-sheet character, shared sprites, the font) stays
+ * nearest-neighbour. The frame's density is its scene background's.
  *
  * Layers, back to front (docs/art-spec.md, "Layers, depth, and slots"):
  * 1. `bg`
@@ -20,8 +23,9 @@ import { sceneImages, slotSpriteUrl, travelMapImages } from "./assets";
 import { placeCell, type CharacterSheet } from "./character";
 import { animationFrame } from "./animation";
 import { paintOrder, type Paintable } from "./depth";
-import { CORE, IRIS_MS, NATIVE_H, NATIVE_W, RENDER_SCALE } from "./constants";
-import { snap } from "./density";
+import { backingSize, type Display } from "./backing";
+import { CORE, IRIS_MS, NATIVE_H, NATIVE_W } from "./constants";
+import { isSmooth, snap, type Density } from "./density";
 import { drawText, lineHeight, measureText, wrapText } from "./font";
 import { marqueeX, resolveLabel } from "./labels";
 import type { SceneEngine, Transition } from "./SceneEngine";
@@ -53,6 +57,61 @@ export interface RenderContext {
   images: ImageStore;
   sheet: CharacterSheet;
   map: TravelMapData;
+  /**
+   * Where the canvas is on screen, for an HD frame's backing store. Without
+   * it, HD frames are backed at 1280x640.
+   */
+  display?: Display;
+}
+
+/**
+ * The density of what's on screen: the travel map's background while it
+ * plays, the scene's otherwise. It decides between pixel art and HD.
+ */
+function frameDensity(
+  rc: Pick<RenderContext, "engine" | "images" | "map">,
+): Density {
+  const bg =
+    rc.engine.transition?.kind === "map"
+      ? rc.map.background
+      : rc.engine.scene.background;
+  return rc.images.density(bg);
+}
+
+/**
+ * Sizes the canvas for this frame (backing.ts) and sets its transform to
+ * logical px. Resizing clears the canvas, so it only happens right before
+ * a full redraw. Returns true for an HD frame.
+ */
+function prepareCanvas(rc: RenderContext): boolean {
+  const { ctx } = rc;
+  const canvas = ctx.canvas;
+  const b = backingSize(isSmooth(frameDensity(rc)), rc.display);
+  if (canvas.width !== b.w || canvas.height !== b.h) {
+    canvas.width = b.w;
+    canvas.height = b.h;
+  }
+  const flag = String(b.smooth);
+  if (canvas.dataset.smooth !== flag) canvas.dataset.smooth = flag;
+  ctx.setTransform(b.w / NATIVE_W, 0, 0, b.h / NATIVE_H, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  return b.smooth;
+}
+
+/**
+ * Draws with smoothing for an HD image (density 4) and nearest-neighbour
+ * for pixel art, then leaves smoothing off, which the pixel font and the
+ * pixel-art layers rely on.
+ */
+function drawSmoothIf(ctx: Ctx, d: Density, draw: () => void) {
+  if (!isSmooth(d)) {
+    draw();
+    return;
+  }
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  draw();
+  ctx.imageSmoothingEnabled = false;
 }
 
 /** What a frame needs loaded before it's drawn, per scene and for the map. */
@@ -68,8 +127,6 @@ function needed(key: SceneData | TravelMapData, urls: () => string[]) {
 
 export function renderFrame(rc: RenderContext) {
   const { ctx, engine } = rc;
-  ctx.setTransform(RENDER_SCALE, 0, 0, RENDER_SCALE, 0, 0);
-  ctx.imageSmoothingEnabled = false;
   const tr = engine.transition;
   // Hold the last frame (black before the first) until everything this one
   // draws has loaded, so nothing flashes in half drawn.
@@ -81,8 +138,9 @@ export function renderFrame(rc: RenderContext) {
           rc.sheet.image,
         ]);
   if (!rc.images.ready(urls)) return;
+  const hd = prepareCanvas(rc);
   if (tr?.kind === "map") {
-    drawTravelMap(rc, tr);
+    drawTravelMap(rc, tr, hd);
     return;
   }
 
@@ -120,7 +178,7 @@ export function renderFrame(rc: RenderContext) {
   if (scene.foreground) drawImageAt(rc, scene.foreground, 0, 0);
 
   drawSpeech(rc);
-  if (tr?.kind === "iris") drawIris(ctx, tr);
+  if (tr?.kind === "iris") drawIris(ctx, tr, hd);
 }
 
 /** Draws a whole image with its top-left at logical `x`,`y`. */
@@ -128,12 +186,14 @@ function drawImageAt(rc: RenderContext, url: string, x: number, y: number) {
   const img = rc.images.get(url);
   if (!img) return;
   const d = rc.images.density(url);
-  rc.ctx.drawImage(
-    img,
-    snap(x, d),
-    snap(y, d),
-    img.naturalWidth / d,
-    img.naturalHeight / d,
+  drawSmoothIf(rc.ctx, d, () =>
+    rc.ctx.drawImage(
+      img,
+      snap(x, d),
+      snap(y, d),
+      img.naturalWidth / d,
+      img.naturalHeight / d,
+    ),
   );
 }
 
@@ -152,16 +212,18 @@ function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
     ctx.rect(anim.clip.x, anim.clip.y, anim.clip.w, anim.clip.h);
     ctx.clip();
   }
-  ctx.drawImage(
-    img,
-    f.frame * w,
-    0,
-    w,
-    h,
-    snap(f.x, d),
-    snap(f.y, d),
-    w / d,
-    h / d,
+  drawSmoothIf(ctx, d, () =>
+    ctx.drawImage(
+      img,
+      f.frame * w,
+      0,
+      w,
+      h,
+      snap(f.x, d),
+      snap(f.y, d),
+      w / d,
+      h / d,
+    ),
   );
   if (anim.clip) ctx.restore();
 }
@@ -312,15 +374,31 @@ function drawSpeech(rc: RenderContext) {
   });
 }
 
-function drawIris(ctx: Ctx, tr: Extract<Transition, { kind: "iris" }>) {
+/**
+ * The iris wipe: stepped a logical px at a time over pixel art, as in the
+ * SCUMM games, and a smooth circle over HD art.
+ */
+function drawIris(
+  ctx: Ctx,
+  tr: Extract<Transition, { kind: "iris" }>,
+  hd: boolean,
+) {
   const reach = Math.hypot(NATIVE_W, NATIVE_H);
   const p =
     tr.phase === "close"
       ? 1 - Math.min(1, tr.t / IRIS_MS)
       : Math.min(1, tr.t / IRIS_MS);
-  const r = tr.phase === "close" && tr.t >= IRIS_MS ? 0 : Math.round(reach * p);
+  const closed = tr.phase === "close" && tr.t >= IRIS_MS;
   const [cx, cy] = tr.center;
   ctx.fillStyle = CORE.black;
+  if (hd) {
+    ctx.beginPath();
+    ctx.rect(0, 0, NATIVE_W, NATIVE_H);
+    if (!closed) ctx.arc(cx, cy, reach * p, 0, Math.PI * 2);
+    ctx.fill("evenodd");
+    return;
+  }
+  const r = closed ? 0 : Math.round(reach * p);
   for (let y = 0; y < NATIVE_H; y++) {
     const d = y - cy;
     if (Math.abs(d) >= r) {
@@ -371,6 +449,7 @@ function fallbackPlane(): HTMLCanvasElement {
 function drawTravelMap(
   rc: RenderContext,
   tr: Extract<Transition, { kind: "map" }>,
+  hd: boolean,
 ) {
   const { ctx, map, images } = rc;
   ctx.fillStyle = CORE.paper;
@@ -389,12 +468,28 @@ function drawTravelMap(
 
   const progress = flightProgress(tr.t);
   const routeColor = map.routeColor ?? CORE.red;
+  const steps = 240;
+  if (hd) {
+    // Over HD art: a smooth dashed stroke, with the pixel route's rhythm.
+    ctx.save();
+    ctx.strokeStyle = routeColor;
+    ctx.lineWidth = 1;
+    ctx.lineCap = "round";
+    ctx.setLineDash([3, 2]);
+    ctx.beginPath();
+    for (let i = 0; i <= steps * progress; i++) {
+      const [x, y] = pointOnRoute(tr.route, i / steps);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
   ctx.fillStyle = routeColor;
   // Dashes: 3 px on, 2 px off, sampled every native px along the curve.
-  const steps = 240;
   let last: Vec | null = null;
   let travelled = 0;
-  for (let i = 0; i <= steps * progress; i++) {
+  for (let i = 0; !hd && i <= steps * progress; i++) {
     const p = pointOnRoute(tr.route, i / steps);
     if (last) travelled += Math.hypot(p[0] - last[0], p[1] - last[1]);
     last = p;
@@ -435,16 +530,18 @@ function drawPlane(
     const w = Math.floor(sprite.naturalWidth / 8);
     const h = sprite.naturalHeight;
     const i = headingIndex(angle);
-    ctx.drawImage(
-      sprite,
-      i * w,
-      0,
-      w,
-      h,
-      -Math.floor(w / 2) / d,
-      -Math.floor(h / 2) / d,
-      w / d,
-      h / d,
+    drawSmoothIf(ctx, d, () =>
+      ctx.drawImage(
+        sprite,
+        i * w,
+        0,
+        w,
+        h,
+        -Math.floor(w / 2) / d,
+        -Math.floor(h / 2) / d,
+        w / d,
+        h / d,
+      ),
     );
   } else {
     const img = sprite ?? fallbackPlane();
@@ -453,12 +550,14 @@ function drawPlane(
     ctx.rotate(Math.round(angle / step) * step);
     const w = img instanceof HTMLImageElement ? img.naturalWidth : img.width;
     const h = img instanceof HTMLImageElement ? img.naturalHeight : img.height;
-    ctx.drawImage(
-      img,
-      -Math.floor(w / 2) / d,
-      -Math.floor(h / 2) / d,
-      w / d,
-      h / d,
+    drawSmoothIf(ctx, d, () =>
+      ctx.drawImage(
+        img,
+        -Math.floor(w / 2) / d,
+        -Math.floor(h / 2) / d,
+        w / d,
+        h / d,
+      ),
     );
   }
   ctx.restore();

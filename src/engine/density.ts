@@ -1,9 +1,11 @@
 /**
- * Pixel density (docs/art-spec.md, "Phase R: Remaster"). Scene data is in
- * logical px (320x160) at any density. An image at density 1 has one pixel
- * per logical px, as all the art had before the remaster. An image at
- * density 2 has two pixels per logical px in each direction: a 640x320
- * background, a 64x128 character cell.
+ * Pixel density (docs/art-spec.md, "Phase R: Remaster" and "Phase H: HD
+ * hand-painted"). Scene data is in logical px (320x160) at any density. An
+ * image at density 1 has one pixel per logical px, as all the art had before
+ * the remaster. An image at density 2 has two pixels per logical px in each
+ * direction: a 640x320 background, a 64x128 character cell. Density 4 is
+ * Phase H's hand-painted HD art: a 1280x640 background, drawn smoothly
+ * rather than as pixel art (see `isSmooth`).
  *
  * The engine works out each image's density from its size, so remastered
  * files can replace the old ones in place, one scene at a time, with no
@@ -18,10 +20,19 @@
  */
 
 /** Image pixels per logical px, in each direction. */
-export type Density = 1 | 2;
+export type Density = 1 | 2 | 4;
 
 /** Every density the engine can draw, lowest first. */
-const DENSITIES: readonly Density[] = [1, 2];
+const DENSITIES: readonly Density[] = [1, 2, 4];
+
+/**
+ * True for HD art (density 4), which is painted, not pixelled: it's drawn
+ * with high-quality smoothing on a canvas backed at display resolution.
+ * Density 1 and 2 stay pixel art, drawn nearest-neighbour.
+ */
+export function isSmooth(d: Density): boolean {
+  return d >= 4;
+}
 
 export interface Size {
   w: number;
@@ -53,8 +64,8 @@ export function detectDensity(pixels: Size, logical: Size): Density {
 
 /**
  * Rounds a logical coordinate to the pixel grid of an image at density `d`:
- * whole logical px at density 1, as before the remaster, and half logical
- * px at density 2, which is one canvas pixel.
+ * whole logical px at density 1, as before the remaster, half logical px
+ * at density 2, and a quarter at density 4 (one display pixel at 1280x640).
  */
 export function snap(v: number, d: Density): number {
   return Math.round(v * d) / d;
