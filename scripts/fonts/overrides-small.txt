@@ -1,0 +1,14 @@
+// Hand-tuned glyphs for serif-small (scripts/fonts/rasterize.py). Same
+// format as the atlas: glyph <code point> <advance> <left> <rows above
+// baseline>, then rows, "#" for ink. Advance is the ink width plus 1.
+
+// S: rasterized too narrow, with a broken spine.
+glyph 0053 8 0 8 S
+.####.#
+##...##
+##.....
+.####..
+...###.
+#....##
+##...##
+#.####.

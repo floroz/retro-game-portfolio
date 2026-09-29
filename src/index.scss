@@ -9,8 +9,9 @@
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
 
-/* Fredoka (SIL OFL 1.1, public/fonts/Fredoka-OFL.txt): the engine's world
-   text and the toolbar's status line. Self-hosted, Latin subsets only. */
+/* Fredoka (SIL OFL 1.1, public/fonts/Fredoka-OFL.txt): the toolbar's status
+   line. Self-hosted, Latin subsets only. World text is the engine's bitmap
+   serif font (src/engine/font.ts). */
 @font-face {
   font-family: Fredoka;
   font-style: normal;

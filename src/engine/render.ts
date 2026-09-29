@@ -9,11 +9,12 @@
  * an HD frame (the sprite-sheet character, shared sprites) stays
  * nearest-neighbour. The frame's density is its scene background's.
  *
- * Text (labels, captions, speech, the map label) draws on a separate layer
- * at display resolution (font.ts), laid over the art. To keep the depth
- * order, anything drawn in front of a label also erases it from the text
- * layer (`maskText`), so Daniele walking past the CRT still hides its
- * marquee, and the iris closes over speech.
+ * Text (labels, captions, speech, the map label) draws on a separate
+ * 640x320 layer in the bitmap serif font (font.ts), laid over the art and
+ * scaled 2x nearest-neighbour like it, so text sits on the art's pixel
+ * grid. To keep the depth order, anything drawn in front of a label also
+ * erases it from the text layer (`maskText`), so Daniele walking past the
+ * CRT still hides its marquee, and the iris closes over speech.
  *
  * Layers, back to front (docs/art-spec.md, "Layers, depth, and slots"):
  * 1. `bg`
@@ -38,7 +39,7 @@ import { CANVAS_W, CORE, IRIS_MS, NATIVE_H, NATIVE_W } from "./constants";
 import { isSmooth, snap, type Density } from "./density";
 import {
   drawText,
-  fitScale,
+  fitText,
   lineHeight,
   measureText,
   wrapText,
@@ -75,7 +76,7 @@ interface Drawable extends Paintable {
 
 export interface RenderContext {
   ctx: Ctx;
-  /** The display-resolution text layer over `ctx`. */
+  /** The 640x320 text layer over `ctx`. */
   text: TextLayer;
   engine: SceneEngine;
   images: ImageStore;
@@ -492,18 +493,25 @@ function drawLabel(layer: TextLayer, label: SceneLabel, now: number) {
     ctx.restore();
     return;
   }
+  // Every line of a sign is set alike, at the setting its widest line needs.
+  const widest = lines.reduce(
+    (a, l) => (measureText(l, font) > measureText(a, font) ? l : a),
+    "",
+  );
+  const fit = label.maxWidth
+    ? fitText(widest, label.maxWidth, font)
+    : { font, tracking: undefined };
   lines.forEach((line, i) => {
-    const fit = label.maxWidth ? fitScale(line, label.maxWidth, font) : 1;
-    const w = measureText(line, font, fit);
+    const w = measureText(line, fit.font, fit.tracking);
     const x =
       label.align === "center"
         ? label.x - w / 2
         : label.align === "right"
           ? label.x - w
           : label.x;
-    drawText(layer, line, x, label.y + i * lineHeight(font), {
+    drawText(layer, line, x, label.y + i * lineHeight(fit.font), {
       ...style,
-      fit,
+      ...fit,
     });
   });
 }
@@ -586,8 +594,15 @@ function drawCharacter(rc: RenderContext) {
   ctx.restore();
 }
 
-/** A soft shadow under speech's outline. */
-const SPEECH_SHADOW = "rgba(15, 13, 18, 0.55)";
+/**
+ * Daniele's speech, as Guybrush's in MI3: white letters, a hard black rim,
+ * and a black drop shadow.
+ */
+const SPEECH = {
+  color: "#ffffff",
+  outline: CORE.black,
+  shadow: CORE.black,
+} as const;
 
 /** Daniele's lines: centred over his head, kept on screen, SCUMM style. */
 function drawSpeech(rc: RenderContext) {
@@ -606,19 +621,15 @@ function drawSpeech(rc: RenderContext) {
   const headTop = y - head * figure.scale;
   const top = Math.max(2, Math.round(headTop - 3 - speech.lines.length * lh));
   const widest = Math.max(...speech.lines.map((l) => measureText(l)));
-  // Kept clear of the edges by the margin plus the outline.
-  const margin = 6;
+  // Kept clear of the edges by the margin, which covers the rim and shadow.
+  const margin = 3;
   const center = Math.max(
     margin + widest / 2,
     Math.min(NATIVE_W - margin - widest / 2, x),
   );
   speech.lines.forEach((line, i) => {
     const w = measureText(line);
-    drawText(rc.text, line, center - w / 2, top + i * lh, {
-      color: CORE.paper,
-      outline: CORE.black,
-      shadow: SPEECH_SHADOW,
-    });
+    drawText(rc.text, line, center - w / 2, top + i * lh, SPEECH);
   });
 }
 
@@ -756,7 +767,6 @@ function drawTravelMap(
     font: "small",
     color: map.labelColor ?? CORE.black,
     outline: CORE.paper,
-    outlineWidth: 0.8,
   });
 
   drawPlane(rc, tr, progress);
