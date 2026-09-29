@@ -1,7 +1,7 @@
 {
   "id": "char-rig",
   "output": "src/assets/character/daniele-rig.png",
-  "task": "HB7",
+  "task": "HB7, HR1",
   "source": "codex",
   "prompt": "assets-src/prompts/hd/char-parts.md",
   "candidate": "01 of each sheet: char-parts-side, char-parts-front, char-parts-back, char-heads-side, char-heads-front",
@@ -10,7 +10,7 @@
   "derivedFrom": "char-turnaround@hd",
   "density": 2,
   "style": "painted",
-  "cleanup": "Sliced from the five approved sheets (assets-src/approved/char-parts-{side,front,back}@hd.webp, char-heads-{side,front}@hd.webp; the head sheets' prompt is assets-src/prompts/hd/char-heads.md) with npm run assets:rigcut, which keys and resizes each part like assets:prepare --painted (hard alpha), keeps the ink dark at the small size (pupils and outlines that downscaled to grey are set back to solid ink; no other colour is touched), cuts the torso's neck peg so the head's own neck shows through the collar, scales arms to 0.88 and legs to 1.1 of the sheet scale, and scales each facing so the assembled figure stands 144 art px (72 logical px). Head variants: talk-1 (open), talk-2 (wide), talk-3 (O) and blink, side and front only; the back head is the sheet's. Pivots and attach points are in assets-src/character-rig/rig.json; npm run assets:rig -- --parts assets-src/character-rig --density 2 packs it into one atlas of at most 256 colours with hard alpha.",
+  "cleanup": "HR1 repaint of the HB7 puppet. The five approved sheets (assets-src/approved/char-parts-{side,front,back}@hd.webp, char-heads-{side,front}@hd.webp) are not resliced any more: npm run assets:rigcut paints every part straight in its facing's drawing px (144 art px, 72 logical px) from one body model shared by the three facings, with the sheets supplying the painting only. Limbs are procedural tubes (round joint caps, a taper to the wrist, equal widths in every facing) whose fill and drawn detail (cuffs, pockets, folds) are sampled, supersampled and without the sheet's own outline, from each limb's clean shaft rows, so the sheet's cap seams never show; the torso is a sloped-shoulder polygon sampled from the sheet's body, with a procedural rib hem and cream collar; hands are hand-drawn 7x9 px mittens (HANDS in rigcut.ts); shoes are cut from the sheet's shin regions; heads are sampled from the head sheets at 25.5 art px (1/5.65 of the figure), with a short neck stub, aligned variants (talk-1 wide, talk-2 O, talk-3 open, blink; side and front) and the sheet's back head. Each part gets one 1 px ink ring (RIG_INK) except at its open joint ends; the renderer inks the posed union (src/engine/rig/outline.ts). Sweater, jeans and hair fills are the sheets' own (mean OKLab change from HB7 0.014, 0.007, 0.005). Packed with npm run assets:rig -- --parts assets-src/character-rig --density 2 into one atlas of at most 256 colours with hard alpha. No Codex prompt was needed.",
   "approvedBy": "daniele",
-  "date": "2026-09-29"
+  "date": "2026-09-30"
 }

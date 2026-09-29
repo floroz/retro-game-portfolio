@@ -1,37 +1,36 @@
 /**
  * Codex parts sheets to the rig's part images and rig.json (docs/art-spec.md,
- * Phase H, "Character"; task HB7). The cut half of the rig pipeline:
+ * Phase H, "Character"; tasks HB7 and HR1). The cut half of the rig pipeline:
  *
  *   npm run assets:rigcut -- [--out assets-src/character-rig] [--preview <dir>]
  *   npm run assets:rig -- --parts assets-src/character-rig --density 2
  *
  * It reads the five approved sheets in assets-src/approved/ (char-parts-side,
- * -front and -back, and the five-head sheets char-heads-side and -front),
- * splits each into its parts by connected regions, and for every part runs
- * the painted pipeline of `assets:prepare --painted` (soft key from the
- * sheet's alpha, Lanczos resize, hard alpha), then boosts the ink so the eye
- * pupils and outlines survive the downscale as solid dark pixels. Nothing
- * else in the painting is changed, except that the torso's placeholder neck
- * peg is cut away so the head's own neck shows through the collar.
+ * -front and -back, and the five-head sheets char-heads-side and -front) and
+ * paints every part straight in its facing's drawing px (144 px tall, 72
+ * logical px), from a body model (`M`) that all three facings share, so the
+ * arms, legs and torso are the same size from every side. The sheets supply
+ * the painting: fills, folds, the cuffs, hem, pockets, and the faces. Their
+ * silhouettes are replaced (rigpaint.ts):
  *
- * Then it lays each facing out as an assembled figure: every part gets an
- * integer joint (pivot) inside its image and a landmark for each child, from
- * the shape of the painted caps (the round ends drawn for overlap), and the
- * scale is searched so the side figure stands exactly 144 art px tall, 72
- * logical px at the front. It writes each part PNG in its facing's drawing
- * px, and a `rig.json` (`RigSource`, rigpack.ts) for `assets:rig`.
+ * - limbs are tubes with round joint caps and a taper, sampled from the
+ *   sheet's clean shaft rows, so the sheet's own dome-and-seam caps never
+ *   show as lines at a knee, elbow or shoulder;
+ * - the torso is a sloped-shoulder polygon, sampled from the sheet's body;
+ * - hands are drawn by hand (`HANDS`), relaxed and mitten-simple, because a
+ *   painted finger is a claw at 7 px;
+ * - each part gets one 1 px ink ring except in its open joint-end zones, and
+ *   the renderer rings the posed union (rig/draw.ts).
  *
- * The landmarks in the tables below are read off the picked candidates
+ * The sheet regions and raw rows below are read off the picked candidates
  * (candidate 01 of each sheet); another candidate needs new numbers.
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import type { RigFacing, RigPartId, RigPoint } from "../../src/engine/rigTypes";
-import { keyOptions, prepare } from "./hd";
 import {
   REPO_ROOT,
-  alphaBounds,
   cliPath,
   createImage,
   fail,
@@ -40,14 +39,64 @@ import {
   type Image,
   type Rect,
 } from "./lib";
-import { finishPainted } from "./painted";
+import {
+  analyseSpans,
+  createBuf,
+  finish,
+  inPolygon,
+  inTube,
+  paintElement,
+  paintProc,
+  tidySilhouette,
+  tone,
+  toImage,
+  tubeMap,
+  type Buf,
+  type Element,
+  type Rgb,
+  type Spans,
+  type TubeShape,
+} from "./rigpaint";
 import type { RigSource, RigSourcePart } from "./rigpack";
 
 const APPROVED = join(REPO_ROOT, "assets-src/approved");
-/** The standing height in art px (72 logical px at density 2). */
-const FIGURE_HEIGHT = 144;
 
-// --- Regions of a sheet -------------------------------------------------------------------
+// --- The body model ---------------------------------------------------------------------------
+
+/**
+ * Every facing's body, in px above the soles (drawing px are y down, so
+ * `-Y`). Head-heavy in the MI3 way: the head is 25.5 of 144 (1/5.65), the
+ * hem sits at half his height, and the hands end on the thigh.
+ */
+const M = {
+  top: 144,
+  chin: 118.5,
+  /** The torso's top edge at the neck. */
+  neck: 119,
+  /** The arms' joint: just under the shoulder line. */
+  shoulder: 108,
+  elbow: 84,
+  wrist: 66.5,
+  hip: 70,
+  /** The bottom of the sweater. */
+  hem: 67,
+  knee: 36,
+  /** Where the jeans end on the shoe. */
+  jeansEnd: 5.5,
+  /** Torso half width, and the x of the arms' and legs' joints. */
+  torsoHalf: 15,
+  armX: 14,
+  legX: 7,
+  /** Widths (full) of the limbs, top to bottom. */
+  upperArm: [8, 8],
+  forearm: [8, 6],
+  thigh: [12, 12],
+  shin: [12, 10, 12],
+} as const;
+
+const Yd = (up: number) => -up;
+
+// --- Regions of a sheet -------------------------------------------------------------------------
 
 interface Region extends Rect {
   id: number;
@@ -144,166 +193,125 @@ function brightness(sheet: Sheet, r: Region): number {
   return sum / Math.max(n, 1);
 }
 
-/** Left and right edge of a region's pixels on row `y`. */
-function rowSpan(sheet: Sheet, r: Region, y: number): [number, number] | null {
-  let lo = Infinity;
-  let hi = -Infinity;
-  for (let x = r.x; x < r.x + r.w; x++) {
-    if (sheet.labels[y * sheet.img.width + x] === r.id) {
-      lo = Math.min(lo, x);
-      hi = Math.max(hi, x);
-    }
-  }
-  return hi < lo ? null : [lo, hi];
-}
-
-// --- Landmarks ------------------------------------------------------------------------------
-
 /**
- * A limb's two joints, in the sheet's px: `prox` at its top cap and `dist`
- * at its bottom cap. Each cap is drawn as a dome whose seam is the joint,
- * so the joint sits a fixed fraction of the shaft width from the end.
+ * The best whole-px shift of `v` onto `base` (both regions of one sheet),
+ * from the hair and forehead where the heads don't differ.
  */
-function limbJoints(
-  sheet: Sheet,
-  r: Region,
-): { prox: RigPoint; dist: RigPoint } {
-  const widths: number[] = [];
-  for (let y = r.y + Math.round(0.25 * r.h); y < r.y + 0.5 * r.h; y++) {
-    const s = rowSpan(sheet, r, y);
-    if (s) widths.push(s[1] - s[0] + 1);
-  }
-  widths.sort((a, b) => a - b);
-  const w0 = widths[Math.floor(widths.length / 2)] ?? r.w;
-  const at = (y: number): RigPoint => {
-    const s = rowSpan(sheet, r, Math.round(y));
-    return { x: s ? (s[0] + s[1]) / 2 : r.x + r.w / 2, y };
-  };
-  return {
-    prox: at(r.y + 0.3 * w0),
-    dist: at(r.y + r.h - 0.4 * w0),
-  };
-}
-
-/** Centre of a region's row `y`. */
-function centreAt(sheet: Sheet, r: Region, y: number): number {
-  const s = rowSpan(sheet, r, y);
-  return s ? (s[0] + s[1]) / 2 : r.x + r.w / 2;
-}
-
-// --- Ink ------------------------------------------------------------------------------------
-
-const INK_MAX = 34;
-
-/**
- * Downscaling turns a 20 px black pupil or a 10 px outline into a mid grey.
- * Every output pixel whose footprint in the raw crop is mostly ink (near
- * black) becomes solid ink, and a nearly opaque neighbourhood of ink keeps
- * the silhouette closed. Everything else is left as the resize made it.
- */
-function boostInk(out: Image, raw: Image, crop: Rect): Image {
-  const res: Image = { ...out, data: new Uint8ClampedArray(out.data) };
-  const sx = crop.w / out.width;
-  const sy = crop.h / out.height;
-  for (let j = 0; j < out.height; j++) {
-    for (let i = 0; i < out.width; i++) {
-      const x0 = Math.floor(crop.x + i * sx);
-      const x1 = Math.max(x0 + 1, Math.floor(crop.x + (i + 1) * sx));
-      const y0 = Math.floor(crop.y + j * sy);
-      const y1 = Math.max(y0 + 1, Math.floor(crop.y + (j + 1) * sy));
-      let dark = 0;
-      let opaque = 0;
-      let r = 0;
-      let g = 0;
-      let b = 0;
-      for (let y = y0; y < y1; y++) {
-        for (let x = x0; x < x1; x++) {
-          const p = (y * raw.width + x) * 4;
-          if (raw.data[p + 3] < 128) continue;
-          opaque++;
-          if (
-            Math.max(raw.data[p], raw.data[p + 1], raw.data[p + 2]) <= INK_MAX
-          ) {
-            dark++;
-            r += raw.data[p];
-            g += raw.data[p + 1];
-            b += raw.data[p + 2];
-          }
+function alignShift(sheet: Sheet, base: Region, v: Region): RigPoint {
+  const { data, width } = sheet.img;
+  const rows = Math.floor(base.h * 0.4);
+  let best = { x: v.x - base.x, y: v.y - base.y };
+  let bestScore = Infinity;
+  const gx = v.x - base.x;
+  const gy = v.y - base.y;
+  for (let dy = gy - 6; dy <= gy + 6; dy++) {
+    for (let dx = gx - 6; dx <= gx + 6; dx++) {
+      let sum = 0;
+      let n = 0;
+      for (let y = 0; y < rows; y += 2) {
+        for (let x = 0; x < base.w; x += 2) {
+          const p = ((base.y + y) * width + base.x + x) * 4;
+          const q = ((base.y + y + dy) * width + base.x + x + dx) * 4;
+          if (data[p + 3] < 200 || data[q + 3] < 200) continue;
+          sum +=
+            Math.abs(data[p] - data[q]) +
+            Math.abs(data[p + 1] - data[q + 1]) +
+            Math.abs(data[p + 2] - data[q + 2]);
+          n++;
         }
       }
-      const area = (x1 - x0) * (y1 - y0);
-      const q = (j * out.width + i) * 4;
-      const solid = dark / area >= 0.4;
-      const inside =
-        res.data[q + 3] === 255 &&
-        dark / Math.max(opaque, 1) >= 0.5 &&
-        dark / area >= 0.25;
-      if (solid || inside) {
-        res.data[q] = Math.round(r / dark);
-        res.data[q + 1] = Math.round(g / dark);
-        res.data[q + 2] = Math.round(b / dark);
-        res.data[q + 3] = 255;
+      const score = n < 50 ? Infinity : sum / n;
+      if (score < bestScore) {
+        bestScore = score;
+        best = { x: dx, y: dy };
       }
     }
   }
-  return res;
+  return best;
 }
 
-// --- One part image -------------------------------------------------------------------------
+// --- Hands ----------------------------------------------------------------------------------------
 
-interface Cut {
-  image: Image;
-  /** The raw crop, so raw landmarks can be mapped into the image. */
-  crop: Rect;
+/** Skin ramp, sampled from the sheets' hands. */
+const SKIN: Rgb = [244, 176, 112];
+const SKIN_SHADE: Rgb = [214, 140, 88];
+const CREAM: Rgb = [238, 228, 208];
+const CREAM_SHADE: Rgb = [206, 194, 172];
+
+/**
+ * A hanging hand, top row under the cuff. `#` skin, `d` shade, `k` ink
+ * detail (a thumb crease). The outline is added by the ring, so only the
+ * silhouette and the few interior marks are drawn here. The thumb is on the
+ * right; the left hand is the mirror.
+ */
+const HAND_FRONT = [
+  "..###..",
+  ".#####.",
+  "#####d#",
+  "#####d#",
+  "#####d#",
+  ".####d#",
+  ".####d.",
+  ".##d##.",
+  "..###..",
+];
+const HAND_BACK = [
+  "..###..",
+  ".#####.",
+  "#####d#",
+  "#####d#",
+  "#####d#",
+  ".####d#",
+  ".####d.",
+  ".##d##.",
+  "..###..",
+];
+const HAND_SIDE = [
+  "..###..",
+  ".#####.",
+  ".######",
+  ".#####d",
+  ".####d#",
+  ".####d.",
+  ".####d.",
+  ".##d##.",
+  "..###..",
+];
+
+interface HandSpec {
+  rows: readonly string[];
+  /** Mirror so the thumb is on the left. */
+  flip: boolean;
+  /** Drawing px of the top-left of the hand. */
+  x: number;
+  y: number;
 }
 
-const PAD = 4;
-
-/** Prepare (key, resize, hard alpha, ink) region `r` of `raw` at `scale`. */
-async function cutPart(raw: Image, crop: Rect, scale: number): Promise<Cut> {
-  const result = await prepare(raw, {
-    kind: "sprite",
-    crop,
-    scale,
-    key: keyOptions({}, "auto"),
+function paintHand(b: Buf, id: number, h: HandSpec): void {
+  const w = h.rows[0].length;
+  paintProc(b, id, (x, y) => {
+    const c = Math.floor(x - h.x);
+    const r = Math.floor(y - h.y);
+    if (r < 0 || r >= h.rows.length || c < 0 || c >= w) return null;
+    const ch = h.rows[r][h.flip ? w - 1 - c : c];
+    if (ch === "#") return SKIN;
+    if (ch === "d") return SKIN_SHADE;
+    if (ch === "k") return "ink";
+    return null;
   });
-  const hard = finishPainted(result.image, { quantize: false }).image;
-  return { image: boostInk(hard, raw, crop), crop };
 }
 
-const padded = (r: Rect, img: Image): Rect => {
-  const x = Math.max(0, r.x - PAD);
-  const y = Math.max(0, r.y - PAD);
-  return {
-    x,
-    y,
-    w: Math.min(img.width, r.x + r.w + PAD) - x,
-    h: Math.min(img.height, r.y + r.h + PAD) - y,
-  };
-};
-
-/** Raw sheet px to a point in the cut image. */
-const mapTo = (cut: Cut, p: RigPoint): RigPoint => ({
-  x: ((p.x - cut.crop.x) * cut.image.width) / cut.crop.w,
-  y: ((p.y - cut.crop.y) * cut.image.height) / cut.crop.h,
-});
-
-// --- Facing tables --------------------------------------------------------------------------
+// --- Facing tables ------------------------------------------------------------------------------
 
 type Limb = "upper-arm" | "forearm" | "thigh" | "shin";
 const LIMBS: Limb[] = ["upper-arm", "forearm", "thigh", "shin"];
-/**
- * The sheets draw MI3-long arms and short legs; the arms are scaled down and
- * the legs up so the hands reach mid-thigh and the legs are half the height.
- */
-const LIMB_SCALE: Record<Limb, number> = {
-  "upper-arm": 0.88,
-  forearm: 0.88,
-  thigh: 1.1,
-  shin: 1.1,
-};
-/** Sheet px the front and back arms' shoulder joints sit inside the torso's edge. */
-const SHOULDER_INSET = 40;
+
+interface RowSpec {
+  /** Sheet rows stretched over the tube. */
+  rows: [number, number];
+  /** Clamp the sampled rows, to skip a drawn cap. */
+  clamp?: [number, number];
+}
 
 interface FacingSpec {
   sheet: string;
@@ -312,22 +320,22 @@ interface FacingSpec {
   limbs: Record<Limb, [number, number]>;
   /** The head: a region of the parts sheet, or the heads sheet's file. */
   head: { sheet: string } | { region: number };
-  /** Torso landmarks in sheet px. */
-  hip: RigPoint;
-  hipHalf: number;
-  shoulder: { r: RigPoint; l: RigPoint } | "auto";
-  neck: RigPoint;
-  /** Ellipse (centre, semi-axes) of the peg to cut from the torso, if any. */
-  peg?: { cx: number; cy: number; a: number; b: number };
-  /** Base scales: body (sheet px to art px) and head. */
-  body: number;
-  headScale: number;
-  /** Art px of the head's neck hidden under the collar. */
-  tuck: number;
+  /** Torso body rows in the sheet (collar top to hem bottom) and a clean row for its width. */
+  torsoRows: [number, number];
+  torsoWidthRow: number;
+  /** Tube rows per limb. */
+  tubes: Record<Limb, RowSpec>;
+  /** Shoe: sheet rows from which the shoe is cut. */
+  shoeFrom: number;
+  /** x of each part's joints: r and l (screen x). */
+  armX: [number, number];
+  legX: [number, number];
   /** Draw order, back to front. */
   order: RigPartId[];
-  /** Nudge of the whole head, in art px. */
-  headNudge?: RigPoint;
+  /** Head: the chin's row in the sheet, the neck's centre column (from the head region's left), and its x. */
+  headAt: { chinY: number; neckX: number; x: number; pad?: number };
+  /** Neck stub kept below the chin, in art px. */
+  neckKeep: number;
 }
 
 const ORDER_SIDE: RigPartId[] = [
@@ -366,15 +374,20 @@ const SPECS: Record<RigFacing, FacingSpec> = {
       shin: [7, 10],
     },
     head: { sheet: "char-heads-side@hd.webp" },
-    hip: { x: 613, y: 446 },
-    hipHalf: 0,
-    shoulder: { r: { x: 613, y: 150 }, l: { x: 613, y: 150 } },
-    neck: { x: 606, y: 100 },
-    peg: { cx: 607, cy: 72, a: 52, b: 24 },
-    body: 0.118,
-    headScale: 0.0967,
-    tuck: 5,
+    torsoRows: [96, 445],
+    torsoWidthRow: 300,
+    tubes: {
+      "upper-arm": { rows: [165, 400] },
+      forearm: { rows: [205, 362] },
+      thigh: { rows: [600, 770] },
+      shin: { rows: [545, 725] },
+    },
+    shoeFrom: 735,
+    armX: [0, 0],
+    legX: [0, 0],
     order: ORDER_SIDE,
+    headAt: { chinY: 598, neckX: 155, x: -0.5, pad: 8 },
+    neckKeep: 2.5,
   },
   front: {
     sheet: "char-parts-front@hd.webp",
@@ -386,15 +399,20 @@ const SPECS: Record<RigFacing, FacingSpec> = {
       shin: [9, 10],
     },
     head: { sheet: "char-heads-front@hd.webp" },
-    hip: { x: 732, y: 446 },
-    hipHalf: 85,
-    shoulder: "auto",
-    neck: { x: 735, y: 114 },
-    peg: { cx: 735, cy: 90, a: 54, b: 22 },
-    body: 0.1291,
-    headScale: 0.0753,
-    tuck: 5,
+    torsoRows: [105, 448],
+    torsoWidthRow: 320,
+    tubes: {
+      "upper-arm": { rows: [200, 395] },
+      forearm: { rows: [175, 400] },
+      thigh: { rows: [630, 845] },
+      shin: { rows: [640, 835] },
+    },
+    shoeFrom: 850,
+    armX: [-M.armX, M.armX],
+    legX: [-M.legX, M.legX],
     order: ORDER_FRONT,
+    headAt: { chinY: 528, neckX: 182, x: 0 },
+    neckKeep: 5,
   },
   back: {
     sheet: "char-parts-back@hd.webp",
@@ -406,33 +424,44 @@ const SPECS: Record<RigFacing, FacingSpec> = {
       shin: [10, 9],
     },
     head: { region: 1 },
-    hip: { x: 513, y: 745 },
-    hipHalf: 90,
-    shoulder: "auto",
-    neck: { x: 513, y: 358 },
-    body: 0.1264,
-    headScale: 0.1264,
-    tuck: 5,
-    order: ORDER_FRONT,
+    torsoRows: [358, 752],
+    torsoWidthRow: 600,
+    tubes: {
+      "upper-arm": { rows: [205, 400] },
+      forearm: { rows: [505, 697] },
+      thigh: { rows: [777, 1090], clamp: [840, 1090] },
+      shin: { rows: [1140, 1390] },
+    },
+    shoeFrom: 1402,
+    armX: [M.armX, -M.armX],
+    legX: [M.legX, -M.legX],
+    order: [
+      "shin-r",
+      "thigh-r",
+      "shin-l",
+      "thigh-l",
+      "torso",
+      "head",
+      "forearm-r",
+      "upper-arm-r",
+      "forearm-l",
+      "upper-arm-l",
+    ],
+    headAt: { chinY: 268, neckX: 99, x: 0 },
+    neckKeep: 3,
   },
 };
 
-// --- Assembly -------------------------------------------------------------------------------
+// --- Assembly ---------------------------------------------------------------------------------------
 
-interface BuiltPart {
-  id: RigPartId;
+interface Built {
   image: Image;
-  /** The joint inside the image, whole px. */
+  /** Top-left in the drawing, whole px. */
+  offset: RigPoint;
+  /** The joint, in the drawing. */
   pivot: RigPoint;
-  /** Where each child's joint sits inside the image, whole px. */
-  marks: Partial<Record<RigPartId, RigPoint>>;
   variants: Record<string, Image>;
 }
-
-const round = (p: RigPoint): RigPoint => ({
-  x: Math.round(p.x),
-  y: Math.round(p.y),
-});
 
 const PARENT: Record<RigPartId, RigPartId | null> = {
   torso: null,
@@ -447,63 +476,367 @@ const PARENT: Record<RigPartId, RigPartId | null> = {
   "shin-l": "thigh-l",
 };
 
-/** The peg cut from the torso's raw image. */
-function cutPeg(raw: Image, p: NonNullable<FacingSpec["peg"]>): void {
-  for (let y = 0; y < raw.height; y++) {
-    for (let x = 0; x < raw.width; x++) {
-      const dx = x - p.cx;
-      const ax = Math.abs(dx);
-      if (ax > p.a + 12) continue;
-      const limit =
-        ax <= p.a ? p.cy + p.b * Math.sqrt(1 - (dx / p.a) ** 2) : p.cy;
-      if (y < limit)
-        raw.data.fill(0, (y * raw.width + x) * 4, (y * raw.width + x) * 4 + 4);
-    }
+/** The polygon of a symmetric shape from its right half, top to bottom. */
+function symmetric(
+  right: readonly (readonly [number, number])[],
+): [number, number][] {
+  return [
+    ...right.map(([x, y]) => [x, y] as [number, number]),
+    ...[...right].reverse().map(([x, y]) => [-x, y] as [number, number]),
+  ];
+}
+
+/** Sheet colours the procedural bits share. */
+const ID = { base: 1, shoe: 2, hand: 3, detail: 4 } as const;
+
+interface Ctx {
+  facing: RigFacing;
+  spec: FacingSpec;
+  sheet: Sheet;
+}
+
+/** Where a limb's joint is, in the drawing. */
+function jointOf(id: RigPartId, spec: FacingSpec): RigPoint {
+  const side = id.endsWith("-r") ? 0 : 1;
+  switch (id) {
+    case "torso":
+      return { x: 0, y: Yd(M.hip) };
+    case "head":
+      return { x: 0, y: Yd(M.neck - 5) };
+    case "upper-arm-r":
+    case "upper-arm-l":
+      return { x: spec.armX[side], y: Yd(M.shoulder) };
+    case "forearm-r":
+    case "forearm-l":
+      return { x: spec.armX[side], y: Yd(M.elbow) };
+    case "thigh-r":
+    case "thigh-l":
+      return { x: spec.legX[side], y: Yd(M.hip) };
+    case "shin-r":
+    case "shin-l":
+      return { x: spec.legX[side], y: Yd(M.knee) };
   }
 }
 
-/**
- * The best whole-px shift of `v` onto `base` (both regions of one sheet),
- * from the hair and forehead where the heads don't differ.
- */
-function alignShift(sheet: Sheet, base: Region, v: Region): RigPoint {
-  const { data, width } = sheet.img;
-  const rows = Math.floor(base.h * 0.4);
-  let best = { x: v.x - base.x, y: v.y - base.y };
-  let bestScore = Infinity;
-  const gx = v.x - base.x;
-  const gy = v.y - base.y;
-  for (let dy = gy - 6; dy <= gy + 6; dy++) {
-    for (let dx = gx - 6; dx <= gx + 6; dx++) {
-      let sum = 0;
-      let n = 0;
-      for (let y = 0; y < rows; y += 2) {
-        for (let x = 0; x < base.w; x += 2) {
-          const p = ((base.y + y) * width + base.x + x) * 4;
-          const q = ((base.y + y + dy) * width + base.x + x + dx) * 4;
-          if (data[p + 3] < 200 || data[q + 3] < 200) continue;
-          sum +=
-            Math.abs(data[p] - data[q]) +
-            Math.abs(data[p + 1] - data[q + 1]) +
-            Math.abs(data[p + 2] - data[q + 2]);
-          n++;
-        }
-      }
-      const score = n < 50 ? Infinity : sum / n;
-      if (score < bestScore) {
-        bestScore = score;
-        best = { x: dx, y: dy };
-      }
-    }
-  }
-  return best;
+const boxFor = (cx: number, w: number, yTop: number, yBot: number) => {
+  const x0 = Math.floor(cx - w / 2) - 3;
+  const y0 = Math.floor(yTop) - 2;
+  return createBuf(x0, y0, Math.ceil(w) + 6, Math.ceil(yBot) - y0 + 3);
+};
+
+function widthsOf(top: number, bot: number, yTop: number, yBot: number) {
+  return [
+    [yTop, top],
+    [yBot, bot],
+  ] as const;
 }
 
+/** Paints a tube part (a limb) and returns it. */
+function limbPart(
+  ctx: Ctx,
+  id: RigPartId,
+  limb: Limb,
+  region_: Region,
+  raw: Image,
+): Built {
+  const { spec, facing } = ctx;
+  const side = id.endsWith("-r") ? 0 : 1;
+  const joint = jointOf(id, spec);
+  const cx = joint.x;
+  const spans = analyseSpans(raw);
+  const rows = spec.tubes[limb];
+  const [wa, wb] = limbWidths(limb);
+  let tube: TubeShape;
+  let open: (x: number, y: number) => boolean;
+  let buf: Buf;
+  const before: ((b: Buf) => void)[] = [];
+  let contour = false;
+  switch (limb) {
+    case "upper-arm": {
+      const R = wa / 2;
+      const yTop = Yd(M.shoulder) - R;
+      const yBot = Yd(M.elbow) + wb / 2;
+      tube = {
+        cx,
+        yTop,
+        yBot,
+        widths: widthsOf(wa, wb, yTop, yBot),
+        capTop: R,
+        capBot: wb / 2,
+      };
+      open = (_x, y) => y < Yd(M.shoulder) || y > Yd(M.elbow);
+      buf = boxFor(cx, wa, yTop, yBot);
+      break;
+    }
+    case "forearm": {
+      const R = wa / 2;
+      const yTop = Yd(M.elbow) - R;
+      const yBot = Yd(M.wrist) + 1;
+      tube = {
+        cx,
+        yTop,
+        yBot,
+        widths: [
+          [yTop, wa],
+          [Yd(M.wrist + 10), wb + 0.4],
+          [yBot, wb],
+        ],
+        capTop: R,
+        capBot: 0,
+      };
+      open = (_x, y) => y < Yd(M.elbow);
+      buf = boxFor(cx, 12, yTop, yBot + 10);
+      // The hand hangs under the cuff.
+      const hand = handFor(facing, side);
+      before.push((b) =>
+        paintHand(b, ID.hand, {
+          rows: hand.rows,
+          flip: hand.flip,
+          x: Math.round(cx - hand.rows[0].length / 2 + hand.dx),
+          y: Yd(M.wrist) - 1,
+        }),
+      );
+      break;
+    }
+    case "thigh": {
+      const R = wa / 2;
+      const yTop = Yd(M.hip) - R;
+      const yBot = Yd(M.knee) + wb / 2;
+      tube = {
+        cx,
+        yTop,
+        yBot,
+        widths: widthsOf(wa, wb, yTop, yBot),
+        capTop: R,
+        capBot: wb / 2,
+      };
+      open = (_x, y) => y < Yd(M.hip) || y > Yd(M.knee);
+      buf = boxFor(cx, wa, yTop, yBot);
+      break;
+    }
+    case "shin": {
+      const yTop = Yd(M.knee) - M.shin[0] / 2;
+      const yBot = Yd(M.jeansEnd);
+      tube = {
+        cx,
+        yTop,
+        yBot,
+        widths: [
+          [yTop, M.shin[0]],
+          [Yd(24), M.shin[0]],
+          [Yd(16), M.shin[1]],
+          [Yd(9), M.shin[1]],
+          [yBot, M.shin[2]],
+        ],
+        capTop: M.shin[0] / 2,
+        capBot: 0,
+      };
+      open = (_x, y) => y < Yd(M.knee);
+      buf = boxFor(cx, 26, yTop, 2);
+      contour = true;
+      before.push((b) => paintShoe(ctx, b, region_, raw, spans, cx, side));
+      break;
+    }
+  }
+  for (const f of before) f(buf);
+  const el: Element = {
+    id: ID.base,
+    raw,
+    map: tubeMap(tube, spans, rows.rows, rows.clamp),
+    inside: (x, y) => inTube(tube, x, y),
+    contour,
+  };
+  paintElement(buf, el);
+  if (limb === "forearm") {
+    // A rib cuff under a shadow line.
+    tone(buf, (_x, y) => y > Yd(M.wrist + 1.5) && y <= Yd(M.wrist - 1), 1.12);
+    tone(buf, (_x, y) => y > Yd(M.wrist + 2.5) && y <= Yd(M.wrist + 1.5), 0.55);
+  }
+  finish(buf, { open, despeckle: true, contour: contour ? [ID.base] : [] });
+  return {
+    image: toImage(buf),
+    offset: { x: buf.x0, y: buf.y0 },
+    pivot: joint,
+    variants: {},
+  };
+}
+
+function limbWidths(limb: Limb): [number, number] {
+  switch (limb) {
+    case "upper-arm":
+      return [M.upperArm[0], M.upperArm[1]];
+    case "forearm":
+      return [M.forearm[0], M.forearm[1]];
+    case "thigh":
+      return [M.thigh[0], M.thigh[1]];
+    case "shin":
+      return [M.shin[0], M.shin[2]];
+  }
+}
+
+function handFor(facing: RigFacing, side: number) {
+  // Screen side of each hand: the thumb faces the body.
+  const rightOnLeft =
+    facing === "front" ? side === 0 : facing === "back" ? side === 1 : true;
+  return {
+    rows:
+      facing === "front"
+        ? HAND_FRONT
+        : facing === "back"
+          ? HAND_BACK
+          : HAND_SIDE,
+    // Thumb on the right by default; a hand on the screen-right flips it.
+    flip: facing === "side" ? false : !rightOnLeft,
+    dx: 0,
+  };
+}
+
+const SHOE_SCALE = 0.1;
+
+/** The shoe, cut from the sheet's shin region below `shoeFrom`. */
+function paintShoe(
+  ctx: Ctx,
+  b: Buf,
+  r: Region,
+  raw: Image,
+  spans: Spans,
+  cx: number,
+  side: number,
+): void {
+  const { spec, facing } = ctx;
+  const row = Math.min(
+    spec.tubes.shin.rows[1],
+    spans.y0 + spans.centre.length - 1,
+  );
+  const legCentre = spans.centre[row];
+  const bottom = r.y + r.h;
+  // The shoe of the near or far foot points a little outwards in front/back.
+  const out =
+    facing === "side"
+      ? 0
+      : (side === 0 ? -1 : 1) * (facing === "front" ? 0.5 : 0.3);
+  const shoe: Element = {
+    id: ID.shoe,
+    raw,
+    map: (x, y) => [
+      legCentre + (x - cx - out) / SHOE_SCALE,
+      bottom + (y - 0) / SHOE_SCALE,
+    ],
+    source: (_sx, sy) => sy >= spec.shoeFrom,
+    edgeNoInk: 1,
+  };
+  paintElement(b, shoe);
+  tidySilhouette(b, [ID.shoe]);
+}
+
+// --- Torso ------------------------------------------------------------------------------------------
+
+/** The neckline's height (px above the soles) at `u` (0 centre, 1 the side of the neck). */
+function necklineY(facing: RigFacing, u: number): number {
+  const dip = facing === "front" ? 115.3 : 116;
+  const edge = M.neck - (facing === "front" ? 1.2 : 1.8);
+  return dip + (edge - dip) * u * u;
+}
+
+/** The torso's outline, right half from the neck down (drawing px), per facing. */
+function torsoOutline(facing: RigFacing): [number, number][] {
+  const H = M.torsoHalf;
+  if (facing === "side") {
+    // Chest forward (+x), back behind; a round sweater.
+    return [
+      [-5.5, -119.5],
+      [-9, -115.5],
+      [-11, -110],
+      [-11.5, -98],
+      [-10.5, Yd(M.hem + 12)],
+      [-11.5, Yd(M.hem + 2)],
+      [-11, Yd(M.hem)],
+      [10.5, Yd(M.hem)],
+      [12, Yd(M.hem + 2)],
+      [12, Yd(M.hem + 15)],
+      [12, -100],
+      [10.5, -109],
+      [7.5, -114.5],
+      [4.5, -116.3],
+      [2, -117],
+    ];
+  }
+  const neck = facing === "front" ? 5.2 : 5.6;
+  const pts: [number, number][] = [];
+  // The neckline: a U, deeper at the front.
+  const steps = 8;
+  for (let i = 0; i <= steps; i++) {
+    const u = i / steps;
+    pts.push([neck * u, Yd(necklineY(facing, u))]);
+  }
+  const right: [number, number][] = [
+    ...pts,
+    [neck + 1.2, Yd(M.neck - 0.8)],
+    [H - 0.5, Yd(113.5)],
+    [H, Yd(111)],
+    [H, Yd(97)],
+    [H - 0.5, Yd(M.hem + 12)],
+    [H, Yd(M.hem + 1)],
+    [H - 0.6, Yd(M.hem)],
+    [H / 2, Yd(M.hem - 0.4)],
+    [0, Yd(M.hem - 0.4)],
+  ];
+  return symmetric(right);
+}
+
+function paintTorso(ctx: Ctx, raw: Image, spans: Spans): Built {
+  const { spec, facing } = ctx;
+  const poly = torsoOutline(facing);
+  const buf = createBuf(-16, Yd(M.neck) - 3, 32, M.neck - M.hem + 6);
+  const [ya, yb] = spec.torsoRows;
+  const cxRaw = spans.centre[spec.torsoWidthRow];
+  const hwRaw = spans.half[spec.torsoWidthRow] - spans.band;
+  const half = facing === "side" ? 12 : M.torsoHalf;
+  const scaleY = (yb - ya) / (M.neck - M.hem + 1);
+  const el: Element = {
+    id: ID.base,
+    raw,
+    map: (x, y) => [
+      cxRaw + (x / half) * hwRaw * (facing === "side" ? 1 : 1),
+      ya + (y - Yd(M.neck)) * scaleY,
+    ],
+    inside: (x, y) => inPolygon(poly, x, y),
+  };
+  paintElement(buf, el);
+  // The sweater hem: a rib band under a shadow line.
+  tone(buf, (_x, y) => y > Yd(M.hem + 4) && y <= Yd(M.hem - 1), 1.1);
+  tone(
+    buf,
+    (x, y) =>
+      y > Yd(M.hem + 4) && y <= Yd(M.hem - 1) && Math.floor(x) % 2 === 0,
+    0.93,
+  );
+  tone(buf, (_x, y) => y > Yd(M.hem + 5) && y <= Yd(M.hem + 4), 0.55);
+  // The collar: a cream band along the top edge, at the neck only.
+  const neckHalf = facing === "front" ? 5.2 : 5.6;
+  paintProc(buf, ID.detail, (x, y) => {
+    if (!inPolygon(poly, x, y) || inPolygon(poly, x, y - 3)) return null;
+    const near =
+      facing === "side" ? x > -6.5 && x < 5 : Math.abs(x) < neckHalf + 1.4;
+    if (!near) return null;
+    return inPolygon(poly, x, y - 2.2) ? CREAM_SHADE : CREAM;
+  });
+  finish(buf, { despeckle: true });
+  return {
+    image: toImage(buf),
+    offset: { x: buf.x0, y: buf.y0 },
+    pivot: { x: 0, y: Yd(M.hip) },
+    variants: {},
+  };
+}
+
+// --- Head -------------------------------------------------------------------------------------------
+
 /**
- * The head sheets show, left to right: closed (the rest head), open, wide,
- * O, and the blink. The animator's mouth shapes (rig/animator.ts) are
- * talk-1 for a, e, i (wide), talk-2 for o, u, w (O), and talk-3 for the
- * other consonants (half open).
+ * The head variants, from the head sheets, left to right: closed (the rest
+ * head), open, wide, O, and the blink. The animator's mouth shapes
+ * (rig/animator.ts) are talk-1 for a, e, i (wide), talk-2 for o, u, w (O),
+ * and talk-3 for the other consonants (half open).
  */
 const MOUTHS = [
   ["talk-1", 2],
@@ -512,16 +845,65 @@ const MOUTHS = [
   ["blink", 4],
 ] as const;
 
+async function paintHead(
+  ctx: Ctx,
+  load: (n: string) => Promise<Sheet>,
+): Promise<Built> {
+  const { spec } = ctx;
+  const at = spec.headAt;
+  const paint = (raw: Image, shift: RigPoint, base: Region): Image => {
+    const left = base.x;
+    // Hair tip to chin is the head's height.
+    const scale = (M.top - M.chin) / (at.chinY - base.y - (at.pad ?? 0));
+    const buf = createBuf(
+      -19,
+      Yd(M.top) - 3,
+      38,
+      Math.ceil(M.top - M.chin) + 12,
+    );
+    const el: Element = {
+      id: ID.base,
+      raw,
+      map: (x, y) => [
+        left + at.neckX + shift.x + (x - at.x) / scale,
+        at.chinY + shift.y + (y - Yd(M.chin)) / scale,
+      ],
+      // Keep only a short stub of neck under the chin.
+      where: (_x, y) => y <= Yd(M.chin - spec.neckKeep),
+      edgeNoInk: 1,
+    };
+    paintElement(buf, el);
+    tidySilhouette(buf);
+    finish(buf, { open: (_x, y) => y > Yd(M.chin - spec.neckKeep) - 1.2 });
+    return toImage(buf);
+  };
+  const offset = { x: -19, y: Yd(M.top) - 3 };
+  const pivot = jointOf("head", spec);
+  if ("region" in spec.head) {
+    const r = region(ctx.sheet, spec.head.region);
+    const image = paint(isolate(ctx.sheet, r.id), { x: 0, y: 0 }, r);
+    return { image, offset, pivot, variants: {} };
+  }
+  const hs = await load(spec.head.sheet);
+  const regs = [...hs.regions].sort((a, b) => a.x - b.x);
+  const base = regs[0];
+  const image = paint(isolate(hs, base.id), { x: 0, y: 0 }, base);
+  const variants: Record<string, Image> = {};
+  for (const [name, i] of MOUTHS) {
+    const v = regs[i];
+    const d = alignShift(hs, base, v);
+    // The variant's pixel (sx + d) is the base's (sx).
+    variants[name] = paint(isolate(hs, v.id), d, base);
+  }
+  return { image, offset, pivot, variants };
+}
+
+// --- Facing ------------------------------------------------------------------------------------------
+
 async function buildFacing(
   facing: RigFacing,
-  s: number,
-  write: ((file: string, img: Image) => Promise<void>) | null,
   cache: Map<string, Sheet>,
-): Promise<{
-  source: RigSource["facings"][RigFacing];
-  height: number;
-  parts: Map<RigPartId, { image: Image; off: RigPoint }>;
-}> {
+): Promise<Record<RigPartId, Built>> {
   const spec = SPECS[facing];
   const load = async (name: string): Promise<Sheet> => {
     let sheet = cache.get(name);
@@ -532,52 +914,12 @@ async function buildFacing(
     return sheet;
   };
   const sheet = await load(spec.sheet);
-  const kb = spec.body * s;
-  const kh = spec.headScale * s;
+  const ctx: Ctx = { facing, spec, sheet };
+  const out = {} as Record<RigPartId, Built>;
 
-  const built = new Map<RigPartId, BuiltPart>();
-
-  // Torso.
-  const tr = region(sheet, spec.torso);
   const torsoRaw = isolate(sheet, spec.torso);
-  if (spec.peg) cutPeg(torsoRaw, spec.peg);
-  const tCut = await cutPart(torsoRaw, padded(tr, torsoRaw), kb);
-  const sh =
-    spec.shoulder === "auto"
-      ? (() => {
-          const y = tr.y + (facing === "front" ? 105 : 92);
-          const [lo, hi] = rowSpan(sheet, tr, y) as [number, number];
-          return {
-            r: {
-              x: facing === "front" ? lo + SHOULDER_INSET : hi - SHOULDER_INSET,
-              y,
-            },
-            l: {
-              x: facing === "front" ? hi - SHOULDER_INSET : lo + SHOULDER_INSET,
-              y,
-            },
-          };
-        })()
-      : spec.shoulder;
-  built.set("torso", {
-    id: "torso",
-    image: tCut.image,
-    pivot: round(mapTo(tCut, spec.hip)),
-    marks: {
-      "thigh-r": round(
-        mapTo(tCut, { x: spec.hip.x - spec.hipHalf, y: spec.hip.y }),
-      ),
-      "thigh-l": round(
-        mapTo(tCut, { x: spec.hip.x + spec.hipHalf, y: spec.hip.y }),
-      ),
-      "upper-arm-r": round(mapTo(tCut, sh.r)),
-      "upper-arm-l": round(mapTo(tCut, sh.l)),
-      head: round(mapTo(tCut, spec.neck)),
-    },
-    variants: {},
-  });
+  out.torso = paintTorso(ctx, torsoRaw, analyseSpans(torsoRaw, 12));
 
-  // Limbs.
   const pair = (limb: Limb): [Region, Region] => {
     const [a, b] = spec.limbs[limb].map((id) => region(sheet, id));
     if (facing !== "side") return [a, b];
@@ -586,155 +928,33 @@ async function buildFacing(
   };
   for (const limb of LIMBS) {
     const [rr, ll] = pair(limb);
-    for (const [side, r] of [
+    for (const [s, r] of [
       ["r", rr],
       ["l", ll],
     ] as const) {
-      const id = `${limb}-${side}` as RigPartId;
-      const raw = isolate(sheet, r.id);
-      const cut = await cutPart(raw, padded(r, raw), kb * LIMB_SCALE[limb]);
-      const j = limbJoints(sheet, r);
-      const marks: BuiltPart["marks"] = {};
-      const child: Partial<Record<Limb, RigPartId>> = {
-        "upper-arm": `forearm-${side}`,
-        thigh: `shin-${side}`,
-      };
-      const c = child[limb];
-      if (c) marks[c] = round(mapTo(cut, j.dist));
-      built.set(id, {
-        id,
-        image: cut.image,
-        pivot: round(mapTo(cut, j.prox)),
-        marks,
-        variants: {},
-      });
+      const id = `${limb}-${s}` as RigPartId;
+      out[id] = limbPart(ctx, id, limb, r, isolate(sheet, r.id));
     }
   }
-
-  // Head.
-  {
-    const variants: Record<string, Image> = {};
-    let restCut: Cut;
-    let pivot: RigPoint;
-    if ("region" in spec.head) {
-      const r = region(sheet, spec.head.region);
-      const raw = isolate(sheet, r.id);
-      restCut = await cutPart(raw, padded(r, raw), kh);
-      const yb = r.y + r.h;
-      pivot = mapTo(restCut, {
-        x: centreAt(sheet, r, yb - 30),
-        y: yb - spec.tuck / kh,
-      });
-    } else {
-      const hs = await load(spec.head.sheet);
-      const regs = [...hs.regions].sort((a, b) => a.x - b.x);
-      const base = regs[0];
-      const box = padded(base, hs.img);
-      const raw0 = isolate(hs, base.id);
-      restCut = await cutPart(raw0, box, kh);
-      const yb = base.y + base.h;
-      pivot = mapTo(restCut, {
-        x: centreAt(hs, base, yb - 30),
-        y: yb - spec.tuck / kh,
-      });
-      for (const [name, at] of MOUTHS) {
-        const v = regs[at];
-        const d = alignShift(hs, base, v);
-        const vbox = { ...box, x: box.x + d.x, y: box.y + d.y };
-        const vraw = isolate(hs, v.id);
-        variants[name] = (await cutPart(vraw, vbox, kh)).image;
-      }
-    }
-    built.set("head", {
-      id: "head",
-      image: restCut.image,
-      pivot: round(pivot),
-      marks: {},
-      variants,
-    });
-  }
-
-  // Joints in the drawing: the torso's is the origin.
-  const joint = new Map<RigPartId, RigPoint>([["torso", { x: 0, y: 0 }]]);
-  const place = (id: RigPartId): RigPoint => {
-    const known = joint.get(id);
-    if (known) return known;
-    const parent = PARENT[id] as RigPartId;
-    const pp = built.get(parent) as BuiltPart;
-    const mark = pp.marks[id] as RigPoint;
-    const pj = place(parent);
-    const j = {
-      x: pj.x + mark.x - pp.pivot.x,
-      y: pj.y + mark.y - pp.pivot.y,
-    };
-    joint.set(id, j);
-    return j;
-  };
-  const nudge = spec.headNudge ?? { x: 0, y: 0 };
-  const parts = new Map<RigPartId, { image: Image; off: RigPoint }>();
-  let top = Infinity;
-  let sole = -Infinity;
-  for (const [id, b] of built) {
-    const j = place(id);
-    const jn = id === "head" ? { x: j.x + nudge.x, y: j.y + nudge.y } : j;
-    joint.set(id, jn);
-    const off = { x: jn.x - b.pivot.x, y: jn.y - b.pivot.y };
-    parts.set(id, { image: b.image, off });
-    const bb = alphaBounds(b.image, 1) as Rect;
-    top = Math.min(top, off.y + bb.y);
-    if (id === "shin-l" || id === "shin-r")
-      sole = Math.max(sole, off.y + bb.y + bb.h);
-  }
-  const height = sole - top;
-
-  const files: RigSource["facings"][RigFacing]["parts"] = {} as never;
-  const z = new Map(spec.order.map((id, i) => [id, i]));
-  for (const [id, b] of built) {
-    const { off } = parts.get(id) as { off: RigPoint };
-    const j = joint.get(id) as RigPoint;
-    const dir = `${facing}/${id}`;
-    const entry: RigSourcePart = {
-      file: `${dir}.png`,
-      offset: off,
-      pivot: j,
-      z: z.get(id) as number,
-    };
-    if (PARENT[id]) entry.parent = PARENT[id] as RigPartId;
-    if (write) await write(entry.file, b.image);
-    const names = Object.keys(b.variants);
-    if (names.length) {
-      entry.variants = {};
-      for (const name of names) {
-        const file = `${dir}-${name}.png`;
-        entry.variants[name] = { file, offset: off };
-        if (write) await write(file, b.variants[name]);
-      }
-    }
-    files[id] = entry;
-  }
-  return {
-    source: { feet: { x: 0, y: sole }, parts: files },
-    height,
-    parts,
-  };
+  out.head = await paintHead(ctx, load);
+  return out;
 }
 
 /** A rest-pose picture of one facing, for checking the joints. */
 function restPicture(
-  parts: Map<RigPartId, { image: Image; off: RigPoint }>,
+  parts: Record<RigPartId, Built>,
   order: RigPartId[],
-  feet: RigPoint,
 ): Image {
   const pad = 8;
   let x0 = Infinity;
   let y0 = Infinity;
   let x1 = -Infinity;
   let y1 = -Infinity;
-  for (const { image, off } of parts.values()) {
-    x0 = Math.min(x0, off.x);
-    y0 = Math.min(y0, off.y);
-    x1 = Math.max(x1, off.x + image.width);
-    y1 = Math.max(y1, off.y + image.height);
+  for (const p of Object.values(parts)) {
+    x0 = Math.min(x0, p.offset.x);
+    y0 = Math.min(y0, p.offset.y);
+    x1 = Math.max(x1, p.offset.x + p.image.width);
+    y1 = Math.max(y1, p.offset.y + p.image.height);
   }
   const out = createImage(
     x1 - x0 + 2 * pad,
@@ -742,22 +962,16 @@ function restPicture(
     [111, 126, 116],
   );
   for (const id of order) {
-    const { image, off } = parts.get(id) as { image: Image; off: RigPoint };
+    const { image, offset } = parts[id];
     for (let y = 0; y < image.height; y++) {
       for (let x = 0; x < image.width; x++) {
         const p = (y * image.width + x) * 4;
         if (image.data[p + 3] === 0) continue;
         const q =
-          ((off.y + y - y0 + pad) * out.width + off.x + x - x0 + pad) * 4;
+          ((offset.y + y - y0 + pad) * out.width + offset.x + x - x0 + pad) * 4;
         out.data.set(image.data.subarray(p, p + 4), q);
       }
     }
-  }
-  const fx = Math.round(feet.x - x0 + pad);
-  const fy = Math.round(feet.y - y0 + pad);
-  for (let k = -3; k <= 3; k++) {
-    if (fx + k >= 0 && fx + k < out.width && fy < out.height)
-      out.data.set([255, 0, 255, 255], (fy * out.width + fx + k) * 4);
   }
   return out;
 }
@@ -770,41 +984,43 @@ async function main() {
     ? cliPath(values.out)
     : join(REPO_ROOT, "assets-src/character-rig");
   const cache = new Map<string, Sheet>();
-
-  // Each facing's scale, so it stands exactly 144 art px tall.
-  const scales = {} as Record<RigFacing, number>;
-  for (const facing of ["side", "front", "back"] as const) {
-    let scale = 1;
-    let best = { scale, miss: Infinity };
-    for (let i = 0; i < 14 && best.miss > 0; i++) {
-      const { height } = await buildFacing(facing, scale, null, cache);
-      const miss = Math.abs(height - FIGURE_HEIGHT);
-      if (miss < best.miss) best = { scale, miss };
-      // Converge, then feel around the last whole-pixel step.
-      scale *=
-        i < 4 ? FIGURE_HEIGHT / height : 1 + (i % 2 ? 1 : -1) * 0.002 * (i - 3);
-    }
-    scales[facing] = best.scale;
-    console.log(
-      `${facing}: scale ${best.scale.toFixed(4)}, ${FIGURE_HEIGHT + (best.miss ? "±" + best.miss : "")}`,
-    );
-  }
-
   mkdirSync(outDir, { recursive: true });
-  const write = async (file: string, img: Image) =>
-    writePng(join(outDir, file), img);
+
   const source = { facings: {} } as unknown as RigSource;
   for (const facing of ["side", "front", "back"] as const) {
-    const built = await buildFacing(facing, scales[facing], write, cache);
-    source.facings[facing] = built.source;
-    console.log(`${facing}: ${built.height} px tall`);
+    const parts = await buildFacing(facing, cache);
+    const spec = SPECS[facing];
+    const z = new Map(spec.order.map((id, i) => [id, i]));
+    const files = {} as RigSource["facings"][RigFacing]["parts"];
+    for (const id of Object.keys(parts) as RigPartId[]) {
+      const p = parts[id];
+      const dir = `${facing}/${id}`;
+      const entry: RigSourcePart = {
+        file: `${dir}.png`,
+        offset: p.offset,
+        pivot: p.pivot,
+        z: z.get(id) as number,
+      };
+      const parent = PARENT[id];
+      if (parent) entry.parent = parent;
+      await writePng(join(outDir, entry.file), p.image);
+      const names = Object.keys(p.variants);
+      if (names.length) {
+        entry.variants = {};
+        for (const name of names) {
+          const file = `${dir}-${name}.png`;
+          entry.variants[name] = { file, offset: p.offset };
+          await writePng(join(outDir, file), p.variants[name]);
+        }
+      }
+      files[id] = entry;
+    }
+    source.facings[facing] = { feet: { x: 0, y: 0 }, parts: files };
     if (values.preview) {
-      const pic = restPicture(
-        built.parts,
-        SPECS[facing].order,
-        built.source.feet,
+      await writePng(
+        join(cliPath(values.preview), `rest-${facing}.png`),
+        restPicture(parts, spec.order),
       );
-      await writePng(join(cliPath(values.preview), `rest-${facing}.png`), pic);
     }
   }
   writeFileSync(
@@ -814,4 +1030,7 @@ async function main() {
   console.log(outDir);
 }
 
-main().catch((e: unknown) => fail(e instanceof Error ? e.message : String(e)));
+main().catch((e: unknown) => {
+  console.error(e);
+  fail(e instanceof Error ? e.message : String(e));
+});
