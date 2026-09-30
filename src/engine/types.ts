@@ -158,6 +158,10 @@ export interface SceneAnimation {
   x: number;
   y: number;
   frameMs: number;
+  /** Offset a decorative loop so neighbouring characters act independently. */
+  phaseMs?: number;
+  /** Hold the resting pose when the visitor prefers reduced motion. */
+  freezeForReducedMotion?: boolean;
   /** Subtle seated breathing: stretch only above this logical-pixel split. */
   idle?: { splitY: number; rise: number; periodMs: number; phaseMs: number };
   /**

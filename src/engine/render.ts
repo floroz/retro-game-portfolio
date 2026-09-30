@@ -373,7 +373,7 @@ function drawProp(rc: RenderContext, prop: MovingProp, grid: number) {
 
 function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
   const img = rc.images.get(anim.strip);
-  const f = animationFrame(anim, rc.engine.now);
+  const f = animationFrame(anim, rc.engine.now, rc.reducedMotion);
   if (!img || !f) return;
   const { ctx } = rc;
   const d = rc.images.density(anim.strip);

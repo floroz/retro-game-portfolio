@@ -26,6 +26,27 @@ describe("anim-* strips", () => {
     expect(animationFrame(cuckoo, 15150)?.frame).toBe(1);
   });
 
+  test("offset loops and their cycle boundary together", () => {
+    const phased = { ...base, everyMs: 1000, phaseMs: 250 };
+    expect(animationFrame(phased, 0)?.frame).toBe(2);
+    expect(animationFrame(phased, 500)?.frame).toBe(0);
+    expect(animationFrame(phased, 850)?.frame).toBe(1);
+    expect(cycleStarted(phased, 740, 760)).toBe(true);
+    expect(cycleStarted(phased, 990, 1010)).toBe(false);
+  });
+
+  test("reduced motion holds an opted-in loop at its resting pose", () => {
+    const guest = { ...base, phaseMs: 250, freezeForReducedMotion: true };
+    expect(animationFrame(guest, 1000, true)).toEqual({
+      frame: 0,
+      x: 10,
+      y: 20,
+    });
+    expect(animationFrame(guest, 1000, false)?.frame).toBe(0);
+    expect(animationFrame(guest, 0, false)?.frame).toBe(2);
+    expect(animationFrame(base, 250, true)?.frame).toBe(2);
+  });
+
   test("move along their motion and hide between passes", () => {
     const bus = {
       ...base,
