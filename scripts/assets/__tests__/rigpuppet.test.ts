@@ -33,6 +33,8 @@ const json: unknown = JSON.parse(
 );
 const rig: Rig = parseRig(json, "daniele-rig.png");
 const atlas: Promise<Image> = readImage(join(DIR, "daniele-rig.png"));
+/** Inspect silhouettes at the same logical scale for either atlas density. */
+const D = rig.density / 2;
 
 const X0 = -50;
 const Y0 = -170;
@@ -48,7 +50,7 @@ interface Grid {
 function raster(atlasImg: Image, placed: PlacedPart[]): Grid {
   const data = new Uint8ClampedArray(GW * GH * 4);
   for (const part of placed) {
-    const [a, b, c, d, e, f] = part.matrix;
+    const [a, b, c, d, e, f] = part.matrix.map((v) => v / D);
     const det = a * d - b * c;
     const f_ = part.frame;
     for (let j = 0; j < GH; j++) {
@@ -207,31 +209,36 @@ describe("the shipped puppet's proportions", () => {
       (p) => p.id === id,
     ) as Rig["facings"]["side"]["parts"][number];
 
-  test("the head is about 1/5.65 of his height, the same in every facing", () => {
+  test("every head retains at least 50 source pixels of facial detail", () => {
     for (const facing of FACINGS) {
       const bounds = rig.facings[facing].bounds;
       const head = part(facing, "head");
-      // The frame includes a few px of neck under the chin.
-      const neck = { side: 2.5, front: 5, back: 3 }[facing];
-      const face = head.frame.h - neck;
-      expect(bounds.h).toBe(144);
-      expect(face / 144).toBeGreaterThan(1 / 6);
-      expect(face / 144).toBeLessThan(1 / 5.5);
+      expect(bounds.h / rig.density).toBe(72);
+      expect(head.frame.h).toBeGreaterThanOrEqual(50);
+      expect(head.frame.h / bounds.h).toBeGreaterThan(0.17);
+      expect(head.frame.h / bounds.h).toBeLessThan(0.23);
     }
   });
 
-  test("arms and legs are the same thickness in every facing", () => {
-    for (const id of ["upper-arm-r", "forearm-r", "thigh-r"] as const) {
-      const widths = FACINGS.map((f) => part(f, id).frame.w);
+  test("sleeves stay consistent across facings and legs have a natural front-view stance", () => {
+    for (const id of ["upper-arm-r", "forearm-r"] as const) {
+      const widths = FACINGS.map((f) => part(f, id).frame.w / D);
       expect(Math.max(...widths) - Math.min(...widths), id).toBeLessThanOrEqual(
         1,
       );
     }
-    // And the arms are narrower than a third of the torso.
+    // Front/back thighs include the outward slope from hip to knee. Their
+    // frame bounds are consequently wider than a side-on thigh.
+    const frontThigh = part("front", "thigh-r").frame.w;
+    const backThigh = part("back", "thigh-r").frame.w;
+    expect(Math.abs(frontThigh - backThigh) / D).toBeLessThanOrEqual(2);
+    // The original portrait has substantial knit sleeves, unlike the old
+    // thin cartoon arms. Keep them proportional to its broad sweater.
     for (const facing of ["front", "back"] as const) {
-      expect(
-        part(facing, "upper-arm-r").frame.w / part(facing, "torso").frame.w,
-      ).toBeLessThan(0.34);
+      const ratio =
+        part(facing, "upper-arm-r").frame.w / part(facing, "torso").frame.w;
+      expect(ratio).toBeGreaterThan(0.3);
+      expect(ratio).toBeLessThan(0.42);
     }
   });
 
@@ -260,27 +267,30 @@ describe("the shipped puppet's proportions", () => {
   test("the back view's legs and feet stay apart down to the soles", async () => {
     const img = await atlas;
     const g = raster(img, placeRig(rig, "back", REST));
-    for (let y = -64; y <= -1; y++) {
+    // Below the trouser crotch, rather than through the waistband/hips.
+    for (let y = -56; y <= -1; y++) {
       const gap = [-1, 0, 1].some((x) => !opaque(g, x, y));
       expect(gap, `row ${-y}`).toBe(true);
     }
   });
 
-  test("the hem is at 45% of his height, over a long torso", () => {
+  test("the sweater hem meets the hips near the middle of the figure", () => {
     for (const facing of FACINGS) {
       const torso = part(facing, "torso");
       const bottom = -torso.attach.y - (torso.frame.h - torso.frame.pivot.y);
-      expect(bottom / 144, facing).toBeGreaterThan(0.44);
-      expect(bottom / 144, facing).toBeLessThan(0.465);
+      expect(bottom / (144 * D), facing).toBeGreaterThan(0.44);
+      expect(bottom / (144 * D), facing).toBeLessThan(0.51);
     }
   });
 
-  test("front and back: the shoulders slope and the arms hang clear of the torso", async () => {
+  test("front and back: sloped shoulders and distinct arms below the elbows", async () => {
     const img = await atlas;
     for (const facing of ["front", "back"] as const) {
       const g = raster(img, placeRig(rig, facing, REST));
-      // Below the armpit and above the hem: arm, gap, torso, gap, arm.
-      for (let up = 74; up <= 96; up++) {
+      // The fuller sleeves may overlap the sweater. They still separate
+      // below the elbows instead of merging into a single solid body block.
+      let separatedRows = 0;
+      for (let up = 68; up <= 86; up++) {
         let runs = 0;
         let was = false;
         for (let x = X0; x < X0 + GW; x++) {
@@ -288,8 +298,9 @@ describe("the shipped puppet's proportions", () => {
           if (on && !was) runs++;
           was = on;
         }
-        expect(runs, `${facing} row ${up}`).toBe(3);
+        if (runs === 3) separatedRows++;
       }
+      expect(separatedRows, facing).toBeGreaterThanOrEqual(5);
       // The shoulder line drops away from the neck: the torso is wider
       // 8 px below its top than at it.
       const width = (up: number) => {
@@ -364,8 +375,8 @@ describe("the idle is alive, with the feet planted", () => {
         );
       }
       // About a pixel of breathing (atlas px at density 2 are art px).
-      expect(rise).toBeGreaterThanOrEqual(1);
-      expect(rise).toBeLessThan(2.5);
+      expect(rise / D).toBeGreaterThanOrEqual(1);
+      expect(rise / D).toBeLessThan(2.5);
     });
   }
 });

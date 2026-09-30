@@ -3,10 +3,11 @@
  * sprites: on the art's own pixel grid, with hard edges.
  *
  * The parts are posed (transform.ts) and rasterized onto a scratch canvas
- * at the grid's resolution, 2 px per logical px for the 640x320 art, with
+ * at the rig's resolution (2 or 4 px per logical px), with
  * smoothing inside the grid so rotated parts keep clean colour. Then every
- * pixel is made fully opaque or fully transparent, the whole figure gets
- * one solid ink outline (outline.ts), and the result is stamped onto the
+ * pixel is made fully opaque or fully transparent. The older density-2
+ * figure gets an ink outline; the portrait retains its painted edges.
+ * The result is stamped onto the
  * scene on whole grid pixels, nearest-neighbour. The CSS
  * 2x upscale then keeps him crisp, on the same pixel grid as the scene.
  */
@@ -29,7 +30,7 @@ export function drawRig(
   x: number,
   y: number,
   scale: number,
-  grid = 2,
+  grid = Math.max(2, rig.density),
 ) {
   const parts = placeRig(rig, state.facing, state.pose);
   // Atlas px to grid px, feet at the origin.
@@ -89,7 +90,9 @@ export function drawRig(
         sctx.restore();
       }
     },
-    outlineSilhouette,
+    // The portrait artwork has its own painted edges. A forced black ring
+    // obscures its finer face and makes the cutout joints look mechanical.
+    rig.density === 2 ? outlineSilhouette : undefined,
     parts.some((p) => p.ink)
       ? {
           // A pupil is a pixel or two wide: at full size it must not spread
