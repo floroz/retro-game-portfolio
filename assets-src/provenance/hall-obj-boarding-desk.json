@@ -1,0 +1,15 @@
+{
+  "id": "hall-obj-boarding-desk",
+  "output": "src/assets/scenes/hall/obj-boarding-desk.png",
+  "task": "airport-boarding-desk",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/hall-boarding-desk.md",
+  "candidate": "01",
+  "references": [],
+  "approvedRaw": "assets-src/approved/hall-boarding-desk.png",
+  "density": 2,
+  "style": "painted",
+  "approvedBy": "codex",
+  "date": "2026-09-30",
+  "cleanup": "Built-in image generation; scripts/assets/boarding-desk.ts trims, fits to a 56x80 art-pixel cell and maps to the existing Hall palette with hard alpha."
+}
