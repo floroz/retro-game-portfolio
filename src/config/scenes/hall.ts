@@ -1,8 +1,8 @@
 /**
  * The Hall: a 1990s airport departure lounge (docs/art-spec.md, scene card
  * `hall`). Built in HB2 from the HD hand-painted layers: `bg.png` is the
- * empty-lounge plate (candidate 01 of `hall-plate@hd`, seats, arch and plant
- * edited out), with the seats and staffed boarding desk as separate sprites and
+ * empty-lounge plate with a stone tile floor and the duty-free fixture removed,
+ * with the shop, seats and staffed boarding desk as separate sprites and
  * the take-off plane as a moving prop. Every coordinate is in logical pixels
  * (320x160), top-left origin; the art is 640x320, shown at 2x.
  *
@@ -14,7 +14,7 @@
  * line, and the travel trunk's boarding passes carry the rest.
  *
  * Walking depth: the row of seats and the boarding desk stand out
- * on the carpet, each with a `baselineY` on its front feet. The walkbox is one
+ * on the tile floor, each with a `baselineY` on its front feet. The walkbox is one
  * polygon with keyhole slits from its back edge for the bench and desk
  * footprints, so Daniele walks behind and in front of them. The scale is the
  * Hall's own perspective (`HALL_DEPTH`), not the shared Phase H world scale:
@@ -31,6 +31,7 @@ import { PROFILE } from "../profile";
 import { COUNTRIES } from "../sections";
 import type { SceneData } from "../../engine/types";
 import hallBg from "../../assets/scenes/hall/bg.png";
+import dutyFree from "../../assets/scenes/hall/obj-duty-free.png";
 import hallObjSeats from "../../assets/scenes/hall/obj-seats.png";
 import hallObjBoardingDesk from "../../assets/scenes/hall/obj-boarding-desk.png";
 import hallAnimPlane from "../../assets/scenes/hall/anim-plane.png";
@@ -51,9 +52,8 @@ import windowWoman from "../../assets/scenes/hall/anim-passenger-window-woman.pn
  *   34 at the walk-to points a step in front of it (0.83 of the door).
  * - Seats (y 123), 48 px: the seats (27 px, about 0.85 m) come up
  *   to just over half of him.
- * - Front edge (y 158), 64 px. The carpet triangles widen 2.6x from the back
- *   to the front (fit: width = 0.261 * (y - 49.5)), but the seats and
- *   doors don't scale that steeply, so the object cues set the value; it
+ * - Front edge (y 158), 64 px. The seats and doors set the perspective
+ *   rather than the floor texture, preserving the original walking scale; it
  *   also keeps him at 0.89 of the rig, under its native size.
  */
 const HALL_DEPTH = {
@@ -92,8 +92,9 @@ export const HALL_SCENE: SceneData = {
   // ambience-hall.json.
   music: { src: "/audio/music/hall.mp3", loopStart: 0.6, loopEnd: 77.4 },
   ambience: { src: "/audio/ambience/hall.mp3", loopStart: 0.5, loopEnd: 40.5 },
-  floor: "carpet",
-  // The carpet from the skirting (y 91) to the front edge, set back in front
+  floor: "tile",
+  characterShadow: { width: 0.38, depth: 0.085 },
+  // The floor from the skirting (y 91) to the front edge, set back in front
   // of the duty-free counter (base y 97). Keyhole slits cut out the seats'
   // bench (x 137-226, y 111-124) and boarding desk (x 245-273, y 108-117).
   // The gates and the newly open right-hand floor remain walkable.
@@ -155,6 +156,11 @@ export const HALL_SCENE: SceneData = {
     {
       id: "duty-free",
       name: "duty-free shop",
+      sprite: dutyFree,
+      x: 0,
+      y: 27,
+      baselineY: 97,
+      groundShadows: [{ x: 39, y: 70, width: 80, depth: 5 }],
       hotspot: { x: 0, y: 27, w: 80, h: 10 },
       look: "Duty free: lower prices, and somehow you still spend more.",
       use: "Pick a product. Each one opens a section.",
@@ -223,6 +229,12 @@ export const HALL_SCENE: SceneData = {
       y: 96,
       interactionPoint: { x: 181, y: 130, facing: "n" },
       baselineY: SEATS_BASELINE,
+      groundShadows: [
+        { x: 45, y: 25, width: 85, depth: 7 },
+        { x: 10, y: 26, width: 10, depth: 3 },
+        { x: 45, y: 26, width: 10, depth: 3 },
+        { x: 80, y: 26, width: 10, depth: 3 },
+      ],
       look: "An armrest every fifty centimetres, so nobody can ever lie down.",
       use: "If I sit down now, I'll wake up in 2031.",
     },
@@ -234,6 +246,7 @@ export const HALL_SCENE: SceneData = {
       y: 76,
       interactionPoint: { x: 259, y: 124, facing: "n" },
       baselineY: BOARDING_DESK_BASELINE,
+      groundShadows: [{ x: 14, y: 39, width: 25, depth: 6 }],
       look: "A friendly gate attendant. Somehow still smiling after the fifth final call.",
       use: '"Any gate you like. Your career is the destination."',
       sound: "boarding-chime",
@@ -250,6 +263,7 @@ export const HALL_SCENE: SceneData = {
       x: 139.5,
       y: 85,
       baselineY: SEATS_BASELINE + 0.1,
+      groundShadows: [{ x: 6.5, y: 37, width: 9, depth: 3 }],
       idle: { splitY: 22, rise: 0.5, periodMs: 3800, phaseMs: 0 },
     },
     {
@@ -310,6 +324,7 @@ export const HALL_SCENE: SceneData = {
       delayMs: 1500,
       faceTravel: true,
       baselineY: 133,
+      groundShadows: [{ x: 18, y: 52, width: 29, depth: 5 }],
       hideForReducedMotion: true,
     },
     {
@@ -326,6 +341,10 @@ export const HALL_SCENE: SceneData = {
       delayMs: 8500,
       faceTravel: true,
       baselineY: 147,
+      groundShadows: [
+        { x: 18, y: 53, width: 25, depth: 5 },
+        { x: 45, y: 53, width: 23, depth: 5 },
+      ],
       hideForReducedMotion: true,
     },
     {
@@ -391,6 +410,7 @@ export const HALL_SCENE: SceneData = {
     {
       id: "duty-free",
       source: "text:Duty free",
+      baselineY: 97,
       x: 40,
       y: 29,
       align: "center",

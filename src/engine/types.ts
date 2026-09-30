@@ -101,6 +101,14 @@ export type AudioTrack =
   | string
   | { src: string; loopStart?: number; loopEnd?: number };
 
+/** Ground-contact ellipse, centred relative to the sprite's top-left, in logical px. */
+export interface GroundShadow {
+  x: number;
+  y: number;
+  width: number;
+  depth: number;
+}
+
 /**
  * An interactive thing in the scene. With a `sprite`, it's drawn at `x`,`y`.
  * Without one, it's painted into `bg.png` and needs an explicit `hotspot`.
@@ -130,6 +138,7 @@ export interface SceneObject {
    * on the wall, which are always behind the character.
    */
   baselineY?: number;
+  groundShadows?: GroundShadow[];
   /** Opens this section's content. Leave it out for flavour objects. */
   action?: SectionId;
   /** "Look at" line (right click), in the LucasArts voice. */
@@ -175,6 +184,7 @@ export interface SceneAnimation {
   clip?: Rect;
   /** Depth-sorts it like an object. Leave it out for wall and window loops. */
   baselineY?: number;
+  groundShadows?: GroundShadow[];
   /**
    * Played as each cycle (or `motion` pass) starts: `"cuckoo"`,
    * `"split-flap"`. Give it an `everyMs`, or it plays on every loop.
@@ -345,6 +355,7 @@ export interface MovingProp {
    */
   clip?: Rect | Rect[];
   baselineY?: number;
+  groundShadows?: GroundShadow[];
   /** Played as each pass starts (`"cuckoo"`). */
   sound?: EffectName;
 }
@@ -470,6 +481,8 @@ export interface SceneData {
   music?: AudioTrack;
   ambience?: AudioTrack;
   floor?: FloorSurface;
+  /** Shadow dimensions as fractions of the character's current standing height. */
+  characterShadow?: { width: number; depth: number };
   /** Walkable floor polygon. Concave shapes are fine; the engine paths. */
   walkbox: Vec[];
   depth: DepthScale;

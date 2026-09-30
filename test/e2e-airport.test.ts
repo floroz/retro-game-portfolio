@@ -140,6 +140,71 @@ test("airport passengers respect reduced motion", async ({ page }) => {
   );
 });
 
+test("Daniele's ground shadow follows his feet and clears the old floor", async ({
+  page,
+}) => {
+  await openAirport(page);
+  const canvas = page.locator("canvas[data-drawn=hall]");
+  const points = [
+    { x: 132, y: 137 },
+    { x: 76, y: 153 },
+  ];
+  const { data, info } = await sharp("src/assets/scenes/hall/bg.png")
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const density = info.width / 320;
+  const floor = points.map(({ x, y }) => {
+    const i = (y * density * info.width + x * density) * 4;
+    return Array.from(data.subarray(i, i + 4));
+  });
+  const pixels = () =>
+    canvas.evaluate((element, samples) => {
+      const surface = element as unknown as {
+        width: number;
+        getContext(kind: string): {
+          getImageData(
+            x: number,
+            y: number,
+            w: number,
+            h: number,
+          ): { data: ArrayLike<number> };
+        };
+      };
+      const ctx = surface.getContext("2d")!;
+      const scale = surface.width / 320;
+      return samples.map(({ x, y }) =>
+        Array.from(ctx.getImageData(x * scale, y * scale, 1, 1).data),
+      );
+    }, points);
+  const before = await pixels();
+  expect(before[0][0]).toBeLessThan(floor[0][0]);
+  expect(before[1]).toEqual(floor[1]);
+  const bounds = await canvas.boundingBox();
+  if (!bounds) throw new Error("Airport canvas is not visible");
+  await page.mouse.click(
+    bounds.x + (bounds.width * 72) / 320,
+    bounds.y + (bounds.height * 150) / 160,
+  );
+  await page.clock.runFor(8000);
+  const after = await pixels();
+  expect(after[0]).toEqual(floor[0]);
+  expect(after[1][0]).toBeLessThan(floor[1][0]);
+});
+
+test("the separate duty-free display still opens its product's content", async ({
+  page,
+}) => {
+  await openAirport(page);
+  await page
+    .locator('[data-e2e=hotspot][data-hotspot="object:perfume"]')
+    .click();
+  await page.clock.runFor(12000);
+  await expect(
+    page.locator("[data-e2e=terminal-screen][data-action=resume]"),
+  ).toBeVisible();
+});
+
 for (const city of ["london", "zurich", "sorrento"] as const) {
   test(`boarding desk leaves the ${city} gate accessible`, async ({ page }) => {
     await openAirport(page);

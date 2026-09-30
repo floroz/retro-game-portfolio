@@ -28,6 +28,7 @@ import { placeCell, type CharacterSheet } from "./character";
 import { drawRig } from "./rig/draw";
 import { effectShapes, propFrame, type Shape } from "./effects";
 import { stampOnGrid } from "./raster";
+import { drawGroundShadow, placeShadow } from "./shadows";
 import type { Rig } from "./rig/rig";
 import { animationFrame, idleRise } from "./animation";
 import { drawChalk } from "./chalk";
@@ -176,6 +177,7 @@ export function renderFrame(rc: RenderContext) {
   ctx.fillRect(0, 0, NATIVE_W, NATIVE_H);
   const scene = engine.scene;
   drawImageAt(rc, scene.background, 0, 0);
+  drawFloorShadows(rc);
 
   const items: Drawable[] = [];
   const add = (
@@ -285,6 +287,66 @@ function drawImageAt(rc: RenderContext, url: string, x: number, y: number) {
 
 /** Canvas px per logical px: 2 on the 640x320 canvas. */
 const GRID = CANVAS_W / NATIVE_W;
+
+/** A separate floor pass keeps shadows underneath every person and object. */
+function drawFloorShadows(rc: RenderContext) {
+  const { ctx, engine, images } = rc;
+  const scene = engine.scene;
+  for (const object of scene.objects) {
+    if (object.x === undefined || object.y === undefined) continue;
+    for (const shadow of object.groundShadows ?? []) {
+      drawGroundShadow(ctx, placeShadow(shadow, object.x, object.y), GRID);
+    }
+  }
+  for (const anim of scene.animations ?? []) {
+    const frame = animationFrame(anim, engine.now, rc.reducedMotion);
+    if (!frame) continue;
+    withClip(ctx, anim.clip, () => {
+      for (const shadow of anim.groundShadows ?? []) {
+        drawGroundShadow(ctx, placeShadow(shadow, frame.x, frame.y), GRID);
+      }
+    });
+  }
+  for (const prop of scene.props ?? []) {
+    if (rc.reducedMotion && prop.hideForReducedMotion) continue;
+    const frame = propFrame(prop, engine.now);
+    const image = images.get(prop.sprite);
+    if (!frame || !image) continue;
+    const width =
+      image.naturalWidth / (prop.frames ?? 1) / images.density(prop.sprite);
+    withClip(ctx, prop.clip, () => {
+      for (const shadow of prop.groundShadows ?? []) {
+        drawGroundShadow(
+          ctx,
+          placeShadow(
+            shadow,
+            frame.x,
+            frame.y,
+            frame.scale,
+            frame.flip ? width : undefined,
+          ),
+          GRID,
+        );
+      }
+    });
+  }
+  if (scene.characterShadow) {
+    const figure = engine.figure();
+    const height =
+      (figure.kind === "rig"
+        ? figure.rig.figureHeight
+        : rc.sheet.origin.y / rc.sheet.density) * figure.scale;
+    drawGroundShadow(
+      ctx,
+      {
+        ...engine.position,
+        width: height * scene.characterShadow.width,
+        depth: height * scene.characterShadow.depth,
+      },
+      GRID,
+    );
+  }
+}
 
 function withClip(ctx: Ctx, clip: Rect | Rect[] | undefined, draw: () => void) {
   if (!clip) return draw();

@@ -1,0 +1,15 @@
+{
+  "id": "hall-obj-duty-free",
+  "output": "src/assets/scenes/hall/obj-duty-free.png",
+  "task": "airport-floor-shadows",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/hall-floor-shadows.md",
+  "candidate": "01",
+  "references": ["assets-src/refs/hd/hall-before-stone.png"],
+  "approvedRaw": "assets-src/approved/hall-duty-free.png",
+  "density": 2,
+  "style": "painted",
+  "approvedBy": "codex",
+  "date": "2026-09-30",
+  "cleanup": "Built-in image generation extracted the complete shop with products onto transparency. scripts/assets/airport-floor.ts trims and fits it to 160x142 art pixels with hard alpha and the existing Hall palette. Positioned at logical (0,27); floor shadow and awning lettering are rendered separately."
+}
