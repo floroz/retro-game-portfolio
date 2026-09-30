@@ -70,6 +70,11 @@ test.describe("Portfolio E2E Tests", () => {
     // Wait for game canvas to appear inside the Win95 game window
     const gameCanvas = page.locator("[data-e2e=game-canvas]");
     await expect(gameCanvas).toBeVisible({ timeout: 10000 });
+    // Preserve the portrait atlas's detail instead of shrinking it through
+    // the old 640x320 scene surface before CSS scales the game up again.
+    const paintedScene = page.locator("canvas[data-drawn]");
+    await expect(paintedScene).toHaveAttribute("width", "1280");
+    await expect(paintedScene).toHaveAttribute("height", "640");
   });
 });
 
