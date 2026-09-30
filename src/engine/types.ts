@@ -372,6 +372,7 @@ export interface SlotRow {
  * - `scene:<id>`: the scene name, "LONDON"
  * - `gate:<country>`: "GATE 1" and the city, nothing more
  * - `departures`: one departures-board row per gate: the city only
+ * - `skills:groups`: one line per skill group, from the profile
  * - `text:<literal>`: fixed text, for signs that never change
  */
 export type LabelSource =
@@ -379,6 +380,7 @@ export type LabelSource =
   | `scene:${SceneId}`
   | `gate:${CountrySceneId}`
   | "departures"
+  | "skills:groups"
   | `text:${string}`;
 
 /** Text drawn by the engine in its bitmap serif font (font.ts). Never paint text into art. */
@@ -408,6 +410,15 @@ export interface SceneLabel {
    * is ignored; `y` still sets the line.
    */
   marquee?: { clip: Rect; pxPerSec: number };
+  /**
+   * Chalk lettering on a slate (chalk.ts): the label's lines are centred in
+   * `area`, the writable part of the slate with its margins already taken,
+   * in chalk white with a hand-lettered wobble. `x`, `y`, `align`, `font`
+   * and `maxWidth` are ignored; `color` still sets the chalk. The one place
+   * a list appears in the world (docs/expansion-plan.md, "Minimal in-world
+   * text").
+   */
+  chalk?: { area: Rect; seed?: number };
   baselineY?: number;
 }
 

@@ -192,7 +192,24 @@ export interface TextStyle {
   shadow?: string | false;
   /** Letter spacing in art px, from `fitText`. Defaults to the font's. */
   tracking?: number;
+  /**
+   * Chalk: a seed for a hand-lettered wobble. Each glyph may sit 1 art px
+   * above or below the baseline, and a few of its pixels are missing. It is
+   * the same every frame for the same text and seed, and hard-pixelled.
+   */
+  chalk?: number;
 }
+
+/** A stable pseudo-random number in [0, 1) from a seed and two integers. */
+function chalkNoise(seed: number, a: number, b: number): number {
+  let h = Math.imul(seed | 0, 0x9e3779b1) ^ Math.imul(a + 1, 0x85ebca6b);
+  h = Math.imul(h ^ (h >>> 15), 0xc2b2ae35) ^ Math.imul(b + 1, 0x27d4eb2f);
+  h = Math.imul(h ^ (h >>> 13), 0x165667b1);
+  return ((h ^ (h >>> 16)) >>> 0) / 0x100000000;
+}
+
+/** Share of a chalk line's ink pixels that are left out. */
+const CHALK_BREAK = 0.08;
 
 /** A line's bitmap and where its pen starts and its baseline sits in it. */
 interface LineBitmap {
@@ -245,6 +262,7 @@ function lineBitmap(text: string, style: TextStyle): LineBitmap | null {
     style.color,
     style.outline || "",
     style.shadow || "",
+    style.chalk ?? "",
     text,
   ].join("|");
   if (cache.has(key)) {
@@ -264,7 +282,8 @@ function lineBitmap(text: string, style: TextStyle): LineBitmap | null {
   const set = (x: number, y: number) => {
     if (x >= 0 && y >= 0 && x < w && y < h) ink[y * w + x] = 1;
   };
-  for (const item of items) {
+  const chalk = style.chalk;
+  items.forEach((item, index) => {
     if ("icon" in item) {
       iconRows(item.icon).forEach((row, ry) => {
         for (let rx = 0; rx < row.length; rx++) {
@@ -272,16 +291,41 @@ function lineBitmap(text: string, style: TextStyle): LineBitmap | null {
             set(penX + item.x + rx, baseline - ICON_SIZE + ry);
         }
       });
-      continue;
+      return;
     }
     const g = item.glyph;
     const ox = penX + item.x + g.left;
-    const oy = baseline - g.top;
+    // Chalk: a glyph rides 1 art px high or low now and then.
+    const n = chalk === undefined ? 0.5 : chalkNoise(chalk, index, 0);
+    const wobble = n < 0.1 ? -1 : n > 0.9 ? 1 : 0;
+    const oy = baseline - g.top + wobble;
     for (let gy = 0; gy < g.h; gy++) {
       for (let gx = 0; gx < g.w; gx++) {
         if (g.bits[gy * g.w + gx]) set(ox + gx, oy + gy);
       }
     }
+  });
+  if (chalk !== undefined) {
+    // Broken pixels, where the chalk skipped on the slate. Only inside a
+    // stroke (four or more inked neighbours), so a letter never comes apart.
+    const solid = (x: number, y: number) =>
+      x >= 0 && y >= 0 && x < w && y < h && ink[y * w + x] === 1;
+    const skipped: number[] = [];
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        if (!solid(x, y) || chalkNoise(chalk, x, y + 1000) >= CHALK_BREAK) {
+          continue;
+        }
+        let around = 0;
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if ((dx || dy) && solid(x + dx, y + dy)) around++;
+          }
+        }
+        if (around >= 4) skipped.push(y * w + x);
+      }
+    }
+    for (const i of skipped) ink[i] = 0;
   }
 
   // The outlined shape: the letters, grown 1 px to the four sides.
