@@ -10,6 +10,16 @@ export interface AnimationFrame {
   y: number;
 }
 
+/** The seated upper body breathes while the lap and feet stay planted. */
+export function idleRise(anim: SceneAnimation, now: number): number {
+  const idle = anim.idle;
+  if (!idle) return 0;
+  return (
+    idle.rise *
+    (0.5 - 0.5 * Math.cos(((now + idle.phaseMs) / idle.periodMs) * Math.PI * 2))
+  );
+}
+
 /**
  * Which frame to draw, and where, at engine time `now` (ms). Returns null
  * while a moving loop is between passes.

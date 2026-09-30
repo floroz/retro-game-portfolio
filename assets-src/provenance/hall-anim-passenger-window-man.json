@@ -1,0 +1,15 @@
+{
+  "id": "hall-anim-passenger-window-man",
+  "output": "src/assets/scenes/hall/anim-passenger-window-man.png",
+  "task": "airport-passengers",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/hall-passengers.md",
+  "candidate": "01",
+  "references": [],
+  "approvedRaw": "assets-src/approved/passengers/window-man.webp",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "Built-in image generation; prepared with scripts/assets/passengers.ts. 1 foot-aligned cells, 38x60 art px each; hard alpha and the existing Hall palette.",
+  "approvedBy": "codex",
+  "date": "2026-09-30"
+}
