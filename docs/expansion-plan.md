@@ -112,9 +112,10 @@ Each country owns named sections, and every step of the journey repeats that pai
 2. **Gate signs** show the gate number and the city only, for example "GATE 1 · LONDON", plus at most a small section icon. The hover text in the status line gives the rest: "Fly to London: Skills".
 3. **The departures board** shows city names only (and may flip), with no section lists.
 4. **Duty-free products** carry no labels. Hovering names the section ("Open Resume: Eau de Résumé").
-5. **Primary objects** keep a single-word section label (SKILLS, EXPERIENCE, RESUME, ABOUT, CONTACT), and hovering names the section. The London chalkboard shows its "SKILLS" header, not a list of groups; the taps name their groups on hover.
+5. **Primary objects** keep a single-word section label (SKILLS, EXPERIENCE, RESUME, ABOUT, CONTACT), and hovering names the section. The London chalkboard shows its "SKILLS" header and, as the one exception (item 8), the list of groups; the taps name their groups on hover.
 6. **The travel map** labels only the destination city, with its sections in the status line.
 7. **Arrival and greeting lines** are one short sentence: for example, in the Hall, "Welcome aboard! Pick a gate, or rummage through the trunk below."
+8. **Exception (Daniele's request, 2026-09-30, final review):** the London chalkboard lists the skill groups in chalk, drawn by the engine from `profile.ts`. No other board gets a list.
 
 ### Moving between scenes (Agreed)
 
