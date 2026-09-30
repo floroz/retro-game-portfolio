@@ -73,6 +73,19 @@ npm run dev
 
 Then open the URL shown in the terminal (typically `http://localhost:5173`).
 
+### V2.1 airport study
+
+Open `/?remaster=hall` on the local server for a synchronized comparison of V2
+and the first remaster treatment. Use the divider or view buttons, toggle dialogue,
+and click the floor to compare walking. The regular `/` game keeps its current art.
+
+The study re-exports 14 Hall assets from the approved source archive at density 4
+(1280×640 backgrounds), retains full colour and softer edges, and trials native
+canvas lettering with the original text layout. Rebuild its separate assets with
+`npx tsx scripts/assets/remaster-hall.ts`; the source inventory and exceptions are
+recorded in `assets-src/remaster/hall-manifest.json`. No new artwork is generated.
+The limoncello source and toolbar icon designs still retain their original pixel detail.
+
 ### Scripts
 
 | Command           | Description              |

@@ -391,12 +391,16 @@ function paintSentence(layer: TextLayer, view: PanelView) {
   );
 }
 
-export function paintPanel(ctx: Ctx, view: PanelView) {
+export function paintPanel(
+  ctx: Ctx,
+  view: PanelView,
+  paintLine?: TextLayer["paintLine"],
+) {
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, CANVAS_PANEL_W, CANVAS_PANEL_H);
   const base = staticTrunk();
   if (base) ctx.drawImage(base, 0, 0);
-  const layer: TextLayer = { ctx, scale: ART * LOGICAL };
+  const layer: TextLayer = { ctx, scale: ART * LOGICAL, paintLine };
 
   for (const t of PANEL_LAYOUT.tickets) {
     paintTicketText(ctx, layer, t, view);
@@ -482,12 +486,16 @@ function staticLid(): HTMLCanvasElement | null {
  * on. Before Daniele has finished a line there are none, only a dim nudge
  * that a click moves it along.
  */
-export function paintChoices(ctx: Ctx, view: ChoicesView) {
+export function paintChoices(
+  ctx: Ctx,
+  view: ChoicesView,
+  paintLine?: TextLayer["paintLine"],
+) {
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, CANVAS_PANEL_W, CANVAS_PANEL_H);
   const base = staticLid();
   if (base) ctx.drawImage(base, 0, 0);
-  const layer: TextLayer = { ctx, scale: ART * LOGICAL };
+  const layer: TextLayer = { ctx, scale: ART * LOGICAL, paintLine };
 
   if (view.labels.length === 0) {
     const nudge = "Click to skip";

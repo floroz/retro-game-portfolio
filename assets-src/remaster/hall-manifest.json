@@ -1,0 +1,78 @@
+{
+  "base": "v2@3cc5738",
+  "density": 4,
+  "generatedArtwork": false,
+  "recipe": "scripts/assets/remaster-hall.ts",
+  "assets": [
+    {
+      "output": "src/assets/remaster/hall/bg.png",
+      "source": "assets-src/approved/hall-stone-floor.png + assets-src/approved/hall-plate@hd.webp",
+      "note": "Density 4, full colour; same floor/architecture masks as airport-floor.ts; sign interiors retained for live text."
+    },
+    {
+      "output": "src/assets/remaster/hall/obj-duty-free.png",
+      "source": "assets-src/approved/hall-duty-free-empty.png",
+      "note": "Original logical footprint, full colour and soft alpha; Lanczos from approved source."
+    },
+    {
+      "output": "src/assets/remaster/hall/obj-boarding-desk.png",
+      "source": "assets-src/approved/hall-boarding-desk.png",
+      "note": "Original logical footprint, full colour and soft alpha; Lanczos from approved source."
+    },
+    {
+      "output": "src/assets/remaster/hall/anim-plane.png",
+      "source": "assets-src/approved/hall-plane@hd.webp",
+      "note": "Original logical footprint, full colour and soft alpha; Lanczos from approved source."
+    },
+    {
+      "output": "src/assets/remaster/hall/obj-seats.png",
+      "source": "assets-src/approved/hall-seats@hd.webp",
+      "note": "Original approved blue source with the documented red upholstery correction reapplied; same 91x27 logical footprint."
+    },
+    {
+      "output": "src/assets/remaster/hall/obj-souvenir-knife.png",
+      "source": "assets-src/approved/hall-souvenir-knife-sprite.png",
+      "note": "Original logical footprint, full colour and soft alpha; Lanczos from approved source."
+    },
+    {
+      "output": "src/assets/remaster/hall/obj-souvenir-cheese.png",
+      "source": "assets-src/approved/hall-souvenir-cheese-sprite.png",
+      "note": "Original logical footprint, full colour and soft alpha; Lanczos from approved source."
+    },
+    {
+      "output": "src/assets/remaster/hall/obj-souvenir-telephone.png",
+      "source": "assets-src/approved/hall-souvenir-telephone-sprite.png",
+      "note": "Original logical footprint, full colour and soft alpha; Lanczos from approved source."
+    },
+    {
+      "output": "src/assets/remaster/hall/obj-souvenir-limoncello.png",
+      "source": "assets-src/approved/hall-souvenir-limoncello-sprite.png",
+      "note": "Only a 14x28 source survives. Resampled for this proof; no recovered detail. Candidate for targeted refinement."
+    },
+    {
+      "output": "src/assets/remaster/hall/anim-passenger-businessman.png",
+      "source": "assets-src/approved/passengers/businessman.webp",
+      "note": "Same frame count, timing, padded cells and foot alignment as passengers.ts, at twice the export resolution. Soft alpha and full colour."
+    },
+    {
+      "output": "src/assets/remaster/hall/anim-passenger-family.png",
+      "source": "assets-src/approved/passengers/family.webp",
+      "note": "Same frame count, timing, padded cells and foot alignment as passengers.ts, at twice the export resolution. Soft alpha and full colour."
+    },
+    {
+      "output": "src/assets/remaster/hall/anim-passenger-reader.png",
+      "source": "assets-src/approved/passengers/reader.webp",
+      "note": "Same frame count, timing, padded cells and foot alignment as passengers.ts, at twice the export resolution. Soft alpha and full colour."
+    },
+    {
+      "output": "src/assets/remaster/hall/anim-passenger-window-man.png",
+      "source": "assets-src/approved/passengers/window-man.webp",
+      "note": "Same frame count, timing, padded cells and foot alignment as passengers.ts, at twice the export resolution. Soft alpha and full colour."
+    },
+    {
+      "output": "src/assets/remaster/hall/anim-passenger-window-woman.png",
+      "source": "assets-src/approved/passengers/window-woman.webp",
+      "note": "Same frame count, timing, padded cells and foot alignment as passengers.ts, at twice the export resolution. Soft alpha and full colour."
+    }
+  ]
+}

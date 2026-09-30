@@ -2,12 +2,12 @@ name: PR Review
 
 on:
   pull_request:
-    branches: [main, v2]
+    branches: [main, v2, V2.1]
 
 jobs:
   plan-guard:
     name: Plan Guard
-    if: github.base_ref == 'v2'
+    if: github.base_ref == 'v2' || github.base_ref == 'V2.1'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,10 +18,11 @@ jobs:
           fetch-depth: 0
 
       - name: Check the PR follows the plan on v2
-        run: ./scripts/ci/plan-guard.sh "$HEAD_BRANCH" "$HEAD_SHA" origin/v2
+        run: ./scripts/ci/plan-guard.sh "$HEAD_BRANCH" "$HEAD_SHA" "origin/$BASE_BRANCH"
         env:
           HEAD_BRANCH: ${{ github.head_ref }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_BRANCH: ${{ github.base_ref }}
 
   lint:
     name: Lint

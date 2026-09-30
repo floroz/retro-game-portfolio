@@ -78,6 +78,7 @@ export function stampOnGrid(
     snapped?: Uint8Array,
   ) => void,
   snap?: { paint: (sctx: CanvasRenderingContext2D) => void; cut: number },
+  softEdges = false,
 ) {
   const { left, top, w, h } = box;
   if (w < 1 || h < 1) return;
@@ -89,7 +90,7 @@ export function stampOnGrid(
   paint(sctx);
   sctx.restore();
   const image = sctx.getImageData(0, 0, w, h);
-  hardenAlpha(image.data);
+  if (!softEdges) hardenAlpha(image.data);
   let snapped: Uint8Array | undefined;
   if (snap) {
     const s2 = scratch(owner, w, h, 1);

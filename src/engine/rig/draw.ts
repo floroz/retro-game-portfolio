@@ -31,6 +31,7 @@ export function drawRig(
   y: number,
   scale: number,
   grid = Math.max(2, rig.density),
+  softEdges = false,
 ) {
   const parts = placeRig(rig, state.facing, state.pose);
   // Atlas px to grid px, feet at the origin.
@@ -122,5 +123,6 @@ export function drawRig(
           },
         }
       : undefined,
+    softEdges,
   );
 }

@@ -68,6 +68,19 @@ describe("density rules", () => {
     expect(resolveDensity(desk, rules, sizeOf)).toBe(2);
   });
 
+  test("display-resolution artwork preserves the logical sprite footprint", () => {
+    sizes.set(zurich.background, { w: 1280, h: 640 });
+    const density = resolveDensity(desk, rules, sizeOf);
+    expect(density).toBe(4);
+    expect(logicalBox({ x: 0, y: 0, w: 272, h: 192 }, density)).toEqual({
+      x: 0,
+      y: 0,
+      w: 68,
+      h: 48,
+    });
+    expect(snap(10.3, density)).toBe(10.25);
+  });
+
   test("scenes switch density one at a time", () => {
     sizes.set(zurich.background, { w: 640, h: 320 });
     sizes.set(SCENES.london.background, { w: 320, h: 160 });

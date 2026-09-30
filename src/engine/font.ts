@@ -42,6 +42,14 @@ export interface TextLayer {
   ctx: CanvasRenderingContext2D;
   /** Canvas px per logical px: 2 for the 640x320 text canvas. */
   scale: number;
+  /** Optional native-resolution lettering; layout still uses the original metrics. */
+  paintLine?: (
+    layer: TextLayer,
+    text: string,
+    x: number,
+    y: number,
+    style: TextStyle,
+  ) => void;
 }
 
 type Item = { glyph: Glyph; x: number } | { icon: SectionId; x: number };
@@ -430,6 +438,10 @@ export function drawText(
   style: TextStyle,
 ) {
   if (!text) return;
+  if (layer.paintLine) {
+    layer.paintLine(layer, text, x, y, style);
+    return;
+  }
   const bmp = lineBitmap(text, style);
   if (!bmp) return;
   const font = FONTS[style.font ?? "regular"];
