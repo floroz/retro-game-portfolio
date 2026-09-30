@@ -1,44 +1,17 @@
 /**
- * London: a pub on a rainy evening, with the City through the window
- * (docs/art-spec.md, scene card `london`). Built in HB3 from the Phase H
- * layers: candidate 02 of `london-plate@hd` (the empty pub), and the table
- * with its two stools (01), the bar (02), the fruit machine (01) and the
- * door with its open state (01) as separate sprites, all painted at
- * density 2 (640x320, 2x nearest-neighbour, one 256-colour palette). Every
- * coordinate is in logical pixels (320x160), top-left origin; the art has
- * two pixels per logical px.
- *
- * The chalkboard behind the bar opens Skills: the engine letters "SKILLS" on
- * its header and writes the skill groups on the slate in chalk, from
- * `profile.ts` (the one list allowed in the world, at Daniele's request:
- * docs/expansion-plan.md, "Minimal in-world text"). The taps on the bar top
- * are a slot row with one tap per skill group, each naming its group on
- * hover, with its own "look at" joke (src/config/slotCopy.ts). The London job
- * photos hang as a 3 x 2 slot row on the bare red wall by the dartboard.
- *
- * The rain on the window and the fruit machine's chasing lamps are
- * procedural effects (`effects`), and the passing double-decker is a moving
- * prop (`props`) clipped to the stretch of window between the phone box and
- * the lamp post.
- *
- * Walking depth: the bar counter, the table with its two stools, and the
- * fruit machine stand out on the floor, each with a `baselineY` just above
- * its front feet. Their footprints are notches in the walkbox, so it stays
- * one polygon: he walks round the table and the bar in front (the window,
- * shelves and chalkboard behind them are as dark as his sweater), and
- * behind the bar's right end and the fruit machine, where the wall is red
- * panelling and the sprites sort in front of his legs. His depth is
- * measured against the painted furniture (see `depth`): 55 px tall at the
- * back of the floor and 66 at the front.
- *
- * Check it with the dev overlay: `npm run dev`, then `?debug=scene`.
+ * London: a rainy pub, painted at density 2 on a 320x160 logical grid.
+ * The foreground table and its patrons sort at their feet, in front of
+ * the bar. The floor connects behind and in front of the table via its
+ * right-hand aisle. The jukebox occupies the old machine's footprint.
+ * Rain and the passing bus remain behind the window glass; the central
+ * chalkboard and taps expose Skills directly. Check with ?debug=scene.
  */
 import { SECTIONS } from "../sections";
-import type { Rect, SceneData, Vec } from "../../engine/types";
+import type { Rect, SceneData } from "../../engine/types";
 import londonBg from "../../assets/scenes/london/bg.png";
 import londonObjBar from "../../assets/scenes/london/obj-bar.png";
 import londonObjTable from "../../assets/scenes/london/obj-table.png";
-import londonObjFruitMachine from "../../assets/scenes/london/obj-fruit-machine.png";
+import londonObjJukebox from "../../assets/scenes/london/obj-jukebox.png";
 import londonObjDoor from "../../assets/scenes/london/obj-door.png";
 import londonObjDoorOpen from "../../assets/scenes/london/obj-door@open.png";
 import londonAnimBus from "../../assets/scenes/london/anim-bus.png";
@@ -52,25 +25,14 @@ const SKILLS = SECTIONS.skills.label;
 const CONTACT = SECTIONS.contact.label;
 
 /** Front feet of the free-standing furniture: the depth-sort lines. */
-const TABLE_BASELINE = 113;
+const TABLE_BASELINE = 138;
 const BAR_BASELINE = 119;
-const FRUIT_MACHINE_BASELINE = 123;
+const JUKEBOX_BASELINE = 123;
 
 /** The bar top, where the taps stand (each tap's bottom row sits on it). */
 const TAP_Y = 73.5;
 /** Eight taps at 9 px, centred under the chalkboard (x 140-200). */
 const TAP_X0 = 135;
-
-/**
- * The fruit machine's nine gold lamps, three rows of three (the sprite sits
- * at 287,74), as 5 art px squares centred on the painted domes (which are
- * 7 px across, so a lit lamp keeps its gold rim), in reading order so the
- * chase runs along each row and down.
- */
-const LAMP_SIZE = 2.5;
-const FRUIT_LAMPS: Vec[] = [79, 85.2, 102.7].flatMap((y) =>
-  [294, 301.5, 309].map((x): Vec => [x - LAMP_SIZE / 2, y - LAMP_SIZE / 2]),
-);
 
 /** The window's glass, inside its wooden frame: the rain is clipped to it. */
 const WINDOW_GLASS = { x: 33, y: 10, w: 76, h: 64 };
@@ -111,20 +73,12 @@ export const LONDON_SCENE: SceneData = {
     loopEnd: 32.5,
   },
   floor: "wood",
-  // The floor from the baseboard (y 106) to the front edge. The table
-  // (x 31-91, y 106-115) and the bar (x 99-254, y 106-119.5) are notches in
-  // the back edge, so Daniele walks round them, in front, and never in front
-  // of the dark window, shelves and chalkboard (his navy sweater would sink
-  // into them: the contrast walk). The bar's right end (x 236-254) leaves a
-  // strip of floor behind it, and so does the fruit machine (x 288-312, y
-  // 113-124.5, a notch in the right edge), where the wall is red panelling:
-  // he walks behind both and the sprites sort in front.
+  // The table is a foreground notch from the left edge (y126-140).
+  // Keep a corridor behind it and a route around its right stool so
+  // Daniele can pass behind the seated pair, then emerge in front.
+  // The counter and jukebox retain their own floor notches.
   walkbox: [
     [8, 106],
-    [31, 106],
-    [31, 115],
-    [91, 115],
-    [91, 106],
     [99, 106],
     [99, 119.5],
     [254, 119.5],
@@ -138,14 +92,15 @@ export const LONDON_SCENE: SceneData = {
     [312, 124.5],
     [312, 158],
     [8, 158],
+    [8, 140],
+    [94, 140],
+    [94, 126],
+    [8, 126],
   ],
-  // Daniele's height, measured against the painted furniture rather than the
-  // shared world scale (58 to 72): the door (67 px, taken as 2.1 m), the
-  // counter (34 px, 1.1 m), the table top (26 px up, 0.75 m) and the fruit
-  // machine (51 px, 1.7 m) come to 30-35 px a metre at any depth, so a
-  // 1.8 m man is 54-62 px at the floor lines of the door, table, bar and
-  // machine (y 104-125). 55 px at the back and 66 at the front keeps him
-  // within 10% of every one of them (worldScale.test.ts, london.test.ts).
+  // Daniele stays in proportion to the painted furniture at each floor
+  // line: 55 px tall at the back, 66 at the front. The foreground table
+  // has a 26 px tabletop height (0.75 m) at y140; the counter and jukebox
+  // remain farther back. london.test.ts checks these proportions.
   depth: { farY: 106, nearY: 158, ...LONDON_HEIGHTS },
   entryPoints: { fromHall: { x: 20, y: 113, facing: "e" } },
   entryLine: `London, where I learned the trade. ${SKILLS} are on tap.`,
@@ -205,8 +160,8 @@ export const LONDON_SCENE: SceneData = {
       name: "table",
       sprite: londonObjTable,
       x: 30,
-      y: 83,
-      interactionPoint: { x: 61, y: 122, facing: "n" },
+      y: 108,
+      interactionPoint: { x: 61, y: 147, facing: "n" },
       baselineY: TABLE_BASELINE,
       look: "A permanent wobble. The beer mat under the leg is load-bearing.",
       use: "I'd sit down, but the chalkboard won't read itself.",
@@ -215,8 +170,8 @@ export const LONDON_SCENE: SceneData = {
       id: "stool",
       name: "bar stool",
       // The table's right-hand stool; the table sprite carries both.
-      hotspot: { x: 76, y: 95, w: 15, h: 21 },
-      interactionPoint: { x: 97, y: 122, facing: "w" },
+      hotspot: { x: 76, y: 120, w: 15, h: 21 },
+      interactionPoint: { x: 97, y: 145, facing: "w" },
       look: "Right where you'll trip over it. Traditional.",
       use: "I'll stand, thanks. Standing is how you get served.",
     },
@@ -232,16 +187,15 @@ export const LONDON_SCENE: SceneData = {
       use: "Leaning like a regular. The barman pretends not to know me.",
     },
     {
-      id: "fruit-machine",
-      name: "fruit machine",
-      sprite: londonObjFruitMachine,
+      id: "jukebox",
+      name: "jukebox",
+      sprite: londonObjJukebox,
       x: 287,
       y: 74,
       interactionPoint: { x: 277, y: 128, facing: "e" },
-      baselineY: FRUIT_MACHINE_BASELINE,
-      look: "The old vending machine's rowdier cousin. Three lemons pays nothing.",
-      use: "Cherry, lemon, orange. Nothing. The house always wins.",
-      sound: "fruit-machine",
+      baselineY: JUKEBOX_BASELINE,
+      look: "All the hits, filed under: one more before we go.",
+      use: "Already playing the house playlist. No skips, no subscriptions.",
     },
   ],
   // Four regulars leave the central taps and chalkboard clear. The table
@@ -252,7 +206,7 @@ export const LONDON_SCENE: SceneData = {
       id: "patron-table-woman",
       strip: tableWoman,
       x: 30,
-      y: 65,
+      y: 90,
       baselineY: TABLE_BASELINE + 0.1,
       frames: 4,
       frameMs: 420,
@@ -265,7 +219,7 @@ export const LONDON_SCENE: SceneData = {
       id: "patron-table-man",
       strip: tableMan,
       x: 68,
-      y: 65,
+      y: 90,
       baselineY: TABLE_BASELINE + 0.1,
       frames: 4,
       frameMs: 500,
@@ -324,17 +278,6 @@ export const LONDON_SCENE: SceneData = {
       slant: 12,
       color: "#b4c8e8",
       clip: WINDOW_GLASS,
-    },
-    {
-      // The nine lamps chase in turn; sorts with the machine.
-      kind: "lamps",
-      id: "fruit-lamps",
-      points: FRUIT_LAMPS,
-      size: LAMP_SIZE,
-      pattern: "chase",
-      stepMs: 150,
-      on: "#fff4b8",
-      baselineY: FRUIT_MACHINE_BASELINE,
     },
   ],
   props: [
