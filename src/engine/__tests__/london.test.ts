@@ -33,18 +33,14 @@ const effect = (id: string): SceneEffect => {
 const SIZE = {
   table: { w: 61, h: 32 },
   bar: { w: 158, h: 34 },
-  "fruit-machine": { w: 33, h: 51 },
+  jukebox: { w: 33, h: 51 },
 };
 
 describe("London (HB3)", () => {
   test("keeps weather and traffic separate from the seated patrons", () => {
     expect(london.foreground).toBeUndefined();
     expect(london.animations).toHaveLength(4);
-    expect(london.effects?.map((e) => e.kind).sort()).toEqual([
-      "lamps",
-      "rain",
-      "rain",
-    ]);
+    expect(london.effects?.map((e) => e.kind).sort()).toEqual(["rain", "rain"]);
     expect(london.props?.map((p) => p.id)).toEqual(["bus"]);
   });
 
@@ -54,13 +50,13 @@ describe("London (HB3)", () => {
     // What the painted objects say a 1.8 m man is, in logical px: each
     // object's height in px over its real height in metres (HB3 measured
     // the door at 67 px for 2.1 m, the counter 34 px for 1.1 m, the table
-    // top 26 px for 0.75 m, the fruit machine 51 px for 1.7 m) at the y of
+    // top 26 px for 0.75 m, the jukebox 51 px for 1.7 m) at the y of
     // its floor line.
     const measured = [
       { id: "door", y: 104, px: 67, metres: 2.1 },
-      { id: "table", y: 115, px: 26, metres: 0.75 },
+      { id: "table", y: 140, px: 26, metres: 0.75 },
       { id: "bar", y: 120.5, px: 34, metres: 1.1 },
-      { id: "fruit machine", y: 125, px: 51, metres: 1.7 },
+      { id: "jukebox", y: 125, px: 51, metres: 1.7 },
     ];
     for (const m of measured) {
       const man = (m.px / m.metres) * 1.8;
@@ -72,20 +68,25 @@ describe("London (HB3)", () => {
     }
   });
 
-  test("the floor is walkable, and the table, bar and machine are not", () => {
+  test("the table leaves a corridor behind it and open floor in front", () => {
     // Open floor: the door, the middle, in front of everything.
     expect(walkable(20, 113)).toBe(true);
     expect(walkable(95, 110)).toBe(true);
     expect(walkable(160, 140)).toBe(true);
     expect(walkable(300, 140)).toBe(true);
+    // Walk behind the foreground table, or around its right edge.
+    expect(walkable(61, 122)).toBe(true);
+    expect(walkable(97, 132)).toBe(true);
+    expect(walkable(61, 147)).toBe(true);
     // Under the table and stools, and along the bar.
-    expect(walkable(61, 112)).toBe(false);
+    expect(walkable(61, 132)).toBe(false);
+    expect(walkable(80, 136)).toBe(false);
     expect(walkable(120, 110)).toBe(false);
     expect(walkable(180, 118)).toBe(false);
-    // Behind the bar's right end, and behind the fruit machine.
+    // Behind the bar's right end, and behind the jukebox.
     expect(walkable(245, 109)).toBe(true);
     expect(walkable(300, 109)).toBe(true);
-    // On the fruit machine itself.
+    // On the jukebox itself.
     expect(walkable(300, 120)).toBe(false);
   });
 
@@ -113,8 +114,8 @@ describe("London (HB3)", () => {
     }
   });
 
-  test("the table, bar and fruit machine sort by their front feet", () => {
-    for (const id of ["table", "bar", "fruit-machine"] as const) {
+  test("the table, bar and jukebox sort by their front feet", () => {
+    for (const id of ["table", "bar", "jukebox"] as const) {
       const o = object(id);
       const bottom = (o.y ?? 0) + SIZE[id].h;
       expect(o.baselineY, id).toBeLessThanOrEqual(bottom);
@@ -122,6 +123,33 @@ describe("London (HB3)", () => {
     }
     // Feet on the baseline are in front of the footprint's front edge.
     expect(walkable(100, (object("bar").baselineY ?? 0) + 1)).toBe(true);
+  });
+
+  test("the table and its seated pair sort in front of the window visitor", () => {
+    const table = object("table");
+    const behind = object("window").interactionPoint;
+    const inFront = table.interactionPoint;
+    expect(table.baselineY).toBeGreaterThan(object("bar").baselineY ?? 0);
+    expect(behind?.y).toBeLessThan(table.baselineY ?? 0);
+    expect(inFront?.y).toBeGreaterThan(table.baselineY ?? 0);
+    const pair = london.animations?.filter((a) =>
+      a.id.startsWith("patron-table-"),
+    );
+    expect(pair).toHaveLength(2);
+    for (const patron of pair ?? []) {
+      expect(patron.baselineY).toBeGreaterThan(behind?.y ?? 0);
+      expect(patron.baselineY).toBeLessThan(inFront?.y ?? 0);
+      // Moving the furniture must carry both sitters by the same amount.
+      expect((table.y ?? 0) - patron.y).toBe(18);
+    }
+  });
+
+  test("the music corner replaces the gambling machine and its effects", () => {
+    expect(object("jukebox").name).toBe("jukebox");
+    expect(object("jukebox").sprite).toContain("obj-jukebox");
+    expect(object("jukebox").use?.length).toBeGreaterThan(10);
+    expect(london.objects.some((o) => o.id === "fruit-machine")).toBe(false);
+    expect(london.effects?.some((e) => e.id === "fruit-lamps")).toBe(false);
   });
 
   test("the chalkboard (Skills) stays one click away, with its label on the header", () => {
@@ -162,7 +190,7 @@ describe("London (HB3)", () => {
     }
   });
 
-  test("the rain stays inside the window, and the lamps on the fruit machine", () => {
+  test("the rain stays inside the window", () => {
     const rain = effect("rain-near");
     const window = rectOf("window");
     expect(rain.kind).toBe("rain");
@@ -172,23 +200,6 @@ describe("London (HB3)", () => {
         inside(window, rain.area.x + rain.area.w, rain.area.y + rain.area.h),
       ).toBe(true);
       expect(rain.clip).toEqual(rain.area);
-    }
-    const lamps = effect("fruit-lamps");
-    const m = object("fruit-machine");
-    expect(lamps.kind).toBe("lamps");
-    if (lamps.kind === "lamps") {
-      expect(lamps.points).toHaveLength(9);
-      expect(lamps.baselineY).toBe(m.baselineY);
-      for (const [x, y] of lamps.points) {
-        expect(x).toBeGreaterThanOrEqual(m.x ?? 0);
-        expect(x + lamps.size).toBeLessThanOrEqual(
-          (m.x ?? 0) + SIZE["fruit-machine"].w,
-        );
-        expect(y).toBeGreaterThanOrEqual(m.y ?? 0);
-        expect(y + lamps.size).toBeLessThanOrEqual(
-          (m.y ?? 0) + SIZE["fruit-machine"].h,
-        );
-      }
     }
   });
 
@@ -216,7 +227,7 @@ describe("London (HB3)", () => {
 
   test("the flavour objects keep their jokes and sounds", () => {
     expect(object("dartboard").sound).toBe("dart-thunk");
-    expect(object("fruit-machine").sound).toBe("fruit-machine");
+    expect(object("jukebox").sound).toBeUndefined();
     for (const id of [
       "window",
       "phone-box",
@@ -225,6 +236,7 @@ describe("London (HB3)", () => {
       "table",
       "stool",
       "bar",
+      "jukebox",
     ]) {
       expect(object(id).look.length, id).toBeGreaterThan(10);
     }

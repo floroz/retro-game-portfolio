@@ -28,7 +28,7 @@ async function openPub(page: Page) {
   await expect(page.locator("canvas[data-drawn=london]")).toBeVisible();
 }
 
-/** The two bar guests, clear of the window rain, bus and fruit-machine lamps. */
+/** The two bar guests, clear of the window rain and passing bus. */
 async function patronPixels(page: Page) {
   return page.locator("canvas[data-drawn=london]").evaluate((element) => {
     const canvas = element as unknown as {
@@ -107,4 +107,69 @@ test("pub patrons respect reduced motion", async ({ page }) => {
     "pub-patrons-reduced-motion.png",
     { maxDiffPixelRatio: 0.02 },
   );
+});
+
+test("the foreground table has paths behind and in front, and the jukebox responds", async ({
+  page,
+}) => {
+  test.setTimeout(90000);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openPub(page);
+  const scene = page.locator("[data-e2e=scene]");
+  const canvas = page.locator("canvas[data-drawn=london]");
+
+  await page
+    .locator('[data-e2e=hotspot][data-hotspot="object:window"]')
+    .first()
+    .click({ force: true });
+  await page.clock.runFor(15000);
+  await expect(scene).toHaveScreenshot("pub-table-walk-behind.png", {
+    maxDiffPixelRatio: 0.02,
+  });
+
+  await page
+    .locator('[data-e2e=hotspot][data-hotspot="object:table"]')
+    .first()
+    .click({ force: true });
+  await page.clock.runFor(18000);
+  await expect(scene).toHaveScreenshot("pub-table-walk-in-front.png", {
+    maxDiffPixelRatio: 0.02,
+  });
+
+  const jukebox = page
+    .locator('[data-e2e=hotspot][data-hotspot="object:jukebox"]')
+    .first();
+  await jukebox.hover({ force: true });
+  await expect(page.locator("[data-e2e=toolbar-status]")).toContainText(
+    "jukebox",
+  );
+  await expect(
+    page.locator('[data-e2e=hotspot][data-hotspot="object:fruit-machine"]'),
+  ).toHaveCount(0);
+  await jukebox.click({ force: true });
+  // Step through the walk so the reply cannot start and finish between checks.
+  let replied = false;
+  for (let i = 0; i < 60 && !replied; i++) {
+    await page.clock.runFor(500);
+    replied = (await canvas.getAttribute("data-speaking")) === "true";
+  }
+  expect(replied).toBe(true);
+  await page.clock.runFor(10000);
+
+  await page
+    .locator('[data-e2e=hotspot][data-hotspot="object:chalkboard"]')
+    .first()
+    .click({ force: true });
+  await page.clock.runFor(15000);
+  await expect(
+    page.locator('[data-e2e=terminal-screen][data-action="skills"]'),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(canvas).toBeVisible();
+  await page
+    .locator('[data-e2e=hotspot][data-hotspot="exit:door-hall"]')
+    .first()
+    .click({ force: true });
+  await page.clock.runFor(20000);
+  await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
 });
