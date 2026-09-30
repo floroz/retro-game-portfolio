@@ -4,15 +4,18 @@
  * through here.
  *
  * As in _The Curse of Monkey Island_ (docs/art-spec.md, Phase H, "Text"),
- * text is a serif bitmap font on the art's own 640x320 grid: 1-bit glyphs
- * from an atlas (bitmapFont.ts), a hard 1 px outline, and for speech a 1 px
- * drop shadow, with no anti-aliasing anywhere. It's drawn on the text layer
+ * text is a serif bitmap font on the art's own 640x320 grid: glyphs from an
+ * atlas (bitmapFont.ts) in two tones at most (the letter, and one edge tone
+ * on the notches of diagonals and curves), a hard 1 px outline, and for
+ * speech a 1 px drop shadow. Every pixel is a whole indexed colour; nothing
+ * is smoothed. It's drawn on the text layer
  * (the 640x320 text canvas in Scene.tsx) and shown with the scene at 2x
  * nearest-neighbour, so text pixels line up with art pixels.
  *
  * Layout stays in logical px (320x160), like the rest of the scene data;
  * a logical px is 2 art px. Positions snap to whole art px when drawn.
  *
+ * - `logo`: mixed case, large, for the name on the title card.
  * - `regular`: mixed case, for speech and anything longer than a word or two.
  * - `small`: capitals, for signs, boards, and captions.
  * - `tiny`: capitals, only for a label whose `maxWidth` the small size
@@ -21,16 +24,24 @@
  * Section icons are written as `{skills}` etc. and drawn inline as pixel
  * art on the same grid (icons.ts).
  */
+import logoAtlas from "../assets/fonts/serif-logo.txt?raw";
 import regularAtlas from "../assets/fonts/serif-regular.txt?raw";
 import smallAtlas from "../assets/fonts/serif-small.txt?raw";
 import tinyAtlas from "../assets/fonts/serif-tiny.txt?raw";
-import { parseAtlas, type BitmapFont, type Glyph } from "./bitmapFont";
+import {
+  EDGE,
+  INK,
+  parseAtlas,
+  type BitmapFont,
+  type Glyph,
+} from "./bitmapFont";
 import { ICON_TOKEN, iconRows } from "./icons";
 import type { SectionId } from "./types";
 
-export type FontId = "regular" | "small" | "tiny";
+export type FontId = "logo" | "regular" | "small" | "tiny";
 
 const FONTS: Record<FontId, BitmapFont> = {
+  logo: parseAtlas(logoAtlas),
   regular: parseAtlas(regularAtlas),
   small: parseAtlas(smallAtlas),
   tiny: parseAtlas(tinyAtlas),
@@ -60,6 +71,21 @@ interface Layout {
 
 const FALLBACK = "?";
 
+/** An accented letter takes its base letter's pair kerning. */
+const baseOf = new Map<string, string>();
+function base(ch: string): string {
+  let b = baseOf.get(ch);
+  if (b === undefined) {
+    b = ch.normalize("NFD")[0] ?? ch;
+    baseOf.set(ch, b);
+  }
+  return b;
+}
+
+function kern(font: BitmapFont, a: string, b: string): number {
+  return font.kerning.get(a + b) ?? font.kerning.get(base(a) + base(b)) ?? 0;
+}
+
 /** Places every glyph of one line, in art px from the pen's start. */
 function layout(text: string, font: BitmapFont, tracking: number): Layout {
   const str = font.upper ? text.toUpperCase() : text;
@@ -82,7 +108,7 @@ function layout(text: string, font: BitmapFont, tracking: number): Layout {
     i += ch.length;
     const glyph = font.glyphs.get(ch) ?? font.glyphs.get(FALLBACK);
     if (!glyph) continue;
-    if (prev !== null) pen += tracking + (font.kerning.get(prev + ch) ?? 0);
+    if (prev !== null) pen += tracking + kern(font, prev, ch);
     items.push({ glyph, x: pen });
     pen += glyph.advance + (ch === " " ? font.word : 0);
     prev = ch;
@@ -154,6 +180,7 @@ export interface TextFit {
 
 /** Smaller sizes a line may drop to, from each font. */
 const SMALLER: Record<FontId, FontId[]> = {
+  logo: ["regular", "small", "tiny"],
   regular: ["small", "tiny"],
   small: ["tiny"],
   tiny: [],
@@ -162,23 +189,31 @@ const SMALLER: Record<FontId, FontId[]> = {
 /**
  * The largest setting of a line that fits `maxWidth` logical px. A bitmap
  * font can't scale, so it steps down: the font's own spacing, then letters
- * a pixel closer, then the next size down, and so on. Past the smallest,
- * it returns the tightest setting, and the line overhangs.
+ * a pixel closer (a size keeps at least 1 px of tracking), then the next
+ * size down, and so on. If no size fits that way, the tracking goes to 0,
+ * largest size first. Past that, it returns the tightest setting, and the
+ * line overhangs.
  */
 export function fitText(
   text: string,
   maxWidth: number,
   fontId: FontId = "regular",
 ): TextFit {
-  let last: TextFit = { font: fontId, tracking: FONTS[fontId].tracking };
-  for (const font of [fontId, ...SMALLER[fontId]]) {
+  const fonts = [fontId, ...SMALLER[fontId]];
+  const settings: TextFit[] = [];
+  for (const font of fonts) {
     const own = FONTS[font].tracking;
-    for (const tracking of own > 0 ? [own, own - 1] : [own]) {
-      last = { font, tracking };
-      if (measureText(text, font, tracking) <= maxWidth) return last;
+    for (let t = own; t >= Math.min(own, 1) && t >= own - 1; t--) {
+      settings.push({ font, tracking: t });
     }
   }
-  return last;
+  for (const font of fonts) settings.push({ font, tracking: 0 });
+  for (const setting of settings) {
+    if (measureText(text, setting.font, setting.tracking) <= maxWidth) {
+      return setting;
+    }
+  }
+  return settings[settings.length - 1];
 }
 
 // --- Drawing -----------------------------------------------------------------
@@ -186,6 +221,12 @@ export function fitText(
 export interface TextStyle {
   font?: FontId;
   color: string;
+  /**
+   * The edge tone: the one colour between the letters and what's behind
+   * them, on the pixels that soften diagonals and curves. It defaults to
+   * halfway to the outline, or to the letters at half strength without one.
+   */
+  edge?: string;
   /** A hard 1 px rim around every glyph, or false for none. */
   outline?: string | false;
   /** A 1 px drop shadow down and right of the rim, as MI3's speech. */
@@ -243,6 +284,10 @@ function rgba(color: string): Rgba {
   return [d[0], d[1], d[2], d[3]];
 }
 
+function mixRgba(a: Rgba, b: Rgba, t: number): Rgba {
+  return [0, 1, 2, 3].map((i) => Math.round(a[i] * (1 - t) + b[i] * t)) as Rgba;
+}
+
 const CACHE_SIZE = 256;
 const cache = new Map<string, LineBitmap | null>();
 
@@ -260,6 +305,7 @@ function lineBitmap(text: string, style: TextStyle): LineBitmap | null {
     fontId,
     tracking,
     style.color,
+    style.edge ?? "",
     style.outline || "",
     style.shadow || "",
     style.chalk ?? "",
@@ -278,9 +324,12 @@ function lineBitmap(text: string, style: TextStyle): LineBitmap | null {
   const baseline = 2 + Math.max(font.ascent, ICON_SIZE);
   const w = width + penX + 4;
   const h = baseline + font.descent + 3;
+  // 0 nothing, INK a letter's pixel, EDGE its softening tone.
   const ink = new Uint8Array(w * h);
-  const set = (x: number, y: number) => {
-    if (x >= 0 && y >= 0 && x < w && y < h) ink[y * w + x] = 1;
+  const set = (x: number, y: number, tone = INK) => {
+    if (x < 0 || y < 0 || x >= w || y >= h) return;
+    const i = y * w + x;
+    if (ink[i] !== INK) ink[i] = tone;
   };
   const chalk = style.chalk;
   items.forEach((item, index) => {
@@ -301,7 +350,8 @@ function lineBitmap(text: string, style: TextStyle): LineBitmap | null {
     const oy = baseline - g.top + wobble;
     for (let gy = 0; gy < g.h; gy++) {
       for (let gx = 0; gx < g.w; gx++) {
-        if (g.bits[gy * g.w + gx]) set(ox + gx, oy + gy);
+        const tone = g.bits[gy * g.w + gx];
+        if (tone) set(ox + gx, oy + gy, tone);
       }
     }
   });
@@ -309,11 +359,11 @@ function lineBitmap(text: string, style: TextStyle): LineBitmap | null {
     // Broken pixels, where the chalk skipped on the slate. Only inside a
     // stroke (four or more inked neighbours), so a letter never comes apart.
     const solid = (x: number, y: number) =>
-      x >= 0 && y >= 0 && x < w && y < h && ink[y * w + x] === 1;
+      x >= 0 && y >= 0 && x < w && y < h && ink[y * w + x] === INK;
     const skipped: number[] = [];
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
-        if (!solid(x, y) || chalkNoise(chalk, x, y + 1000) >= CHALK_BREAK) {
+        if (!ink[y * w + x] || chalkNoise(chalk, x, y + 1000) >= CHALK_BREAK) {
           continue;
         }
         let around = 0;
@@ -357,11 +407,17 @@ function lineBitmap(text: string, style: TextStyle): LineBitmap | null {
     const paint = (i: number, c: Rgba) => px.set(c, i * 4);
     const fill = rgba(style.color);
     const rim = style.outline ? rgba(style.outline) : null;
+    const edge = style.edge
+      ? rgba(style.edge)
+      : rim
+        ? mixRgba(fill, rim, 0.5)
+        : ([fill[0], fill[1], fill[2], Math.round(fill[3] * 0.5)] as Rgba);
     const shade = style.shadow ? rgba(style.shadow) : null;
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
         const i = y * w + x;
-        if (ink[i]) paint(i, fill);
+        if (ink[i] === INK) paint(i, fill);
+        else if (ink[i] === EDGE) paint(i, edge);
         else if (body[i] && rim) paint(i, rim);
         else if (shade && x > 0 && y > 0 && body[i - w - 1]) paint(i, shade);
       }

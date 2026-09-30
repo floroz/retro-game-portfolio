@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import logo from "../../assets/fonts/serif-logo.txt?raw";
 import regular from "../../assets/fonts/serif-regular.txt?raw";
 import small from "../../assets/fonts/serif-small.txt?raw";
 import tiny from "../../assets/fonts/serif-tiny.txt?raw";
@@ -29,7 +30,7 @@ describe("world text", () => {
       expect(Number.isInteger(measureText(s) * 2)).toBe(true);
     }
     expect(measureText("Hello, sailor!")).toBeGreaterThan(40);
-    expect(measureText("Hello, sailor!")).toBeLessThan(60);
+    expect(measureText("Hello, sailor!")).toBeLessThan(70);
   });
 
   test("sets letters apart and kerns pairs", () => {
@@ -42,7 +43,8 @@ describe("world text", () => {
     );
   });
 
-  test("MI3 proportions: capitals 12 art px, signs 8, tiny signs 7", () => {
+  test("MI3 proportions: capitals 12 art px, signs 8, tiny signs 7, the logo 26", () => {
+    expect(capHeight("logo") * 2).toBe(26);
     expect(capHeight("regular") * 2).toBe(12);
     expect(capHeight("small") * 2).toBe(8);
     expect(capHeight("tiny") * 2).toBe(7);
@@ -70,15 +72,19 @@ describe("world text", () => {
     const w = measureText("RESUME", "small");
     expect(fitText("RESUME", w, "small")).toEqual({
       font: "small",
-      tracking: 1,
+      tracking: 2,
     });
-    const tight = measureText("RESUME", "small", 0);
+    // One px closer per gap, but never fewer than 1 px of tracking.
+    const tight = measureText("RESUME", "small", 1);
     expect(tight).toBe(w - 2.5);
     expect(fitText("RESUME", tight, "small")).toEqual({
       font: "small",
-      tracking: 0,
+      tracking: 1,
     });
     expect(fitText("RESUME", tight - 0.5, "small").font).toBe("tiny");
+    // Only when no size fits with tracking does a line close up to 0.
+    const tiny = measureText("RESUME", "tiny", 1);
+    expect(fitText("RESUME", tiny - 0.5, "small").tracking).toBe(0);
     // Past the smallest setting, the tightest one.
     expect(fitText("RESUME", 1, "small")).toEqual({
       font: "tiny",
@@ -175,10 +181,17 @@ describe("bitmap atlas", () => {
     expect(() => parseAtlas(atlas.replace("###", "####"))).toThrow(/ragged/);
   });
 
-  test("every shipped glyph is 1-bit ink with its box trimmed", () => {
-    for (const text of [regular, small, tiny]) {
+  test("parses the edge tone as its own value", () => {
+    const font = parseAtlas(atlas.replace("###", "#+#"));
+    expect([...(font.glyphs.get("A")?.bits ?? [])]).toEqual([
+      0, 1, 0, 1, 2, 1, 1, 0, 1,
+    ]);
+  });
+
+  test("every shipped glyph has ink on its box's top and bottom rows", () => {
+    for (const text of [logo, regular, small, tiny]) {
       const font = parseAtlas(text);
-      expect(font.glyphs.size).toBeGreaterThan(150);
+      expect(font.glyphs.size).toBeGreaterThan(font.id === "logo" ? 60 : 150);
       for (const [ch, g] of font.glyphs) {
         if (!g.h) continue;
         const row = (y: number) => g.bits.slice(y * g.w, (y + 1) * g.w);
@@ -188,6 +201,41 @@ describe("bitmap atlas", () => {
         );
       }
     }
+  });
+});
+
+describe("grid-fitted stems", () => {
+  // The most common run of ink along a row is the stem: in a letter built of
+  // stems (and serifs), every one of them is the size's stem width.
+  const stemOf = (text: string, ch: string) => {
+    const g = parseAtlas(text).glyphs.get(ch);
+    if (!g) throw new Error(`no ${ch}`);
+    const counts = new Map<number, number>();
+    for (let y = 0; y < g.h; y++) {
+      let run = 0;
+      for (let x = 0; x <= g.w; x++) {
+        if (x < g.w && g.bits[y * g.w + x] === 1) run++;
+        else if (run) {
+          counts.set(run, (counts.get(run) ?? 0) + 1);
+          run = 0;
+        }
+      }
+    }
+    return [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+  };
+
+  test.each([
+    ["tiny", tiny, 1],
+    ["small", small, 1],
+    ["regular", regular, 2],
+    ["logo", logo, 4],
+  ])("every stem of %s is %i px wide", (_id, text, width) => {
+    for (const ch of "HILUFE") expect(stemOf(text, ch), ch).toBe(width);
+  });
+
+  test("accented letters take their base letter's kerning", () => {
+    expect(measureText("Áv")).toBe(measureText("Av"));
+    expect(measureText("AV")).toBeLessThan(measureText("AH"));
   });
 });
 

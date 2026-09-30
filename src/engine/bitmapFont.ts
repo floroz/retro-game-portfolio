@@ -4,8 +4,9 @@
  * rasterized 1-bit from Libre Caslon Text (SIL OFL 1.1) by
  * `scripts/fonts/rasterize.py` and hand-tuned there: a header of metrics,
  * then one block per glyph (`glyph <code point> <advance> <left> <top>`
- * and its rows, `#` for ink), then pair kerning (`kern <a> <b> <px>`).
- * Every number is in art px, on the 640x320 grid.
+ * and its rows: `#` for ink, `+` for the edge tone, a colour between the
+ * letter and its rim that softens diagonals and curves), then pair kerning
+ * (`kern <a> <b> <px>`). Every number is in art px, on the 640x320 grid.
  */
 
 export interface Glyph {
@@ -17,7 +18,7 @@ export interface Glyph {
   top: number;
   w: number;
   h: number;
-  /** `w * h` cells, row by row: 1 for ink. */
+  /** `w * h` cells, row by row: 1 for ink, 2 for the edge tone. */
   bits: Uint8Array;
 }
 
@@ -40,6 +41,10 @@ export interface BitmapFont {
   kerning: ReadonlyMap<string, number>;
 }
 
+/** Cell values in a glyph's `bits`. */
+export const INK = 1;
+export const EDGE = 2;
+
 const code = (hex: string) => String.fromCodePoint(parseInt(hex, 16));
 
 /** Parses an atlas file. Throws on a malformed one, so a bad edit fails fast. */
@@ -59,7 +64,9 @@ export function parseAtlas(text: string): BitmapFont {
       if (row.length !== w) {
         throw new Error(`glyph ${open?.char}: ragged row ${y}`);
       }
-      for (let x = 0; x < w; x++) bits[y * w + x] = row[x] === "#" ? 1 : 0;
+      for (let x = 0; x < w; x++) {
+        bits[y * w + x] = row[x] === "#" ? INK : row[x] === "+" ? EDGE : 0;
+      }
     });
     glyphs.set(open.char, { advance, left, top, w, h, bits });
     open = null;
@@ -72,7 +79,7 @@ export function parseAtlas(text: string): BitmapFont {
       close();
       continue;
     }
-    if (open && /^[#.]+$/.test(line)) {
+    if (open && /^[#+.]+$/.test(line)) {
       open.rows.push(line);
       continue;
     }
