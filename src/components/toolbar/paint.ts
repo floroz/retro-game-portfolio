@@ -37,6 +37,7 @@ import {
   WOOD,
   blit,
   fill,
+  mixHex,
   noise,
   paintBrassStrip,
   paintWood,
@@ -69,7 +70,7 @@ export interface PanelView {
 const STAMP = "#c0281f";
 const SENTENCE = "#f4ecd8";
 const SENTENCE_IDLE = "#bba882";
-const LABEL = "#3a2219";
+const LABEL = "#2a140d";
 
 /** Each city's ticket colour: the journey from grey to cool to warm. */
 const COUNTRY_INK: Record<CountrySceneId, { mid: string; dark: string }> = {
@@ -126,7 +127,12 @@ function paintTicket(ctx: Ctx, t: TicketLayout) {
     for (let x = rect.x - 1; x <= rect.x + rect.w + 1; x++) {
       if (onTicket(t, x, y)) {
         const inStub = x < stub.x + stub.w;
-        const speck = noise(x, y, 11) < 0.08;
+        // No specks behind the section names: text wants a clean ground.
+        const quiet = t.rows.some(
+          ({ rect: r }) =>
+            x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h,
+        );
+        const speck = noise(x, y, 11) < 0.08 && !quiet;
         fill(
           ctx,
           x,
@@ -305,12 +311,14 @@ function text(
   font: FontId,
   color: string,
   outline: string | false,
+  edge?: string,
 ) {
   drawText(layer, s, artX / LOGICAL, artY / LOGICAL, {
     font,
     color,
     outline,
     shadow: false,
+    edge,
   });
 }
 
@@ -340,7 +348,16 @@ function paintSectionRow(
   });
   const label = SECTIONS[section].label.toUpperCase();
   const ty = r.y + Math.round((r.h - cap("small")) / 2) + down;
-  text(layer, label, r.x + 3 + ICON + 5, ty, "small", color, false);
+  text(
+    layer,
+    label,
+    r.x + 3 + ICON + 5,
+    ty,
+    "small",
+    color,
+    false,
+    mixHex(color, hovered ? PAPER.mid : PAPER.light, 0.4),
+  );
 }
 
 function paintTicketText(
@@ -421,7 +438,6 @@ export interface ChoicesView {
 const CHOICE = "#c9b58a";
 const CHOICE_ACTIVE = "#ffe58a";
 const PAGE = "#1e100c";
-const PAGE_GRAIN = "#28150f";
 const HINT = "#8a7654";
 
 let lid: HTMLCanvasElement | null = null;
@@ -438,15 +454,10 @@ function staticLid(): HTMLCanvasElement | null {
   paintWood(ctx, PANEL_W, PANEL_H);
   paintBrassStrip(ctx, PANEL_W);
   const { x, y, w, h } = CHOICES_PAGE;
-  // The page: an ink rim, the leather with a little grain, and stitching
+  // The page: an ink rim, plain leather (no grain, so the text reads), and stitching
   // down the sides, pinned at the corners with brass.
   fill(ctx, x - 1, y - 1, w + 2, h + 2, INK);
   fill(ctx, x, y, w, h, PAGE);
-  for (let j = y; j < y + h; j++) {
-    for (let i = x; i < x + w; i++) {
-      if (noise(i, j, 21) < 0.07) fill(ctx, i, j, 1, 1, PAGE_GRAIN);
-    }
-  }
   fill(ctx, x, y, w, 1, WOOD[0]);
   fill(ctx, x, y + h - 1, w, 1, WOOD[4]);
   for (let j = y + 6; j < y + h - 6; j += 3) {
