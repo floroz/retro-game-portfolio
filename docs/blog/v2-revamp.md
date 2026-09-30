@@ -1,3 +1,60 @@
+> **Editor's note: refresh prompt. Remove before publishing.**
+>
+> **Last refreshed against:** `origin/v2` at `7515155` (2026-09-30).
+>
+> To bring this post up to date after more commits land, paste the prompt below into Codex or Claude Code, from a checkout of this repository. It works from git and GitHub alone, so it gives the same result in either tool.
+
+```text
+Refresh the engineering blog post docs/blog/v2-revamp.md with everything that has
+landed on origin/v2 since it was last refreshed. Work from git history first.
+
+1. Find the baseline. Run `git fetch origin`. Read the "Last refreshed against"
+   line at the top of docs/blog/v2-revamp.md; that SHA is the baseline. If it is
+   missing, use the newest SHA named in the Changelog.
+
+2. Collect the history since the baseline, oldest first:
+   - git log --reverse --format='%h %ad %an %s%n%b%n%(trailers)' \
+       --date=format:'%Y-%m-%d %H:%M' <baseline>..origin/v2
+   - git diff --stat <baseline> origin/v2
+   - Plan changes: git log -p <baseline>..origin/v2 -- docs/art-spec.md docs/expansion-plan.md
+   - For every merged PR number in a subject: gh pr view <n> --json title,body,mergedAt,files
+     (if gh is unavailable, use the commit bodies and say so).
+   Times in the post are local (UTC+2).
+
+3. Classify each change as one of: a new task or fix; a plan or policy change
+   (gates, delegation, lanes, rules); a change of creative direction; a reversal of
+   something the post describes; or a failure and how it was handled.
+
+4. Update the post:
+   - Integrate each change where it belongs, or add a dated section before the
+     Changelog if it does not fit. Keep the existing voice: plain, specific,
+     candid about what went wrong, for an engineering audience.
+   - Correct any earlier claim the new history contradicts, and say that it is a
+     correction. Do not quietly rewrite old numbers; state the new ones with the
+     SHA they were counted at.
+   - Keep these distinct: what Daniele requested, what an agent proposed, what
+     merged into origin/v2, what exists only locally or on unmerged branches, and
+     what is still undecided.
+   - Model attribution: a Co-authored-by trailer is the agent's own declaration,
+     and a model named in a recommendation proves nothing. Name a model only when
+     a runtime record or the person confirms it; otherwise say it is unknown.
+   - Commits made outside the orchestrators (no trailer, direct pushes, other
+     tools) are part of the history too. Describe what they changed, not who you
+     guess made them.
+   - If conversation transcripts are available to you, you may use them to add
+     intent and corrections, cited by session and time. Git remains the record of
+     what shipped. If you have none, say the refresh is git-only.
+
+5. Update the "Last refreshed against" line to the origin/v2 SHA you covered, and
+   add a dated Changelog entry at the top of the Changelog naming the SHA range and
+   the PRs covered.
+
+6. Work on a docs/blog-* branch based on origin/v2. Change only files under
+   docs/blog/. Run `npm run format`, review the diff, and make one conventional
+   commit (docs(blog): ...). Do not push or merge until Daniele approves the exact
+   diff. Report anything you could not check.
+```
+
 # Rebuilding a retro portfolio with two AI orchestrators
 
 _What one developer, two model families, and about seventy pull requests taught us about planning work for agents, including the parts that went wrong._
@@ -810,7 +867,7 @@ From the Claude Code side, in addition to the Codex addendum's list (the duty-fr
 
 ## Changelog
 
-- **2026-09-30 (Claude Code history review):** Added a dated, source-anchored review of the Claude Code transcripts ([S1] the orchestrator session, [S2] the 28 September asset-pipeline session) against the post, the plan, git and the PRs. It records twelve corrections: the Phase R trigger, the origin of Direction 1, the recommended options behind the smooth Phase H reading, the origin of the containers rule, the no-API rule as Daniele's correction, who merged past the permission check, the source and scope of the Sonnet rule, the brief behind UI1's concepts, the pupils option, the orchestrator's wording of the delegation, the first human verdict on the audio, and the start of planning on the 28th. It also adds a timeline of requested, proposed, shipped and open items; the spend-limit stall and the plan commits made outside the session; the runtime model record for all 59 sub-agents; the HG1 display problem; the collision in Daniele's checkout on the 30th; T4's rejected finer grid; A3's music; and what the review could not access. It complements, and does not repeat, the Codex addendum above.
+- **2026-09-30 (Claude Code history review):** Added a dated, source-anchored review of the Claude Code transcripts ([S1] the orchestrator session, [S2] the 28 September asset-pipeline session) against the post, the plan, git and the PRs. It records twelve corrections: the Phase R trigger, the origin of Direction 1, the recommended options behind the smooth Phase H reading, the origin of the containers rule, the no-API rule as Daniele's correction, who merged past the permission check, the source and scope of the Sonnet rule, the brief behind UI1's concepts, the pupils option, the orchestrator's wording of the delegation, the first human verdict on the audio, and the start of planning on the 28th. It also adds a timeline of requested, proposed, shipped and open items; the spend-limit stall and the plan commits made outside the session; the runtime model record for all 59 sub-agents; the HG1 display problem; the collision in Daniele's checkout on the 30th; T4's rejected finer grid; A3's music; and what the review could not access. It complements, and does not repeat, the Codex addendum above. Also added, at the top of the file, an editor's refresh prompt that works in Codex or Claude Code from git history, and a "Last refreshed against" marker set to `7515155`.
 - **2026-09-30 (history addendum):** Recorded the direct Codex image-tool workflow and its model-attribution limit; the Phase H completion counts; G4 fixes; later Codex-directed character, Hall, pub and readability work; the stale-server checkout incident; and Daniele's still-open creative review of the duty-free shelf, Alpine chalet, Sorrento labels and content viewer. Earlier numerical snapshots remain tied to their stated commit rather than silently recalculated.
 - **2026-09-30 (fourth update, 00:56):** Updated at `origin/v2` `1d7b716`, covering #76 to #79. The branch is now at G4, Daniele's final review, and the status line says so. Added the puppet's two review rounds (HR1: the seams came from a ring on every part, fixed by painting the parts and inking the posed union once; HR2: after the orchestrator judged it a stiff paper doll, a contour where limbs cross the body, sloped shoulders, bigger hands, a breathing idle with the feet planted, and pupils that stay dark at any scale), with the torso-stretch foot-slide bug, the ink colour trade-off between London and Zurich's night window, and a before and after image; I3a (dev preview and the density-4 render path removed, the OG image generated from the real game with draw hooks instead of timers, `check:reachability` with 28 of 28 cases in one click, the regression checks, and the queued title-card start); and what is left for Daniele at G4 (audio, the E2E baselines that need Docker, the "based in Switzerland" question, and the leftovers list). Rewrote the passages that said the puppet, the density-4 path and the `?hd=` preview were in progress or still in the tree, and the debts, What's next and numbers to match. Refreshed the numbers (69 merged PRs, 128 commits, 598 unit tests plus 52 browser tests, 24 Gate log rows) and added lessons 15 and 16. Two new images.
 - **2026-09-30 (third update, 00:08):** Updated at `origin/v2` `4c1e683`, covering #62 to #75 (the puppet PR #76 landed at 00:13 and is not covered). Added the hand-back of art picks to the orchestrator (14 minutes after the plan gave them to Daniele) and the parallel scene builds it enabled; the four rooms and the travel map built from layers (HB1 to HB5), the rig art (HB7), and the shared sprites; the Hall's giant Daniele and the measured-perspective rule (Hall 34 to 64 px, London 55 to 66 px), with E5's depth-scaled walk speed; the contrast rule in practice (retints, the seats from blue to red, and hair against wood leaning on the ink outline); the orchestrator's screenshot review and what it caught that agents' self-reports passed (a posterized window view, colour fringes, a clipped CRT word, a label off its card, a zero-height dialogue group), and Daniele's request that it QA after every merge; MI3-style conversations and the boarding-pass title card (UI2). Corrected an earlier claim: git does record the model, in `Co-authored-by` trailers (104 Opus, 13 Sonnet), and 53 of 55 `docs:` commits are trailed Opus. Refreshed the numbers (65 merged PRs, 120 commits, 578 unit tests plus 49 browser tests), the debts and the picks bullets, and added lessons 12 to 14 and a note on lesson 4. Four new images.
