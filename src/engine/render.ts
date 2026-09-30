@@ -266,11 +266,13 @@ function drawImageAt(rc: RenderContext, url: string, x: number, y: number) {
 /** Canvas px per logical px: 2 on the 640x320 canvas. */
 const GRID = CANVAS_W / NATIVE_W;
 
-function withClip(ctx: Ctx, clip: Rect | undefined, draw: () => void) {
+function withClip(ctx: Ctx, clip: Rect | Rect[] | undefined, draw: () => void) {
   if (!clip) return draw();
   ctx.save();
   ctx.beginPath();
-  ctx.rect(clip.x, clip.y, clip.w, clip.h);
+  for (const r of Array.isArray(clip) ? clip : [clip]) {
+    ctx.rect(r.x, r.y, r.w, r.h);
+  }
   ctx.clip();
   draw();
   ctx.restore();

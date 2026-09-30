@@ -73,6 +73,17 @@ const FIRST_YEAR =
     /\d{4}/,
   )?.[0] ?? "";
 
+/**
+ * The window glass the plane shows through: the right-hand pane, then the
+ * left pane's three strips between the posts, above the monitors.
+ */
+const HALL_PLANE_CLIP = [
+  { x: 125, y: 9, w: 42, h: 45 },
+  { x: 119, y: 9, w: 4, h: 18 },
+  { x: 100, y: 9, w: 17, h: 18 },
+  { x: 86, y: 9, w: 12, h: 18 },
+];
+
 export const HALL_SCENE: SceneData = {
   id: "hall",
   name: "the airport",
@@ -272,8 +283,9 @@ export const HALL_SCENE: SceneData = {
   props: [
     {
       // A plane taking off beyond the right-hand pane, nose up, climbing
-      // away up and to the left and shrinking as it goes. It slides behind
-      // the mullion (x 125), which is the pane's left edge.
+      // away up and to the left and shrinking as it goes. It passes behind
+      // the mullion (x 123-124) and the two monitor poles (x 98-99 and
+      // 117-118) into the left pane, and stays above the monitors (y 27).
       id: "plane",
       sprite: hallAnimPlane,
       path: [
@@ -284,7 +296,7 @@ export const HALL_SCENE: SceneData = {
       everyMs: 15000,
       delayMs: 3000,
       ease: "in",
-      clip: { x: 126, y: 9, w: 41, h: 45 },
+      clip: HALL_PLANE_CLIP,
     },
   ],
   labels: [
