@@ -43,6 +43,11 @@ import londonObjDoor from "../../assets/scenes/london/obj-door.png";
 import londonObjDoorOpen from "../../assets/scenes/london/obj-door@open.png";
 import londonAnimBus from "../../assets/scenes/london/anim-bus.png";
 
+import tableWoman from "../../assets/scenes/london/anim-patron-table-woman.png";
+import tableMan from "../../assets/scenes/london/anim-patron-table-man.png";
+import barMan from "../../assets/scenes/london/anim-patron-bar-man.png";
+import barWoman from "../../assets/scenes/london/anim-patron-bar-woman.png";
+
 const SKILLS = SECTIONS.skills.label;
 const CONTACT = SECTIONS.contact.label;
 
@@ -237,6 +242,63 @@ export const LONDON_SCENE: SceneData = {
       look: "The old vending machine's rowdier cousin. Three lemons pays nothing.",
       use: "Cherry, lemon, orange. Nothing. The house always wins.",
       sound: "fruit-machine",
+    },
+  ],
+  // Four regulars leave the central taps and chalkboard clear. The table
+  // pair sit on its existing stools; the rear-view guests carry their stools
+  // in the strip and sort just in front of the counter. Their laps stay fixed.
+  animations: [
+    {
+      id: "patron-table-woman",
+      strip: tableWoman,
+      x: 30,
+      y: 65,
+      baselineY: TABLE_BASELINE + 0.1,
+      frames: 4,
+      frameMs: 420,
+      everyMs: 9400,
+      phaseMs: 2800,
+      freezeForReducedMotion: true,
+      idle: { splitY: 31, rise: 0.5, periodMs: 4100, phaseMs: 200 },
+    },
+    {
+      id: "patron-table-man",
+      strip: tableMan,
+      x: 68,
+      y: 65,
+      baselineY: TABLE_BASELINE + 0.1,
+      frames: 4,
+      frameMs: 500,
+      everyMs: 11700,
+      phaseMs: 5700,
+      freezeForReducedMotion: true,
+      idle: { splitY: 31, rise: 0.5, periodMs: 4700, phaseMs: 1400 },
+    },
+    {
+      id: "patron-bar-man",
+      strip: barMan,
+      x: 108,
+      y: 64,
+      baselineY: BAR_BASELINE + 0.1,
+      frames: 4,
+      frameMs: 480,
+      everyMs: 10300,
+      phaseMs: 700,
+      freezeForReducedMotion: true,
+      idle: { splitY: 27, rise: 0.5, periodMs: 4400, phaseMs: 2400 },
+    },
+    {
+      id: "patron-bar-woman",
+      strip: barWoman,
+      x: 221,
+      y: 64,
+      baselineY: BAR_BASELINE + 0.1,
+      frames: 4,
+      frameMs: 450,
+      everyMs: 12900,
+      phaseMs: 8400,
+      freezeForReducedMotion: true,
+      idle: { splitY: 28, rise: 0.5, periodMs: 3900, phaseMs: 900 },
     },
   ],
   effects: [
