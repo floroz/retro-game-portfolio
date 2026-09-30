@@ -380,52 +380,49 @@ function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
   // Frame size in image pixels.
   const w = Math.floor(img.naturalWidth / anim.frames);
   const h = img.naturalHeight;
-  if (anim.idle) {
-    const split = Math.round(anim.idle.splitY * d);
-    const rise = rc.reducedMotion ? 0 : snap(idleRise(anim, rc.engine.now), d);
-    // Separate at the lap: breathing never slides the shoes or the chair.
+  withClip(ctx, anim.clip, () => {
+    if (anim.idle) {
+      const split = Math.round(anim.idle.splitY * d);
+      const rise = rc.reducedMotion
+        ? 0
+        : snap(idleRise(anim, rc.engine.now), d);
+      // Separate at the lap: breathing never slides the shoes or the chair.
+      ctx.drawImage(
+        img,
+        f.frame * w,
+        0,
+        w,
+        split,
+        snap(f.x, d),
+        snap(f.y - rise, d),
+        w / d,
+        split / d + rise,
+      );
+      ctx.drawImage(
+        img,
+        f.frame * w,
+        split,
+        w,
+        h - split,
+        snap(f.x, d),
+        snap(f.y, d) + split / d,
+        w / d,
+        (h - split) / d,
+      );
+      return;
+    }
     ctx.drawImage(
       img,
       f.frame * w,
       0,
       w,
-      split,
+      h,
       snap(f.x, d),
-      snap(f.y - rise, d),
+      snap(f.y, d),
       w / d,
-      split / d + rise,
+      h / d,
     );
-    ctx.drawImage(
-      img,
-      f.frame * w,
-      split,
-      w,
-      h - split,
-      snap(f.x, d),
-      snap(f.y, d) + split / d,
-      w / d,
-      (h - split) / d,
-    );
-    return;
-  }
-  if (anim.clip) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(anim.clip.x, anim.clip.y, anim.clip.w, anim.clip.h);
-    ctx.clip();
-  }
-  ctx.drawImage(
-    img,
-    f.frame * w,
-    0,
-    w,
-    h,
-    snap(f.x, d),
-    snap(f.y, d),
-    w / d,
-    h / d,
-  );
-  if (anim.clip) ctx.restore();
+  });
 }
 
 function drawSlotRow(rc: RenderContext, items: SlotItem[]) {
