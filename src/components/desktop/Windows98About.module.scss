@@ -1,0 +1,66 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  background: #c0c0c0;
+  border: 0;
+  color: #000;
+  font:
+    12px Tahoma,
+    "MS Sans Serif",
+    Arial,
+    sans-serif;
+}
+
+.tab {
+  align-self: flex-start;
+  padding: 5px 12px;
+  border: 1px solid;
+  border-color: #fff #808080 #c0c0c0 #fff;
+  margin-bottom: -1px;
+  z-index: 1;
+  background: #c0c0c0;
+}
+
+.panel {
+  display: flex;
+  gap: 24px;
+  flex: 1;
+  padding: 16px;
+  border: 1px solid;
+  border-color: #fff #808080 #808080 #fff;
+  overflow: auto;
+}
+
+.computer {
+  width: 64px;
+  flex-shrink: 0;
+}
+
+.details p {
+  margin: 0 0 12px;
+  line-height: 1.45;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+
+  button {
+    min-width: 75px;
+    padding: 4px 12px;
+    background: #c0c0c0;
+    border: 1px solid;
+    border-color: #fff #000 #000 #fff;
+    box-shadow: inset -1px -1px #808080;
+    color: #000;
+    font: inherit;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 1px dotted #000;
+      outline-offset: -4px;
+    }
+  }
+}
