@@ -5,80 +5,87 @@
   "source": "opus",
   "date": "2026-09-30",
   "midiSource": "assets-src/audio/music/london.ts",
-  "description": "London theme: an original 1964 British Invasion / Merseybeat pub-jukebox track on the public-domain tune \"London Bridge Is Falling Down\": jangling clean electric guitar over a 12-string strum, a combo organ answering with the shared motif (assets-src/audio/music/motif.ts) a tone up in G, a melodic walking bass, and a bright straight-eighths beat with tambourine and hand claps.",
+  "description": "London theme: a late-70s London punk band that slides into ska, playing the public-domain tune \"London Bridge Is Falling Down\": distorted power chords over an eighth-note bass at 150 bpm, a half-time ska section (offbeat skank, rimshot, busy bass, organ bubble), and a last pass with a stacked unison of two lead guitars and an organ. Generic genre elements only; not modelled on any particular record.",
   "melodySources": [
     {
       "id": "london-bridge",
       "tune": "London Bridge Is Falling Down",
       "source": "Traditional English nursery rhyme and singing game (Roud Folk Song Index 502). The tune sung today was first recorded in A. H. Rosewig, Illustrated National Songs and Games (USA, 1879), according to the rhyme's Wikipedia entry. The notes are the standard traditional melody, so-la-so-fa-mi-fa-so / re-mi-fa / mi-fa-so / so-la-so-fa-mi-fa-so / re-so / mi-do, written in G major with each 2/4 bar stretched over a 4/4 bar.",
       "publicDomain": "Yes. A traditional tune in print since the 19th century with no living author or rights holder; public domain in the UK, EU, and US.",
-      "use": "Played note for note on guitar in A (bars 5–12) and A'' (33–40), and on the combo organ in A' (17–24), in G major, at 128 bpm.",
+      "use": "Played note for note, in G major at 150 bpm: on overdriven lead guitar in the verse (bars 5–12), on clean guitar in the first ska strain (17–24), on the organ in the second (25–32), and in unison on two overdriven guitars and the organ in the last pass (37–44).",
       "verification": "Typed from the standard traditional version and checked against its solfège by scripts/assets/__tests__/music-pd-melodies.test.ts. Not compared against a scan of the 1879 print, which was not reachable offline."
     },
     {
-      "id": "london-organ-answer",
-      "tune": "Organ answer phrase (bars 13–16)",
-      "source": "Original composition for this project, built on the shared motif (assets-src/audio/music/motif.ts) a tone up in G.",
+      "id": "london-punk-original",
+      "tune": "Everything else: power-chord chugs, tag, skank, organ bubble, ska bass line, drum patterns",
+      "source": "Original composition for this project, using only generic genre elements: power chords, the ska offbeat, an eighth-note root bass, a bubbling organ, a half-time rimshot. It deliberately does not imitate any specific Clash, Sex Pistols, Jam, Specials or Madness riff, bass line, hook or signature rhythm, including the guitar and bass figure of \"London Calling\", the bass line of \"Guns of Brixton\", the riff of \"Should I Stay or Should I Go\", or the figures of \"White Riot\".",
       "publicDomain": "Not applicable: original to this project.",
-      "use": "The organ's reply after the first tune."
-    },
-    {
-      "id": "london-middle-eight",
-      "tune": "Middle eight (bars 25–32) and intro tag (bars 3–4)",
-      "source": "Original composition for this project.",
-      "publicDomain": "Not applicable: original to this project.",
-      "use": "The bridge and the intro guitar tag. The chord progressions (I–vi–IV–V, the major-III lift, the borrowed flat-VII, the closing G6) are generic to the era, not taken from a particular song."
+      "use": "Accompaniment, the ska bass line, the tag, and the drums."
     }
   ],
-  "tempoBpm": 128,
+  "tempoBpm": 150,
   "meter": "4/4",
   "key": "G major",
-  "bars": 40,
+  "bars": 48,
   "instruments": [
     {
-      "name": "Electric guitar (clean)",
+      "name": "Distortion guitar (power chords)",
       "channel": 1,
-      "instrument": "Electric Guitar (clean)",
+      "instrument": "Distortion Guitar",
       "bank": 0,
-      "program": 27
+      "program": 30
     },
     {
-      "name": "Electric guitar (strum)",
+      "name": "Overdriven guitar (lead)",
       "channel": 2,
+      "instrument": "Overdriven Guitar",
+      "bank": 0,
+      "program": 29
+    },
+    {
+      "name": "Overdriven guitar (unison double)",
+      "channel": 3,
+      "instrument": "Overdriven Guitar",
+      "bank": 0,
+      "program": 29
+    },
+    {
+      "name": "Muted guitar (skank)",
+      "channel": 4,
+      "instrument": "Electric Guitar (muted)",
+      "bank": 0,
+      "program": 28
+    },
+    {
+      "name": "Clean guitar (ska lead)",
+      "channel": 5,
       "instrument": "Electric Guitar (clean)",
       "bank": 0,
       "program": 27
     },
     {
-      "name": "12-string guitar (strum)",
-      "channel": 3,
-      "instrument": "12 String Guitar",
-      "bank": 8,
-      "program": 25
+      "name": "Rock organ (tune)",
+      "channel": 6,
+      "instrument": "Rock Organ",
+      "bank": 0,
+      "program": 18
     },
     {
-      "name": "Combo organ (lead)",
-      "channel": 4,
+      "name": "Percussive organ (bubble)",
+      "channel": 7,
       "instrument": "Percussive Organ",
       "bank": 0,
       "program": 17
     },
     {
-      "name": "Combo organ (pad and stabs)",
-      "channel": 5,
-      "instrument": "Drawbar Organ",
-      "bank": 0,
-      "program": 16
-    },
-    {
       "name": "Electric bass",
-      "channel": 6,
-      "instrument": "Electric Bass (finger)",
+      "channel": 8,
+      "instrument": "Electric Bass (pick)",
       "bank": 0,
-      "program": 33
+      "program": 34
     },
     {
-      "name": "Drums, tambourine, and claps",
+      "name": "Drums, rimshot, and crashes",
       "channel": 10,
       "instrument": "drum kit: standard",
       "bank": 128,
@@ -86,53 +93,53 @@
     }
   ],
   "loop": {
-    "loopStart": 0.46875,
-    "loopEnd": 75.46875,
-    "loopStartFrame": 22500,
-    "loopEndFrame": 3622500,
+    "loopStart": 0.4,
+    "loopEnd": 77.2,
+    "loopStartFrame": 19200,
+    "loopEndFrame": 3705600,
     "sampleRate": 48000,
     "usage": "Decode with Web Audio (decodeAudioData) and play through an AudioBufferSourceNode with loop = true and these loopStart/loopEnd seconds. Start at 0: the audio before loopStart is the loop's last beat, a pickup."
   },
   "loudness": {
     "integratedLufs": -20,
-    "lraLu": 1.9,
-    "truePeakDbtp": -3.9,
-    "samplePeakDbfs": -4,
-    "gainDb": 2.3,
+    "lraLu": 5.8,
+    "truePeakDbtp": -5.3,
+    "samplePeakDbfs": -5.34,
+    "gainDb": -0.4,
     "targetLufs": -20
   },
   "seam": {
     "wav": {
-      "windowFrames": 11250,
+      "windowFrames": 9600,
       "identical": true,
       "differenceDb": null,
       "maxAbsDifference": 0,
-      "signalDbfs": -22.85,
-      "wrapStepRatio": 0.034,
+      "signalDbfs": -21.52,
+      "wrapStepRatio": 0.023,
       "bestLag": 0
     },
     "mp3": {
-      "windowFrames": 11250,
+      "windowFrames": 9600,
       "identical": false,
-      "differenceDb": -21.75,
-      "maxAbsDifference": 0.0416,
-      "signalDbfs": -23.22,
-      "wrapStepRatio": 0.027,
+      "differenceDb": -31.01,
+      "maxAbsDifference": 0.0339,
+      "signalDbfs": -21.9,
+      "wrapStepRatio": 0.06,
       "bestLag": 0
     },
     "mp3WithDecoderOffset": {
-      "windowFrames": 10145,
+      "windowFrames": 8495,
       "identical": false,
-      "differenceDb": -21.44,
-      "maxAbsDifference": 0.0416,
-      "signalDbfs": -23.19,
-      "wrapStepRatio": 0.348,
+      "differenceDb": -31.66,
+      "maxAbsDifference": 0.0339,
+      "signalDbfs": -21.67,
+      "wrapStepRatio": 0.283,
       "bestLag": 0
     },
-    "mp3CodecNoiseDb": -18.2,
-    "foldedTailDb": -11.13,
-    "decodedFrames": 3645000,
-    "expectedFrames": 3645000
+    "mp3CodecNoiseDb": -20.55,
+    "foldedTailDb": -7.8,
+    "decodedFrames": 3724800,
+    "expectedFrames": 3724800
   },
   "render": {
     "soundfont": {
