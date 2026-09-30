@@ -4,7 +4,8 @@ import { GameCanvas } from "./components/game/GameCanvas";
 import gameCanvasStyles from "./components/game/GameCanvas.module.scss";
 import { Scene } from "./components/game/Scene";
 import { Toolbar } from "./components/toolbar/Toolbar";
-import { TerminalScreen } from "./components/game/TerminalScreen";
+import { ObjectInspectionView } from "./components/game/ObjectInspectionView";
+import { sectionInspection } from "./config/inspections";
 import { Win95Desktop } from "./components/desktop/Win95Desktop";
 import { WelcomeScreen } from "./components/dialog/WelcomeScreen";
 import { RetroConsole } from "./components/mobile/RetroConsole";
@@ -47,11 +48,18 @@ function App() {
 
   const {
     terminalScreenAction,
+    inspection,
     closeTerminalScreen,
     welcomeShown,
     dismissWelcome,
     openDialog,
   } = useGameStore();
+
+  const reading =
+    inspection ??
+    (terminalScreenAction && terminalScreenAction !== "talk"
+      ? sectionInspection(terminalScreenAction)
+      : null);
 
   // Open intro dialog after welcome screen is dismissed (desktop only)
   useEffect(() => {
@@ -79,9 +87,10 @@ function App() {
         gameContent={
           welcomeShown ? (
             <>
-              {terminalScreenAction && (
-                <TerminalScreen
-                  action={terminalScreenAction}
+              {reading && (
+                <ObjectInspectionView
+                  key={inspection?.title ?? terminalScreenAction}
+                  inspection={reading}
                   onClose={closeTerminalScreen}
                 />
               )}
@@ -89,7 +98,7 @@ function App() {
                   visitor comes back to the same room, mid-animation. */}
               <div
                 className={styles.gameLayer}
-                hidden={terminalScreenAction !== null}
+                inert={terminalScreenAction !== null || inspection !== null}
               >
                 <GameCanvas>
                   {/* Scene area - 1280x640 */}

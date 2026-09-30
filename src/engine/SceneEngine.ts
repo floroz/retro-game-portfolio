@@ -81,6 +81,7 @@ export type SoundName =
 export interface EngineHost {
   /** Open a section's content screen. */
   openSection(section: SectionId): void;
+  openInspection?(inspection: import("./types").ObjectInspection): void;
   sceneChanged(scene: SceneId): void;
   sound?(name: SoundName): void;
   /** A click would now skip something (a trip, or the travel map), or not. */
@@ -392,6 +393,14 @@ export class SceneEngine {
     }
     const { object } = target;
     const act = () => {
+      if (object.inspection && this.host.openInspection) {
+        const inspection = object.inspection;
+        this.animator.startUse();
+        this.rigAnimator?.startUse();
+        this.host.sound?.(object.sound ?? "ui-blip");
+        this.after(150, () => this.host.openInspection?.(inspection));
+        return;
+      }
       if (object.action) return this.useAndOpen(object.action, object);
       if (object.sound) this.host.sound?.(object.sound);
       this.say(object.use ?? object.look);

@@ -1,15 +1,14 @@
 {
   "id": "zurich-bg",
   "output": "src/assets/scenes/zurich/bg.png",
-  "task": "HB1",
+  "task": "V2-chalet",
   "source": "codex",
-  "prompt": "assets-src/prompts/hd/layers-zurich.md",
-  "candidate": "02",
-  "references": ["assets-src/refs/hd/style-anchor.png"],
-  "approvedRaw": "assets-src/approved/zurich-plate@hd.webp",
+  "prompt": "assets-src/prompts/hd/chalet-inspections.md",
+  "candidate": "01",
+  "references": ["assets-src/refs/chalet/bg.png"],
+  "approvedRaw": "assets-src/approved/chalet/background.png",
   "density": 2,
   "style": "painted",
-  "cleanup": "HB1: candidate 02 of zurich-plate@hd (1774x887, exactly 2:1): the style-anchor room with the desk, chair, filing cabinet, plant and door edited out, the window, cuckoo clock, rug and baseboard untouched. Prepared with assets:prepare --painted --no-quantize (Lanczos to 640x320, no crop). Contrast walk (HB1, against the sweater F/G/*, jeans H/+/I and hair 6-8 rig colours; the wall's dull plum was 0.05-0.07 OKLab from all three): wallpaper chroma raised to 0.115-0.15 with hue pulled to 333 and lightness kept, so the room stays a night room but reads as a saturated MI3 plum; baseboard, window frame and mullions and the cuckoo case retinted to honey oak (L 0.5-0.6, C 0.09-0.115, hue 58); the window view's hills and town darkened to silhouettes (L x0.32), its mountains lifted 0.18 L towards lavender and its lake made ultramarine (L 0.27, C 0.15); the lamp glow on the wall recoloured with the wall; soft two-step contact shadows multiplied onto the floor under the desk, chair, cabinet and plant (x0.72 core, x0.86 edge). Conflicting pixels outside the window view were then pushed out of the 0.08 OKLab ball round each rig colour (radial projection, margin 0.105). Prepared with assets:prepare --painted --no-quantize (Lanczos, hard alpha) at the size given, registered to the style-anchor layout with --align, then quantized with the other eight Zurich layers to one shared 256-colour palette with assets:quantize (no dither); pixels still within 0.08 OKLab of a rig colour after quantizing were remapped inside the palette. The lamp's glow stays painted in the plate; the stars, lake glints and CRT cursor are engine effects. HB1b: the window view is re-derived from the raw plate with a smooth colour grade instead of thresholds (sky and lake to a deep violet-blue, hue 272, that stays inside sRGB and 0.10+ OKLab from the sweater and jeans; mountains lifted to lavender towards their hazy base; hills a moonlit bottle green; town and reflections dark indigo, L up to 0.12; warm lights kept and brightened), blended by lightness bands and a vertical ramp so the top of the panes keeps the painted sky. The frame, mullions, sill, cuckoo case and baseboard keep their honey oak but now get a clean 1px ink edge (L 0.135) instead of the halo pixels the wall retint and the radial repel left; shading beside them is recopied from the nearest clean glass or wall pixel. The cabinet's contact shadow is widened for its new size. Requantized with the other Zurich layers to one 255-colour palette (the view region weighted 3x so the window gets about 145 colours), then any pixel still within 0.083 OKLab of a rig colour was remapped inside the palette.",
-  "approvedBy": "daniele",
-  "date": "2026-09-29"
+  "cleanup": "Built-in imagegen chalet redesign. Prepared by scripts/assets/chalet.ts at density 2 with hard alpha and one shared 256-colour scene palette. Background retains the original window frame and moonlit exterior exactly; no furniture baked into the plate. Furniture sprites retain their existing canvas/registration. Awaiting user visual review.",
+  "date": "2026-09-30"
 }

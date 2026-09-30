@@ -479,7 +479,10 @@ describe("the engine with a rig", () => {
 
   test("feeds the spoken line to the rig's mouth", () => {
     const engine = make(() => true);
-    engine.look({ kind: "object", object: SCENES.zurich.objects[0] });
+    engine.look({
+      kind: "object",
+      object: SCENES.zurich.objects.find((object) => object.id === "window")!,
+    });
     engine.update(16);
     const f = engine.figure();
     if (f.kind !== "rig") throw new Error("expected the rig");

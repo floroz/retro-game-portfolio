@@ -1,6 +1,8 @@
 // @vitest-environment node
 import { describe, expect, test } from "vitest";
 import {
+  SHIPPED_ROOTS,
+  checkAssetOpacity,
   checkAssetSize,
   checkCharacterJson,
   checkPaintedAlpha,
@@ -14,6 +16,98 @@ import {
   usesPixelRules,
   type ShippedAsset,
 } from "../checks";
+
+describe("illustrated inspection backdrops", () => {
+  const path = "src/assets/inspections/experience.png";
+  const card: ShippedAsset = {
+    path,
+    id: "inspection-experience",
+    kind: "inspection",
+    scene: null,
+  };
+
+  test("discovers shipped cards and derives their provenance ids", () => {
+    expect(SHIPPED_ROOTS).toContain("src/assets/inspections");
+    expect(classifyAsset(path)).toEqual(card);
+    for (const bad of [
+      "src/assets/inspections/Career.png",
+      "src/assets/inspections/career_book.png",
+      "src/assets/inspections/nested/resume.png",
+      "src/assets/inspections/resume.webp",
+    ])
+      expect(typeof classifyAsset(bad)).toBe("string");
+  });
+
+  test("requires 640x320 painted density-2 cards", () => {
+    expect(checkAssetSize(card, 640, 320, 2, "painted")).toEqual([]);
+    expect(checkAssetSize(card, 1280, 640, 2, "painted").join()).toMatch(
+      /640x320/,
+    );
+    expect(checkAssetSize(card, 640, 320, 4, "painted").join()).toMatch(
+      /density 2/,
+    );
+    expect(checkAssetSize(card, 640, 320, 2, "pixel").join()).toMatch(
+      /style painted/,
+    );
+  });
+
+  test("rejects transparent holes as well as partially transparent pixels", () => {
+    expect(checkAssetOpacity(card, { data: [1, 2, 3, 255] })).toEqual([]);
+    for (const alpha of [0, 128]) {
+      expect(
+        checkAssetOpacity(card, { data: [1, 2, 3, alpha] }).join(),
+      ).toMatch(/fully opaque/);
+    }
+    const sprite = { ...card, kind: "obj" as const };
+    expect(checkAssetOpacity(sprite, { data: [1, 2, 3, 0] })).toEqual([]);
+  });
+
+  test("gives each card its own 256-colour budget", () => {
+    const resume: ShippedAsset = {
+      ...card,
+      path: "src/assets/inspections/resume.png",
+      id: "inspection-resume",
+    };
+    const colours = (start: number, length: number) =>
+      new Set(Array.from({ length }, (_, index) => start + index));
+    expect(colourGroup(card)).toBe(path);
+    expect(
+      checkPaintedColours([
+        { asset: card, colours: colours(0, 256) },
+        { asset: resume, colours: colours(256, 256) },
+      ]),
+    ).toEqual([]);
+    expect(
+      checkPaintedColours([{ asset: card, colours: colours(0, 257) }]).join(),
+    ).toMatch(/experience\.png.*257 colours/);
+  });
+
+  test("ties inspection provenance to its actual output filename", () => {
+    const record = {
+      id: card.id,
+      output: path,
+      task: "V2",
+      source: "codex",
+      date: "2026-09-30",
+      prompt: "prompt.md",
+      candidate: "01",
+      references: [],
+      approvedRaw: "raw.png",
+      density: 2,
+      style: "painted",
+    };
+    expect(
+      checkProvenance(record, "inspection-experience.json", () => true),
+    ).toEqual([]);
+    expect(
+      checkProvenance(
+        { ...record, id: "career-card" },
+        "career-card.json",
+        () => true,
+      ).join(),
+    ).toMatch(/id must be inspection-experience/);
+  });
+});
 
 describe("asset naming", () => {
   test("accepts the art spec's names and derives asset ids", () => {

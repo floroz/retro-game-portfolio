@@ -63,7 +63,8 @@ describe("Toolbar: the travel trunk", () => {
       .toBeVisible();
   });
 
-  test("one click on any section starts the trip to it", async () => {
+  test("one click opens every section without leaving the current scene", async () => {
+    useGameStore.setState({ currentScene: "sorrento" });
     const { container } = await render(<Panel />);
     for (const section of [
       "experience",
@@ -73,11 +74,14 @@ describe("Toolbar: the travel trunk", () => {
       "resume",
     ] as SectionId[]) {
       await userEvent.click(sectionButton(container, section));
-      expect(useGameStore.getState().sceneRequest).toMatchObject({
-        kind: "section",
-        section,
+      expect(useGameStore.getState()).toMatchObject({
+        terminalScreenAction: section,
+        inspection: null,
+        currentScene: "sorrento",
+        sceneRequest: null,
+        dialogOpen: false,
       });
-      useGameStore.getState().takeSceneRequest();
+      useGameStore.getState().closeTerminalScreen();
     }
   });
 
@@ -86,6 +90,7 @@ describe("Toolbar: the travel trunk", () => {
     const { container } = await render(<Panel />);
     await userEvent.click(sectionButton(container, "about"));
     expect(useGameStore.getState().sceneRequest).toBeNull();
+    expect(useGameStore.getState().terminalScreenAction).toBe("skills");
   });
 
   test("the current city's ticket and sections say you are here", async () => {
@@ -153,12 +158,14 @@ describe("Toolbar: the travel trunk", () => {
     await expect.poll(() => status(container)).toBe("Visit LinkedIn profile");
   });
 
-  test("Enter on a focused section starts the trip", async () => {
+  test("Enter opens a focused section without starting a trip", async () => {
     const { container } = await render(<Panel />);
     sectionButton(container, "contact").focus();
     await userEvent.keyboard("{Enter}");
-    expect(useGameStore.getState().sceneRequest).toMatchObject({
-      section: "contact",
+    expect(useGameStore.getState()).toMatchObject({
+      terminalScreenAction: "contact",
+      currentScene: "hall",
+      sceneRequest: null,
     });
   });
 

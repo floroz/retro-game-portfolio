@@ -38,6 +38,7 @@ import {
 } from "./lib";
 import {
   SHIPPED_ROOTS,
+  checkAssetOpacity,
   checkAssetSize,
   checkCharacterJson,
   checkPaintedAlpha,
@@ -219,11 +220,7 @@ async function main() {
           `${asset.path}: ${report.partialAlpha} pixels have partial alpha`,
         );
     }
-    if (asset.kind === "bg") {
-      const transparent = img.data.some((v, i) => i % 4 === 3 && v !== 255);
-      if (transparent)
-        errors.push(`${asset.path}: bg.png must be fully opaque`);
-    }
+    errors.push(...checkAssetOpacity(asset, img));
     if (!byOutput.has(asset.path)) {
       errors.push(
         `${asset.path}: no provenance record in assets-src/provenance/ (expected ${asset.id}.json)`,

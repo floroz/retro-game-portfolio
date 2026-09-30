@@ -1,7 +1,7 @@
 {
   "id": "zurich-obj-door@open",
   "output": "src/assets/scenes/zurich/obj-door@open.png",
-  "task": "HB1",
+  "task": "V2-chalet",
   "source": "codex",
   "prompt": "assets-src/prompts/hd/layers-zurich.md",
   "candidate": "02",
@@ -12,7 +12,7 @@
   "approvedRaw": "assets-src/approved/zurich-door-open@hd.webp",
   "density": 2,
   "style": "painted",
-  "cleanup": "HB1: candidate 02 of zurich-door-open@hd, the same door standing open into a corridor. Its frame is 9% shorter than the closed candidate's, so the cutout was stretched vertically at raw resolution to the closed frame's size before preparing, giving the same 74x140 canvas and origin (281, 31) logical px. Prepared with assets:prepare --painted --no-quantize (Lanczos, hard alpha) at the size given, registered to the style-anchor layout with --align, then quantized with the other eight Zurich layers to one shared 256-colour palette with assets:quantize (no dither); pixels still within 0.08 OKLab of a rig colour after quantizing were remapped inside the palette. The frame is retinted red like the closed door; the dim plum corridor is recoloured with the wall's plum (C 0.115-0.15) and lifted 0.14 L so a torso in the doorway stays clear of the sweater. HB1b: the outermost 1px of the silhouette is a dark shade of the local colour (an ink edge, L 0.135), replacing the halo pixels the key, the retint and the earlier radial repel left there; the contrast fix is now a per-colour search for the cheapest in-gamut colour outside the rig colours' 0.10 balls (lightness first for neutrals), smoothed over its neighbours, instead of the radial repel. Requantized with the other Zurich layers to one 255-colour palette (the view region weighted 3x so the window gets about 145 colours), then any pixel still within 0.083 OKLab of a rig colour was remapped inside the palette.",
+  "cleanup": "HB1: candidate 02 of zurich-door-open@hd, the same door standing open into a corridor. Its frame is 9% shorter than the closed candidate's, so the cutout was stretched vertically at raw resolution to the closed frame's size before preparing, giving the same 74x140 canvas and origin (281, 31) logical px. Prepared with assets:prepare --painted --no-quantize (Lanczos, hard alpha) at the size given, registered to the style-anchor layout with --align, then quantized with the other eight Zurich layers to one shared 256-colour palette with assets:quantize (no dither); pixels still within 0.08 OKLab of a rig colour after quantizing were remapped inside the palette. The frame is retinted red like the closed door; the dim plum corridor is recoloured with the wall's plum (C 0.115-0.15) and lifted 0.14 L so a torso in the doorway stays clear of the sweater. HB1b: the outermost 1px of the silhouette is a dark shade of the local colour (an ink edge, L 0.135), replacing the halo pixels the key, the retint and the earlier radial repel left there; the contrast fix is now a per-colour search for the cheapest in-gamut colour outside the rig colours' 0.10 balls (lightness first for neutrals), smoothed over its neighbours, instead of the radial repel. Requantized with the other Zurich layers to one 255-colour palette (the view region weighted 3x so the window gets about 145 colours), then any pixel still within 0.083 OKLab of a rig colour was remapped inside the palette. Chalet refresh: palette remapped from the preserved pre-chalet layer in assets-src/refs/chalet/ using scripts/assets/chalet.ts; silhouette and position unchanged.",
   "approvedBy": "daniele",
-  "date": "2026-09-29"
+  "date": "2026-09-30"
 }

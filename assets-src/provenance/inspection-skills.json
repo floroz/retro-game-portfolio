@@ -1,0 +1,14 @@
+{
+  "id": "inspection-skills",
+  "output": "src/assets/inspections/skills.png",
+  "task": "object-inspections",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/skills-inspection.md",
+  "candidate": "01",
+  "references": [],
+  "approvedRaw": "assets-src/approved/inspection-skills.png",
+  "density": 2,
+  "style": "painted",
+  "date": "2026-09-30",
+  "cleanup": "Built-in imagegen; prepared with scripts/assets/prepare-skills-inspection.ts at 640x320 and 256 colours. Blank paper hosts live HTML."
+}

@@ -1,15 +1,15 @@
 {
   "id": "hall-obj-duty-free",
   "output": "src/assets/scenes/hall/obj-duty-free.png",
-  "task": "airport-floor-shadows",
+  "task": "v2-airport-souvenirs",
   "source": "codex",
-  "prompt": "assets-src/prompts/hd/hall-floor-shadows.md",
+  "prompt": "assets-src/prompts/hd/hall-souvenirs.md",
   "candidate": "01",
   "references": ["assets-src/refs/hd/hall-before-stone.png"],
-  "approvedRaw": "assets-src/approved/hall-duty-free.png",
+  "approvedRaw": "assets-src/approved/hall-duty-free-empty.png",
   "density": 2,
   "style": "painted",
   "approvedBy": "codex",
   "date": "2026-09-30",
-  "cleanup": "Built-in image generation extracted the complete shop with products onto transparency. scripts/assets/airport-floor.ts trims and fits it to 160x142 art pixels with hard alpha and the existing Hall palette. Positioned at logical (0,27); floor shadow and awning lettering are rendered separately."
+  "cleanup": "Built-in imagegen removed all old merchandise from the independent fixture. scripts/assets/hall-souvenirs.ts prepares 160x142 art pixels with hard alpha and the existing Hall palette. Four separate souvenir sprites are added in scene data. Floor shadow and awning lettering remain separate."
 }

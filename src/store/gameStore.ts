@@ -1,10 +1,15 @@
 import { create } from "zustand";
 import type { ActionType } from "../types/game";
-import type { CountrySceneId, SceneId, SectionId } from "../engine/types";
+import type {
+  CountrySceneId,
+  ObjectInspection,
+  SceneId,
+  SectionId,
+} from "../engine/types";
 import { DIALOG_TREE } from "../config/dialogTrees";
 
 /**
- * A trip for the scene engine to run. The toolbar and the terminal post
+ * A trip for the scene engine to run. Terminal commands post
  * requests here; the mounted scene takes them (see `takeSceneRequest`).
  */
 type SceneRequest =
@@ -25,6 +30,7 @@ interface GameState {
   /** Status-line text for whatever the pointer is over. */
   hoveredObject: string | null;
   terminalScreenAction: ActionType | null;
+  inspection: ObjectInspection | null;
   terminalOpen: boolean;
   gameWindowActive: boolean; // Track if game window is active in Win95 desktop
 
@@ -42,7 +48,7 @@ interface GameState {
 
   // World actions
   setCurrentScene: (scene: SceneId) => void;
-  /** Toolbar and terminal shortcut: walk, fly, and open a section. */
+  /** Terminal shortcut: walk, fly, and open a section. */
   goToSection: (section: SectionId) => void;
   /** Fly to a scene without opening anything (terminal `fly`). */
   travelTo: (scene: SceneId) => void;
@@ -52,6 +58,7 @@ interface GameState {
   // Interaction actions
   setHoveredObject: (id: string | null) => void;
   openTerminalScreen: (action: ActionType) => void;
+  openInspection: (inspection: ObjectInspection) => void;
   closeTerminalScreen: () => void;
   toggleTerminal: () => void;
   closeTerminal: () => void;
@@ -80,6 +87,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   // Initial interaction state
   hoveredObject: null,
   terminalScreenAction: null,
+  inspection: null,
   terminalOpen: true, // Always start in Win95 Desktop mode
   gameWindowActive: true, // Game window is active by default
 
@@ -101,6 +109,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       sceneRequest: { id: requestId, kind: "section", section },
       // Get the content screen and dialog out of the way, so the trip plays.
       terminalScreenAction: null,
+      inspection: null,
       dialogOpen: false,
       dialogReady: false,
     });
@@ -111,6 +120,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({
       sceneRequest: { id: requestId, kind: "travel", scene },
       terminalScreenAction: null,
+      inspection: null,
       dialogOpen: false,
       dialogReady: false,
     });
@@ -135,14 +145,26 @@ export const useGameStore = create<GameState>((set, get) => ({
     // A content screen ends any conversation.
     set({
       terminalScreenAction: action,
+      inspection: null,
+      sceneRequest: null,
       hoveredObject: null,
       dialogOpen: false,
       dialogReady: false,
     });
   },
 
+  openInspection: (inspection) =>
+    set({
+      inspection,
+      terminalScreenAction: null,
+      sceneRequest: null,
+      hoveredObject: null,
+      dialogOpen: false,
+      dialogReady: false,
+    }),
+
   closeTerminalScreen: () => {
-    set({ terminalScreenAction: null });
+    set({ terminalScreenAction: null, inspection: null });
   },
 
   toggleTerminal: () => {
@@ -188,6 +210,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       dialogNode: startNode,
       dialogReady: again ? dialogReady : false,
       terminalScreenAction: null,
+      inspection: null,
       terminalOpen: shouldKeepTerminalOpen,
     });
   },

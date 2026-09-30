@@ -84,13 +84,17 @@ describe("Sorrento (HB4)", () => {
     }
   });
 
-  test("the section labels are lettered on the fridge note and the phone card", () => {
-    for (const [label, object] of [
-      ["fridge", "fridge"],
-      ["phone", "phone"],
+  test("story objects explain their sections on focus without permanent labels", () => {
+    for (const [object, section] of [
+      ["fridge", "about"],
+      ["phone", "contact"],
     ] as const) {
-      const l = sorrento.labels?.find((x) => x.id === label);
-      expect(l && inside(rectOf(object), l.x, l.y), label).toBe(true);
+      const hotspot = sorrento.objects.find((item) => item.id === object);
+      expect(hotspot?.name).toContain(section);
+      expect(hotspot?.action).toBe(section);
+      expect(
+        sorrento.labels?.some((label) => label.id === object) ?? false,
+      ).toBe(false);
     }
   });
 

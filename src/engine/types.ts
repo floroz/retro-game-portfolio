@@ -109,6 +109,17 @@ export interface GroundShadow {
   depth: number;
 }
 
+/** An optional close-up of a scene object, with live readable copy. */
+export interface ObjectInspection {
+  title: string;
+  subtitle?: string;
+  paragraphs: string[];
+  art: string;
+  artAlt: string;
+  /** Top edge of the live text area, as a percentage of the illustration. */
+  paperTop?: number;
+}
+
 /**
  * An interactive thing in the scene. With a `sprite`, it's drawn at `x`,`y`.
  * Without one, it's painted into `bg.png` and needs an explicit `hotspot`.
@@ -141,6 +152,7 @@ export interface SceneObject {
   groundShadows?: GroundShadow[];
   /** Opens this section's content. Leave it out for flavour objects. */
   action?: SectionId;
+  inspection?: ObjectInspection;
   /** "Look at" line (right click), in the LucasArts voice. */
   look: string;
   /**

@@ -29,9 +29,8 @@ const UTILITY_RECTS = Object.fromEntries(
  *
  * The art is one canvas. Over it sit real buttons and links, one per
  * control, for the pointer, the keyboard, and screen readers. Every
- * section is one click from anywhere: Daniele walks to the nearest exit,
- * flies to the section's city, and the content opens on arrival; a click
- * during the trip skips straight to the content.
+ * section opens immediately, keeping the visitor in the same room. Gates
+ * remain the way to travel between scenes.
  *
  * While Daniele is in conversation, the dialogue choices take the trunk's
  * place (Dialogue.tsx), as MI3's replace its verbs; the trunk comes back
@@ -85,7 +84,7 @@ function Trunk() {
   const currentScene = useGameStore((s) => s.currentScene);
   const soundEnabled = useGameStore((s) => s.soundEnabled);
   const setHoveredObject = useGameStore((s) => s.setHoveredObject);
-  const goToSection = useGameStore((s) => s.goToSection);
+  const openContent = useGameStore((s) => s.openTerminalScreen);
   const openDialog = useGameStore((s) => s.openDialog);
   const toggleSound = useGameStore((s) => s.toggleSound);
 
@@ -135,7 +134,7 @@ function Trunk() {
     // Ignore clicks while content is open, or while another window has focus.
     if (terminalScreenAction) return;
     if (terminalOpen && !gameWindowActive) return;
-    goToSection(section);
+    openContent(section);
   };
 
   const onSound = () => {

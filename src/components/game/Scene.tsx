@@ -54,7 +54,9 @@ export function Scene() {
   const textRef = useRef<HTMLCanvasElement>(null);
   const currentScene = useGameStore((s) => s.currentScene);
   const sceneRequest = useGameStore((s) => s.sceneRequest);
-  const contentOpen = useGameStore((s) => s.terminalScreenAction !== null);
+  const contentOpen = useGameStore(
+    (s) => s.terminalScreenAction !== null || s.inspection !== null,
+  );
   const setHoveredObject = useGameStore((s) => s.setHoveredObject);
   const spriteInfo = useSyncExternalStore(images.subscribe, images.getInfo);
   const scene = SCENES[currentScene];
@@ -104,7 +106,7 @@ export function Scene() {
     return () => cancelAnimationFrame(raf);
   }, [contentOpen]);
 
-  // Toolbar and terminal shortcuts arrive through the store.
+  // Terminal travel requests arrive through the store.
   useEffect(() => {
     if (!sceneRequest) return;
     const request = useGameStore.getState().takeSceneRequest();
