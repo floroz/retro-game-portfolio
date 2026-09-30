@@ -5,23 +5,38 @@ a serif bitmap font on the 640x320 art grid, as in The Curse of Monkey
 Island. The source is Libre Caslon Text (SIL OFL 1.1,
 src/assets/fonts/LibreCaslonText-OFL.txt), in assets-src/fonts/.
 
-For each size, the variable font is instanced at one weight and every glyph
-is rendered by FreeType in monochrome (1-bit, hinted by FreeType's
-autohinter, no anti-aliasing), trimmed to its ink, and written as a text
-grid with its advance and bearings. Pair kerning comes from the font's GPOS
-`kern` lookups, rounded to whole pixels. Hand-tuned glyphs in
-scripts/fonts/overrides-<size>.txt replace the rasterized ones, so a
-re-run keeps them. The outline and drop shadow are not baked in: the engine
-adds them when it draws (src/engine/font.ts), in each label's colours.
+Each glyph is fitted to the pixel grid, not hinted onto it:
+
+1. The glyph is drawn at 16x the target size, unhinted, and stretched
+   vertically so the baseline, x-height, capitals and ascenders land on
+   whole rows (round letters' overshoot is folded in).
+2. Vertical stems are found (columns that are ink from top to bottom) and
+   every stem is set to the size's stem width, on a whole column. The
+   counters between them are rounded to whole pixels. Horizontal strokes
+   (serifs, bars, the tops of arches) are found the same way and set to the
+   size's hairline, on a whole row. So every stem of a size is as thick as
+   every other, and every horizontal is as thin.
+3. The fitted drawing is averaged down to the grid. A pixel with enough ink
+   is ink. Then the edge tone goes on (unless --no-tone), whether the glyph
+   was fitted or drawn by hand: a blank pixel that fills the notch of a step,
+   on the diagonals and curves of A, R, S, a, e, g, is the second tone, "+",
+   one colour between the letter and its rim. Straight edges get none.
+4. Spacing is optical: each pair of letters is set so the white between
+   them matches that of two straight stems, so a round pair sits closer than
+   a straight one and no pair touches. It's written as pair kerning.
+
+Hand-drawn glyphs in scripts/fonts/overrides-<size>.txt replace the
+fitted ones, so a re-run keeps them. The outline and drop shadow are not
+baked in: the engine adds them when it draws (src/engine/font.ts).
 
 Output: src/assets/fonts/serif-<size>.txt, parsed by src/engine/bitmapFont.ts.
 
-Needs Python 3 with Pillow (built with FreeType) and fontTools:
+Needs Python 3 with numpy, Pillow (built with FreeType) and fontTools:
 
-    pip install pillow fonttools
-    python3 scripts/fonts/rasterize.py [--preview <dir>]
+    pip install numpy pillow fonttools
+    python3 scripts/fonts/rasterize.py [--out <dir>] [--preview <dir>]
 
---preview writes an 8x sheet of every glyph and some sample lines, with the
+--preview writes 8x sheets of every glyph and some sample lines, with the
 outline and shadow, for review.
 """
 
@@ -31,9 +46,11 @@ import argparse
 import io
 import math
 import sys
+import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import numpy as np
 from fontTools.ttLib import TTFont
 from fontTools.varLib import instancer
 from PIL import Image, ImageDraw, ImageFont
@@ -51,55 +68,117 @@ CHARSET = (
     + list(EXTRA)
 )
 
+# Hi-res pixels per art px while fitting.
+SS = 16
+
 
 @dataclass
 class Size:
     id: str
     wght: int
-    ppem: int
+    # Rows above the baseline: capitals, x-height, ascenders, descenders.
+    cap: int
+    xh: int
+    asc: int
+    desc: int
+    # Main vertical stem width and horizontal hairline height, in px.
+    stem: int
+    hair: int
+    # Coverage that makes a pixel ink.
+    ink: float
     # Pixels from one line's top to the next's.
     line: int
-    # Extra pixels between letters, and extra per space, as in MI3's
-    # widely set speech text.
+    # Extra pixels between letters, the space glyph's advance, and extra per
+    # space on top of it.
     tracking: int
+    space: int
     word: int
+    # Pixels between two straight stems (H, H), before tracking.
+    gap: int
     # Capitals only: signs, boards, and captions.
     upper: bool
     comment: str
+    # The characters to draw, if not the whole set.
+    chars: str = ""
 
 
 SIZES = [
     Size(
+        "logo",
+        wght=650,
+        cap=26,
+        xh=19,
+        asc=28,
+        desc=8,
+        stem=4,
+        hair=2,
+        ink=0.5,
+        line=36,
+        tracking=2,
+        space=8,
+        word=0,
+        gap=1,
+        upper=False,
+        comment="The name on the title card: mixed case, drawn once, at its own size.",
+        chars=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,'’-",
+    ),
+    Size(
         "regular",
         wght=600,
-        ppem=16,
+        cap=12,
+        xh=9,
+        asc=13,
+        desc=3,
+        stem=2,
+        hair=1,
+        ink=0.45,
         line=19,
         tracking=1,
+        space=4,
         word=2,
+        gap=1,
         upper=False,
         comment="Speech, the status line, and anything longer than a word.",
     ),
     Size(
         "small",
-        wght=700,
-        ppem=11,
+        wght=520,
+        cap=8,
+        xh=8,
+        asc=9,
+        desc=2,
+        stem=1,
+        hair=1,
+        ink=0.42,
         line=12,
-        tracking=1,
+        tracking=2,
+        space=3,
         word=1,
+        gap=1,
         upper=True,
         comment="Capitals, for signs, boards, captions, and the map.",
     ),
     Size(
         "tiny",
-        wght=700,
-        ppem=9,
+        wght=520,
+        cap=7,
+        xh=7,
+        asc=8,
+        desc=2,
+        stem=1,
+        hair=1,
+        ink=0.42,
         line=10,
-        tracking=1,
+        tracking=2,
+        space=3,
         word=1,
+        gap=1,
         upper=True,
         comment="Capitals, for a sign too small for the small size (maxWidth).",
     ),
 ]
+
+CAP_EM = 1523 / 2000  # sCapHeight / unitsPerEm
 
 
 @dataclass
@@ -110,103 +189,321 @@ class Glyph:
     left: int
     # Rows of ink above the baseline (the first row's height over it).
     top: int
+    # "#" ink, "+" the edge tone, "." nothing.
     rows: list[str] = field(default_factory=list)
 
 
+# --- Fitting -------------------------------------------------------------------
+
+_instances: dict[int, tuple[TTFont, bytes]] = {}
+
+
 def instance(wght: int) -> tuple[TTFont, bytes]:
-    font = TTFont(SOURCE)
-    static = instancer.instantiateVariableFont(font, {"wght": wght})
-    buf = io.BytesIO()
-    static.save(buf)
-    return static, buf.getvalue()
+    if wght not in _instances:
+        font = TTFont(SOURCE)
+        static = instancer.instantiateVariableFont(font, {"wght": wght})
+        buf = io.BytesIO()
+        static.save(buf)
+        _instances[wght] = (static, buf.getvalue())
+    return _instances[wght]
 
 
-def rasterize(font: ImageFont.FreeTypeFont, ch: str, ppem: int) -> Glyph:
-    """
-    One glyph, 1-bit. It's drawn after a reference "H" in the same line, so
-    every glyph shares the line's baseline: Pillow rounds a lone glyph's
-    vertical offset from its own bounding box, which let letters drift a
-    pixel up or down against each other.
-    """
-    prefix = "H   "
-    img = Image.new("1", (ppem * 10, ppem * 4), 0)
-    draw = ImageDraw.Draw(img)
-    draw.fontmode = "1"
-    ox, oy = ppem, ppem * 3
-    draw.text((ox, oy), prefix + ch, font=font, fill=1, anchor="ls")
-    pen = ox + round(font.getlength(prefix))
-    ref = img.crop((0, 0, ox + round(font.getlength("H")), img.height)).getbbox()
-    baseline = ref[3] if ref else oy
-    advance = round(font.getlength(ch))
-    box = img.crop((pen - ppem // 3, 0, img.width, img.height)).getbbox()
-    if not box or ch.isspace():
-        return Glyph(ch, advance, 0, 0, [])
-    x0, y0, x1, y1 = box
-    x0 += pen - ppem // 3
-    x1 += pen - ppem // 3
-    rows = [
-        "".join("#" if img.getpixel((x, y)) else "." for x in range(x0, x1))
-        for y in range(y0, y1)
-    ]
-    # Spaced by ink, as a bitmap font is: the letter starts at the pen and
-    # leaves a 1 px gap, so every pair of letters sits the same distance
-    # apart (plus tracking and kerning). The outline's hinted side bearings
-    # left diagonal letters (v, w, y) looking loose at this size.
-    return Glyph(ch, x1 - x0 + 1, 0, baseline - y0, rows)
+def draw_hi(font: ImageFont.FreeTypeFont, ch: str, ppem_hi: float):
+    """One glyph at hi-res, antialiased, with its baseline row."""
+    pad = int(ppem_hi * 0.5)
+    img = Image.new("L", (int(ppem_hi * 1.8) + 2 * pad, int(ppem_hi * 2.4)), 0)
+    base = int(ppem_hi * 1.5)
+    ImageDraw.Draw(img).text((pad, base), ch, font=font, fill=255, anchor="ls")
+    return np.asarray(img, dtype=np.float32) / 255.0, base
 
 
-def kerning(static: TTFont, chars: list[str], ppem: int) -> dict[tuple[str, str], int]:
-    """Pair kerning from GPOS `kern` (PairPos, formats 1 and 2), in pixels."""
-    if "GPOS" not in static:
-        return {}
-    upm = static["head"].unitsPerEm
-    cmap = static.getBestCmap()
-    names = {c: cmap[ord(c)] for c in chars if ord(c) in cmap}
-    gpos = static["GPOS"].table
-    lookups: list[int] = []
-    for rec in gpos.FeatureList.FeatureRecord:
-        if rec.FeatureTag == "kern":
-            lookups += rec.Feature.LookupListIndex
-    subtables = []
-    for i in sorted(set(lookups)):
-        lookup = gpos.LookupList.Lookup[i]
-        for st in lookup.SubTable:
-            if lookup.LookupType == 9:
-                st = st.ExtSubTable
-            if getattr(st, "LookupType", 2) == 2 or lookup.LookupType == 2:
-                subtables.append(st)
+def warp(a: np.ndarray, axis: int, src, dst, n_dst: int) -> np.ndarray:
+    """Piecewise-linear remap of one axis, `src` -> `dst` in hi-res px."""
+    sp = [src[0] - 4000, *src, src[-1] + 4000]
+    dp = [dst[0] - 4000, *dst, dst[-1] + 4000]
+    at = np.interp(np.arange(n_dst) + 0.5, dp, sp) - 0.5
+    lo = np.floor(at).astype(int)
+    fr = (at - lo).astype(np.float32)
+    n = a.shape[axis]
+    i0 = np.clip(lo, 0, n - 1)
+    i1 = np.clip(lo + 1, 0, n - 1)
+    if axis == 0:
+        return a[i0, :] * (1 - fr)[:, None] + a[i1, :] * fr[:, None]
+    return a[:, i0] * (1 - fr)[None, :] + a[:, i1] * fr[None, :]
 
-    def value(a: str, b: str) -> int | None:
-        for st in subtables:
-            cov = st.Coverage.glyphs
-            if a not in cov:
-                continue
-            if st.Format == 1:
-                idx = cov.index(a)
-                for rec in st.PairSet[idx].PairValueRecord:
-                    if rec.SecondGlyph == b:
-                        v = rec.Value1
-                        return getattr(v, "XAdvance", 0) or 0 if v else 0
-                continue
-            c1 = st.ClassDef1.classDefs.get(a, 0)
-            c2 = st.ClassDef2.classDefs.get(b, 0)
-            rec = st.Class1Record[c1].Class2Record[c2]
-            v = rec.Value1
-            x = (getattr(v, "XAdvance", 0) or 0) if v else 0
-            if x:
-                return x
-        return None
 
-    out: dict[tuple[str, str], int] = {}
-    for a, ga in names.items():
-        for b, gb in names.items():
-            v = value(ga, gb)
-            if not v:
-                continue
-            px = math.floor(v * ppem / upm + 0.5)
-            if px:
-                out[(a, b)] = px
+def runs(mask: np.ndarray) -> list[tuple[int, int]]:
+    out: list[tuple[int, int]] = []
+    start = None
+    for i, v in enumerate(mask):
+        if v and start is None:
+            start = i
+        elif not v and start is not None:
+            out.append((start, i))
+            start = None
+    if start is not None:
+        out.append((start, len(mask)))
     return out
+
+
+def monotone(src: list[float], dst: list[float]) -> tuple[list[float], list[float]]:
+    """Drops anchors that don't advance both axes, so a warp stays valid."""
+    s, d = [src[0]], [dst[0]]
+    for a, b in zip(src[1:], dst[1:]):
+        if a > s[-1] + 1e-6 and b > d[-1] + 1e-6:
+            s.append(a)
+            d.append(b)
+    return s, d
+
+
+class Fitter:
+    def __init__(self, size: Size):
+        self.size = size
+        self.ppem = size.cap / CAP_EM
+        _, data = instance(size.wght)
+        self.font = ImageFont.truetype(io.BytesIO(data), self.ppem * SS)
+        self.zones = self._zones()
+
+    def _extent(self, ch: str) -> tuple[float, float]:
+        a, base = draw_hi(self.font, ch, self.ppem * SS)
+        ys, _ = np.nonzero(a > 0.5)
+        return (base - ys.min()) / SS, (base - ys.max() - 1) / SS
+
+    def _zones(self) -> list[tuple[float, int]]:
+        s = self.size
+        wanted = [
+            (self._extent("p")[1], -s.desc),
+            (0.0, 0),
+            (self._extent("H")[0], s.cap),
+        ]
+        if not s.upper:
+            wanted += [
+                (self._extent("x")[0], s.xh),
+                (self._extent("l")[0], s.asc),
+            ]
+        out: list[tuple[float, int]] = []
+        for src, dst in sorted(set(wanted)):
+            if out and (src <= out[-1][0] + 0.05 or dst <= out[-1][1]):
+                continue
+            out.append((float(src), dst))
+        return out
+
+    def _map(self, u: float) -> float:
+        xs = [z[0] for z in self.zones]
+        ys = [z[1] for z in self.zones]
+        if u <= xs[0]:
+            return ys[0] + (u - xs[0])
+        if u >= xs[-1]:
+            return ys[-1] + (u - xs[-1])
+        return float(np.interp(u, xs, ys))
+
+    def _snap(self, u: float, tol: float = 0.75) -> int:
+        near = [(abs(u - s), d) for s, d in self.zones if abs(u - s) <= tol]
+        return min(near)[1] if near else round(self._map(u))
+
+    def fit(self, ch: str) -> Glyph:
+        z = self.size
+        a, base = draw_hi(self.font, ch, self.ppem * SS)
+        ys, xs = np.nonzero(a > 0.5)
+        if not len(ys) or ch.isspace():
+            return Glyph(ch, 0, 0, 0, [])
+        y0, y1 = int(ys.min()), int(ys.max()) + 1
+        top_u, bot_u = (base - y0) / SS, (base - y1) / SS
+        top_d, bot_d = self._snap(top_u), self._snap(bot_u)
+        if top_d <= bot_d:
+            top_d = bot_d + 1
+
+        # 1. Rows: the zones this glyph spans line up with whole rows.
+        pts = [(float(y0), 0.0)]
+        for s, d in self.zones:
+            if bot_d + 1 <= d <= top_d - 1 and bot_u + 0.5 < s < top_u - 0.5:
+                pts.append((base - s * SS, (top_d - d) * SS))
+        pts.append((float(y1), float((top_d - bot_d) * SS)))
+        a = warp(a, 0, [p[0] for p in pts], [p[1] for p in pts], (top_d - bot_d) * SS)
+
+        # 2. Columns: crop to the ink, then set each stem on whole columns.
+        cols = np.nonzero(a.max(axis=0) > 0.5)[0]
+        a = a[:, cols.min() : cols.max() + 1]
+        w_src = a.shape[1]
+        prof = a.sum(axis=0) / a.shape[0]
+        plateaus = [r for r in runs(prof >= 0.72) if r[1] - r[0] >= 0.25 * SS]
+        # A plateau across the whole glyph is a bar (a hyphen), not a stem.
+        plateaus = [r for r in plateaus if r[1] - r[0] < 0.6 * w_src or w_src < 2.2 * SS]
+        sp, dp = [0.0], [0.0]
+        right = 0
+        placed: list[tuple[int, int, int, int]] = []
+        for ra, rb in plateaus:
+            w = int(min(z.stem, max(1, round((rb - ra) / SS))))
+            t = round((ra + rb) / 2 / SS - w / 2)
+            t = max(t, right + 1) if placed else max(t, 0)
+            placed.append((ra, rb, t, w))
+            right = t + w
+        for ra, rb, t, w in placed:
+            sp += [float(ra), float(rb)]
+            dp += [t * SS, (t + w) * SS]
+        beyond = round((w_src - placed[-1][1]) / SS) if placed else 0
+        wd = max(1, round(w_src / SS), right + max(0, beyond))
+        sp.append(float(w_src))
+        dp.append(float(wd * SS))
+        sp, dp = monotone(sp, dp)
+        a = warp(a, 1, sp, dp, wd * SS) if len(sp) > 1 else a
+
+        # 3. Rows again: serifs, bars and arch tops set to the hairline.
+        n = a.shape[0]
+        rprof = a.sum(axis=1) / a.shape[1]
+        sp, dp = [0.0], [0.0]
+        last = 0
+        for ra, rb in [r for r in runs(rprof >= 0.62) if r[1] - r[0] >= 0.15 * SS]:
+            thick = (rb - ra) / SS
+            hh = z.hair if thick < 1.7 * z.hair else round(thick)
+            t = round((ra + rb) / 2 / SS - hh / 2)
+            if ra < 0.9 * SS:
+                t = 0
+            if rb > n - 0.9 * SS:
+                t = n // SS - hh
+            t = min(max(t, last + 1 if last else 0), n // SS - hh)
+            if ra <= sp[-1] + 1e-6 or t * SS <= dp[-1] + 1e-6:
+                if not (ra <= 0 and t == 0):
+                    continue
+            sp += [float(ra), float(rb)]
+            dp += [t * SS, (t + hh) * SS]
+            last = t + hh
+        sp.append(float(n))
+        dp.append(float(n))
+        sp, dp = monotone(sp, dp)
+        if len(sp) >= 2:
+            a = warp(a, 0, sp, dp, n)
+
+        # 4. Down to the grid.
+        h, w = a.shape[0] // SS, a.shape[1] // SS
+        cov = a[: h * SS, : w * SS].reshape(h, SS, w, SS).mean(axis=(1, 3))
+        grid = to_grid(cov, z)
+        rows = ["".join(".+#"[v] for v in r) for r in grid]
+        return Glyph(ch, w + 1, 0, top_d, rows)
+
+
+def to_grid(cov: np.ndarray, z: Size) -> np.ndarray:
+    """0 nothing, 2 ink. A size with 1 px stems has no 2 px sides: a round
+    letter's sides are two columns wide where they're thickest, and the
+    weaker column goes."""
+    grid = np.where(cov >= z.ink, 2, 0).astype(np.uint8)
+    if z.stem == 1:
+        h, w = grid.shape
+        for x in range(w - 1):
+            both = (grid[:, x] > 0) & (grid[:, x + 1] > 0)
+            for y0, y1 in runs(both):
+                if y1 - y0 < 3:
+                    continue
+                if cov[y0:y1, x].sum() < cov[y0:y1, x + 1].sum():
+                    grid[y0:y1, x] = 0
+                else:
+                    grid[y0:y1, x + 1] = 0
+    return grid
+
+
+def edge_tone(rows: list[str]) -> list[str]:
+    """
+    Adds the edge tone to a glyph drawn in ink alone. A blank pixel gets it
+    where it fills the notch of a step: ink beside it and ink above or below
+    it, but not the pixel between those two (so the junction of a serif and a
+    stem, where that pixel is ink, stays crisp). That's the anti-aliasing a
+    pixel artist puts on a diagonal or a curve, and it's on straight edges
+    nowhere.
+    """
+    if not rows:
+        return rows
+    h, w = len(rows), len(rows[0])
+    ink = np.pad(np.array([[c == "#" for c in r] for r in rows]), 1)
+    out = [list(r) for r in rows]
+    for y in range(h):
+        for x in range(w):
+            if rows[y][x] != ".":
+                continue
+            for dx in (-1, 1):
+                for dy in (-1, 1):
+                    if (
+                        ink[y + 1, x + 1 + dx]
+                        and ink[y + 1 + dy, x + 1]
+                        and not ink[y + 1 + dy, x + 1 + dx]
+                    ):
+                        out[y][x] = "+"
+    return ["".join(r) for r in out]
+
+
+# --- Kerning -------------------------------------------------------------------
+
+
+def profiles(g: Glyph):
+    """Per row above the baseline, the blank columns before/after the ink."""
+    left: dict[int, int] = {}
+    right: dict[int, int] = {}
+    width = len(g.rows[0]) if g.rows else 0
+    for ry, row in enumerate(g.rows):
+        u = g.top - ry - 1
+        cols = [i for i, c in enumerate(row) if c != "."]
+        if cols:
+            left[u] = cols[0]
+            right[u] = width - 1 - cols[-1]
+    return left, right
+
+
+def white(a: dict, b: dict, gap: int, band: tuple[int, int], cap_w: int):
+    """Mean white between two letters over `band`, and the tightest row."""
+    ra, lb = a["right"], b["left"]
+    total = 0.0
+    tight = 99
+    for u in range(*band):
+        r, l = ra.get(u), lb.get(u)
+        if r is None and l is None:
+            w = cap_w
+        else:
+            w = min(cap_w, (cap_w // 2 if r is None else r) + gap + (cap_w // 2 if l is None else l))
+        if r is not None and l is not None:
+            tight = min(tight, r + gap + l)
+        total += w
+    return total / (band[1] - band[0]), tight
+
+
+def kern_table(glyphs: list[Glyph], z: Size, chars: str) -> dict[tuple[str, str], int]:
+    """Pair kerning, so every pair has the white of two straight stems."""
+    info = {}
+    for g in glyphs:
+        if g.char in chars and g.rows:
+            left, right = profiles(g)
+            info[g.char] = {"left": left, "right": right}
+    cap_w = max(4, round(z.cap * 0.75))
+    ref = info["H"]
+    target, _ = white(ref, ref, z.gap, (0, z.cap), cap_w)
+    out: dict[tuple[str, str], int] = {}
+    for a in info:
+        for b in info:
+            # Letters that share no row (an apostrophe over a lowercase m)
+            # have nothing to tuck under: they keep the default gap.
+            if not set(info[a]["left"]) & set(info[b]["left"]):
+                continue
+            lower = (a.islower() or b.islower()) and not z.upper
+            band = (0, z.xh if lower else z.cap)
+            best = None
+            for gap in range(-4, 8):
+                mean, tight = white(info[a], info[b], gap, band, cap_w)
+                if tight < 1:
+                    continue
+                err = abs(mean - target)
+                if best is None or err < best[0]:
+                    best = (err, gap)
+            if best is None:
+                continue
+            # The atlas advance is ink width + 1 px, so gap 1 is 0 kerning.
+            # Kept modest: a pair is never pulled in, or pushed out, by more
+            # than a quarter of the capital height.
+            reach = max(2, z.cap // 4)
+            k = max(-reach, min(reach - 1, best[1] - 1))
+            if k:
+                out[(a, b)] = k
+    return out
+
+
+# --- Overrides and output ------------------------------------------------------
 
 
 def parse_glyphs(text: str) -> dict[str, Glyph]:
@@ -222,7 +519,7 @@ def parse_glyphs(text: str) -> dict[str, Glyph]:
             ch = chr(int(parts[1], 16))
             current = Glyph(ch, int(parts[2]), int(parts[3]), int(parts[4]), [])
             out[ch] = current
-        elif current is not None and line and set(line) <= {"#", "."}:
+        elif current is not None and line and set(line) <= {"#", "+", "."}:
             current.rows.append(line)
         elif not line:
             current = None
@@ -235,51 +532,76 @@ def glyph_block(g: Glyph) -> str:
     return "\n".join([head, *g.rows])
 
 
-def build(size: Size) -> tuple[list[Glyph], dict[tuple[str, str], int], dict[str, int]]:
-    static, data = instance(size.wght)
-    font = ImageFont.truetype(io.BytesIO(data), size.ppem)
+def trim(g: Glyph) -> Glyph:
+    """Drops blank rows and columns round the ink (the atlas glyphs are trimmed)."""
+    rows = [r for r in g.rows]
+    while rows and set(rows[0]) <= {"."}:
+        rows.pop(0)
+        g.top -= 1
+    while rows and set(rows[-1]) <= {"."}:
+        rows.pop()
+    if rows:
+        cols = [i for i in range(len(rows[0])) if any(r[i] != "." for r in rows)]
+        first, last = cols[0], cols[-1]
+        g.left += first
+        rows = [r[first : last + 1] for r in rows]
+    g.rows = rows
+    return g
+
+
+def build(z: Size, tone: bool):
+    static, _ = instance(z.wght)
+    fitter = Fitter(z)
     cmap = static.getBestCmap()
-    chars = [c for c in CHARSET if ord(c) in cmap]
-    if size.upper:
+    chars = [c for c in (z.chars or CHARSET) if ord(c) in cmap]
+    if z.upper:
         chars = [c for c in chars if c.upper() == c]
-    glyphs = [rasterize(font, c, size.ppem) for c in chars]
-    override_file = OVERRIDES_DIR / f"overrides-{size.id}.txt"
+    glyphs = [trim(fitter.fit(c)) for c in chars]
+    for g in glyphs:
+        if g.char == " ":
+            g.advance = z.space
+    override_file = OVERRIDES_DIR / f"overrides-{z.id}.txt"
     if override_file.exists():
         tuned = parse_glyphs(override_file.read_text(encoding="utf8"))
         glyphs = [tuned.get(g.char, g) for g in glyphs]
+    for g in glyphs:
+        g.rows = edge_tone(g.rows) if tone else [r.replace("+", ".") for r in g.rows]
     by_char = {g.char: g for g in glyphs}
-    ascent = max(g.top for g in glyphs)
-    descent = max(len(g.rows) - g.top for g in glyphs if g.rows)
     metrics = {
         "cap": by_char["H"].top,
         "x": by_char["x"].top if "x" in by_char else by_char["X"].top,
-        "ascent": ascent,
-        "descent": descent,
+        "ascent": max(g.top for g in glyphs),
+        "descent": max(len(g.rows) - g.top for g in glyphs if g.rows),
     }
-    return glyphs, kerning(static, chars, size.ppem), metrics
+    # Kerning between ASCII letters, digits and punctuation; accented letters
+    # take their base letter's (the engine looks them up that way).
+    ascii_chars = "".join(chr(c) for c in range(0x21, 0x7F) if chr(c) in by_char)
+    kerns = kern_table(glyphs, z, ascii_chars)
+    return glyphs, kerns, metrics
 
 
-def write(size: Size) -> Path:
-    glyphs, kerns, m = build(size)
+def write(z: Size, out_dir: Path, tone: bool) -> Path:
+    glyphs, kerns, m = build(z, tone)
     header = [
-        f"// {size.comment}",
+        f"// {z.comment}",
         "// Generated by scripts/fonts/rasterize.py from Libre Caslon Text",
-        "// (SIL OFL 1.1, src/assets/fonts/LibreCaslonText-OFL.txt); hand-tuned",
-        f"// glyphs come from scripts/fonts/overrides-{size.id}.txt. Don't edit",
+        "// (SIL OFL 1.1, src/assets/fonts/LibreCaslonText-OFL.txt); hand-drawn",
+        f"// glyphs come from scripts/fonts/overrides-{z.id}.txt. Don't edit",
         "// this file: edit the overrides and re-run the script.",
         "//",
         "// glyph <code point> <advance> <left bearing> <rows above baseline>",
+        "// rows: # ink, + the edge tone, . nothing",
         "// kern <first> <second> <px>",
-        f"font {size.id}",
-        f"source LibreCaslonText wght {size.wght} ppem {size.ppem}",
+        f"font {z.id}",
+        f"source LibreCaslonText wght {z.wght} cap {z.cap}",
         f"cap {m['cap']}",
         f"xheight {m['x']}",
         f"ascent {m['ascent']}",
         f"descent {m['descent']}",
-        f"line {size.line}",
-        f"tracking {size.tracking}",
-        f"word {size.word}",
-        f"upper {1 if size.upper else 0}",
+        f"line {z.line}",
+        f"tracking {z.tracking}",
+        f"word {z.word}",
+        f"upper {1 if z.upper else 0}",
         "",
     ]
     body = "\n\n".join(glyph_block(g) for g in glyphs)
@@ -287,9 +609,10 @@ def write(size: Size) -> Path:
         f"kern {ord(a):04X} {ord(b):04X} {v}"
         for (a, b), v in sorted(kerns.items(), key=lambda kv: (ord(kv[0][0]), ord(kv[0][1])))
     ]
-    path = OUT_DIR / f"serif-{size.id}.txt"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / f"serif-{z.id}.txt"
     path.write_text("\n".join(header) + body + "\n\n" + "\n".join(kern_lines) + "\n", encoding="utf8")
-    print(f"{path.relative_to(ROOT)}: {len(glyphs)} glyphs, {len(kerns)} kerning pairs, cap {m['cap']} px")
+    print(f"{path}: {len(glyphs)} glyphs, {len(kerns)} kerning pairs, cap {m['cap']} px")
     return path
 
 
@@ -303,72 +626,90 @@ SAMPLES = [
 ]
 
 
-def draw_line(canvas: Image.Image, glyphs: dict[str, Glyph], kerns, size: Size, text: str, x: int, y: int, cap: int, color, outline, shadow):
-    ink = Image.new("1", canvas.size, 0)
-    px = ink.load()
+def base_letter(ch: str) -> str:
+    return unicodedata.normalize("NFD", ch)[0]
+
+
+def draw_line(canvas, glyphs, kerns, z: Size, text, x, y, color, outline, shadow, edge):
+    ink = np.zeros(canvas.shape[:2], np.uint8)
     pen = x
-    if size.upper:
+    if z.upper:
         text = text.upper()
     prev = None
     for ch in text:
         g = glyphs.get(ch) or glyphs["?"]
         if prev is not None:
-            pen += size.tracking + kerns.get((prev, ch), 0)
+            k = kerns.get((prev, ch), kerns.get((base_letter(prev), base_letter(ch)), 0))
+            pen += z.tracking + k
         for ry, row in enumerate(g.rows):
             for rx, c in enumerate(row):
-                if c == "#":
-                    px[pen + g.left + rx, y + cap - g.top + ry] = 1
-        pen += g.advance + (size.word if ch == " " else 0)
+                if c != ".":
+                    yy, xx = y + z.cap - g.top + ry, pen + g.left + rx
+                    if 0 <= yy < ink.shape[0] and 0 <= xx < ink.shape[1]:
+                        ink[yy, xx] = 2 if c == "#" else max(ink[yy, xx], 1)
+        pen += g.advance + (z.word if ch == " " else 0)
         prev = ch
-    w, h = canvas.size
-    dil = Image.new("1", canvas.size, 0)
-    dp = dil.load()
-    for yy in range(1, h - 2):
-        for xx in range(1, w - 2):
-            if px[xx, yy] or px[xx - 1, yy] or px[xx + 1, yy] or px[xx, yy - 1] or px[xx, yy + 1]:
-                dp[xx, yy] = 1
-    if shadow:
-        sh = Image.new("1", canvas.size, 0)
-        sh.paste(dil, (1, 1))
-        canvas.paste(shadow, mask=sh)
-    canvas.paste(outline, mask=dil)
-    canvas.paste(color, mask=ink)
+    body = ink > 0
+    grown = body.copy()
+    grown[:, 1:] |= body[:, :-1]
+    grown[:, :-1] |= body[:, 1:]
+    grown[1:, :] |= body[:-1, :]
+    grown[:-1, :] |= body[1:, :]
+    if shadow is not None:
+        sh = np.zeros_like(grown)
+        sh[1:, 1:] = grown[:-1, :-1]
+        canvas[sh & ~grown] = shadow
+    canvas[grown & ~body] = outline
+    canvas[ink == 1] = edge
+    canvas[ink == 2] = color
 
 
-def preview(out_dir: Path) -> None:
+def preview(out_dir: Path, tone: bool) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
-    for size in SIZES:
-        glyphs, kerns, m = build(size)
+    for z in SIZES:
+        glyphs, kerns, _ = build(z, tone)
         by = {g.char: g for g in glyphs}
         cols = 24
         cell_w = max(g.advance for g in glyphs) + 6
-        cell_h = size.line + 6
+        cell_h = z.line + 6
         rows = math.ceil(len(glyphs) / cols)
-        sheet_h = rows * cell_h + len(SAMPLES) * (size.line + 4) + 10
+        sheet_h = rows * cell_h + len(SAMPLES) * (z.line + 4) + 10
         sheet_w = max(cols * cell_w, 640)
-        img = Image.new("RGB", (sheet_w, sheet_h), (122, 84, 58))
+        img = np.zeros((sheet_h, sheet_w, 3), np.uint8)
+        img[:] = (122, 84, 58)
         for i, g in enumerate(glyphs):
-            cx = (i % cols) * cell_w + 3
-            cy = (i // cols) * cell_h + 3
-            draw_line(img, by, kerns, size, g.char, cx, cy, m["cap"], (255, 255, 255), (0, 0, 0), None)
+            cx, cy = (i % cols) * cell_w + 3, (i // cols) * cell_h + 3
+            draw_line(img, by, {}, z, g.char, cx, cy, (255, 255, 255), (0, 0, 0), None, (128, 128, 128))
         y = rows * cell_h + 6
         for s in SAMPLES:
-            draw_line(img, by, kerns, size, s, 4, y, m["cap"], (255, 255, 255), (0, 0, 0), (0, 0, 0))
-            y += size.line + 4
-        big = img.resize((img.width * 8, img.height * 8), Image.NEAREST)
-        path = out_dir / f"serif-{size.id}@8x.png"
-        big.save(path)
+            draw_line(img, by, kerns, z, s, 4, y, (255, 255, 255), (0, 0, 0), (0, 0, 0), (128, 128, 128))
+            y += z.line + 4
+        big = np.kron(img, np.ones((8, 8, 1), np.uint8))
+        path = out_dir / f"serif-{z.id}@8x.png"
+        Image.fromarray(big).save(path)
         print(f"preview: {path}")
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--out", type=Path, default=OUT_DIR, help="where to write the atlases")
+    ap.add_argument("--no-tone", action="store_true", help="two tones only: no edge pixels")
+    ap.add_argument("--only", help="comma-separated size ids")
+    ap.add_argument("--set", action="append", default=[], help="size.field=value, to try a setting")
     ap.add_argument("--preview", type=Path, help="write 8x review sheets to this directory")
     args = ap.parse_args()
-    for size in SIZES:
-        write(size)
+    tone = not args.no_tone
+    for item in args.set:
+        key, value = item.split("=")
+        size_id, field_name = key.split(".")
+        for z in SIZES:
+            if z.id == size_id:
+                setattr(z, field_name, type(getattr(z, field_name))(value))
+    sizes = [z for z in SIZES if not args.only or z.id in args.only.split(",")]
+    for z in sizes:
+        write(z, args.out, tone)
     if args.preview:
-        preview(args.preview)
+        preview(args.preview, tone)
     return 0
 
 

@@ -22,6 +22,7 @@ import {
   WOOD,
   blit,
   fill,
+  mixHex,
   noise,
   paintWood,
   rivet,
@@ -60,7 +61,7 @@ export interface CardView {
 const INK_TEXT = "#2a1812";
 const NAVY = "#21283c";
 const PLUM = "#5f3163";
-const GREY = "#7d6a4c";
+const GREY = "#5f4d33";
 const CREAM = "#f4ecd8";
 
 /** A rect as percentages of the card, for the HTML controls over it. */
@@ -80,6 +81,8 @@ const LOGICAL = 2;
 
 interface Ink {
   color: string;
+  /** What the letters sit on, where it isn't paper. */
+  ground?: string;
   outline?: string | false;
   shadow?: string | false;
 }
@@ -103,6 +106,8 @@ function words(
     font,
     outline: false,
     shadow: false,
+    // The edge tone is the letters' colour a little towards the paper's.
+    edge: mixHex(ink.color, ink.ground ?? PAPER.light, 0.4),
     ...ink,
   });
   return measureText(s, font) * LOGICAL * mult;
@@ -170,10 +175,17 @@ function paintPass(ctx: Ctx) {
       }
     }
   }
-  // Flecks of age in the paper.
+  // Flecks of age in the paper, left out from behind the text, which needs a
+  // clean ground to read against.
+  const quiet: Rect[] = [
+    { x: PASS.x + 12, y: PASS.y + 40, w: PERF_X - PASS.x - 24, h: 168 },
+    { x: PERF_X + 8, y: PASS.y + 10, w: STUB_W - 16, h: 140 },
+  ];
+  const inQuiet = (x: number, y: number) =>
+    quiet.some((r) => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h);
   for (let y = PASS.y; y < PASS.y + PASS.h; y++) {
     for (let x = PASS.x; x < PASS.x + PASS.w; x++) {
-      if (onPass(x, y) && noise(x, y, 11) < 0.05) {
+      if (onPass(x, y) && noise(x, y, 11) < 0.05 && !inQuiet(x, y)) {
         fill(ctx, x, y, 1, 1, PAPER.shade);
       }
     }
@@ -267,25 +279,19 @@ function paintBody(ctx: Ctx) {
   const bandTextY = band.y + Math.round((band.h - capSmall) / 2);
   words(ctx, "TORTORA AIRWAYS", left + 16, bandTextY, "small", {
     color: BRASS.hi,
+    ground: NAVY,
   });
   const kind = "BOARDING PASS";
   words(ctx, kind, right - widthOf(kind, "small"), bandTextY, "small", {
     color: CREAM,
+    ground: NAVY,
   });
 
   // The name, big, like a logo, and the title under it.
   const name = "Daniele Tortora";
-  const mult = widthOf(name, "regular", 3) <= right - left ? 3 : 2;
-  const nameY = PASS.y + 50;
-  words(
-    ctx,
-    name,
-    left,
-    nameY,
-    "regular",
-    { color: INK_TEXT, shadow: PAPER.shade },
-    mult,
-  );
+  // The name is drawn at its own size, not the speech font blown up: the
+  // logo face has real hairlines and stems (font.ts).
+  words(ctx, name, left, PASS.y + 52, "logo", { color: INK_TEXT });
   words(ctx, "Senior Software Engineer", left + 2, PASS.y + 100, "regular", {
     color: PLUM,
   });
@@ -383,7 +389,7 @@ function paintKey(ctx: Ctx, pressed: boolean) {
     x + Math.round((KEY.w - widthOf(label, "small")) / 2),
     y + Math.round((KEY.h - 3 - 8) / 2),
     "small",
-    { color: INK_TEXT },
+    { color: INK_TEXT, ground: CREAM },
   );
 }
 

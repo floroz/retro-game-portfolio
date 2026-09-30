@@ -134,7 +134,7 @@
 .footer {
   position: relative;
   z-index: 3;
-  padding: to-rem(12px) to-rem(48px);
+  padding: to-rem(8px) to-rem(48px);
   display: flex;
   flex-direction: column;
   gap: to-rem(8px);
@@ -144,7 +144,10 @@
 .pagination {
   text-align: center;
   font-family: var(--font-heading);
-  font-size: to-rem(12px);
+
+  /* Press Start 2P is drawn on an 8 px grid: 16 px is exactly 2x, so every
+     dot lands on a whole pixel (12 px smeared them). */
+  font-size: to-rem(16px);
   color: #a0b0c0;
   letter-spacing: to-rem(2px);
 }
@@ -166,13 +169,13 @@
 /* Clickable navigation hint buttons (same aesthetic as WelcomeScreen .prompt) */
 .navHintButton {
   font-family: var(--font-heading);
-  font-size: to-rem(11px);
+  font-size: to-rem(16px); /* 2x the font's 8 px grid, as above */
   color: #a0b0c0;
   letter-spacing: to-rem(1px);
   text-transform: uppercase;
   background: transparent;
   border: to-rem(2px) solid transparent;
-  padding: to-rem(6px) to-rem(12px);
+  padding: to-rem(4px) to-rem(10px);
   cursor: pointer;
   text-shadow: 0 0 to-rem(8px) rgb(160 176 192 / 20%);
   transition:
@@ -201,7 +204,7 @@
   }
 
   &:disabled {
-    color: #4a5568;
+    color: #5c6a7e;
     cursor: default;
     border-color: transparent;
     background: transparent;

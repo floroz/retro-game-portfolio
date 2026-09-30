@@ -49,6 +49,22 @@ export function blit(ctx: Ctx, s: Sprite, x: number, y: number) {
   }
 }
 
+/** `a` and `b` mixed, `t` of the way to `b`; both are #rrggbb. */
+export function mixHex(a: string, b: string, t: number): string {
+  const channel = (c: string, i: number) =>
+    parseInt(c.slice(1 + i * 2, 3 + i * 2), 16);
+  return (
+    "#" +
+    [0, 1, 2]
+      .map((i) =>
+        Math.round(channel(a, i) * (1 - t) + channel(b, i) * t)
+          .toString(16)
+          .padStart(2, "0"),
+      )
+      .join("")
+  );
+}
+
 /** A deterministic hash in [0, 1), so the grain is the same every time. */
 export function noise(x: number, y: number, seed = 0): number {
   let h = (x * 374761393 + y * 668265263 + seed * 2147483647) | 0;
