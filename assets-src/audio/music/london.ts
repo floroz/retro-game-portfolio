@@ -1,36 +1,40 @@
 /**
- * London theme: a pub jukebox in 1964 (docs/art-spec.md, Audio).
+ * London theme: a late-70s punk band that slides into ska (docs/art-spec.md,
+ * Audio).
  *
- * An original British Invasion / Merseybeat arrangement, as if a beat group
- * had covered a nursery rhyme for a laugh: the public-domain tune "London
- * Bridge Is Falling Down" on jangling clean electric guitar over a 12-string
- * strum, a combo organ that answers it, a melodic walking bass, and a bright
- * beat (straight eighths, snare backbeat, tambourine on 2 and 4). The
- * progressions are the era's plain vocabulary (I–vi–IV–V, a borrowed
- * flat-VII, a major-III lift), not those of any particular record.
+ * An original arrangement of the public-domain tune "London Bridge Is Falling
+ * Down", played the way a 1977–79 London band would wreck a nursery rhyme:
+ * distorted power chords over a driving eighth-note bass at 150 bpm, then a
+ * slide into a half-time ska section (offbeat guitar skank, a busy melodic
+ * bass, a rimshot on 3, an organ bubble), and back to full punk for a last
+ * pass where a stacked unison of two lead guitars and an organ plays the tune
+ * like a shouting crowd. No vocals.
  *
- * G major, 128 bpm, 4/4, 40 bars (75 s):
+ * Only generic genre elements are used: power chords, the ska offbeat, an
+ * eighth-note root bass, a bubbling organ. The guitar riffs, bass lines,
+ * hooks and rhythms are this project's own writing and are not modelled on
+ * any particular record.
  *
- * - Intro (1–4): 12-string strum and hi-hat on G–Em–C–D7, a guitar tag, and a
- *   drum fill.
- * - A (5–12): "London Bridge" on clean guitar (the tune, two bars per line,
- *   G–C–D7–Em–G–C–D7–G). Organ pad from bar 9. Fill.
- * - Answer (13–16): the combo organ answers. Its phrase is the shared motif
- *   (motif.ts) a tone up in G (B D G F# D B | C B A), then the same shape on C.
- * - A' (17–24): the tune passes to the organ; hand claps on 2 and 4.
- * - Middle eight (25–32): an original tune on guitar, lifting to the major
- *   III (B7) and out through the borrowed flat-VII (F) back to G. Bass pumps
- *   eighths.
- * - A'' (33–40): the tune returns on guitar with organ off-beat stabs. The
- *   last chord is G6 (the "added sixth"), and a snare-and-tom fill leads back
- *   to the intro.
+ * G major, 150 bpm, 4/4, 48 bars (76.8 s):
+ *
+ * - Intro (1–4): bass and drums, power-chord chugs from bar 3, fill.
+ * - Verse, punk (5–12): "London Bridge" on overdriven lead guitar.
+ * - Slide (13–16): C5–D5 power chords, then the drums drop to half time and
+ *   the skank starts.
+ * - Ska 1 (17–24): half-time; the tune on clean guitar over the skank, the
+ *   organ bubble and a busy bass.
+ * - Ska 2 (25–32): the tune on the organ, the skank and bubble continue.
+ * - Build (33–36): ska turns back into punk with a snare roll into bar 37.
+ * - Last pass, punk (37–44): the tune in unison on two overdriven guitars and
+ *   an organ, with a crash on every bar.
+ * - Tag (45–48): C5–D5–G5 hits, a big G chord on bar 48, and a quick fill
+ *   that leads back to the intro.
  *
  * The melody's source and public-domain status are in `melodySources`.
  */
 import {
   DRUMS,
   DRUM_KITS,
-  FLUIDR3_PRESETS,
   GM,
   noteToMidi,
   phrase,
@@ -39,61 +43,58 @@ import {
 } from "../../../scripts/assets/music";
 
 const BAR = 4;
-const BARS = 40;
+const BARS = 48;
 const at = (bar: number, beat = 0) => (bar - 1) * BAR + beat;
 const opts = (bar: number, velocity: number) => ({
   at: at(bar),
   velocity,
   barBeats: BAR,
 });
+const inRange = (bar: number, from: number, to: number) =>
+  bar >= from && bar <= to;
 
 // --- Harmony -------------------------------------------------------------------------
 
 interface Chord {
-  /** Guitar strum voicing (open-chord shapes, low to high). */
-  strum: string;
-  /** Organ voicing, close, in the middle register. */
-  organ: string;
-  /** Bass root and walking notes: root, third, fifth. */
-  walk: [string, string, string];
+  /** Power chord: root, fifth, octave, for the distorted guitar. */
+  power: string;
+  /** Triad for the skank and the organ. */
+  triad: string;
+  /** Bass root for punk (low) and for ska (higher, where it moves around). */
+  punkRoot: string;
+  skaRoot: string;
+  /** Semitones from the ska root to the chord's third. */
+  third: number;
 }
 
 const CHORDS: Record<string, Chord> = {
   G: {
-    strum: "G3+B3+D4+G4",
-    organ: "D4+G4+B4",
-    walk: ["G2", "B2", "D3"],
+    power: "G2+D3+G3",
+    triad: "B3+D4+G4",
+    punkRoot: "G1",
+    skaRoot: "G2",
+    third: 4,
   },
   C: {
-    strum: "G3+C4+E4+G4",
-    organ: "E4+G4+C5",
-    walk: ["C3", "E3", "G3"],
+    power: "C3+G3+C4",
+    triad: "C4+E4+G4",
+    punkRoot: "C2",
+    skaRoot: "C3",
+    third: 4,
   },
-  D7: {
-    strum: "D4+F#4+A4+C5",
-    organ: "C4+F#4+A4",
-    walk: ["D3", "F#3", "A3"],
+  D: {
+    power: "D3+A3+D4",
+    triad: "D4+F#4+A4",
+    punkRoot: "D2",
+    skaRoot: "D3",
+    third: 4,
   },
   Em: {
-    strum: "E3+B3+E4+G4",
-    organ: "E4+G4+B4",
-    walk: ["E2", "G2", "B2"],
-  },
-  B7: {
-    strum: "B3+D#4+F#4+A4",
-    organ: "D#4+F#4+A4",
-    walk: ["B2", "D#3", "F#3"],
-  },
-  F: {
-    strum: "F3+A3+C4+F4",
-    organ: "F4+A4+C5",
-    walk: ["F2", "A2", "C3"],
-  },
-  // G with an added sixth (E): the last chord of the arrangement.
-  G6: {
-    strum: "G3+B3+E4+G4",
-    organ: "E4+G4+B4",
-    walk: ["G2", "B2", "D3"],
+    power: "E3+B3+E4",
+    triad: "E4+G4+B4",
+    punkRoot: "E1",
+    skaRoot: "E2",
+    third: 3,
   },
 };
 
@@ -101,17 +102,21 @@ const CHORDS: Record<string, Chord> = {
 // prettier-ignore
 const CHART = [
   // Intro
-  "G", "Em", "C", "D7",
-  // A
-  "G", "C", "D7", "Em", "G", "C", "D7", "G",
-  // Answer
-  "G", "D7", "C", "D7",
-  // A'
-  "G", "C", "D7", "Em", "G", "C", "D7", "G",
-  // Middle eight: major III, then the borrowed flat-VII (F) home to G
-  "B7", "Em", "C", "D7", "B7", "Em", "C", "F",
-  // A''
-  "G", "C", "D7", "Em", "G", "C", "D7", "G6",
+  "G", "G", "C", "D",
+  // Verse
+  "G", "C", "D", "Em", "G", "C", "D", "G",
+  // Slide
+  "C", "D", "G", "D",
+  // Ska 1
+  "G", "C", "D", "Em", "G", "C", "D", "G",
+  // Ska 2
+  "G", "C", "D", "Em", "G", "C", "D", "G",
+  // Build
+  "C", "D", "C", "D",
+  // Last pass
+  "G", "C", "D", "Em", "G", "C", "D", "G",
+  // Tag
+  "C", "D", "G", "G",
 ];
 
 const chords = CHART.map((name, i) => ({ name, start: i * BAR, bar: i + 1 }));
@@ -152,199 +157,252 @@ const accent = (notes: Note[], by = 8): Note[] =>
 const tune = (bar: number, velocity: number) =>
   accent(phrase(LONDON_BRIDGE, opts(bar, velocity)));
 
-/** The last line ends on G6, so its final note is short and a fill follows. */
-const tuneWithFill = (bar: number, velocity: number) => {
-  const notes = tune(bar, velocity);
-  const last = notes[notes.length - 1];
-  return [...notes.slice(0, -1), { ...last, beats: 1 }];
-};
+// --- Guitars -------------------------------------------------------------------------
 
-// --- The organ's answer (original; the motif's shape) --------------------------------
+/** Punk chug: the power chord on every eighth, palm-muted, bar downbeats hit harder. */
+const chug = (name: string, bar: number, velocity: number): Note[] =>
+  Array.from({ length: 8 }, (_, k) =>
+    notesOf(
+      CHORDS[name].power,
+      at(bar, k * 0.5),
+      0.4,
+      k % 4 === 0 ? velocity + 10 : k % 2 === 0 ? velocity : velocity - 14,
+    ),
+  ).flat();
 
-/**
- * The shared motif a tone up in G, in its own rhythm from motif.ts:
- * B D G F# D B | C B A, then the same arch on C (E G C B G E | F E D), and a
- * closing lick that lands on the dominant for the tune's return.
- */
-const ANSWER = `
-  B4:.5 D5:.5 G5:1 F#5:.5 D5:1 B4:.5 | C5:.5 B4:.5 A4:1 r:2 |
-  E5:.5 G5:.5 C6:1 B5:.5 G5:1 E5:.5 | F#5:.5 E5:.5 D5:1 A4:.5 C5:.5 F#5:.5 A5:.5 |`;
+const PUNK_BARS: [number, number][] = [
+  [3, 16], // intro chugs, verse, slide's first two bars
+  [35, 48], // build's last two bars, last pass, tag (the tag gets its own hits)
+];
+const isPunkChug = (bar: number) =>
+  PUNK_BARS.some(([from, to]) => inRange(bar, from, to)) &&
+  !inRange(bar, 15, 16) &&
+  !inRange(bar, 45, 48);
 
-const organAnswer = phrase(ANSWER, opts(13, 88));
+const chugs: Note[] = chords
+  .filter(({ bar }) => isPunkChug(bar))
+  .flatMap(({ name, bar }) => chug(name, bar, inRange(bar, 37, 44) ? 92 : 84));
 
-// --- The middle eight (original) -----------------------------------------------------
-
-/** Guitar melody over B7 | Em | C | D7 | B7 | Em | C | F. */
-const MIDDLE_EIGHT = `
-  F#5:1 D#5:1 B4:1 D#5:1 | E5:2 G5:1 E5:1 | E5:1.5 D5:.5 C5:1 E5:1 | D5:2 C5:1 A4:1 |
-  F#5:1 D#5:1 B4:1 B5:1 | E5:1 G5:1 B5:2 | G5:1.5 E5:.5 C5:2 | A5:1 C6:1 A5:1 F5:1 |`;
-
-// --- Lines ---------------------------------------------------------------------------
-
-const lead: Note[] = [
-  // Intro tag
-  ...phrase("E5:.5 G5:.5 C6:1 B5:1 G5:1", opts(3, 84)),
-  ...phrase("A5:1 F#5:1 D5:1 r:1", opts(4, 84)),
-  // A and A''
-  ...tune(5, 90),
-  ...tuneWithFill(33, 94),
-  // Middle eight
-  ...accent(phrase(MIDDLE_EIGHT, opts(25, 90))),
+/** Tag: hits on C5, D5, G5, then one big G chord; the guitars hold it on bar 48. */
+const tagHits: Note[] = [
+  // Bar 45 (C5): beats 1, 2&, 3, 4
+  ...[0, 1.5, 2, 3].flatMap((b) =>
+    notesOf(CHORDS.C.power, at(45, b), 0.45, 100),
+  ),
+  // Bar 46 (D5)
+  ...[0, 1.5, 2, 3].flatMap((b) =>
+    notesOf(CHORDS.D.power, at(46, b), 0.45, 100),
+  ),
+  // Bar 47 (G5): three hits and a rest
+  ...[0, 1.5, 2].flatMap((b) => notesOf(CHORDS.G.power, at(47, b), 0.45, 104)),
+  // Bar 48: the big chord, G5 with the octave doubled, rings for two beats.
+  ...notesOf("G2+D3+G3+D4+G4", at(48), 2, 112),
 ];
 
-/** The organ takes the tune in A', and doubles the guitar an octave down in A''. */
-const organLead: Note[] = [
-  ...organAnswer,
-  ...tune(17, 84),
-  ...tuneWithFill(33, 56).map((n) => ({ ...n, pitch: n.pitch - 12 })),
-];
+/** Lead guitar on the tune: the verse and the last pass (on two guitars). */
+const leadVerse: Note[] = tune(5, 96);
+const leadLast: Note[] = tune(37, 100);
 
-/** Guitar strum: straight eighths, down-strokes staggered a hair across the strings. */
-const strumBar = (
-  voicing: string,
-  bar: number,
-  velocity: number,
-  octave = 0,
-): Note[] => {
-  const pitches = voicing.split("+").map((n) => noteToMidi(n) + octave);
-  const weights = [1, 0.62, 1.14, 0.62, 1, 0.62, 1.14, 0.62];
-  return weights.flatMap((w, k) =>
-    pitches.map((pitch, s) => ({
-      pitch,
-      start: at(bar) + k * 0.5 + (s * 5) / 480,
-      beats: 0.4375,
-      velocity: Math.round(Math.min(120, velocity * w)),
-    })),
-  );
-};
+// --- Ska guitars and organ -----------------------------------------------------------
 
-const strum12: Note[] = chords.flatMap(({ name, bar }) => {
-  // Quieter while the guitar carries the tune, fuller behind the organ.
-  const inA = (bar >= 5 && bar <= 12) || bar >= 33;
-  const inMiddle = bar >= 25 && bar <= 32;
-  const v = inA ? 50 : inMiddle ? 58 : bar >= 17 && bar <= 24 ? 68 : 62;
-  return strumBar(CHORDS[name].strum, bar, v, 12);
-});
-
-/** The electric guitar strums under the organ in A', and in the intro. */
-const strumElectric: Note[] = chords
-  .filter(({ bar }) => bar <= 4 || (bar >= 17 && bar <= 24))
-  .flatMap(({ name, bar }) => strumBar(CHORDS[name].strum, bar, 56));
-
-/** Organ pad: whole-note chords behind the guitar tune and the middle eight. */
-const organPad: Note[] = chords
-  .filter(({ bar }) => (bar >= 9 && bar <= 12) || (bar >= 25 && bar <= 32))
-  .flatMap(({ name, start }) => notesOf(CHORDS[name].organ, start, BAR, 40));
-
-/** Organ off-beat stabs in A'': combo-organ chops on every "and". */
-const organStabs: Note[] = chords
-  .filter(({ bar }) => bar >= 33 && bar <= 39)
+/** Skank: short upstroke triads on every offbeat eighth, from the slide into the build. */
+const skank: Note[] = chords
+  .filter(({ bar }) => inRange(bar, 15, 34))
   .flatMap(({ name, start }) =>
-    [0.5, 1.5, 2.5, 3.5].flatMap((beat) =>
-      notesOf(CHORDS[name].organ, start + beat, 0.3, 58),
+    [0.5, 1.5, 2.5, 3.5].flatMap((b) =>
+      notesOf(CHORDS[name].triad, start + b, 0.25, 92),
     ),
   );
 
-/** The finishing G6: organ and strum hold it as the fill starts. */
-const finalChord: Note[] = notesOf(CHORDS.G6.organ, at(40, 2), 1.8, 78);
+/** Clean guitar takes the tune in the first ska strain. */
+const skaLead: Note[] = tune(17, 92);
+
+/** Organ takes the tune in the second ska strain, and joins the last pass. */
+const organTune: Note[] = [...tune(25, 88), ...tune(37, 84)];
+
+/**
+ * Organ bubble: in each beat, short hits on the "and" and the "a" (the offbeat
+ * sixteenths), alternating a fifth and a third so the pulse bubbles.
+ */
+const bubble: Note[] = chords
+  .filter(({ bar }) => inRange(bar, 15, 34))
+  .flatMap(({ name, start }) => {
+    const [, mid, top] = CHORDS[name].triad.split("+").map(noteToMidi);
+    return [0, 1, 2, 3].flatMap((beat) => [
+      { pitch: mid, start: start + beat + 0.5, beats: 0.2, velocity: 62 },
+      { pitch: top, start: start + beat + 0.75, beats: 0.2, velocity: 46 },
+    ]);
+  });
 
 // --- Bass ----------------------------------------------------------------------------
 
-/** Bass root for a chord name; the finishing G6 shares G's root. */
-const rootOf = (name: string) => noteToMidi(CHORDS[name].walk[0]);
+const midiOf = (name: string) => noteToMidi(name);
+
+/** Punk: a root on every eighth, hard on the beat, with an approach note at phrase ends. */
+const punkBass: Note[] = chords
+  .filter(({ bar }) => !inRange(bar, 15, 34))
+  .flatMap(({ name, start, bar }) => {
+    const root = midiOf(CHORDS[name].punkRoot);
+    const next = chords[bar];
+    const approach = next ? midiOf(CHORDS[next.name].punkRoot) - 1 : root;
+    const phraseEnd = [4, 8, 12, 14, 36, 44, 46].includes(bar);
+    return Array.from({ length: 8 }, (_, k) => ({
+      pitch: phraseEnd && k === 7 ? approach : root,
+      start: start + k * 0.5,
+      beats: 0.4375,
+      velocity: k % 2 === 0 ? 102 : 84,
+    }));
+  });
 
 /**
- * A melodic walking bass: root, third, fifth, and a chromatic approach to the
- * next bar's root (from below when the line is rising, otherwise from above).
- * The middle eight pumps eighth notes instead.
+ * Ska: a busy melodic line of this project's own, built from the chord's
+ * root, third, fifth, sixth, and octave. Three bar shapes cycle, each ending
+ * with a chromatic approach to the next root.
  */
-const bass: Note[] = chords.flatMap(({ name, start, bar }, i) => {
-  const [root, third, fifth] = CHORDS[name].walk.map(noteToMidi);
-  const nextName = chords[(i + 1) % chords.length].name;
-  const next = rootOf(nextName);
-  const approach = fifth <= next ? next - 1 : next + 1;
-  const pump = bar >= 25 && bar <= 32;
-  if (pump) {
-    // Eighth-note pump: root, root, octave, root ... with the approach on the last "and".
-    return [0, 0, 12, 0, 0, 0, 12, 0].map((up, k) => ({
-      pitch: k === 7 ? approach : root + up,
-      start: start + k * 0.5,
-      beats: 0.45,
-      velocity: k % 2 === 0 ? 92 : 74,
-    }));
-  }
-  const line = [root, third, fifth, approach];
-  return line.map((pitch, k) => ({
-    pitch,
-    start: start + k,
-    beats: 0.9,
-    velocity: k === 0 ? 96 : 82,
-  }));
-});
+type Step = [
+  beat: number,
+  semitones: number | "third" | "approach",
+  beats: number,
+];
+const SKA_SHAPES: Step[][] = [
+  [
+    [0, 0, 0.5],
+    [0.5, 7, 0.5],
+    [1, "third", 0.5],
+    [1.5, 7, 0.5],
+    [2, 12, 0.5],
+    [2.5, 7, 0.5],
+    [3, "third", 0.5],
+    [3.5, "approach", 0.5],
+  ],
+  [
+    [0, 0, 0.75],
+    [0.75, 0, 0.25],
+    [1, 7, 0.5],
+    [1.5, 9, 0.5],
+    [2, 12, 0.75],
+    [2.75, 9, 0.25],
+    [3, 7, 0.5],
+    [3.5, "approach", 0.5],
+  ],
+  [
+    [0, 0, 0.5],
+    [0.5, 12, 0.5],
+    [1, 7, 0.5],
+    [1.5, "third", 0.5],
+    [2, 0, 0.5],
+    [2.5, -5, 0.5],
+    [3, 0, 0.5],
+    [3.5, "approach", 0.5],
+  ],
+];
 
-// --- Percussion ----------------------------------------------------------------------
+const skaBass: Note[] = chords
+  .filter(({ bar }) => inRange(bar, 15, 34))
+  .flatMap(({ name, start, bar }) => {
+    const c = CHORDS[name];
+    const root = midiOf(c.skaRoot);
+    const next = chords[bar];
+    const nextRoot = next ? midiOf(CHORDS[next.name].skaRoot) : root;
+    const approach = root <= nextRoot ? nextRoot - 1 : nextRoot + 1;
+    const shape = SKA_SHAPES[(bar - 15) % 3];
+    return shape.map(([beat, step, beats]) => {
+      const pitch =
+        step === "approach"
+          ? approach
+          : step === "third"
+            ? root + c.third
+            : root + step;
+      return {
+        pitch,
+        start: start + beat,
+        beats: beats * 0.9,
+        velocity: beat % 1 === 0 ? 96 : 82,
+      };
+    });
+  });
 
-const HAND_CLAP = 39;
+// --- Drums ---------------------------------------------------------------------------
+
 const drums: Note[] = [];
 const hit = (key: number, start: number, velocity: number, beats = 0.25) =>
   drums.push({ pitch: key, start, beats, velocity });
 
-/** Snare and tom fill on the last beat of a bar. */
-const fill = (bar: number) => {
-  const b = at(bar, 3);
-  hit(DRUMS.snare, b, 96);
-  hit(DRUMS.snare, b + 0.25, 84);
-  hit(DRUMS.highTom, b + 0.5, 100);
-  hit(DRUMS.midTom, b + 0.75, 100);
-};
-const FILL_BARS = new Set([4, 12, 16, 24, 32, 40]);
-const CRASH_BARS = new Set([1, 5, 17, 25, 33]);
+const isSka = (bar: number) => inRange(bar, 15, 34);
+/** Bars whose last beat is a fill. */
+const FILL_BARS = new Set([4, 12, 14, 16, 24, 32, 34, 36, 44, 48]);
 
 for (let bar = 1; bar <= BARS; bar++) {
   const b = at(bar);
-  const intro = bar <= 2;
-  const tambourine = bar >= 5;
-  const claps = bar >= 17 && bar <= 24;
-  if (CRASH_BARS.has(bar)) hit(DRUMS.crash, b, 88, 1);
-  // Hi-hat: straight eighths, open on the "and" of 4 at the end of each line.
-  for (let k = 0; k < 8; k++) {
-    const openHat = k === 7 && bar % 2 === 0 && !FILL_BARS.has(bar);
-    hit(
-      openHat ? DRUMS.openHat : DRUMS.closedHat,
-      b + k * 0.5,
-      k % 2 ? 46 : 66,
-    );
+  const ska = isSka(bar);
+  const fillBar = FILL_BARS.has(bar);
+  const lastPass = inRange(bar, 37, 44);
+
+  // Crash accents: section starts, every other bar of the verse, every bar of the last pass.
+  const crash =
+    [1, 5, 13, 17, 25, 33, 37, 45, 48].includes(bar) ||
+    (inRange(bar, 5, 12) && bar % 2 === 1) ||
+    lastPass;
+  if (crash) hit(DRUMS.crash, b, lastPass ? 100 : 92, 1);
+
+  if (!ska) {
+    // Punk: straight eighths on the hat, kick on 1, 3 and the "and" of 3, snare on 2 and 4.
+    for (let k = 0; k < 8; k++)
+      hit(DRUMS.closedHat, b + k * 0.5, k % 2 ? 62 : 82);
+    if (bar >= 2) {
+      hit(DRUMS.kick, b, 110);
+      hit(DRUMS.kick, b + 2, 104);
+      if (bar % 2 === 0) hit(DRUMS.kick, b + 2.5, 92);
+      hit(DRUMS.snare, b + 1, 116);
+      if (!fillBar) hit(DRUMS.snare, b + 3, 116);
+    } else {
+      hit(DRUMS.kick, b, 110);
+      hit(DRUMS.kick, b + 2, 104);
+      hit(DRUMS.snare, b + 1, 100);
+      hit(DRUMS.snare, b + 3, 100);
+    }
+  } else {
+    // Ska, half time: kick on 1 (and a push), rimshot on 3, offbeat hat.
+    hit(DRUMS.kick, b, 100);
+    if (bar % 2 === 0) hit(DRUMS.kick, b + 1.5, 80);
+    hit(DRUMS.sideStick, b + 2, 112);
+    if (!fillBar) hit(DRUMS.sideStick, b + 3.5, 60);
+    for (let beat = 0; beat < 4; beat++) {
+      hit(DRUMS.closedHat, b + beat, 54);
+      hit(beat === 3 ? DRUMS.openHat : DRUMS.closedHat, b + beat + 0.5, 78);
+    }
   }
-  // Kick on 1 and 3, and a push on the "and" of 3 every other bar.
-  hit(DRUMS.kick, b, 104);
-  if (!intro || bar === 2) hit(DRUMS.kick, b + 2, 96);
-  if (bar % 2 === 0 && !FILL_BARS.has(bar)) hit(DRUMS.kick, b + 2.5, 80);
-  // Snare backbeat on 2 and 4 (from the second bar of the intro).
-  if (bar >= 2) {
-    hit(DRUMS.snare, b + 1, 108);
-    if (!FILL_BARS.has(bar)) hit(DRUMS.snare, b + 3, 108);
+
+  if (fillBar) {
+    const f = b + 3;
+    if (bar === 36) {
+      // The build: a snare roll in sixteenths, louder as it goes.
+      for (let k = 0; k < 8; k++)
+        hit(DRUMS.snare, b + 2 + k * 0.25, 70 + k * 7, 0.2);
+    } else if (bar === 48) {
+      // Quick fill into the loop: the big chord rings two beats, then sixteenths.
+      hit(DRUMS.snare, f, 110);
+      hit(DRUMS.snare, f + 0.25, 100);
+      hit(DRUMS.highTom, f + 0.5, 108);
+      hit(DRUMS.midTom, f + 0.75, 112);
+    } else {
+      hit(DRUMS.snare, f, 104);
+      hit(DRUMS.snare, f + 0.25, 92);
+      hit(DRUMS.highTom, f + 0.5, 104);
+      hit(DRUMS.midTom, f + 0.75, 104);
+    }
   }
-  if (tambourine) {
-    hit(DRUMS.tambourine, b + 1, 76);
-    if (!FILL_BARS.has(bar)) hit(DRUMS.tambourine, b + 3, 76);
-  }
-  if (claps) {
-    hit(HAND_CLAP, b + 1, 96);
-    if (!FILL_BARS.has(bar)) hit(HAND_CLAP, b + 3, 96);
-  }
-  if (FILL_BARS.has(bar)) fill(bar);
 }
-// The last bar's final chord rings; the fill after it leads back into bar 1.
 
 // --- Track ---------------------------------------------------------------------------
 
 const track: MusicTrack = {
   id: "london",
   task: "A3",
-  title: "The Bridge Is Falling (London theme)",
+  title: "London Bridge Is Falling Down, Again (London theme)",
   description:
-    'London theme: an original 1964 British Invasion / Merseybeat pub-jukebox track on the public-domain tune "London Bridge Is Falling Down": jangling clean electric guitar over a 12-string strum, a combo organ answering with the shared motif (assets-src/audio/music/motif.ts) a tone up in G, a melodic walking bass, and a bright straight-eighths beat with tambourine and hand claps.',
-  bpm: 128,
+    'London theme: a late-70s London punk band that slides into ska, playing the public-domain tune "London Bridge Is Falling Down": distorted power chords over an eighth-note bass at 150 bpm, a half-time ska section (offbeat skank, rimshot, busy bass, organ bubble), and a last pass with a stacked unison of two lead guitars and an organ. Generic genre elements only; not modelled on any particular record.',
+  bpm: 150,
   meter: [4, 4],
   bars: BARS,
   key: "G major",
@@ -356,24 +414,17 @@ const track: MusicTrack = {
         "Traditional English nursery rhyme and singing game (Roud Folk Song Index 502). The tune sung today was first recorded in A. H. Rosewig, Illustrated National Songs and Games (USA, 1879), according to the rhyme's Wikipedia entry. The notes are the standard traditional melody, so-la-so-fa-mi-fa-so / re-mi-fa / mi-fa-so / so-la-so-fa-mi-fa-so / re-so / mi-do, written in G major with each 2/4 bar stretched over a 4/4 bar.",
       publicDomain:
         "Yes. A traditional tune in print since the 19th century with no living author or rights holder; public domain in the UK, EU, and US.",
-      use: "Played note for note on guitar in A (bars 5–12) and A'' (33–40), and on the combo organ in A' (17–24), in G major, at 128 bpm.",
+      use: "Played note for note, in G major at 150 bpm: on overdriven lead guitar in the verse (bars 5–12), on clean guitar in the first ska strain (17–24), on the organ in the second (25–32), and in unison on two overdriven guitars and the organ in the last pass (37–44).",
       verification:
         "Typed from the standard traditional version and checked against its solfège by scripts/assets/__tests__/music-pd-melodies.test.ts. Not compared against a scan of the 1879 print, which was not reachable offline.",
     },
     {
-      id: "london-organ-answer",
-      tune: "Organ answer phrase (bars 13–16)",
+      id: "london-punk-original",
+      tune: "Everything else: power-chord chugs, tag, skank, organ bubble, ska bass line, drum patterns",
       source:
-        "Original composition for this project, built on the shared motif (assets-src/audio/music/motif.ts) a tone up in G.",
+        'Original composition for this project, using only generic genre elements: power chords, the ska offbeat, an eighth-note root bass, a bubbling organ, a half-time rimshot. It deliberately does not imitate any specific Clash, Sex Pistols, Jam, Specials or Madness riff, bass line, hook or signature rhythm, including the guitar and bass figure of "London Calling", the bass line of "Guns of Brixton", the riff of "Should I Stay or Should I Go", or the figures of "White Riot".',
       publicDomain: "Not applicable: original to this project.",
-      use: "The organ's reply after the first tune.",
-    },
-    {
-      id: "london-middle-eight",
-      tune: "Middle eight (bars 25–32) and intro tag (bars 3–4)",
-      source: "Original composition for this project.",
-      publicDomain: "Not applicable: original to this project.",
-      use: "The bridge and the intro guitar tag. The chord progressions (I–vi–IV–V, the major-III lift, the borrowed flat-VII, the closing G6) are generic to the era, not taken from a particular song.",
+      use: "Accompaniment, the ska bass line, the tag, and the drums.",
     },
   ],
   sections: [
@@ -381,100 +432,129 @@ const track: MusicTrack = {
       bar: 1,
       name: "Intro",
       description:
-        "12-string strum and hi-hat on G–Em–C–D7, guitar tag, drum fill",
+        "Eighth-note root bass and drums, power-chord chugs from bar 3, fill",
     },
     {
       bar: 5,
-      name: "A",
+      name: "Verse (punk)",
       description:
-        "London Bridge on clean guitar over walking bass; organ pad from bar 9; fill",
+        "London Bridge on overdriven lead guitar over power chords, crash accents",
     },
     {
       bar: 13,
-      name: "Answer",
+      name: "Slide",
       description:
-        "Combo organ answers with the motif's shape (original), on G, D7, C, D7",
+        "C5-D5 power chords, then half-time drums and the first skanks",
     },
     {
       bar: 17,
-      name: "A'",
-      description: "Tune on the organ, hand claps on 2 and 4",
+      name: "Ska 1",
+      description:
+        "Half time: tune on clean guitar, offbeat skank, organ bubble, busy bass, rimshot on 3",
     },
     {
       bar: 25,
-      name: "Middle eight",
-      description:
-        "Original tune on guitar: major-III lift (B7), then the borrowed flat-VII (F) home; bass pumps eighths",
+      name: "Ska 2",
+      description: "The tune moves to the organ; skank and bubble continue",
     },
     {
       bar: 33,
-      name: "A''",
+      name: "Build",
+      description: "Ska turns back into punk with a snare roll into bar 37",
+    },
+    {
+      bar: 37,
+      name: "Last pass (punk)",
       description:
-        "Tune on guitar, organ off-beat stabs and octave doubling; ends on G6, fill into the repeat",
+        "Stacked unison: two overdriven guitars and organ on the tune, a crash on every bar",
+    },
+    {
+      bar: 45,
+      name: "Tag",
+      description:
+        "C5-D5-G5 hits, a big G chord on bar 48, a quick fill into the loop",
     },
   ],
   parts: [
     {
-      name: "Electric guitar (clean)",
+      name: "Distortion guitar (power chords)",
       channel: 1,
-      program: GM["Electric Guitar (clean)"],
-      volume: 104,
-      pan: 44,
-      reverb: 26,
-      notes: lead,
-    },
-    {
-      name: "Electric guitar (strum)",
-      channel: 2,
-      program: GM["Electric Guitar (clean)"],
-      volume: 92,
+      program: GM["Distortion Guitar"],
+      volume: 78,
       pan: 40,
-      reverb: 26,
-      notes: strumElectric,
+      reverb: 18,
+      notes: [...chugs, ...tagHits],
     },
     {
-      name: "12-string guitar (strum)",
+      name: "Overdriven guitar (lead)",
+      channel: 2,
+      program: GM["Overdriven Guitar"],
+      volume: 76,
+      pan: 56,
+      reverb: 20,
+      notes: [...leadVerse, ...leadLast],
+    },
+    {
+      name: "Overdriven guitar (unison double)",
       channel: 3,
-      ...FLUIDR3_PRESETS["12 String Guitar"],
-      volume: 104,
+      program: GM["Overdriven Guitar"],
+      volume: 70,
       pan: 88,
-      reverb: 30,
-      notes: strum12,
+      reverb: 20,
+      notes: leadLast,
     },
     {
-      name: "Combo organ (lead)",
+      name: "Muted guitar (skank)",
       channel: 4,
-      program: GM["Percussive Organ"],
-      volume: 84,
-      pan: 76,
-      reverb: 28,
-      notes: organLead,
+      program: GM["Electric Guitar (muted)"],
+      volume: 112,
+      pan: 34,
+      reverb: 22,
+      notes: skank,
     },
     {
-      name: "Combo organ (pad and stabs)",
+      name: "Clean guitar (ska lead)",
       channel: 5,
-      program: GM["Drawbar Organ"],
-      volume: 96,
-      pan: 82,
-      reverb: 28,
-      notes: [...organPad, ...organStabs, ...finalChord],
+      program: GM["Electric Guitar (clean)"],
+      volume: 100,
+      pan: 70,
+      reverb: 24,
+      notes: skaLead,
+    },
+    {
+      name: "Rock organ (tune)",
+      channel: 6,
+      program: GM["Rock Organ"],
+      volume: 100,
+      pan: 76,
+      reverb: 24,
+      notes: organTune,
+    },
+    {
+      name: "Percussive organ (bubble)",
+      channel: 7,
+      program: GM["Percussive Organ"],
+      volume: 120,
+      pan: 58,
+      reverb: 22,
+      notes: bubble,
     },
     {
       name: "Electric bass",
-      channel: 6,
-      program: GM["Electric Bass (finger)"],
-      volume: 92,
-      pan: 64,
-      reverb: 14,
-      notes: bass,
-    },
-    {
-      name: "Drums, tambourine, and claps",
-      channel: 10,
-      program: DRUM_KITS.standard,
+      channel: 8,
+      program: GM["Electric Bass (pick)"],
       volume: 96,
       pan: 64,
-      reverb: 22,
+      reverb: 12,
+      notes: [...punkBass, ...skaBass],
+    },
+    {
+      name: "Drums, rimshot, and crashes",
+      channel: 10,
+      program: DRUM_KITS.standard,
+      volume: 112,
+      pan: 64,
+      reverb: 20,
       notes: drums,
     },
   ],
