@@ -37,9 +37,9 @@ const SIZE = {
 };
 
 describe("London (HB3)", () => {
-  test("has no foreground or animation strips: the rain, lamps and bus are effects and a prop", () => {
+  test("keeps weather and traffic separate from the seated patrons", () => {
     expect(london.foreground).toBeUndefined();
-    expect(london.animations ?? []).toEqual([]);
+    expect(london.animations).toHaveLength(4);
     expect(london.effects?.map((e) => e.kind).sort()).toEqual([
       "lamps",
       "rain",

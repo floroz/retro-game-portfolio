@@ -32,7 +32,11 @@ export function idleRise(anim: SceneAnimation, now: number): number {
 export function animationFrame(
   anim: SceneAnimation,
   now: number,
+  reducedMotion = false,
 ): AnimationFrame | null {
+  if (reducedMotion && anim.freezeForReducedMotion)
+    return { frame: 0, x: anim.x, y: anim.y };
+  now += anim.phaseMs ?? 0;
   if (anim.motion) {
     const period = Math.max(anim.everyMs ?? anim.motion.durationMs, 1);
     const t = now % period;
@@ -76,5 +80,8 @@ export function cycleStarted(
   to: number,
 ): boolean {
   const period = animationPeriod(anim);
-  return Math.floor(to / period) > Math.floor(from / period);
+  const phase = anim.phaseMs ?? 0;
+  return (
+    Math.floor((to + phase) / period) > Math.floor((from + phase) / period)
+  );
 }
