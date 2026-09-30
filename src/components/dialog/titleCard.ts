@@ -1,4 +1,5 @@
 /** The trunk backdrop and live sound fitting. The ticket is a separate artwork. */
+import { paintLettering } from "../../engine/lettering";
 import { drawText, measureText, type FontId } from "../../engine/font";
 import type { Rect } from "../../engine/types";
 import {
@@ -62,14 +63,20 @@ function words(
   mult = 1,
 ): number {
   const scale = ART * LOGICAL * mult;
-  drawText({ ctx, scale }, s, (x * ART) / scale, (y * ART) / scale, {
-    font,
-    outline: false,
-    shadow: false,
-    // The edge tone is the letters' colour a little towards the paper's.
-    edge: mixHex(ink.color, ink.ground ?? PAPER.light, 0.4),
-    ...ink,
-  });
+  drawText(
+    { ctx, scale, paintLine: paintLettering },
+    s,
+    (x * ART) / scale,
+    (y * ART) / scale,
+    {
+      font,
+      outline: false,
+      shadow: false,
+      // The edge tone is the letters' colour a little towards the paper's.
+      edge: mixHex(ink.color, ink.ground ?? PAPER.light, 0.4),
+      ...ink,
+    },
+  );
   return measureText(s, font) * LOGICAL * mult;
 }
 

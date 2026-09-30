@@ -1,31 +1,40 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page, type Locator } from "@playwright/test";
+import { IRIS_MS } from "../src/engine/constants";
+import { advanceScene } from "./clock";
 
 test.use({ viewport: { width: 1440, height: 1000 } });
+// Include enough time for density-4 animation sampling in Linux WebKit.
+test.setTimeout(90000);
 
-// Reproduced on untouched V2 (c382110): Linux WebKit magnifies the art
-// canvas 4x after the density-4 portrait update. Do not bless that as a baseline.
-test.fixme(
-  ({ browserName }) => browserName === "webkit",
-  "Existing V2 canvas scaling fault in Linux WebKit (c382110).",
-);
+async function advanceUntilVisible(page: Page, target: Locator) {
+  for (let elapsed = 0; elapsed < 30000; elapsed += 500) {
+    await advanceScene(page, 500);
+    if (await target.isVisible()) break;
+  }
+  await expect(target).toBeVisible();
+}
 
 async function openPub(page: Page) {
-  await page.clock.install();
+  await page.clock.install({ time: new Date("2030-01-01T00:00:00Z") });
   await page.goto("/");
   await expect(page.locator("[data-e2e=welcome-screen]")).toBeVisible({
     timeout: 30000,
   });
+  await page.waitForLoadState("networkidle");
+  await page.clock.pauseAt(new Date("2030-01-01T00:01:00Z"));
   await page.keyboard.press("Space");
+  await page.clock.runFor(1000);
   await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();
   await page.keyboard.press("Escape");
+  await page.clock.runFor(1000);
   await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
-  await page.clock.pauseAt(new Date(Date.now() + 1000));
   await page
     .locator('[data-e2e=hotspot][data-hotspot="exit:gate-london"]')
     .first()
     .click({ force: true });
-  await page.clock.runFor(30000);
-  await expect(page.locator("canvas[data-drawn=london]")).toBeVisible();
+  await advanceUntilVisible(page, page.locator("canvas[data-drawn=london]"));
+  // data-drawn changes when the room loads, before its opening iris finishes.
+  await advanceScene(page, IRIS_MS + 100);
 }
 
 /** The two bar guests, clear of the window rain and passing bus. */
@@ -56,8 +65,6 @@ async function patronPixels(page: Page) {
 test("pub patrons drink while skills and the airport exit stay reachable", async ({
   page,
 }) => {
-  // Firefox needs time to paint the full round trip under the test clock.
-  test.setTimeout(60000);
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await openPub(page);
   const before = await patronPixels(page);
@@ -83,18 +90,17 @@ test("pub patrons drink while skills and the airport exit stay reachable", async
     .locator('[data-e2e=hotspot][data-hotspot="object:chalkboard"]')
     .first()
     .click({ force: true });
-  await page.clock.runFor(15000);
-  await expect(
-    page.locator('[data-e2e=terminal-screen][data-action="skills"]'),
-  ).toBeVisible();
+  await advanceUntilVisible(
+    page,
+    page.getByRole("dialog", { name: "Skills", exact: true }),
+  );
   await page.keyboard.press("Escape");
   await expect(page.locator("canvas[data-drawn=london]")).toBeVisible();
   await page
     .locator('[data-e2e=hotspot][data-hotspot="exit:door-hall"]')
     .first()
     .click({ force: true });
-  await page.clock.runFor(20000);
-  await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
+  await advanceUntilVisible(page, page.locator("canvas[data-drawn=hall]"));
 });
 
 test("pub patrons respect reduced motion", async ({ page }) => {
@@ -160,16 +166,15 @@ test("the foreground table has paths behind and in front, and the jukebox respon
     .locator('[data-e2e=hotspot][data-hotspot="object:chalkboard"]')
     .first()
     .click({ force: true });
-  await page.clock.runFor(15000);
-  await expect(
-    page.locator('[data-e2e=terminal-screen][data-action="skills"]'),
-  ).toBeVisible();
+  await advanceUntilVisible(
+    page,
+    page.getByRole("dialog", { name: "Skills", exact: true }),
+  );
   await page.keyboard.press("Escape");
   await expect(canvas).toBeVisible();
   await page
     .locator('[data-e2e=hotspot][data-hotspot="exit:door-hall"]')
     .first()
     .click({ force: true });
-  await page.clock.runFor(20000);
-  await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
+  await advanceUntilVisible(page, page.locator("canvas[data-drawn=hall]"));
 });

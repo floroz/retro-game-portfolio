@@ -9,6 +9,8 @@ for (const viewport of [
     test("both treatments retain the same walking geometry and readable dialogue", async ({
       page,
     }) => {
+      // Two density-4 scenes are drawn per animation step in the comparison.
+      test.setTimeout(90000);
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
       // Analytics is unrelated to this local art review and rejects localhost in WebKit.

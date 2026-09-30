@@ -1,10 +1,10 @@
 import { PROFILE } from "./profile";
 import type { ObjectInspection, SectionId } from "../engine/types";
-import aboutArt from "../assets/inspections/about.png";
-import contactArt from "../assets/inspections/contact.png";
-import experienceArt from "../assets/inspections/experience.png";
-import resumeArt from "../assets/inspections/resume.png";
-import skillsArt from "../assets/inspections/skills.png";
+import aboutArt from "../assets/remaster/inspections/about.webp";
+import contactArt from "../assets/remaster/inspections/contact.webp";
+import experienceArt from "../assets/remaster/inspections/experience.webp";
+import resumeArt from "../assets/remaster/inspections/resume.webp";
+import skillsArt from "../assets/remaster/inspections/skills.webp";
 
 interface ReadingPage {
   title: string;

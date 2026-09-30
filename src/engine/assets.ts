@@ -18,6 +18,7 @@ import {
 } from "./density";
 import type { SpriteInfo } from "./SceneEngine";
 import type { Rect, SceneData, TravelMapData } from "./types";
+import { remasterArtwork } from "./artwork";
 
 const SHARED_SPRITES = import.meta.glob<string>("../assets/shared/**/*.png", {
   eager: true,
@@ -27,7 +28,8 @@ const SLOTS_DIR = "../assets/shared/slots/";
 
 /** Slot sprite URL by id ("slot-tap", "slot-tap-more"). */
 export function slotSpriteUrl(id: string): string | undefined {
-  return SHARED_SPRITES[`${SLOTS_DIR}${id}.png`];
+  const url = SHARED_SPRITES[`${SLOTS_DIR}${id}.png`];
+  return url && remasterArtwork(url);
 }
 
 /** Every slot sprite id that exists. */
@@ -40,7 +42,7 @@ export function slotSpriteIds(): string[] {
 /** Logical size of a shared sprite, by URL, from its density-1 original. */
 function sharedLogicalSize(url: string): Size | undefined {
   for (const [path, u] of Object.entries(SHARED_SPRITES)) {
-    if (u !== url) continue;
+    if (u !== url && remasterArtwork(u) !== url) continue;
     const id = path.slice(path.lastIndexOf("/") + 1, -".png".length);
     return SHARED_LOGICAL_SIZES[id];
   }

@@ -1,15 +1,11 @@
 /**
  * Draws one frame in logical px (320x160), scaled by the canvas transform.
- * Frames draw on at least a 640x320 canvas that CSS scales with
- * `image-rendering: pixelated`. Scene art keeps its existing pixel grid;
- * the density-4 portrait rig uses a 1280x640 surface to retain face detail.
- * Smoothing is off throughout (docs/art-spec.md, "Phase H": hard pixels,
- * never smooth).
+ * The remaster draws at 1280x640 with smooth sampling. The original hard
+ * pixel treatment remains available for the side-by-side comparison.
  *
  * Text (labels, captions, speech, the map label) draws on a separate
- * 640x320 layer in the adventure bitmap font (font.ts), laid over the art and
- * scaled 2x nearest-neighbour like it, so text sits on the art's pixel
- * grid. To keep the depth order, anything drawn in front of a label also
+ * separate layer using the supplied lettering painter (font.ts). To keep
+ * the depth order, anything drawn in front of a label also
  * erases it from the text layer (`maskText`), so Daniele walking past the
  * CRT still hides its marquee, and the iris closes over speech.
  *
@@ -74,7 +70,7 @@ interface Drawable extends Paintable {
 
 export interface RenderContext {
   ctx: Ctx;
-  /** The 640x320 text layer over `ctx`. */
+  /** Text layer over `ctx`, with an independent raster density. */
   text: TextLayer;
   engine: SceneEngine;
   images: ImageStore;
@@ -84,7 +80,7 @@ export interface RenderContext {
   map: TravelMapData;
   /** Keep seated passengers still and omit decorative foot traffic. */
   reducedMotion?: boolean;
-  /** Opt-in remaster study; the shipped game keeps its hard pixel treatment. */
+  /** Smooth remaster rendering; false retains the original comparison. */
   smooth?: boolean;
 }
 
@@ -97,7 +93,11 @@ export interface RenderContext {
 function prepareCanvas(rc: RenderContext) {
   const { ctx } = rc;
   const canvas = ctx.canvas;
-  const scale = Math.max(CANVAS_W / NATIVE_W, rc.rig?.density ?? 1);
+  const scale = Math.max(
+    CANVAS_W / NATIVE_W,
+    rc.rig?.density ?? 1,
+    rc.smooth ? 4 : 1,
+  );
   const width = NATIVE_W * scale;
   const height = NATIVE_H * scale;
   if (canvas.width !== width || canvas.height !== height) {
@@ -118,7 +118,7 @@ function maskText(rc: RenderContext, draw: (rc: RenderContext) => void) {
   const t = rc.text.ctx;
   t.save();
   t.setTransform(rc.text.scale, 0, 0, rc.text.scale, 0, 0);
-  t.imageSmoothingEnabled = false;
+  t.imageSmoothingEnabled = rc.smooth ?? false;
   t.globalCompositeOperation = "destination-out";
   draw({ ...rc, ctx: t });
   t.restore();

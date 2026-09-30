@@ -1,8 +1,8 @@
 import type { ObjectInspection } from "../engine/types";
-import limoncello from "../assets/inspections/souvenir-limoncello.png";
-import knife from "../assets/inspections/souvenir-knife.png";
-import cheese from "../assets/inspections/souvenir-cheese.png";
-import telephone from "../assets/inspections/souvenir-telephone.png";
+import limoncello from "../assets/remaster/inspections/souvenir-limoncello.webp";
+import knife from "../assets/remaster/inspections/souvenir-knife.webp";
+import cheese from "../assets/remaster/inspections/souvenir-cheese.webp";
+import telephone from "../assets/remaster/inspections/souvenir-telephone.webp";
 
 /** Optional airport discoveries. Keep the painted cards blank and the copy editable. */
 export const SOUVENIRS = {

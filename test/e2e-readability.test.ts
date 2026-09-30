@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { advanceScene } from "./clock";
 
 const viewports = [
   { name: "desktop", width: 1440, height: 1000 },
@@ -27,10 +28,10 @@ for (const viewport of viewports) {
   test.describe(`Readability at ${viewport.name} size`, () => {
     test.use({ viewport });
 
-    test("ticket, conversation and all four scenes fit the game window", async ({
+    test("ticket, conversation, travel and every inspection fit the game window", async ({
       page,
     }) => {
-      test.setTimeout(120000);
+      test.setTimeout(180000);
       // A frozen clock keeps breathing sprites and scene effects at the same
       // frame. Advance through travel normally: no store or engine shortcuts.
       await page.clock.install();
@@ -77,7 +78,7 @@ for (const viewport of viewports) {
 
       await screenshot("ticket");
       await page.keyboard.press("Space");
-      await page.clock.runFor(1000);
+      await advanceScene(page, 1000);
       await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();
       await page.keyboard.press("Enter");
       await page.clock.runFor(100);
@@ -98,27 +99,119 @@ for (const viewport of viewports) {
       await screenshot("four-choices");
 
       await page.keyboard.press("Escape");
-      await page.clock.runFor(12000);
+      await advanceScene(page, 12000);
       await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
       await expectInsideGame(page, page.locator("[data-e2e=toolbar-button]"));
       await screenshot("hall");
 
-      for (const destination of [
-        { scene: "london", section: "skills" },
-        { scene: "zurich", section: "experience" },
-        { scene: "sorrento", section: "about" },
+      const inspection = page.locator("[data-e2e=object-inspection]");
+      const inspect = async (name: string, title: string) => {
+        for (let elapsed = 0; elapsed < 15000; elapsed += 500) {
+          await advanceScene(page, 500);
+          if (await inspection.isVisible()) break;
+        }
+        await expect(inspection).toBeVisible();
+        await expect(inspection.getByRole("heading", { level: 2 })).toHaveText(
+          title,
+        );
+        await expect
+          .poll(() =>
+            inspection.getByRole("img").evaluate((element) => {
+              const img = element as unknown as {
+                complete: boolean;
+                naturalWidth: number;
+              };
+              return img.complete && img.naturalWidth > 0;
+            }),
+          )
+          .toBe(true);
+        await expectInsideGame(
+          page,
+          inspection.getByRole("navigation").getByRole("button"),
+        );
+        await screenshot(`inspection-${name}`);
+        // Long readings stay scrollable within the painted paper. Ensure the
+        // final paragraph/link is reachable, including Resume and Contact links.
+        const copy = inspection.getByLabel("Inspection text");
+        await copy.evaluate((element) => {
+          const pane = element as unknown as {
+            scrollTop: number;
+            scrollHeight: number;
+          };
+          pane.scrollTop = pane.scrollHeight;
+        });
+        await expect(copy.locator("p, a").last()).toBeInViewport({ ratio: 1 });
+        await page.keyboard.press("Escape");
+        await expect(inspection).toBeHidden();
+      };
+      for (const souvenir of [
+        { id: "limoncello", title: "Limoncello" },
+        { id: "swiss-knife", title: "Swiss Army knife" },
+        { id: "swiss-cheese", title: "Swiss cheese" },
+        { id: "telephone-miniature", title: "London calling" },
       ]) {
         await page
-          .locator(
-            `[data-e2e=toolbar-button][data-section=${destination.section}]`,
-          )
+          .locator(`[data-e2e=hotspot][data-hotspot="object:${souvenir.id}"]`)
           .click();
-        await page.clock.runFor(12000);
-        await expect(
-          page.locator("[data-e2e=terminal-screen-content]"),
-        ).toBeVisible();
-        await page.keyboard.press("Escape");
-        await page.clock.runFor(12000);
+        await inspect(souvenir.id, souvenir.title);
+      }
+
+      const advanceToScene = async (id: string) => {
+        const canvas = page.locator(`canvas[data-drawn=${id}]`);
+        for (let elapsed = 0; elapsed < 30000; elapsed += 500) {
+          await advanceScene(page, 500);
+          if (await canvas.isVisible()) break;
+        }
+        await expect(canvas).toBeVisible();
+        // Finish the entrance iris before using the destination's objects.
+        await advanceScene(page, 1000);
+      };
+      for (const destination of [
+        {
+          scene: "london",
+          object: "chalkboard",
+          section: "skills",
+          title: "Skills",
+        },
+        {
+          scene: "zurich",
+          object: "crt",
+          section: "experience",
+          title: "Experience",
+        },
+        {
+          scene: "sorrento",
+          object: "fridge",
+          section: "about",
+          title: "About Daniele",
+        },
+      ]) {
+        // Boarding passes open information immediately; gates perform travel.
+        await page
+          .locator(
+            `[data-e2e=hotspot][data-hotspot="exit:gate-${destination.scene}"]`,
+          )
+          .first()
+          .click();
+        if (destination.scene === "london") {
+          const map = page.locator("canvas[data-drawn=map]");
+          for (let elapsed = 0; elapsed < 15000; elapsed += 100) {
+            await advanceScene(page, 100);
+            if (await map.isVisible()) break;
+          }
+          await expect(map).toBeVisible();
+          await page.clock.runFor(300);
+          await screenshot("travel-map");
+        }
+        await advanceToScene(destination.scene);
+        await page
+          .locator(
+            `[data-e2e=hotspot][data-hotspot="object:${destination.object}"]`,
+          )
+          .first()
+          .click();
+        await inspect(destination.section, destination.title);
+        await advanceScene(page, 3000);
         await expect(
           page.locator(`canvas[data-drawn=${destination.scene}]`),
         ).toBeVisible();
@@ -130,9 +223,20 @@ for (const viewport of viewports) {
         await scene.click({
           position: { x: bounds.width * 0.64, y: bounds.height * 0.9 },
         });
-        await page.clock.runFor(3000);
+        await advanceScene(page, 3000);
         await expectInsideGame(page, page.locator("[data-e2e=toolbar-button]"));
         await screenshot(destination.scene);
+        await page
+          .locator('[data-e2e=hotspot][data-hotspot="exit:door-hall"]')
+          .first()
+          .click();
+        await advanceToScene("hall");
+      }
+      for (const section of ["contact", "resume"]) {
+        await page
+          .locator(`[data-e2e=toolbar-button][data-section=${section}]`)
+          .click();
+        await inspect(section, section === "contact" ? "Contact" : "Resume");
       }
     });
   });

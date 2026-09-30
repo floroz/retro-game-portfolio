@@ -11,7 +11,7 @@
 }
 
 .art {
-  @include pixelated;
+  image-rendering: auto;
 
   display: block;
   inline-size: 100%;

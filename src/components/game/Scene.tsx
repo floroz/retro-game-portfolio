@@ -5,8 +5,9 @@ import { useGameStore } from "../../store/gameStore";
 import { useSceneKeyboard } from "../../hooks/useSceneKeyboard";
 import { useConversation } from "../../hooks/useConversation";
 import { CHARACTER_RIG, CHARACTER_SHEET } from "../../engine/assets";
-import { CANVAS_H, CANVAS_W, NATIVE_H, NATIVE_W } from "../../engine/constants";
+import { NATIVE_H, NATIVE_W } from "../../engine/constants";
 import { renderFrame } from "../../engine/render";
+import { paintLettering } from "../../engine/lettering";
 import { allImages, getEngine, images } from "../../engine/runtime";
 import { interactablesFor, type Hit } from "../../engine/SceneEngine";
 import { SCENES, TRAVEL_MAP_DATA } from "../../engine/scenes";
@@ -37,14 +38,13 @@ function nativePoint(e: MouseEvent<HTMLElement>): [number, number] {
   ];
 }
 
-/** Canvas px per logical px on the 640x320 text layer. */
-const TEXT_SCALE = CANVAS_W / NATIVE_W;
+/** Text renders at the same density as the recovered adventure artwork. */
+const TEXT_SCALE = 4;
 
 /**
- * The game scene: a canvas drawn by the engine every frame in 320x160
- * logical px (render.ts) on a 640x320 canvas scaled 2x pixelated, a 640x320
- * text canvas over it in the adventure bitmap font, pixelated like the art
- * (font.ts), and
+ * The game scene: art and lettering at 1280x640, sharing the original
+ * 320x160 logical coordinates (render.ts). The higher density changes no
+ * walking paths or interaction geometry. There are
  * invisible buttons over each hotspot for the
  * pointer, the keyboard, and screen readers. Left click walks or uses;
  * right click looks.
@@ -79,7 +79,7 @@ export function Scene() {
     const ctx = canvasRef.current?.getContext("2d");
     const textCtx = textRef.current?.getContext("2d");
     if (!ctx || !textCtx) return;
-    const text = { ctx: textCtx, scale: TEXT_SCALE };
+    const text = { ctx: textCtx, scale: TEXT_SCALE, paintLine: paintLettering };
     const engine = getEngine();
     engine.contentClosed();
     let last = performance.now();
@@ -99,6 +99,7 @@ export function Scene() {
         rig: CHARACTER_RIG,
         map: TRAVEL_MAP_DATA,
         reducedMotion: motionPreference.matches,
+        smooth: true,
       });
       raf = requestAnimationFrame(frame);
     };
@@ -135,15 +136,15 @@ export function Scene() {
       <canvas
         ref={canvasRef}
         className={styles.canvas}
-        width={CANVAS_W}
-        height={CANVAS_H}
+        width={NATIVE_W * TEXT_SCALE}
+        height={NATIVE_H * TEXT_SCALE}
         aria-hidden="true"
       />
       <canvas
         ref={textRef}
         className={styles.text}
-        width={CANVAS_W}
-        height={CANVAS_H}
+        width={NATIVE_W * TEXT_SCALE}
+        height={NATIVE_H * TEXT_SCALE}
         aria-hidden="true"
       />
       <div className={styles.hotspots}>
