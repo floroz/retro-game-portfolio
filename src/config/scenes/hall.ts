@@ -2,7 +2,7 @@
  * The Hall: a 1990s airport departure lounge (docs/art-spec.md, scene card
  * `hall`). Built in HB2 from the HD hand-painted layers: `bg.png` is the
  * empty-lounge plate (candidate 01 of `hall-plate@hd`, seats, arch and plant
- * edited out), with the seats, arch and rubber plant as separate sprites and
+ * edited out), with the seats and staffed boarding desk as separate sprites and
  * the take-off plane as a moving prop. Every coordinate is in logical pixels
  * (320x160), top-left origin; the art is 640x320, shown at 2x.
  *
@@ -13,11 +13,10 @@
  * unlabelled product per section. Hovering names the sections in the status
  * line, and the travel trunk's boarding passes carry the rest.
  *
- * Walking depth: the row of seats, the security arch and the plant stand out
+ * Walking depth: the row of seats and the boarding desk stand out
  * on the carpet, each with a `baselineY` on its front feet. The walkbox is one
- * polygon with keyhole slits from its back edge (the seats' bench and each
- * post of the arch, feet only) and a notch for the plant pot, so Daniele
- * walks behind them, in front of them, and through the arch. The scale is the
+ * polygon with keyhole slits from its back edge for the bench and desk
+ * footprints, so Daniele walks behind and in front of them. The scale is the
  * Hall's own perspective (`HALL_DEPTH`), not the shared Phase H world scale:
  * this plate is a much wider, deeper shot than the other rooms.
  *
@@ -33,8 +32,7 @@ import { COUNTRIES } from "../sections";
 import type { SceneData } from "../../engine/types";
 import hallBg from "../../assets/scenes/hall/bg.png";
 import hallObjSeats from "../../assets/scenes/hall/obj-seats.png";
-import hallObjArch from "../../assets/scenes/hall/obj-arch.png";
-import hallObjPlant from "../../assets/scenes/hall/obj-plant.png";
+import hallObjBoardingDesk from "../../assets/scenes/hall/obj-boarding-desk.png";
 import hallAnimPlane from "../../assets/scenes/hall/anim-plane.png";
 import businessman from "../../assets/scenes/hall/anim-passenger-businessman.png";
 import family from "../../assets/scenes/hall/anim-passenger-family.png";
@@ -51,11 +49,10 @@ import windowWoman from "../../assets/scenes/hall/anim-passenger-window-woman.pn
  *   are 41 px tall with their frame (38.8 px for the glass leaves). Taking
  *   the door as 2.2 m, that is 18.6 px/m, so 1.8 m is 33 px at the wall, and
  *   34 at the walk-to points a step in front of it (0.83 of the door).
- * - Seats and arch (y 123), 48 px: the seats (27 px, about 0.85 m) come up
- *   to just over half of him, and at the arch's posts (y 114) he is 44 px,
- *   which fits under the arch's beam (44 px clear).
+ * - Seats (y 123), 48 px: the seats (27 px, about 0.85 m) come up
+ *   to just over half of him.
  * - Front edge (y 158), 64 px. The carpet triangles widen 2.6x from the back
- *   to the front (fit: width = 0.261 * (y - 49.5)), but the seats, arch and
+ *   to the front (fit: width = 0.261 * (y - 49.5)), but the seats and
  *   doors don't scale that steeply, so the object cues set the value; it
  *   also keeps him at 0.89 of the rig, under its native size.
  */
@@ -68,9 +65,7 @@ const HALL_DEPTH = {
 
 /** Front feet of the free-standing objects: the depth-sort lines. */
 const SEATS_BASELINE = 123;
-const ARCH_BASELINE = 123;
-/** Above the pot's base so Daniele can stand in front of its left edge. */
-const PLANT_BASELINE = 150;
+const BOARDING_DESK_BASELINE = 116;
 
 /** The year of the oldest job in the profile, for the whisky's label. */
 const FIRST_YEAR =
@@ -99,10 +94,9 @@ export const HALL_SCENE: SceneData = {
   ambience: { src: "/audio/ambience/hall.mp3", loopStart: 0.5, loopEnd: 40.5 },
   floor: "carpet",
   // The carpet from the skirting (y 91) to the front edge, set back in front
-  // of the duty-free counter (base y 97) and cut short at the plant pot.
-  // Keyhole slits cut out the seats' bench (x 137-226, y 111-124) and the
-  // feet of the arch's two posts (x 240-250 and x 268-278, y 118-124); the
-  // gap between the posts is walkable. The first vertex is on the back edge.
+  // of the duty-free counter (base y 97). Keyhole slits cut out the seats'
+  // bench (x 137-226, y 111-124) and boarding desk (x 245-273, y 108-117).
+  // The gates and the newly open right-hand floor remain walkable.
   walkbox: [
     [80, 91],
     [181, 91],
@@ -113,26 +107,16 @@ export const HALL_SCENE: SceneData = {
     [226, 111],
     [181, 111],
     [181, 91],
-    [244, 91],
-    [244, 118],
-    [240, 118],
-    [240, 124],
-    [250, 124],
-    [250, 118],
-    [244, 118],
-    [244, 91],
-    [272, 91],
-    [272, 118],
-    [268, 118],
-    [268, 124],
-    [278, 124],
-    [278, 118],
-    [272, 118],
-    [272, 91],
-    [306, 91],
-    [306, 140],
-    [282, 140],
-    [282, 158],
+    [259, 91],
+    [259, 108],
+    [245, 108],
+    [245, 117],
+    [273, 117],
+    [273, 108],
+    [259, 108],
+    [259, 91],
+    [316, 91],
+    [316, 158],
     [4, 158],
     [4, 101],
     [80, 101],
@@ -243,26 +227,16 @@ export const HALL_SCENE: SceneData = {
       use: "If I sit down now, I'll wake up in 2031.",
     },
     {
-      id: "arch",
-      name: "security arch",
-      sprite: hallObjArch,
-      x: 241,
-      y: 74,
-      interactionPoint: { x: 259, y: 136, facing: "n" },
-      baselineY: ARCH_BASELINE,
-      look: "Please remove your laptop, your belt, and your technical debt.",
-      use: "Beep. It's always the belt buckle.",
-    },
-    {
-      id: "plant",
-      name: "rubber plant",
-      sprite: hallObjPlant,
-      x: 270,
-      y: 78.5,
-      interactionPoint: { x: 279, y: 146, facing: "e" },
-      baselineY: PLANT_BASELINE,
-      look: "Waiting longer than anyone: its flight was cancelled in 1997.",
-      use: "I watered it. The only happy passenger here.",
+      id: "boarding-desk",
+      name: "boarding desk",
+      sprite: hallObjBoardingDesk,
+      x: 245,
+      y: 76,
+      interactionPoint: { x: 259, y: 124, facing: "n" },
+      baselineY: BOARDING_DESK_BASELINE,
+      look: "A friendly gate attendant. Somehow still smiling after the fifth final call.",
+      use: '"Any gate you like. Your career is the destination."',
+      sound: "boarding-chime",
     },
   ],
   // The two window-facing passengers sit behind the red chair backs. The
@@ -439,10 +413,8 @@ export const HALL_SCENE: SceneData = {
       id: "gate-zurich",
       to: "zurich",
       entry: "fromHall",
-      // The door column stops short of the arch (x 241); the sign board
-      // (x 209-259), which hangs well above the arch, is clickable across
-      // its full width.
-      hotspot: { x: 222, y: 36, w: 19, h: 51 },
+      // The full door stays clear of the desk between Gates 2 and 3.
+      hotspot: { x: 222, y: 36, w: 22, h: 51 },
       extraHotspots: [{ x: 209, y: 12, w: 50, h: 24 }],
       interactionPoint: { x: 234, y: 93, facing: "n" },
       look: `Gate ${COUNTRIES.zurich.gate}: ${COUNTRIES.zurich.name}, where the career grew.`,
@@ -451,9 +423,7 @@ export const HALL_SCENE: SceneData = {
       id: "gate-sorrento",
       to: "sorrento",
       entry: "fromHall",
-      // As for Zurich: the door column starts right of the arch (x 277),
-      // and the sign board is clickable across its full width (x 261-307).
-      hotspot: { x: 277, y: 36, w: 20, h: 51 },
+      hotspot: { x: 274, y: 36, w: 23, h: 51 },
       extraHotspots: [{ x: 261, y: 12, w: 46, h: 24 }],
       interactionPoint: { x: 284, y: 93, facing: "n" },
       look: `Gate ${COUNTRIES.sorrento.gate}: ${COUNTRIES.sorrento.name}, for now and next.`,
