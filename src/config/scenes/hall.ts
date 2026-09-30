@@ -406,6 +406,9 @@ export const HALL_SCENE: SceneData = {
     {
       id: "departures",
       source: "departures",
+      // The painted split-flap rules crossed the letters. A clean inset
+      // preserves the frame while keeping every destination readable.
+      background: { area: { x: 24, y: 5, w: 37, h: 20 }, color: "#080d17" },
       maxWidth: 36,
       x: 24,
       y: 6,

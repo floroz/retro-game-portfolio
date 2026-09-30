@@ -43,7 +43,7 @@ const TEXT_SCALE = CANVAS_W / NATIVE_W;
 /**
  * The game scene: a canvas drawn by the engine every frame in 320x160
  * logical px (render.ts) on a 640x320 canvas scaled 2x pixelated, a 640x320
- * text canvas over it in the bitmap serif font, pixelated like the art
+ * text canvas over it in the adventure bitmap font, pixelated like the art
  * (font.ts), and
  * invisible buttons over each hotspot for the
  * pointer, the keyboard, and screen readers. Left click walks or uses;

@@ -67,6 +67,7 @@ export function drawRig(
   const feetY = Math.round(y * grid);
   stampOnGrid(
     ctx,
+    rig,
     grid,
     { left: feetX + left, top: feetY + top, w, h },
     (sctx) => {

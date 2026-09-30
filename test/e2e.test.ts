@@ -476,9 +476,10 @@ test.describe("Visual Regression Tests", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    // Wait for Win95 desktop
-    await expect(page.locator("[data-e2e=win95-desktop]")).toBeVisible({
-      timeout: 30000,
+    // Let the automatically opened game finish mounting behind the terminal.
+    await waitForGameWindowReady(page);
+    await expect(page.locator("[data-e2e=welcome-screen]")).toBeVisible({
+      timeout: 10000,
     });
 
     // Double-click the terminal desktop icon to open terminal

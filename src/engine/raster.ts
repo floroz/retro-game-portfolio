@@ -20,15 +20,18 @@ export function hardenAlpha(data: Uint8ClampedArray, cut = ALPHA_CUT) {
   }
 }
 
-const scratchCanvases: (HTMLCanvasElement | null)[] = [null, null];
+const scratchCanvases = new WeakMap<object, HTMLCanvasElement[]>();
 
 function scratch(
+  owner: object,
   w: number,
   h: number,
   which = 0,
 ): CanvasRenderingContext2D | null {
-  const c = scratchCanvases[which] ?? document.createElement("canvas");
-  scratchCanvases[which] = c;
+  const canvases = scratchCanvases.get(owner) ?? [];
+  scratchCanvases.set(owner, canvases);
+  const c = canvases[which] ?? document.createElement("canvas");
+  canvases[which] = c;
   if (c.width < w || c.height < h) {
     c.width = Math.max(c.width, w);
     c.height = Math.max(c.height, h);
@@ -58,9 +61,13 @@ export interface GridBox {
  * detail (a 1 px pupil) into a second scratch the same way, and `finish` gets
  * a mask of the pixels it covers by `snap.cut` (0 to 1) or more, which smoothing
  * the main image would otherwise have blurred away.
+ * Each stable `owner` keeps its own scratch pair: reusing one source canvas
+ * for unrelated sprites can make WebKit's deferred draws show the next
+ * sprite's pixels at the previous sprite's position.
  */
 export function stampOnGrid(
   ctx: CanvasRenderingContext2D,
+  owner: object,
   grid: number,
   box: GridBox,
   paint: (sctx: CanvasRenderingContext2D) => void,
@@ -74,7 +81,7 @@ export function stampOnGrid(
 ) {
   const { left, top, w, h } = box;
   if (w < 1 || h < 1) return;
-  const sctx = scratch(w, h);
+  const sctx = scratch(owner, w, h);
   if (!sctx) return;
   sctx.imageSmoothingEnabled = true;
   sctx.imageSmoothingQuality = "high";
@@ -85,7 +92,7 @@ export function stampOnGrid(
   hardenAlpha(image.data);
   let snapped: Uint8Array | undefined;
   if (snap) {
-    const s2 = scratch(w, h, 1);
+    const s2 = scratch(owner, w, h, 1);
     if (s2) {
       s2.imageSmoothingEnabled = true;
       s2.imageSmoothingQuality = "low";

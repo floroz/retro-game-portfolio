@@ -122,7 +122,10 @@ describe("Toolbar: the travel trunk", () => {
 
   test("hovering a control fills the sentence line", async () => {
     const { container } = await render(<Panel />);
-    expect(status(container)).toBe("Walk to");
+    // Browser pointer position survives prior test files. Establish the
+    // unhovered state before checking the transition this test exercises.
+    await userEvent.unhover(sectionButton(container, "skills"));
+    await expect.poll(() => status(container)).toBe("Walk to");
     await userEvent.hover(sectionButton(container, "skills"));
     await expect.poll(() => status(container)).toBe("Skills, in London");
     await userEvent.unhover(sectionButton(container, "skills"));

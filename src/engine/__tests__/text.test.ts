@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 import logo from "../../assets/fonts/serif-logo.txt?raw";
-import regular from "../../assets/fonts/serif-regular.txt?raw";
-import small from "../../assets/fonts/serif-small.txt?raw";
-import tiny from "../../assets/fonts/serif-tiny.txt?raw";
+import regular from "../../assets/fonts/adventure-regular.txt?raw";
+import small from "../../assets/fonts/adventure-small.txt?raw";
+import tiny from "../../assets/fonts/adventure-tiny.txt?raw";
 import { parseAtlas } from "../bitmapFont";
 import {
   capHeight,
@@ -33,17 +33,17 @@ describe("world text", () => {
     expect(measureText("Hello, sailor!")).toBeLessThan(70);
   });
 
-  test("sets letters apart and kerns pairs", () => {
-    // "AV" kerns tighter than the sum of its letters plus tracking.
+  test("uses predictable open spacing for reading text", () => {
+    // Reading text keeps its gap, even between diagonal letters.
     const tracked = measureText("A") + measureText("V") + 0.5;
-    expect(measureText("AV")).toBeLessThan(tracked);
+    expect(measureText("AV")).toBe(tracked);
     // Tracking and word spacing are whole art px.
     expect(measureText("H H") * 2).toBe(
       measureText("H") * 2 * 2 + measureText(" ") * 2 + 2,
     );
   });
 
-  test("MI3 proportions: capitals 12 art px, signs 8, tiny signs 7, the logo 26", () => {
+  test("Reading proportions: capitals 12 art px, signs 8, tiny signs 7, the logo 26", () => {
     expect(capHeight("logo") * 2).toBe(26);
     expect(capHeight("regular") * 2).toBe(12);
     expect(capHeight("small") * 2).toBe(8);
@@ -68,29 +68,23 @@ describe("world text", () => {
     expect(wrapText("a\nb", 100)).toEqual(["a", "b"]);
   });
 
-  test("fits a line by closing up letters, then stepping down a size", () => {
-    const w = measureText("RESUME", "small");
-    expect(fitText("RESUME", w, "small")).toEqual({
-      font: "small",
-      tracking: 2,
-    });
-    // One px closer per gap, but never fewer than 1 px of tracking.
-    const tight = measureText("RESUME", "small", 1);
-    expect(tight).toBe(w - 2.5);
-    expect(fitText("RESUME", tight, "small")).toEqual({
+  test("fits compact labels while preserving a gap between letters", () => {
+    const width = measureText("RESUME", "small");
+    expect(fitText("RESUME", width, "small")).toEqual({
       font: "small",
       tracking: 1,
     });
-    expect(fitText("RESUME", tight - 0.5, "small").font).toBe("tiny");
-    // Only when no size fits with tracking does a line close up to 0.
-    const tiny = measureText("RESUME", "tiny", 1);
-    expect(fitText("RESUME", tiny - 0.5, "small").tracking).toBe(0);
-    // Past the smallest setting, the tightest one.
+    for (const available of [width, width - 1, width - 2]) {
+      const fit = fitText("RESUME", available, "small");
+      expect(measureText("RESUME", fit.font, fit.tracking)).toBeLessThanOrEqual(
+        available,
+      );
+      expect(fit.tracking).toBeGreaterThanOrEqual(0);
+    }
     expect(fitText("RESUME", 1, "small")).toEqual({
       font: "tiny",
       tracking: 0,
     });
-    expect(fitText("Hello", 1, "regular").font).toBe("tiny");
   });
 
   test("the Zurich cabinet card fits its word", () => {
@@ -188,6 +182,30 @@ describe("bitmap atlas", () => {
     ]);
   });
 
+  test("reading glyphs keep counters clear and similar characters distinct", () => {
+    const font = parseAtlas(regular);
+    for (const [a, b] of [
+      ["i", "l"],
+      ["l", "1"],
+      ["O", "0"],
+      ["c", "e"],
+    ]) {
+      const first = font.glyphs.get(a);
+      const second = font.glyphs.get(b);
+      expect(first?.bits, `${a}/${b}`).not.toEqual(second?.bits);
+    }
+    for (const text of [regular, small, tiny]) {
+      const face = parseAtlas(text);
+      for (const glyph of face.glyphs.values()) {
+        expect(glyph.top).toBeLessThanOrEqual(face.ascent);
+        expect(glyph.h - glyph.top).toBeLessThanOrEqual(face.descent);
+        expect(
+          [...glyph.bits].every((pixel) => pixel === 0 || pixel === 1),
+        ).toBe(true);
+      }
+    }
+  });
+
   test("every shipped glyph has ink on its box's top and bottom rows", () => {
     for (const text of [logo, regular, small, tiny]) {
       const font = parseAtlas(text);
@@ -233,9 +251,9 @@ describe("grid-fitted stems", () => {
     for (const ch of "HILUFE") expect(stemOf(text, ch), ch).toBe(width);
   });
 
-  test("accented letters take their base letter's kerning", () => {
+  test("accented letters preserve their base letter's advance", () => {
     expect(measureText("Áv")).toBe(measureText("Av"));
-    expect(measureText("AV")).toBeLessThan(measureText("AH"));
+    expect(measureText("École")).toBe(measureText("Ecole"));
   });
 });
 

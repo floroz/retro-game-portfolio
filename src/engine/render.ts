@@ -7,7 +7,7 @@
  * never smooth).
  *
  * Text (labels, captions, speech, the map label) draws on a separate
- * 640x320 layer in the bitmap serif font (font.ts), laid over the art and
+ * 640x320 layer in the adventure bitmap font (font.ts), laid over the art and
  * scaled 2x nearest-neighbour like it, so text sits on the art's pixel
  * grid. To keep the depth order, anything drawn in front of a label also
  * erases it from the text layer (`maskText`), so Daniele walking past the
@@ -248,13 +248,34 @@ export function renderFrame(rc: RenderContext) {
   }
 }
 
+const imageRasters = new WeakMap<HTMLImageElement, HTMLCanvasElement>();
+
+/**
+ * Repeated nearest-neighbour draws of the same decoded image can reuse an
+ * incorrectly scaled source in Linux WebKit after several frames. A native-
+ * size canvas copy keeps the source pixels stable across transforms and
+ * contexts. Cache once per image; all scene coordinates stay logical.
+ */
+function imageRaster(image: HTMLImageElement): CanvasImageSource {
+  const cached = imageRasters.get(image);
+  if (cached) return cached;
+  const canvas = document.createElement("canvas");
+  canvas.width = image.naturalWidth;
+  canvas.height = image.naturalHeight;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return image;
+  ctx.drawImage(image, 0, 0);
+  imageRasters.set(image, canvas);
+  return canvas;
+}
+
 /** Draws a whole image with its top-left at logical `x`,`y`. */
 function drawImageAt(rc: RenderContext, url: string, x: number, y: number) {
   const img = rc.images.get(url);
   if (!img) return;
   const d = rc.images.density(url);
   rc.ctx.drawImage(
-    img,
+    imageRaster(img),
     snap(x, d),
     snap(y, d),
     img.naturalWidth / d,
@@ -350,9 +371,20 @@ function drawProp(rc: RenderContext, prop: MovingProp, grid: number) {
   const w = Math.floor(img.naturalWidth / frames);
   const h = img.naturalHeight;
   const sx = f.frame * w;
+  const source = imageRaster(img);
   withClip(ctx, prop.clip, () => {
     if (f.scale === 1 && !f.flip) {
-      ctx.drawImage(img, sx, 0, w, h, snap(f.x, d), snap(f.y, d), w / d, h / d);
+      ctx.drawImage(
+        source,
+        sx,
+        0,
+        w,
+        h,
+        snap(f.x, d),
+        snap(f.y, d),
+        w / d,
+        h / d,
+      );
       return;
     }
     // Grid px per image px, and the box it lands in.
@@ -361,12 +393,12 @@ function drawProp(rc: RenderContext, prop: MovingProp, grid: number) {
     const top = Math.round(f.y * grid);
     const bw = Math.ceil(w * k);
     const bh = Math.ceil(h * k);
-    stampOnGrid(ctx, grid, { left, top, w: bw, h: bh }, (sctx) => {
+    stampOnGrid(ctx, prop, grid, { left, top, w: bw, h: bh }, (sctx) => {
       if (f.flip) {
         sctx.translate(bw, 0);
         sctx.scale(-1, 1);
       }
-      sctx.drawImage(img, sx, 0, w, h, 0, 0, w * k, h * k);
+      sctx.drawImage(source, sx, 0, w, h, 0, 0, w * k, h * k);
     });
   });
 }
@@ -380,6 +412,7 @@ function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
   // Frame size in image pixels.
   const w = Math.floor(img.naturalWidth / anim.frames);
   const h = img.naturalHeight;
+  const source = imageRaster(img);
   withClip(ctx, anim.clip, () => {
     if (anim.idle) {
       const split = Math.round(anim.idle.splitY * d);
@@ -388,7 +421,7 @@ function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
         : snap(idleRise(anim, rc.engine.now), d);
       // Separate at the lap: breathing never slides the shoes or the chair.
       ctx.drawImage(
-        img,
+        source,
         f.frame * w,
         0,
         w,
@@ -399,7 +432,7 @@ function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
         split / d + rise,
       );
       ctx.drawImage(
-        img,
+        source,
         f.frame * w,
         split,
         w,
@@ -412,7 +445,7 @@ function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
       return;
     }
     ctx.drawImage(
-      img,
+      source,
       f.frame * w,
       0,
       w,
@@ -453,6 +486,17 @@ function drawCaptions(layer: TextLayer, row: SlotRow, items: SlotItem[]) {
  * word still too wide shrinks to fit.
  */
 function drawLabel(layer: TextLayer, label: SceneLabel, now: number) {
+  if (label.background) {
+    const { area, color } = label.background;
+    const { ctx, scale } = layer;
+    ctx.fillStyle = color;
+    ctx.fillRect(
+      area.x * scale,
+      area.y * scale,
+      area.w * scale,
+      area.h * scale,
+    );
+  }
   if (label.chalk) {
     drawChalk(layer, label);
     return;
@@ -536,7 +580,7 @@ function drawCharacter(rc: RenderContext) {
     if (atlas) {
       drawRig(
         ctx,
-        atlas,
+        imageRaster(atlas),
         figure.rig,
         figure.state,
         x,
@@ -563,13 +607,14 @@ function drawCharacter(rc: RenderContext) {
     cctx.scale(-1, 1);
   }
   const b = pose.body;
-  cctx.drawImage(img, b.x, b.y, b.w, b.h, 0, 0, w, h);
+  const source = imageRaster(img);
+  cctx.drawImage(source, b.x, b.y, b.w, b.h, 0, 0, w, h);
   if (pose.head) {
     const hd = pose.head;
     const ox = Math.round(sheet.talkHeadOffset.x * s);
     const oy = Math.round(sheet.talkHeadOffset.y * s);
     cctx.drawImage(
-      img,
+      source,
       hd.x,
       hd.y,
       hd.w,
@@ -587,15 +632,8 @@ function drawCharacter(rc: RenderContext) {
   ctx.restore();
 }
 
-/**
- * Daniele's speech, as Guybrush's in MI3: white letters, a hard black rim,
- * and a black drop shadow.
- */
-const SPEECH = {
-  color: "#ffffff",
-  outline: CORE.black,
-  shadow: CORE.black,
-} as const;
+/** Warm white reading text on a quiet, opaque SCUMM-style caption panel. */
+const SPEECH = { color: "#fff8e5" } as const;
 
 /** Daniele's lines: centred over his head, kept on screen, SCUMM style. */
 function drawSpeech(rc: RenderContext) {
@@ -612,14 +650,24 @@ function drawSpeech(rc: RenderContext) {
       ? figure.rig.figureHeight + 1
       : sheet.origin.y / sheet.density - 1;
   const headTop = y - head * figure.scale;
-  const top = Math.max(2, Math.round(headTop - 3 - speech.lines.length * lh));
+  const top = Math.max(5, Math.round(headTop - 5 - speech.lines.length * lh));
   const widest = Math.max(...speech.lines.map((l) => measureText(l)));
   // Kept clear of the edges by the margin, which covers the rim and shadow.
-  const margin = 3;
+  const margin = 6;
   const center = Math.max(
     margin + widest / 2,
     Math.min(NATIVE_W - margin - widest / 2, x),
   );
+  // Busy paintings must never show through a letter's counters. Keep the
+  // square caption close to the speaker, with enough quiet space to read.
+  onText(rc, (ctx) => {
+    const left = Math.floor(center - widest / 2 - 3);
+    const height = speech.lines.length * lh + 4;
+    ctx.fillStyle = "#867653";
+    ctx.fillRect(left - 0.5, top - 3.5, Math.ceil(widest) + 7, height + 1);
+    ctx.fillStyle = "#141720";
+    ctx.fillRect(left, top - 3, Math.ceil(widest) + 6, height);
+  });
   speech.lines.forEach((line, i) => {
     const w = measureText(line);
     drawText(rc.text, line, center - w / 2, top + i * lh, SPEECH);
@@ -755,7 +803,7 @@ function drawPlane(
     const h = sprite.naturalHeight;
     const i = headingIndex(angle);
     ctx.drawImage(
-      sprite,
+      imageRaster(sprite),
       i * w,
       0,
       w,
@@ -773,7 +821,7 @@ function drawPlane(
     const w = img instanceof HTMLImageElement ? img.naturalWidth : img.width;
     const h = img instanceof HTMLImageElement ? img.naturalHeight : img.height;
     ctx.drawImage(
-      img,
+      img instanceof HTMLImageElement ? imageRaster(img) : img,
       -Math.floor(w / 2) / d,
       -Math.floor(h / 2) / d,
       w / d,

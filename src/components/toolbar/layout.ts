@@ -123,7 +123,7 @@ export const PANEL_LAYOUT: PanelLayout = buildLayout();
  */
 export const CHOICES_PAGE: Rect = { x: 6, y: 4, w: PANEL_W - 12, h: 72 };
 
-/** A line of the serif's ink from its ascenders to its descenders, art px. */
+/** A line of the reading face's ink from its ascenders to its descenders, art px. */
 const CHOICE_INK = 19;
 /** Art px from a line's top (its ascenders) to its capitals'. */
 export const CHOICE_CAP_TOP = 3;

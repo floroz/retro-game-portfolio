@@ -6,9 +6,8 @@
  * background, and Daniele stands in front of it (render.ts masks it where
  * he is drawn over it).
  *
- * The lettering is the world's bitmap serif (font.ts) in chalk white, with
- * the hand-lettered wobble and broken pixels of `TextStyle.chalk`. Nothing
- * is smoothed.
+ * The lettering uses the clean world bitmap face in chalk white. Chalk
+ * texture belongs to the slate: letter strokes and baselines stay intact.
  */
 import {
   capHeight,
@@ -91,12 +90,11 @@ export function drawChalk(layer: TextLayer, label: SceneLabel) {
     resolveLabel(label.source),
     chalk.area,
   );
-  rows.forEach((row, i) => {
+  rows.forEach((row) => {
     drawText(layer, row.text, row.x, row.y, {
       font,
       tracking,
       color: label.color ?? CHALK_COLOR,
-      chalk: (chalk.seed ?? 1) * 101 + i,
     });
   });
 }
