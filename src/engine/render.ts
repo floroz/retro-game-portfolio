@@ -84,6 +84,8 @@ export interface RenderContext {
   map: TravelMapData;
   /** Keep seated passengers still and omit decorative foot traffic. */
   reducedMotion?: boolean;
+  /** Opt-in remaster study; the shipped game keeps its hard pixel treatment. */
+  smooth?: boolean;
 }
 
 /**
@@ -103,7 +105,8 @@ function prepareCanvas(rc: RenderContext) {
     canvas.height = height;
   }
   ctx.setTransform(scale, 0, 0, scale, 0, 0);
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = rc.smooth ?? false;
+  ctx.imageSmoothingQuality = "high";
 }
 
 /**
@@ -205,7 +208,7 @@ export function renderFrame(rc: RenderContext) {
     );
   }
   for (const prop of scene.props ?? []) {
-    add(prop.baselineY, (r) => drawProp(r, prop, GRID));
+    add(prop.baselineY, (r) => drawProp(r, prop, r.smooth ? 4 : GRID));
   }
   for (const row of scene.slots ?? []) {
     const rowItems = engine.slots.filter((i) => i.rowId === row.id);
@@ -455,13 +458,22 @@ function drawProp(rc: RenderContext, prop: MovingProp, grid: number) {
     const top = Math.round(f.y * grid);
     const bw = Math.ceil(w * k);
     const bh = Math.ceil(h * k);
-    stampOnGrid(ctx, prop, grid, { left, top, w: bw, h: bh }, (sctx) => {
-      if (f.flip) {
-        sctx.translate(bw, 0);
-        sctx.scale(-1, 1);
-      }
-      sctx.drawImage(source, sx, 0, w, h, 0, 0, w * k, h * k);
-    });
+    stampOnGrid(
+      ctx,
+      prop,
+      grid,
+      { left, top, w: bw, h: bh },
+      (sctx) => {
+        if (f.flip) {
+          sctx.translate(bw, 0);
+          sctx.scale(-1, 1);
+        }
+        sctx.drawImage(source, sx, 0, w, h, 0, 0, w * k, h * k);
+      },
+      undefined,
+      undefined,
+      rc.smooth,
+    );
   });
 }
 
@@ -649,6 +661,7 @@ function drawCharacter(rc: RenderContext) {
         y,
         figure.scale,
         Math.max(GRID, figure.rig.density),
+        rc.smooth,
       );
     }
     return;

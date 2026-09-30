@@ -19,10 +19,10 @@
  */
 
 /** Image pixels per logical px, in each direction. */
-export type Density = 1 | 2;
+export type Density = 1 | 2 | 4;
 
 /** Every density the engine can draw, lowest first. */
-const DENSITIES: readonly Density[] = [1, 2];
+const DENSITIES: readonly Density[] = [1, 2, 4];
 
 export interface Size {
   w: number;
