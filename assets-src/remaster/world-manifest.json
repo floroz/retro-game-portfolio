@@ -1,0 +1,241 @@
+{
+  "density": 4,
+  "generatedArtwork": false,
+  "recipe": "scripts/assets/remaster-world.ts",
+  "assets": [
+    {
+      "output": "src/assets/remaster/london/anim-bus.png",
+      "original": "src/assets/scenes/london/anim-bus.png",
+      "source": "assets-src/approved/london-bus@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/london/obj-bar.png",
+      "original": "src/assets/scenes/london/obj-bar.png",
+      "source": "assets-src/approved/london-bar@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/london/obj-door.png",
+      "original": "src/assets/scenes/london/obj-door.png",
+      "source": "assets-src/approved/london-door@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/london/obj-door@open.png",
+      "original": "src/assets/scenes/london/obj-door@open.png",
+      "source": "assets-src/approved/london-door-open@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/london/obj-fruit-machine.png",
+      "original": "src/assets/scenes/london/obj-fruit-machine.png",
+      "source": "assets-src/approved/london-fruit-machine@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/london/obj-jukebox.png",
+      "original": "src/assets/scenes/london/obj-jukebox.png",
+      "source": "assets-src/approved/london-jukebox.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/london/obj-table.png",
+      "original": "src/assets/scenes/london/obj-table.png",
+      "source": "assets-src/approved/london-table@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/zurich/anim-cuckoo.png",
+      "original": "src/assets/scenes/zurich/anim-cuckoo.png",
+      "source": "assets-src/approved/zurich-cuckoo@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-cabinet.png",
+      "original": "src/assets/scenes/zurich/obj-cabinet.png",
+      "source": "assets-src/approved/zurich-cabinet@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-cabinet@open.png",
+      "original": "src/assets/scenes/zurich/obj-cabinet@open.png",
+      "source": "assets-src/approved/zurich-cabinet-open@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-chair.png",
+      "original": "src/assets/scenes/zurich/obj-chair.png",
+      "source": "assets-src/approved/chalet/chair.png",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-desk.png",
+      "original": "src/assets/scenes/zurich/obj-desk.png",
+      "source": "assets-src/approved/chalet/desk.png",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-door.png",
+      "original": "src/assets/scenes/zurich/obj-door.png",
+      "source": "assets-src/approved/zurich-door@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-door@open.png",
+      "original": "src/assets/scenes/zurich/obj-door@open.png",
+      "source": "assets-src/approved/zurich-door-open@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-plant.png",
+      "original": "src/assets/scenes/zurich/obj-plant.png",
+      "source": "assets-src/approved/zurich-plant@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/sorrento/anim-ferry.png",
+      "original": "src/assets/scenes/sorrento/anim-ferry.png",
+      "source": "assets-src/approved/sorrento-ferry@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/sorrento/obj-chair-left.png",
+      "original": "src/assets/scenes/sorrento/obj-chair-left.png",
+      "source": "assets-src/approved/sorrento-chair-left@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/sorrento/obj-chair-right.png",
+      "original": "src/assets/scenes/sorrento/obj-chair-right.png",
+      "source": "assets-src/approved/sorrento-chair-left@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/sorrento/obj-door.png",
+      "original": "src/assets/scenes/sorrento/obj-door.png",
+      "source": "assets-src/approved/sorrento-door@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/sorrento/obj-door@open.png",
+      "original": "src/assets/scenes/sorrento/obj-door@open.png",
+      "source": "assets-src/approved/sorrento-door-open@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/sorrento/obj-lemon-tree.png",
+      "original": "src/assets/scenes/sorrento/obj-lemon-tree.png",
+      "source": "assets-src/approved/sorrento-lemon-tree@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/sorrento/obj-stove.png",
+      "original": "src/assets/scenes/sorrento/obj-stove.png",
+      "source": "assets-src/approved/sorrento-stove@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/sorrento/obj-table.png",
+      "original": "src/assets/scenes/sorrento/obj-table.png",
+      "source": "assets-src/approved/sorrento-table@hd.webp",
+      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
+    },
+    {
+      "output": "src/assets/remaster/london/bg.png",
+      "original": "src/assets/scenes/london/bg.png",
+      "source": "assets-src/approved/london-plate@hd.webp",
+      "note": "Original approved plate, full colour at density 4; unchanged composition."
+    },
+    {
+      "output": "src/assets/remaster/zurich/bg.png",
+      "original": "src/assets/scenes/zurich/bg.png",
+      "source": "assets-src/approved/chalet/background.png + assets-src/approved/zurich-plate@hd.webp",
+      "note": "Latest chalet painting with the same original window/sill masks as chalet.ts. The HD window restores detail; smooth correction retains approved lighting and moonlit colours."
+    },
+    {
+      "output": "src/assets/remaster/sorrento/bg.png",
+      "original": "src/assets/scenes/sorrento/bg.png",
+      "source": "assets-src/approved/sorrento-plate@hd.webp + assets-src/approved/sorrento-story-objects.png + src/assets/scenes/sorrento/bg.png",
+      "note": "Latest postcard and address-book crops at identical coordinates. Original painted detail restored. Legacy hand-painted furniture shadows/floor contrast survive as a smooth low-frequency correction; those authored corrections have no separate HD source."
+    },
+    {
+      "output": "src/assets/remaster/london/anim-patron-table-woman.png",
+      "original": "src/assets/scenes/london/anim-patron-table-woman.png",
+      "source": "assets-src/approved/pub-patrons/table-woman.webp",
+      "note": "Four foot-aligned cells at twice the shipped resolution; lower body copied from frame zero at the same split line as pub-patrons.ts. Full colour and soft alpha."
+    },
+    {
+      "output": "src/assets/remaster/london/anim-patron-table-man.png",
+      "original": "src/assets/scenes/london/anim-patron-table-man.png",
+      "source": "assets-src/approved/pub-patrons/table-man.webp",
+      "note": "Four foot-aligned cells at twice the shipped resolution; lower body copied from frame zero at the same split line as pub-patrons.ts. Full colour and soft alpha."
+    },
+    {
+      "output": "src/assets/remaster/london/anim-patron-bar-man.png",
+      "original": "src/assets/scenes/london/anim-patron-bar-man.png",
+      "source": "assets-src/approved/pub-patrons/bar-man.webp",
+      "note": "Four foot-aligned cells at twice the shipped resolution; lower body copied from frame zero at the same split line as pub-patrons.ts. Full colour and soft alpha."
+    },
+    {
+      "output": "src/assets/remaster/london/anim-patron-bar-woman.png",
+      "original": "src/assets/scenes/london/anim-patron-bar-woman.png",
+      "source": "assets-src/approved/pub-patrons/bar-woman.webp",
+      "note": "Four foot-aligned cells at twice the shipped resolution; lower body copied from frame zero at the same split line as pub-patrons.ts. Full colour and soft alpha."
+    },
+    {
+      "output": "src/assets/remaster/travel-map/bg.png",
+      "original": "src/assets/scenes/travel-map/bg.png",
+      "source": "assets-src/approved/travel-map-bg@hd.webp",
+      "note": "Approved map restored at density 4; marker/route coordinates unchanged."
+    },
+    {
+      "output": "src/assets/remaster/shared/map-marker.png",
+      "original": "src/assets/shared/map-marker.png",
+      "source": "assets-src/approved/map-marker@hd.webp",
+      "note": "Approved shared original at density 4; existing logical size and transparent padding preserved. Smooth correction retains the approved saturation/levels; no palette reduction."
+    },
+    {
+      "output": "src/assets/remaster/shared/slots/slot-tap.png",
+      "original": "src/assets/shared/slots/slot-tap.png",
+      "source": "assets-src/approved/slot-tap@hd.webp",
+      "note": "Approved shared original at density 4; existing logical size and transparent padding preserved. Smooth correction retains the approved saturation/levels; no palette reduction."
+    },
+    {
+      "output": "src/assets/remaster/shared/slots/slot-tap-more.png",
+      "original": "src/assets/shared/slots/slot-tap-more.png",
+      "source": "assets-src/approved/slot-tap-more@hd.webp",
+      "note": "Approved shared original at density 4; existing logical size and transparent padding preserved. Smooth correction retains the approved saturation/levels; no palette reduction."
+    },
+    {
+      "output": "src/assets/remaster/shared/slots/slot-photo-frame.png",
+      "original": "src/assets/shared/slots/slot-photo-frame.png",
+      "source": "assets-src/approved/slot-photo-frame@hd.webp",
+      "note": "Approved shared original at density 4; existing logical size and transparent padding preserved. Smooth correction retains the approved saturation/levels; no palette reduction."
+    },
+    {
+      "output": "src/assets/remaster/shared/slots/slot-photo-frame-more.png",
+      "original": "src/assets/shared/slots/slot-photo-frame-more.png",
+      "source": "assets-src/approved/slot-photo-frame-more@hd.webp",
+      "note": "Approved shared original at density 4; existing logical size and transparent padding preserved. Smooth correction retains the approved saturation/levels; no palette reduction."
+    },
+    {
+      "output": "src/assets/remaster/shared/slots/slot-magnet.png",
+      "original": "src/assets/shared/slots/slot-magnet.png",
+      "source": "assets-src/approved/slot-magnet@hd.webp",
+      "note": "Approved shared original at density 4; existing logical size and transparent padding preserved. Smooth correction retains the approved saturation/levels; no palette reduction."
+    },
+    {
+      "output": "src/assets/remaster/shared/slots/slot-magnet-more.png",
+      "original": "src/assets/shared/slots/slot-magnet-more.png",
+      "source": "assets-src/approved/slot-magnet-more@hd.webp",
+      "note": "Approved shared original at density 4; existing logical size and transparent padding preserved. Smooth correction retains the approved saturation/levels; no palette reduction."
+    },
+    {
+      "output": "src/assets/remaster/shared/map-plane.png",
+      "original": "src/assets/shared/map-plane.png",
+      "source": "assets-src/approved/map-plane@hd.webp",
+      "note": "Eight 68x68 heading cells from the raw source; same E, SE, S, SW, W, NW, N, NE order, centred registration and top-left lighting convention."
+    }
+  ]
+}

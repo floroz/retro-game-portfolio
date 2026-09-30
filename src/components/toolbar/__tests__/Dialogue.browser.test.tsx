@@ -208,15 +208,17 @@ describe("Toolbar: dialogue choices", () => {
     expect(choices(container)).toHaveLength(4);
   });
 
-  test("the page is painted on the 2x grid", async () => {
+  test("the page preserves its dimensions with smooth adventure lettering", async () => {
     const { container } = await render(<Panel />);
     for (const node of ["intro-2", "hire-info", "bye"]) {
       await talkAt(node);
       const canvas = container.querySelector("canvas")!;
       expect([canvas.width, canvas.height]).toEqual([1280, 160]);
-      expect(offGridPixels(canvas), node).toBe(0);
+      expect(offGridPixels(canvas), node).toBeGreaterThan(0);
     }
     await talkAt("intro", false);
-    expect(offGridPixels(container.querySelector("canvas")!)).toBe(0);
+    expect(offGridPixels(container.querySelector("canvas")!)).toBeGreaterThan(
+      0,
+    );
   });
 });

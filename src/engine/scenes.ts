@@ -12,12 +12,21 @@ import { TRAVEL_MAP } from "../config/scenes/travel-map";
 import { ZURICH_SCENE } from "../config/scenes/zurich";
 import type { SceneRegistry } from "./SceneEngine";
 import type { TravelMapData } from "./types";
+import { remasterMap, remasterScene } from "./artwork";
 
-export const SCENES: SceneRegistry = {
+export const ORIGINAL_SCENES: SceneRegistry = {
   hall: HALL_SCENE,
   london: LONDON_SCENE,
   zurich: ZURICH_SCENE,
   sorrento: SORRENTO_SCENE,
 };
 
-export const TRAVEL_MAP_DATA: TravelMapData = TRAVEL_MAP;
+export const SCENES: SceneRegistry = {
+  hall: remasterScene(HALL_SCENE),
+  london: remasterScene(LONDON_SCENE),
+  zurich: remasterScene(ZURICH_SCENE),
+  sorrento: remasterScene(SORRENTO_SCENE),
+};
+
+export const ORIGINAL_TRAVEL_MAP: TravelMapData = TRAVEL_MAP;
+export const TRAVEL_MAP_DATA: TravelMapData = remasterMap(TRAVEL_MAP);

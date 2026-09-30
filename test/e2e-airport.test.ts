@@ -1,7 +1,10 @@
 import { test, expect, type Page } from "@playwright/test";
 import sharp from "sharp";
+import { advanceScene } from "./clock";
 
 test.use({ viewport: { width: 1440, height: 1000 } });
+// Density-4 animation sampling is expensive in Linux WebKit.
+test.setTimeout(90000);
 
 async function openAirport(page: Page) {
   await page.clock.install({ time: new Date("2030-01-01T00:00:00Z") });
@@ -56,7 +59,7 @@ test("scene pixels keep their geometry across repeated frames", async ({
     { x: 160, y: 150 },
     { x: 240, y: 150 },
   ];
-  const { data, info } = await sharp("src/assets/scenes/hall/bg.png")
+  const { data, info } = await sharp("src/assets/remaster/hall/bg.png")
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
@@ -122,7 +125,7 @@ test("airport passengers breathe and walk across the lounge", async ({
   // Stop advancing once travel finishes instead of rendering thousands of
   // unrelated London frames before asserting that the gate worked.
   for (let elapsed = 0; elapsed < 30000; elapsed += 1000) {
-    await page.clock.runFor(1000);
+    await advanceScene(page, 1000);
     if (await london.isVisible()) break;
   }
   await expect(london).toBeVisible();
@@ -149,7 +152,7 @@ test("Daniele's ground shadow follows his feet and clears the old floor", async 
     { x: 132, y: 137 },
     { x: 76, y: 153 },
   ];
-  const { data, info } = await sharp("src/assets/scenes/hall/bg.png")
+  const { data, info } = await sharp("src/assets/remaster/hall/bg.png")
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
@@ -192,18 +195,34 @@ test("Daniele's ground shadow follows his feet and clears the old floor", async 
   expect(after[1][0]).toBeLessThan(floor[1][0]);
 });
 
-test("the separate duty-free display still opens its product's content", async ({
-  page,
-}) => {
-  await openAirport(page);
-  await page
-    .locator('[data-e2e=hotspot][data-hotspot="object:perfume"]')
-    .click();
-  await page.clock.runFor(12000);
-  await expect(
-    page.locator("[data-e2e=terminal-screen][data-action=resume]"),
-  ).toBeVisible();
-});
+for (const souvenir of [
+  { id: "limoncello", title: "Limoncello" },
+  { id: "swiss-knife", title: "Swiss Army knife" },
+  { id: "swiss-cheese", title: "Swiss cheese" },
+  { id: "telephone-miniature", title: "London calling" },
+]) {
+  test(`duty-free ${souvenir.id} opens its illustrated close-up`, async ({
+    page,
+  }) => {
+    await openAirport(page);
+    await page
+      .locator(`[data-e2e=hotspot][data-hotspot="object:${souvenir.id}"]`)
+      .click();
+    const inspection = page.getByRole("dialog", {
+      name: souvenir.title,
+      exact: true,
+    });
+    for (let elapsed = 0; elapsed < 15000; elapsed += 500) {
+      await advanceScene(page, 500);
+      if (await inspection.isVisible()) break;
+    }
+    await expect(inspection).toBeVisible();
+    await expect(inspection.getByRole("img")).toBeVisible();
+    await inspection.getByRole("button", { name: "Back to the scene" }).click();
+    await expect(inspection).toBeHidden();
+    await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
+  });
+}
 
 for (const city of ["london", "zurich", "sorrento"] as const) {
   test(`boarding desk leaves the ${city} gate accessible`, async ({ page }) => {
@@ -228,7 +247,7 @@ for (const city of ["london", "zurich", "sorrento"] as const) {
       .click();
     const destination = page.locator(`canvas[data-drawn=${city}]`);
     for (let elapsed = 0; elapsed < 30000; elapsed += 1000) {
-      await page.clock.runFor(1000);
+      await advanceScene(page, 1000);
       if (await destination.isVisible()) break;
     }
     await expect(destination).toBeVisible();

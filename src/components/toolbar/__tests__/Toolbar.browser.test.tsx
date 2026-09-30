@@ -199,13 +199,13 @@ describe("Toolbar: the travel trunk", () => {
       .toHaveAttribute("rel", "noopener noreferrer");
   });
 
-  test("the trunk is painted on the 2x grid", async () => {
+  test("the trunk preserves its dimensions and opaque art with smooth lettering", async () => {
     const { container } = await render(<Panel />);
     const canvas = container.querySelector("canvas")!;
     expect([canvas.width, canvas.height]).toEqual([1280, 160]);
     const ctx = canvas.getContext("2d")!;
-    // Art and text alike: opaque, and one colour per 2x2 block, so every
-    // pixel lines up with the scene's 640x320 grid.
+    // The trunk stays opaque, while native lettering can use the full
+    // canvas resolution instead of repeating every pixel in a 2x2 block.
     const { width, height } = canvas;
     const { data } = ctx.getImageData(0, 0, width, height);
     const px = (x: number, y: number) =>
@@ -216,12 +216,15 @@ describe("Toolbar: the travel trunk", () => {
       for (let x = 0; x < width; x += 2) {
         const c = px(x, y);
         colours.add(c);
-        if (data[(y * width + x) * 4 + 3] !== 255) offGrid++;
+
         if (px(x + 1, y) !== c || px(x, y + 1) !== c || px(x + 1, y + 1) !== c)
           offGrid++;
       }
     }
-    expect(offGrid).toBe(0);
+    expect(data.every((value, index) => index % 4 !== 3 || value === 255)).toBe(
+      true,
+    );
+    expect(offGrid).toBeGreaterThan(0);
     expect(colours.size).toBeGreaterThan(8);
   });
 });

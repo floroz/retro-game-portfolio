@@ -12,7 +12,7 @@
 }
 
 .canvas {
-  @include pixelated;
+  image-rendering: auto;
 
   /* Native game resolution – never changes */
   inline-size: to-rem(1280px);

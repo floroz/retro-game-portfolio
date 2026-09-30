@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { paintLettering } from "../../engine/lettering";
 import styles from "./Toolbar.module.scss";
 import { useGameStore } from "../../store/gameStore";
 import { PROFILE } from "../../config/profile";
@@ -102,7 +103,7 @@ function Trunk() {
       soundEnabled,
     };
     const ctx = canvasRef.current?.getContext("2d");
-    if (ctx) paintPanel(ctx, view);
+    if (ctx) paintPanel(ctx, view, paintLettering);
   }, [here, hovered, pressed, sentence, soundEnabled]);
 
   /** Hover and focus both light the control and fill the sentence line. */

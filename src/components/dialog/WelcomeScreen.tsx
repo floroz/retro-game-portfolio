@@ -8,7 +8,7 @@ import {
   cardPct,
   paintCard,
 } from "./titleCard";
-import boardingPass from "../../assets/title/boarding-pass.png";
+import boardingPass from "../../assets/remaster/title/boarding-pass.webp";
 import { PROFILE } from "../../config/profile";
 import styles from "./WelcomeScreen.module.scss";
 

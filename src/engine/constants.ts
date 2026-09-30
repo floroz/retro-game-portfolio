@@ -12,7 +12,6 @@ export const NATIVE_H = 160;
  */
 const RENDER_SCALE = 2;
 export const CANVAS_W = NATIVE_W * RENDER_SCALE;
-export const CANVAS_H = NATIVE_H * RENDER_SCALE;
 /**
  * Logical viewport: a 1280x640 scene over a 1280x160 toolbar. The Win95
  * window scales it to fit; game code never sees screen pixels.

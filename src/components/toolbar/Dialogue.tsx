@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { paintLettering } from "../../engine/lettering";
 import styles from "./Toolbar.module.scss";
 import { useGameStore } from "../../store/gameStore";
 import { DIALOG_TREE } from "../../config/dialogTrees";
@@ -21,7 +22,7 @@ const fallbackOptions = (autoAdvance?: string): DialogOption[] => [
  * The trunk's lid while Daniele talks with the visitor: as in MI3, the
  * dialogue choices take the place of the verbs. Daniele's line is spoken
  * over his head in the scene (Scene.tsx, `useConversation`); once he's said
- * it, its choices are set here as lines of clean bitmap text on a leather page, one
+ * it, its choices are set here as lines of clear text on a leather page, one
  * colour normally and a brighter one under the pointer or the keyboard.
  *
  * Keys: Up and Down move, Enter or Space chooses, 1 to 4 choose outright,
@@ -78,7 +79,11 @@ export function Dialogue() {
   useEffect(() => {
     const ctx = canvasRef.current?.getContext("2d");
     if (ctx) {
-      paintChoices(ctx, { labels: options.map((o) => o.label), active });
+      paintChoices(
+        ctx,
+        { labels: options.map((o) => o.label), active },
+        paintLettering,
+      );
     }
   }, [options, active]);
 

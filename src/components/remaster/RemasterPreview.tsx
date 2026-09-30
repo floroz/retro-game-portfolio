@@ -274,7 +274,7 @@ export default function RemasterPreview() {
           walking; both views stay in sync.
         </p>
         <p>
-          First pass using existing artwork. The small limoncello bottle and
+          Restored from existing artwork. The small limoncello bottle and
           pixel-drawn toolbar icons still need a separate detail pass. Windows
           95 and Game Boy styling are unchanged.
         </p>

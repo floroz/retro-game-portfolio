@@ -73,18 +73,24 @@ npm run dev
 
 Then open the URL shown in the terminal (typically `http://localhost:5173`).
 
-### V2.1 airport study
+### V2.1 adventure remaster
 
-Open `/?remaster=hall` on the local server for a synchronized comparison of V2
-and the first remaster treatment. Use the divider or view buttons, toggle dialogue,
-and click the floor to compare walking. The regular `/` game keeps its current art.
+The regular game now uses the approved remaster treatment in all four locations,
+the travel map, dialogue, toolbar, title ticket and object inspections. Navigation,
+hotspots, character proportions, timing and portfolio content are unchanged. The
+Windows 95 desktop and Game Boy mobile presentation retain their original styling.
 
-The study re-exports 14 Hall assets from the approved source archive at density 4
-(1280×640 backgrounds), retains full colour and softer edges, and trials native
-canvas lettering with the original text layout. Rebuild its separate assets with
-`npx tsx scripts/assets/remaster-hall.ts`; the source inventory and exceptions are
-recorded in `assets-src/remaster/hall-manifest.json`. No new artwork is generated.
-The limoncello source and toolbar icon designs still retain their original pixel detail.
+The source archive supplies 53 scene/map/shared exports at density 4 (1280×640
+backgrounds), nine full-colour inspections, and the original-resolution title ticket.
+Soft sprite edges and native canvas lettering preserve the original logical layout.
+No new artwork was generated. Some source art has baked-in pixel texture; the tiny
+limoncello sprite and code-drawn toolbar icons still retain their original detail.
+
+Rebuild the exports with `npx tsx scripts/assets/remaster-hall.ts`,
+`npx tsx scripts/assets/remaster-world.ts`, and `npx tsx scripts/assets/remaster-ui.ts`.
+Source inventories and exceptions live in `assets-src/remaster/*-manifest.json`.
+Original files remain available for reference. Open `/?remaster=hall` for the
+synchronized V2/remaster comparison, including dialogue and walking controls.
 
 ### Scripts
 

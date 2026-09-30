@@ -137,7 +137,7 @@ describe("WelcomeScreen: the title card", () => {
     await vi.waitFor(() => expect(onDismiss).toHaveBeenCalledTimes(1));
   });
 
-  test("the ticket artwork loads above the pixel-grid backdrop", async () => {
+  test("the full-resolution ticket loads above the smoothly lettered backdrop", async () => {
     const { container } = await render(<Card onDismiss={vi.fn()} />);
     const artwork = container.querySelector("img")!;
     await vi.waitFor(() => {
@@ -149,11 +149,11 @@ describe("WelcomeScreen: the title card", () => {
       .toBeVisible();
     const canvas = container.querySelector("canvas")!;
     expect([canvas.width, canvas.height]).toEqual([1280, 800]);
-    expect(offGridPixels(canvas)).toBe(0);
-    // Hovering the live key leaves the backdrop on its native grid.
+    expect(offGridPixels(canvas)).toBeGreaterThan(0);
+    // Hovering the live key preserves the native-resolution backdrop.
     await userEvent.hover(
       page.getByRole("button", { name: "Press space or click to start" }),
     );
-    expect(offGridPixels(canvas)).toBe(0);
+    expect(offGridPixels(canvas)).toBeGreaterThan(0);
   });
 });

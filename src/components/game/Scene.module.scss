@@ -1,7 +1,7 @@
 @use "../../styles/functions" as *;
 @use "../../styles/mixins" as *;
 
-/* The 1280x640 scene area: a 640x320 canvas scaled 2x */
+/* Logical geometry is unchanged; art and text now draw at display resolution. */
 .scene {
   position: relative;
   inline-size: to-rem(1280px);
@@ -13,7 +13,7 @@
 }
 
 .canvas {
-  @include pixelated;
+  image-rendering: auto;
 
   position: absolute;
   inset: 0;
@@ -21,9 +21,9 @@
   block-size: 100%;
 }
 
-/* The adventure bitmap text, on the art's 640x320 grid and scaled 2x (font.ts) */
+/* Antialiased adventure lettering at density 4. */
 .text {
-  @include pixelated;
+  image-rendering: auto;
 
   position: absolute;
   inset: 0;

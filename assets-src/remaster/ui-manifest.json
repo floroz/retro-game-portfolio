@@ -1,0 +1,75 @@
+{
+  "recipe": "scripts/assets/remaster-ui.ts",
+  "assets": [
+    {
+      "output": "src/assets/remaster/inspections/about.webp",
+      "source": "assets-src/approved/sorrento-inspection-about.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Same composition at density 4; full source colours and soft edges."
+    },
+    {
+      "output": "src/assets/remaster/inspections/contact.webp",
+      "source": "assets-src/approved/sorrento-inspection-contact.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Same composition at density 4; full source colours and soft edges."
+    },
+    {
+      "output": "src/assets/remaster/inspections/experience.webp",
+      "source": "assets-src/approved/chalet/experience.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Same composition at density 4; full source colours and soft edges."
+    },
+    {
+      "output": "src/assets/remaster/inspections/resume.webp",
+      "source": "assets-src/approved/chalet/resume.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Same composition at density 4; full source colours and soft edges."
+    },
+    {
+      "output": "src/assets/remaster/inspections/skills.webp",
+      "source": "assets-src/approved/inspection-skills.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Same composition at density 4; full source colours and soft edges."
+    },
+    {
+      "output": "src/assets/remaster/inspections/souvenir-cheese.webp",
+      "source": "assets-src/approved/hall-souvenir-cheese-inspection.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Same composition at density 4; full source colours and soft edges."
+    },
+    {
+      "output": "src/assets/remaster/inspections/souvenir-knife.webp",
+      "source": "assets-src/approved/hall-souvenir-knife-inspection.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Same composition at density 4; full source colours and soft edges."
+    },
+    {
+      "output": "src/assets/remaster/inspections/souvenir-limoncello.webp",
+      "source": "assets-src/approved/hall-souvenir-limoncello-inspection.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Same composition at density 4; full source colours and soft edges."
+    },
+    {
+      "output": "src/assets/remaster/inspections/souvenir-telephone.webp",
+      "source": "assets-src/approved/hall-souvenir-telephone-inspection.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Same composition at density 4; full source colours and soft edges."
+    },
+    {
+      "output": "src/assets/remaster/title/boarding-pass.webp",
+      "source": "assets-src/approved/boarding-pass.png",
+      "width": 1919,
+      "height": 820,
+      "treatment": "Original resolution and pixels preserved; lossless encoding only."
+    }
+  ]
+}
