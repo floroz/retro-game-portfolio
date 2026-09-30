@@ -1,26 +1,36 @@
 /**
- * London theme: a pub on a rainy evening (docs/art-spec.md, Audio).
+ * London theme: a pub jukebox in 1964 (docs/art-spec.md, Audio).
  *
- * A music-hall singalong on a pub's upright: honky-tonk piano in octaves
- * over a tuba oom-pah, with a clarinet that takes a verse and then argues
- * back. The shared motif (motif.ts) is moved up a fourth to B-flat and given
- * a dotted, knees-up bounce.
+ * An original British Invasion / Merseybeat arrangement, as if a beat group
+ * had covered a nursery rhyme for a laugh: the public-domain tune "London
+ * Bridge Is Falling Down" on jangling clean electric guitar over a 12-string
+ * strum, a combo organ that answers it, a melodic walking bass, and a bright
+ * beat (straight eighths, snare backbeat, tambourine on 2 and 4). The
+ * progressions are the era's plain vocabulary (I–vi–IV–V, a borrowed
+ * flat-VII, a major-III lift), not those of any particular record.
  *
- * B-flat major, 120 bpm, 4/4, 36 bars (72 s), AABA plus a 4-bar tag:
+ * G major, 128 bpm, 4/4, 40 bars (75 s):
  *
- * - A (1–8): the motif on honky-tonk piano in octaves, tuba on 1 and 3,
- *   piano "pah" chords on 2 and 4.
- * - A' (9–16): the clarinet sings the verse and the brushes join; it
- *   cadences home on B-flat.
- * - B (17–24): the bridge on the IV chord with a minor iv (Ebm6), then the
- *   ragtime circle G7–C7–F7. Banjo on the off-beat chords.
- * - A'' (25–32): the motif back on piano, the clarinet under it in long notes.
- * - Tag (33–36): the pub joins in: the motif's head on piano, answered by
- *   the clarinet, over a Bb–G7–Cm7–F7 turnaround that leads back to bar 1.
+ * - Intro (1–4): 12-string strum and hi-hat on G–Em–C–D7, a guitar tag, and a
+ *   drum fill.
+ * - A (5–12): "London Bridge" on clean guitar (the tune, two bars per line,
+ *   G–C–D7–Em–G–C–D7–G). Organ pad from bar 9. Fill.
+ * - Answer (13–16): the combo organ answers. Its phrase is the shared motif
+ *   (motif.ts) a tone up in G (B D G F# D B | C B A), then the same shape on C.
+ * - A' (17–24): the tune passes to the organ; hand claps on 2 and 4.
+ * - Middle eight (25–32): an original tune on guitar, lifting to the major
+ *   III (B7) and out through the borrowed flat-VII (F) back to G. Bass pumps
+ *   eighths.
+ * - A'' (33–40): the tune returns on guitar with organ off-beat stabs. The
+ *   last chord is G6 (the "added sixth"), and a snare-and-tom fill leads back
+ *   to the intro.
+ *
+ * The melody's source and public-domain status are in `melodySources`.
  */
 import {
   DRUMS,
   DRUM_KITS,
+  FLUIDR3_PRESETS,
   GM,
   noteToMidi,
   phrase,
@@ -29,47 +39,82 @@ import {
 } from "../../../scripts/assets/music";
 
 const BAR = 4;
-const BARS = 36;
+const BARS = 40;
 const at = (bar: number, beat = 0) => (bar - 1) * BAR + beat;
+const opts = (bar: number, velocity: number) => ({
+  at: at(bar),
+  velocity,
+  barBeats: BAR,
+});
 
 // --- Harmony -------------------------------------------------------------------------
 
-/** Tuba root and fifth (oom on 1, oom on 3), and the piano's "pah" voicing. */
-const CHORDS: Record<string, { root: string; fifth: string; pah: string }> = {
-  Bb6: { root: "Bb1", fifth: "F2", pah: "F3+G3+Bb3+D4" },
-  Cm7: { root: "C2", fifth: "G2", pah: "G3+Bb3+C4+Eb4" },
-  F7: { root: "F2", fifth: "C2", pah: "F3+A3+C4+Eb4" },
-  G7: { root: "G2", fifth: "D2", pah: "F3+G3+B3+D4" },
-  Dm7: { root: "D2", fifth: "A1", pah: "F3+A3+C4+D4" },
-  Eb6: { root: "Eb2", fifth: "Bb1", pah: "G3+Bb3+C4+Eb4" },
-  Ebm6: { root: "Eb2", fifth: "Bb1", pah: "Gb3+Bb3+C4+Eb4" },
-  C7: { root: "C2", fifth: "G1", pah: "E3+G3+Bb3+C4" },
+interface Chord {
+  /** Guitar strum voicing (open-chord shapes, low to high). */
+  strum: string;
+  /** Organ voicing, close, in the middle register. */
+  organ: string;
+  /** Bass root and walking notes: root, third, fifth. */
+  walk: [string, string, string];
+}
+
+const CHORDS: Record<string, Chord> = {
+  G: {
+    strum: "G3+B3+D4+G4",
+    organ: "D4+G4+B4",
+    walk: ["G2", "B2", "D3"],
+  },
+  C: {
+    strum: "G3+C4+E4+G4",
+    organ: "E4+G4+C5",
+    walk: ["C3", "E3", "G3"],
+  },
+  D7: {
+    strum: "D4+F#4+A4+C5",
+    organ: "C4+F#4+A4",
+    walk: ["D3", "F#3", "A3"],
+  },
+  Em: {
+    strum: "E3+B3+E4+G4",
+    organ: "E4+G4+B4",
+    walk: ["E2", "G2", "B2"],
+  },
+  B7: {
+    strum: "B3+D#4+F#4+A4",
+    organ: "D#4+F#4+A4",
+    walk: ["B2", "D#3", "F#3"],
+  },
+  F: {
+    strum: "F3+A3+C4+F4",
+    organ: "F4+A4+C5",
+    walk: ["F2", "A2", "C3"],
+  },
+  // G with an added sixth (E): the last chord of the arrangement.
+  G6: {
+    strum: "G3+B3+E4+G4",
+    organ: "E4+G4+B4",
+    walk: ["G2", "B2", "D3"],
+  },
 };
 
-/** One entry per bar; two chords split the bar in half. */
+/** One chord per bar. */
 // prettier-ignore
 const CHART = [
+  // Intro
+  "G", "Em", "C", "D7",
   // A
-  "Bb6", "Cm7 F7", "Bb6", "G7", "Cm7", "F7", "Dm7 G7", "Cm7 F7",
+  "G", "C", "D7", "Em", "G", "C", "D7", "G",
+  // Answer
+  "G", "D7", "C", "D7",
   // A'
-  "Bb6", "Cm7 F7", "Bb6", "G7", "Cm7", "F7", "Cm7 F7", "Bb6",
-  // B
-  "Eb6", "Ebm6", "Bb6", "G7", "C7", "C7", "F7", "F7",
+  "G", "C", "D7", "Em", "G", "C", "D7", "G",
+  // Middle eight: major III, then the borrowed flat-VII (F) home to G
+  "B7", "Em", "C", "D7", "B7", "Em", "C", "F",
   // A''
-  "Bb6", "Cm7 F7", "Bb6", "G7", "Cm7", "F7", "Cm7 F7", "Bb6",
-  // Tag
-  "Bb6 G7", "Cm7 F7", "Bb6 G7", "Cm7 F7",
+  "G", "C", "D7", "Em", "G", "C", "D7", "G6",
 ];
 
-const chords = CHART.flatMap((bar, i) => {
-  const names = bar.split(" ");
-  const len = BAR / names.length;
-  return names.map((name, j) => ({
-    name,
-    start: i * BAR + j * len,
-    beats: len,
-  }));
-});
+const chords = CHART.map((name, i) => ({ name, start: i * BAR, bar: i + 1 }));
 
 const notesOf = (
   src: string,
@@ -79,224 +124,357 @@ const notesOf = (
 ): Note[] =>
   src.split("+").map((n) => ({ pitch: noteToMidi(n), start, beats, velocity }));
 
-// --- Tune ----------------------------------------------------------------------------
+// --- The tune: "London Bridge Is Falling Down" ---------------------------------------
 
 /**
- * The motif (A C F E C A | Bb A G in F) a fourth up, D F Bb A F D | Eb D C,
- * with a dotted music-hall bounce on each climb.
+ * The traditional tune, in G major, two bars of 4/4 per line (the nursery
+ * rhyme's 2/4 bars, each note twice as long). In solfège, so-la-so-fa-mi-fa-so
+ * / re-mi-fa / mi-fa-so / (again) / re-so / mi-do, that is:
+ *
+ *     Lon-don Bridge is  fall-ing down,  fall-ing down,  fall-ing down,
+ *     D.  E  D    C      B   C   D       A   B   C       B   C   D
+ *     Lon-don Bridge is  fall-ing down,  My   fair  la-  dy.
+ *     D.  E  D    C      B   C   D       A    D     B     G
  */
-const MOTIF_LONDON =
-  "D5:.75 F5:.25 Bb5:1 A5:.5 F5:1 D5:.5 | Eb5:.75 D5:.25 C5:2 r:1";
+const LB_LINE_1 = "D5:1.5 E5:.5 D5:1 C5:1 | B4:1 C5:1 D5:2 |";
+const LB_LINE_2 = "A4:1 B4:1 C5:2 | B4:1 C5:1 D5:2 |";
+const LB_LINE_4 = "A4:2 D5:2 | B4:2 G4:2 |";
+const LONDON_BRIDGE = `${LB_LINE_1} ${LB_LINE_2} ${LB_LINE_1} ${LB_LINE_4}`;
 
-/** Bars 3–8: the answer, then up to Cm and back round to the dominant. */
-const A_REST = `
-  F5:.75 G5:.25 F5:.5 D5:.5 Bb4:1 C5:.5 D5:.5 | B4:.75 D5:.25 G5:1 F5:1 D5:1 |
-  Eb5:.75 D5:.25 Eb5:.5 G5:.5 C6:1 Bb5:1 | A5:.75 G5:.25 F5:.5 Eb5:.5 C5:2 |`;
-const A_OPEN =
-  "D5:.75 F5:.25 A5:1 G5:.75 F5:.25 D5:1 | Eb5:1 D5:.5 C5:.5 A4:1 r:1";
-const A_HOME = "C5:.75 D5:.25 Eb5:.5 G5:.5 F5:1 A4:1 | Bb4:2 r:2";
-const BRIDGE = `
-  G5:1.5 F5:.5 Eb5:1 G5:1 | Gb5:1.5 F5:.5 Eb5:2 | F5:1.5 D5:.5 Bb4:1 D5:1 | F5:1.5 D5:.5 B4:2 |
-  E5:.75 F5:.25 G5:1 Bb5:1 G5:1 | E5:.75 D5:.25 C5:2 r:1 |
-  F5:.75 G5:.25 A5:1 C6:1 A5:1 | Eb5:1 C5:1 A4:1 r:1`;
-
-/** Honky-tonk right hand: the tune with its lower octave. */
-const octaves = (notes: Note[]): Note[] =>
-  notes.flatMap((n) => [
-    n,
-    { ...n, pitch: n.pitch - 12, velocity: (n.velocity ?? 90) - 12 },
-  ]);
-
-/** A little weight on each bar's downbeat. */
+/** A little weight on each downbeat and backbeat of a melody. */
 const accent = (notes: Note[], by = 8): Note[] =>
   notes.map((n) =>
-    n.start % BAR === 0 && n.velocity !== undefined
+    n.start % 2 === 0 && n.velocity !== undefined
       ? { ...n, velocity: Math.min(127, n.velocity + by) }
       : n,
   );
 
-const pianoLead = octaves(
-  accent([
-    // A: bars 1–8
-    ...phrase(`${MOTIF_LONDON} | ${A_REST} ${A_OPEN}`, {
-      at: at(1),
-      velocity: 86,
-    }),
-    // B: bars 17–24
-    ...phrase(BRIDGE, { at: at(17), velocity: 92 }),
-    // A'': bars 25–32
-    ...phrase(`${MOTIF_LONDON} | ${A_REST} ${A_HOME}`, {
-      at: at(25),
-      velocity: 88,
-    }),
-    // Tag: the motif's head, twice, left hanging for the clarinet (bars 33, 35).
-    ...phrase("D5:.5 F5:.5 Bb5:1 r:2", { at: at(33), velocity: 90 }),
-    ...phrase("D5:.5 F5:.5 Bb5:1 r:2", { at: at(35), velocity: 84 }),
-  ]),
-);
+const tune = (bar: number, velocity: number) =>
+  accent(phrase(LONDON_BRIDGE, opts(bar, velocity)));
 
-const clarinet = accent([
-  // A': bars 9–16, the verse
-  ...phrase(`${MOTIF_LONDON} | ${A_REST} ${A_HOME}`, {
-    at: at(9),
-    velocity: 84,
-  }),
-  // A'': bars 25–32, long notes under the piano
-  ...phrase(
-    `D4:2 F4:2 | G4:2 A4:2 | Bb4:2 G4:2 | B4:2 F4:2 |
-     G4:2 Eb4:2 | Eb4:2 A4:2 | G4:2 A4:2 | Bb4:2 r:2`,
-    { at: at(25), velocity: 64 },
-  ),
-  // Tag: the answer, the motif's sigh (Eb D C), then a run back to the top.
-  ...phrase("Eb5:.75 D5:.25 C5:2 r:1", { at: at(34), velocity: 80 }),
-  ...phrase("Eb5:.5 D5:.5 C5:.5 A4:.5 F4:1 r:1", {
-    at: at(36),
-    velocity: 76,
-  }),
-]);
+/** The last line ends on G6, so its final note is short and a fill follows. */
+const tuneWithFill = (bar: number, velocity: number) => {
+  const notes = tune(bar, velocity);
+  const last = notes[notes.length - 1];
+  return [...notes.slice(0, -1), { ...last, beats: 1 }];
+};
 
-// --- Accompaniment -------------------------------------------------------------------
+// --- The organ's answer (original; the motif's shape) --------------------------------
 
-/** Tuba oom: root on beat 1, fifth on beat 3 (one root per half-bar chord). */
-const tuba: Note[] = chords.flatMap(({ name, start, beats }) => {
-  const c = CHORDS[name];
-  return beats === 2
-    ? [{ pitch: noteToMidi(c.root), start, beats: 0.9, velocity: 88 }]
-    : [
-        { pitch: noteToMidi(c.root), start, beats: 0.9, velocity: 90 },
-        {
-          pitch: noteToMidi(c.fifth),
-          start: start + 2,
-          beats: 0.9,
-          velocity: 78,
-        },
-      ];
+/**
+ * The shared motif a tone up in G, in its own rhythm from motif.ts:
+ * B D G F# D B | C B A, then the same arch on C (E G C B G E | F E D), and a
+ * closing lick that lands on the dominant for the tune's return.
+ */
+const ANSWER = `
+  B4:.5 D5:.5 G5:1 F#5:.5 D5:1 B4:.5 | C5:.5 B4:.5 A4:1 r:2 |
+  E5:.5 G5:.5 C6:1 B5:.5 G5:1 E5:.5 | F#5:.5 E5:.5 D5:1 A4:.5 C5:.5 F#5:.5 A5:.5 |`;
+
+const organAnswer = phrase(ANSWER, opts(13, 88));
+
+// --- The middle eight (original) -----------------------------------------------------
+
+/** Guitar melody over B7 | Em | C | D7 | B7 | Em | C | F. */
+const MIDDLE_EIGHT = `
+  F#5:1 D#5:1 B4:1 D#5:1 | E5:2 G5:1 E5:1 | E5:1.5 D5:.5 C5:1 E5:1 | D5:2 C5:1 A4:1 |
+  F#5:1 D#5:1 B4:1 B5:1 | E5:1 G5:1 B5:2 | G5:1.5 E5:.5 C5:2 | A5:1 C6:1 A5:1 F5:1 |`;
+
+// --- Lines ---------------------------------------------------------------------------
+
+const lead: Note[] = [
+  // Intro tag
+  ...phrase("E5:.5 G5:.5 C6:1 B5:1 G5:1", opts(3, 84)),
+  ...phrase("A5:1 F#5:1 D5:1 r:1", opts(4, 84)),
+  // A and A''
+  ...tune(5, 90),
+  ...tuneWithFill(33, 94),
+  // Middle eight
+  ...accent(phrase(MIDDLE_EIGHT, opts(25, 90))),
+];
+
+/** The organ takes the tune in A', and doubles the guitar an octave down in A''. */
+const organLead: Note[] = [
+  ...organAnswer,
+  ...tune(17, 84),
+  ...tuneWithFill(33, 56).map((n) => ({ ...n, pitch: n.pitch - 12 })),
+];
+
+/** Guitar strum: straight eighths, down-strokes staggered a hair across the strings. */
+const strumBar = (
+  voicing: string,
+  bar: number,
+  velocity: number,
+  octave = 0,
+): Note[] => {
+  const pitches = voicing.split("+").map((n) => noteToMidi(n) + octave);
+  const weights = [1, 0.62, 1.14, 0.62, 1, 0.62, 1.14, 0.62];
+  return weights.flatMap((w, k) =>
+    pitches.map((pitch, s) => ({
+      pitch,
+      start: at(bar) + k * 0.5 + (s * 5) / 480,
+      beats: 0.4375,
+      velocity: Math.round(Math.min(120, velocity * w)),
+    })),
+  );
+};
+
+const strum12: Note[] = chords.flatMap(({ name, bar }) => {
+  // Quieter while the guitar carries the tune, fuller behind the organ.
+  const inA = (bar >= 5 && bar <= 12) || bar >= 33;
+  const inMiddle = bar >= 25 && bar <= 32;
+  const v = inA ? 50 : inMiddle ? 58 : bar >= 17 && bar <= 24 ? 68 : 62;
+  return strumBar(CHORDS[name].strum, bar, v, 12);
 });
 
-/** Piano left hand pah: short chords on beats 2 and 4. */
-const pah: Note[] = chords.flatMap(({ name, start, beats }) => {
-  const v = CHORDS[name].pah;
-  return beats === 2
-    ? notesOf(v, start + 1, 0.45, 60)
-    : [...notesOf(v, start + 1, 0.45, 62), ...notesOf(v, start + 3, 0.45, 56)];
-});
+/** The electric guitar strums under the organ in A', and in the intro. */
+const strumElectric: Note[] = chords
+  .filter(({ bar }) => bar <= 4 || (bar >= 17 && bar <= 24))
+  .flatMap(({ name, bar }) => strumBar(CHORDS[name].strum, bar, 56));
 
-/** Banjo off-beat chords in the bridge (bars 17–24), an octave above the pah. */
-const banjo: Note[] = chords
-  .filter((c) => c.start >= at(17) && c.start < at(25))
+/** Organ pad: whole-note chords behind the guitar tune and the middle eight. */
+const organPad: Note[] = chords
+  .filter(({ bar }) => (bar >= 9 && bar <= 12) || (bar >= 25 && bar <= 32))
+  .flatMap(({ name, start }) => notesOf(CHORDS[name].organ, start, BAR, 40));
+
+/** Organ off-beat stabs in A'': combo-organ chops on every "and". */
+const organStabs: Note[] = chords
+  .filter(({ bar }) => bar >= 33 && bar <= 39)
   .flatMap(({ name, start }) =>
-    [1, 3].flatMap((beat) =>
-      notesOf(CHORDS[name].pah, start + beat, 0.4, 58).map((n) => ({
-        ...n,
-        pitch: n.pitch + 12,
-      })),
+    [0.5, 1.5, 2.5, 3.5].flatMap((beat) =>
+      notesOf(CHORDS[name].organ, start + beat, 0.3, 58),
     ),
   );
 
-// --- Drums (brush kit) -----------------------------------------------------------------
+/** The finishing G6: organ and strum hold it as the fill starts. */
+const finalChord: Note[] = notesOf(CHORDS.G6.organ, at(40, 2), 1.8, 78);
 
+// --- Bass ----------------------------------------------------------------------------
+
+/** Bass root for a chord name; the finishing G6 shares G's root. */
+const rootOf = (name: string) => noteToMidi(CHORDS[name].walk[0]);
+
+/**
+ * A melodic walking bass: root, third, fifth, and a chromatic approach to the
+ * next bar's root (from below when the line is rising, otherwise from above).
+ * The middle eight pumps eighth notes instead.
+ */
+const bass: Note[] = chords.flatMap(({ name, start, bar }, i) => {
+  const [root, third, fifth] = CHORDS[name].walk.map(noteToMidi);
+  const nextName = chords[(i + 1) % chords.length].name;
+  const next = rootOf(nextName);
+  const approach = fifth <= next ? next - 1 : next + 1;
+  const pump = bar >= 25 && bar <= 32;
+  if (pump) {
+    // Eighth-note pump: root, root, octave, root ... with the approach on the last "and".
+    return [0, 0, 12, 0, 0, 0, 12, 0].map((up, k) => ({
+      pitch: k === 7 ? approach : root + up,
+      start: start + k * 0.5,
+      beats: 0.45,
+      velocity: k % 2 === 0 ? 92 : 74,
+    }));
+  }
+  const line = [root, third, fifth, approach];
+  return line.map((pitch, k) => ({
+    pitch,
+    start: start + k,
+    beats: 0.9,
+    velocity: k === 0 ? 96 : 82,
+  }));
+});
+
+// --- Percussion ----------------------------------------------------------------------
+
+const HAND_CLAP = 39;
 const drums: Note[] = [];
 const hit = (key: number, start: number, velocity: number, beats = 0.25) =>
   drums.push({ pitch: key, start, beats, velocity });
-for (let bar = 9; bar <= BARS; bar++) {
+
+/** Snare and tom fill on the last beat of a bar. */
+const fill = (bar: number) => {
+  const b = at(bar, 3);
+  hit(DRUMS.snare, b, 96);
+  hit(DRUMS.snare, b + 0.25, 84);
+  hit(DRUMS.highTom, b + 0.5, 100);
+  hit(DRUMS.midTom, b + 0.75, 100);
+};
+const FILL_BARS = new Set([4, 12, 16, 24, 32, 40]);
+const CRASH_BARS = new Set([1, 5, 17, 25, 33]);
+
+for (let bar = 1; bar <= BARS; bar++) {
   const b = at(bar);
-  hit(DRUMS.brushSlap, b + 1, 44);
-  hit(DRUMS.brushSlap, b + 3, 40);
-  if (bar >= 17 && bar <= 24) hit(DRUMS.brushSwirl, b, 30, 2);
+  const intro = bar <= 2;
+  const tambourine = bar >= 5;
+  const claps = bar >= 17 && bar <= 24;
+  if (CRASH_BARS.has(bar)) hit(DRUMS.crash, b, 88, 1);
+  // Hi-hat: straight eighths, open on the "and" of 4 at the end of each line.
+  for (let k = 0; k < 8; k++) {
+    const openHat = k === 7 && bar % 2 === 0 && !FILL_BARS.has(bar);
+    hit(
+      openHat ? DRUMS.openHat : DRUMS.closedHat,
+      b + k * 0.5,
+      k % 2 ? 46 : 66,
+    );
+  }
+  // Kick on 1 and 3, and a push on the "and" of 3 every other bar.
+  hit(DRUMS.kick, b, 104);
+  if (!intro || bar === 2) hit(DRUMS.kick, b + 2, 96);
+  if (bar % 2 === 0 && !FILL_BARS.has(bar)) hit(DRUMS.kick, b + 2.5, 80);
+  // Snare backbeat on 2 and 4 (from the second bar of the intro).
+  if (bar >= 2) {
+    hit(DRUMS.snare, b + 1, 108);
+    if (!FILL_BARS.has(bar)) hit(DRUMS.snare, b + 3, 108);
+  }
+  if (tambourine) {
+    hit(DRUMS.tambourine, b + 1, 76);
+    if (!FILL_BARS.has(bar)) hit(DRUMS.tambourine, b + 3, 76);
+  }
+  if (claps) {
+    hit(HAND_CLAP, b + 1, 96);
+    if (!FILL_BARS.has(bar)) hit(HAND_CLAP, b + 3, 96);
+  }
+  if (FILL_BARS.has(bar)) fill(bar);
 }
+// The last bar's final chord rings; the fill after it leads back into bar 1.
+
+// --- Track ---------------------------------------------------------------------------
 
 const track: MusicTrack = {
   id: "london",
-  task: "A2",
-  title: "Last Orders (London theme)",
+  task: "A3",
+  title: "The Bridge Is Falling (London theme)",
   description:
-    "London theme: a music-hall pub singalong on honky-tonk piano and tuba, the shared motif (assets-src/audio/music/motif.ts) up a fourth in B-flat with a dotted bounce.",
-  bpm: 120,
+    'London theme: an original 1964 British Invasion / Merseybeat pub-jukebox track on the public-domain tune "London Bridge Is Falling Down": jangling clean electric guitar over a 12-string strum, a combo organ answering with the shared motif (assets-src/audio/music/motif.ts) a tone up in G, a melodic walking bass, and a bright straight-eighths beat with tambourine and hand claps.',
+  bpm: 128,
+  meter: [4, 4],
   bars: BARS,
-  key: "B-flat major",
+  key: "G major",
+  melodySources: [
+    {
+      id: "london-bridge",
+      tune: "London Bridge Is Falling Down",
+      source:
+        "Traditional English nursery rhyme and singing game (Roud Folk Song Index 502). The tune sung today was first recorded in A. H. Rosewig, Illustrated National Songs and Games (USA, 1879), according to the rhyme's Wikipedia entry. The notes are the standard traditional melody, so-la-so-fa-mi-fa-so / re-mi-fa / mi-fa-so / so-la-so-fa-mi-fa-so / re-so / mi-do, written in G major with each 2/4 bar stretched over a 4/4 bar.",
+      publicDomain:
+        "Yes. A traditional tune in print since the 19th century with no living author or rights holder; public domain in the UK, EU, and US.",
+      use: "Played note for note on guitar in A (bars 5–12) and A'' (33–40), and on the combo organ in A' (17–24), in G major, at 128 bpm.",
+      verification:
+        "Typed from the standard traditional version and checked against its solfège by scripts/assets/__tests__/music-pd-melodies.test.ts. Not compared against a scan of the 1879 print, which was not reachable offline.",
+    },
+    {
+      id: "london-organ-answer",
+      tune: "Organ answer phrase (bars 13–16)",
+      source:
+        "Original composition for this project, built on the shared motif (assets-src/audio/music/motif.ts) a tone up in G.",
+      publicDomain: "Not applicable: original to this project.",
+      use: "The organ's reply after the first tune.",
+    },
+    {
+      id: "london-middle-eight",
+      tune: "Middle eight (bars 25–32) and intro tag (bars 3–4)",
+      source: "Original composition for this project.",
+      publicDomain: "Not applicable: original to this project.",
+      use: "The bridge and the intro guitar tag. The chord progressions (I–vi–IV–V, the major-III lift, the borrowed flat-VII, the closing G6) are generic to the era, not taken from a particular song.",
+    },
+  ],
   sections: [
     {
       bar: 1,
-      name: "A",
+      name: "Intro",
       description:
-        "Motif on honky-tonk piano in octaves; tuba oom on 1 and 3, piano pah on 2 and 4",
+        "12-string strum and hi-hat on G–Em–C–D7, guitar tag, drum fill",
     },
     {
-      bar: 9,
-      name: "A'",
-      description: "Clarinet sings the verse, brushes join; cadence on B-flat",
+      bar: 5,
+      name: "A",
+      description:
+        "London Bridge on clean guitar over walking bass; organ pad from bar 9; fill",
+    },
+    {
+      bar: 13,
+      name: "Answer",
+      description:
+        "Combo organ answers with the motif's shape (original), on G, D7, C, D7",
     },
     {
       bar: 17,
-      name: "B",
-      description:
-        "Bridge on Eb6 and Ebm6, then the ragtime circle G7–C7–F7; banjo off-beats",
+      name: "A'",
+      description: "Tune on the organ, hand claps on 2 and 4",
     },
     {
       bar: 25,
-      name: "A''",
-      description: "Motif back on piano, clarinet under it in long notes",
+      name: "Middle eight",
+      description:
+        "Original tune on guitar: major-III lift (B7), then the borrowed flat-VII (F) home; bass pumps eighths",
     },
     {
       bar: 33,
-      name: "Tag",
+      name: "A''",
       description:
-        "Motif head on piano answered by the clarinet's sigh; Bb–G7–Cm7–F7 turnaround back to bar 1",
+        "Tune on guitar, organ off-beat stabs and octave doubling; ends on G6, fill into the repeat",
     },
   ],
   parts: [
     {
-      name: "Honky-tonk piano (tune)",
+      name: "Electric guitar (clean)",
       channel: 1,
-      program: GM["Honky-tonk Piano"],
-      volume: 96,
-      pan: 58,
-      reverb: 34,
-      notes: pianoLead,
+      program: GM["Electric Guitar (clean)"],
+      volume: 104,
+      pan: 44,
+      reverb: 26,
+      notes: lead,
     },
     {
-      name: "Honky-tonk piano (pah)",
+      name: "Electric guitar (strum)",
       channel: 2,
-      program: GM["Honky-tonk Piano"],
-      volume: 70,
-      pan: 58,
-      reverb: 30,
-      notes: pah,
+      program: GM["Electric Guitar (clean)"],
+      volume: 92,
+      pan: 40,
+      reverb: 26,
+      notes: strumElectric,
     },
     {
-      name: "Tuba",
+      name: "12-string guitar (strum)",
       channel: 3,
-      program: GM["Tuba"],
-      volume: 84,
-      pan: 64,
-      reverb: 20,
-      notes: tuba,
-    },
-    {
-      name: "Clarinet",
-      channel: 4,
-      program: GM["Clarinet"],
-      volume: 74,
-      pan: 80,
-      reverb: 44,
-      notes: clarinet,
-    },
-    {
-      name: "Banjo (B)",
-      channel: 5,
-      program: GM["Banjo"],
-      volume: 52,
-      pan: 36,
+      ...FLUIDR3_PRESETS["12 String Guitar"],
+      volume: 104,
+      pan: 88,
       reverb: 30,
-      notes: banjo,
+      notes: strum12,
     },
     {
-      name: "Brushes",
-      channel: 10,
-      program: DRUM_KITS.brush,
-      volume: 70,
-      pan: 64,
+      name: "Combo organ (lead)",
+      channel: 4,
+      program: GM["Percussive Organ"],
+      volume: 84,
+      pan: 76,
       reverb: 28,
+      notes: organLead,
+    },
+    {
+      name: "Combo organ (pad and stabs)",
+      channel: 5,
+      program: GM["Drawbar Organ"],
+      volume: 96,
+      pan: 82,
+      reverb: 28,
+      notes: [...organPad, ...organStabs, ...finalChord],
+    },
+    {
+      name: "Electric bass",
+      channel: 6,
+      program: GM["Electric Bass (finger)"],
+      volume: 92,
+      pan: 64,
+      reverb: 14,
+      notes: bass,
+    },
+    {
+      name: "Drums, tambourine, and claps",
+      channel: 10,
+      program: DRUM_KITS.standard,
+      volume: 96,
+      pan: 64,
+      reverb: 22,
       notes: drums,
     },
   ],

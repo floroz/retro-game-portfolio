@@ -57,7 +57,7 @@ export const ZURICH_SCENE: SceneData = {
   background: zurichBg,
   // Loop points from assets-src/provenance/music-zurich.json and
   // ambience-zurich.json.
-  music: { src: "/audio/music/zurich.mp3", loopStart: 0.75, loopEnd: 72.75 },
+  music: { src: "/audio/music/zurich.mp3", loopStart: 0.625, loopEnd: 75.625 },
   ambience: {
     src: "/audio/ambience/zurich.mp3",
     loopStart: 0.5,

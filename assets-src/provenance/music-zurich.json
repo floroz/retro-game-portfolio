@@ -1,63 +1,145 @@
 {
   "id": "music-zurich",
   "output": "public/audio/music/zurich.mp3",
-  "task": "A2",
+  "task": "A3",
   "source": "opus",
-  "date": "2026-09-29",
+  "date": "2026-09-30",
   "midiSource": "assets-src/audio/music/zurich.ts",
-  "description": "Zurich theme: a slow music-box waltz over soft strings for the office at night, the shared motif (assets-src/audio/music/motif.ts) a tone up in G and re-rhythmed in 3/4.",
-  "tempoBpm": 80,
+  "description": "Zurich theme: a slow alphorn call quoting the traditional Ranz des Vaches, then a moderate 3/4 Ländler on accordion and clarinet with an oom-pah-pah afterbeat, an instrumental yodel (clarinet chest voice against an ocarina head voice), and sparse cowbells and herd bells. The loop ends on the alphorn.",
+  "melodySources": [
+    {
+      "id": "ranz-des-vaches",
+      "tune": "Ranz des Vaches (Kuhreihen), the Swiss herdsmen's cow-calling tune",
+      "source": "Jean-Jacques Rousseau, Dictionnaire de musique (Geneva, 1767; Paris, 1768), Planche N, 'Air Suisse appellé le Ranz des Vaches', the Adagio strain in 3/8 with three sharps (A major), bars 1–5 (bars 6–7 repeat bar 1–2). Read from the Internet Archive scan of the 1767 edition (item dictionnairedem00rous, page image n623). The oldest notated version, Theodor Zwinger's Cantilena Helvetica in his Dissertatio medica (Basel, 1710), is a different reading of the same herding call.",
+      "publicDomain": "Yes. A traditional Swiss herding call printed in 1710 and 1767; Rousseau died in 1778 and Zwinger in 1724. Public domain everywhere.",
+      "use": "The alphorn's opening call quotes bars 1–5, with the same pitches and rhythm proportions, one written eighth as a beat and a half at 96 bpm, in G major (down a tone from the plate) and two octaves down; the final dotted quarter is held like a fermata. The distant echo repeats bar 1 an octave higher, and the ending recalls bar 2 and bar 5.",
+      "verification": "Pitches and rhythm were read by eye from the engraved plate at high zoom; the plate's double beam over three notes in bars 2 and 3 is taken as a triplet of sixteenths. Checked by scripts/assets/__tests__/music-pd-melodies.test.ts against a separate transcription of the plate. A second reading by a musician is welcome."
+    },
+    {
+      "id": "zurich-landler",
+      "tune": "Ländler tune (bars 9–36) and yodel (bars 25–32)",
+      "source": "Original composition for this project, in the manner of a Swiss Ländler and a yodel. No existing tune is quoted.",
+      "publicDomain": "Not applicable: original to this project.",
+      "use": "The dance tune on accordion and clarinet, and the clarinet and ocarina yodel."
+    }
+  ],
+  "tempoBpm": 96,
   "meter": "3/4",
   "key": "G major",
-  "bars": 32,
+  "bars": 40,
+  "instruments": [
+    {
+      "name": "Alphorn (call)",
+      "channel": 1,
+      "instrument": "French Horn",
+      "bank": 0,
+      "program": 60
+    },
+    {
+      "name": "Alphorn (echo)",
+      "channel": 2,
+      "instrument": "French Horn",
+      "bank": 0,
+      "program": 60
+    },
+    {
+      "name": "Accordion (tune)",
+      "channel": 3,
+      "instrument": "Accordion",
+      "bank": 0,
+      "program": 21
+    },
+    {
+      "name": "Accordion (afterbeat and hold)",
+      "channel": 4,
+      "instrument": "Accordion",
+      "bank": 0,
+      "program": 21
+    },
+    {
+      "name": "Clarinet (tune and chest voice)",
+      "channel": 5,
+      "instrument": "Clarinet",
+      "bank": 0,
+      "program": 71
+    },
+    {
+      "name": "Ocarina (head voice)",
+      "channel": 6,
+      "instrument": "Ocarina",
+      "bank": 0,
+      "program": 79
+    },
+    {
+      "name": "Double bass",
+      "channel": 7,
+      "instrument": "Acoustic Bass",
+      "bank": 0,
+      "program": 32
+    },
+    {
+      "name": "Herd bells",
+      "channel": 8,
+      "instrument": "Agogo",
+      "bank": 0,
+      "program": 113
+    },
+    {
+      "name": "Cowbell",
+      "channel": 10,
+      "instrument": "drum kit: standard",
+      "bank": 128,
+      "program": 0
+    }
+  ],
   "loop": {
-    "loopStart": 0.75,
-    "loopEnd": 72.75,
-    "loopStartFrame": 36000,
-    "loopEndFrame": 3492000,
+    "loopStart": 0.625,
+    "loopEnd": 75.625,
+    "loopStartFrame": 30000,
+    "loopEndFrame": 3630000,
     "sampleRate": 48000,
     "usage": "Decode with Web Audio (decodeAudioData) and play through an AudioBufferSourceNode with loop = true and these loopStart/loopEnd seconds. Start at 0: the audio before loopStart is the loop's last beat, a pickup."
   },
   "loudness": {
     "integratedLufs": -20,
-    "lraLu": 3.2,
-    "truePeakDbtp": -4.9,
-    "samplePeakDbfs": -5.19,
-    "gainDb": 9.9,
+    "lraLu": 6.1,
+    "truePeakDbtp": -8.4,
+    "samplePeakDbfs": -8.41,
+    "gainDb": 4,
     "targetLufs": -20
   },
   "seam": {
     "wav": {
-      "windowFrames": 18000,
+      "windowFrames": 15000,
       "identical": true,
       "differenceDb": null,
       "maxAbsDifference": 0,
-      "signalDbfs": -20.53,
-      "wrapStepRatio": 0.023,
+      "signalDbfs": -26.04,
+      "wrapStepRatio": 0.484,
       "bestLag": 0
     },
     "mp3": {
-      "windowFrames": 18000,
+      "windowFrames": 15000,
       "identical": false,
-      "differenceDb": -38.71,
-      "maxAbsDifference": 0.0137,
-      "signalDbfs": -20.95,
-      "wrapStepRatio": 0.024,
+      "differenceDb": -40.44,
+      "maxAbsDifference": 0.00357,
+      "signalDbfs": -26.48,
+      "wrapStepRatio": 0.479,
       "bestLag": 0
     },
     "mp3WithDecoderOffset": {
-      "windowFrames": 16895,
+      "windowFrames": 13895,
       "identical": false,
-      "differenceDb": -42.78,
-      "maxAbsDifference": 0.0101,
-      "signalDbfs": -20.73,
-      "wrapStepRatio": 0.54,
+      "differenceDb": -41.3,
+      "maxAbsDifference": 0.00357,
+      "signalDbfs": -26.39,
+      "wrapStepRatio": 0.195,
       "bestLag": 0
     },
-    "mp3CodecNoiseDb": -24.56,
-    "foldedTailDb": -13.9,
-    "decodedFrames": 3528000,
-    "expectedFrames": 3528000
+    "mp3CodecNoiseDb": -25.57,
+    "foldedTailDb": -15.08,
+    "decodedFrames": 3660000,
+    "expectedFrames": 3660000
   },
   "render": {
     "soundfont": {
