@@ -1,15 +1,15 @@
 {
   "id": "hall-bg",
   "output": "src/assets/scenes/hall/bg.png",
-  "task": "HB2",
+  "task": "airport-floor-shadows",
   "source": "codex",
-  "prompt": "assets-src/prompts/hd/layers-hall.md",
+  "prompt": "assets-src/prompts/hd/hall-floor-shadows.md",
   "candidate": "01",
-  "references": ["assets-src/refs/hd/hall-chosen.png"],
-  "approvedRaw": "assets-src/approved/hall-plate@hd.webp",
+  "references": ["assets-src/refs/hd/hall-before-stone.png"],
+  "approvedRaw": "assets-src/approved/hall-stone-floor.png",
   "density": 2,
   "style": "painted",
-  "cleanup": "HB2: candidate 01 of hall-plate@hd (1774x887, the chosen composite with the seats, arch and plant edited out; the orchestrator's layer pick, since 03 adds a stray pillar) prepared with assets:prepare --painted --no-quantize to 640x320 (Lanczos, hard alpha), then recoloured for the contrast rule (no surface behind Daniele within 0.08 OKLab of the rig's sweater, jeans or hair colours; measured against assets-src/character-rig): solid navy surfaces at least 9x9 art px within 0.105 OKLab of the sweater (the gate sign boards, the departures board panel, the two monitors, the duty-free back wall, the arch display) darkened to near black; smaller dark patches within 0.105 (skirting shadows, desk screens, header slots) lifted in lightness; the duty-free awning hue-rotated 14 degrees from brick to crimson (brick sat within 0.09 of the hair); the shelf planks and the lost-luggage suitcase lifted in lightness, and the whisky's wooden frame remapped to brass; the door-glass blues lifted (0.13 L) off the jeans. Then quantized jointly with the four Hall sprites by assets:quantize to one 256-colour palette with no dither. The departures board, the sign boards and the desk screens stay blank for the engine's text and flutter. Nothing was hand-painted; the hotspots, labels and walkbox in src/config/scenes/hall.ts were measured on this file.",
-  "approvedBy": "orchestrator",
-  "date": "2026-09-29"
+  "cleanup": "Built-in image generation replaced the triangle carpet with stone terrazzo tiles and removed the duty-free fixture. scripts/assets/airport-floor.ts prepares a 640x320 plate, restores the original sign and gate architecture pixels, and maps to the existing Hall palette. The duty-free shop is now obj-duty-free.png; characters and furniture receive separate runtime ground shadows.",
+  "approvedBy": "codex",
+  "date": "2026-09-30"
 }
