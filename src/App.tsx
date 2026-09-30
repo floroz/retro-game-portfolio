@@ -76,11 +76,11 @@ function App() {
     return <RetroConsole />;
   }
 
-  // Desktop experience - always render Win95 Desktop with game window
+  // Desktop experience - Windows 98 shell with the remastered game
   // Welcome screen is shown inside the game window when not dismissed
   return (
     <div className={styles.app}>
-      {/* Windows 95 Desktop - always open on desktop */}
+      {/* Windows 98 Desktop - always open on desktop */}
       <Win95Desktop
         isOpen={true}
         onClose={() => {}} // No-op since desktop is always open

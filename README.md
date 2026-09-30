@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="src/assets/retro-daniele.png" alt="Windows 95 desktop environment with a retro point-and-click adventure game" width="220" />
+<img src="src/assets/retro-daniele.png" alt="Windows 98 desktop environment with a retro point-and-click adventure game" width="220" />
 
 ### [danieletortora.com](https://www.danieletortora.com)
 
@@ -14,23 +14,23 @@ _A personal portfolio disguised as a 90s retro game._
 
 ## What is this?
 
-This is not your typical developer portfolio. It's an interactive point-and-click adventure game inspired by LucasArts classics like _Monkey Island_, _Day of the Tentacle_, and _Grim Fandango_ — wrapped inside a fully functional **Windows 95 desktop environment**.
+This is not your typical developer portfolio. It's an interactive point-and-click adventure game inspired by LucasArts classics like _Monkey Island_, _Day of the Tentacle_, and _Grim Fandango_ — wrapped inside a fully functional **Windows 98 desktop environment**.
 
 Visitors don't just read about my work — they explore it. Click hotspots, talk to a pixel-art character, open windows, use a retro MS-DOS terminal, and discover Easter eggs along the way.
 
 ## Desktop Experience
 
-The full desktop experience emulates a Windows 95 environment:
+The full desktop experience emulates a Windows 98 environment:
 
-- **Desktop icons** — Double-click to launch applications (Game, MS-DOS Prompt, Recycle Bin)
-- **Taskbar** — Shows running applications and a system clock
+- **Desktop icons** — Launch the adventure, My Computer, My Resume, MS-DOS Prompt, and Recycle Bin
+- **Start menu and taskbar** — Launch applications and portfolio shortcuts, use Quick Launch and Show Desktop, toggle sound, and switch between running windows
 - **Window management** — Minimize, maximize, close, and drag windows just like the real thing
 - **Game window** — A point-and-click adventure scene where you explore hotspots for About, Skills, Contact, Experience, and Resume
 - **Object inspections** — Illustrated postcards, a working kit, a career album, correspondence and a résumé folder reveal readable live portfolio text and links. Close an inspection to return to the same room and position.
 - **Travel and discovery** — Toolbar sections open immediately; airport gates travel to London, an Alpine chalet and Sorrento. Four duty-free souvenirs have optional playful close-ups.
 - **MS-DOS Terminal** — A retro terminal with commands like `help`, `about`, `skills`, `contact`, `talk`, and `resume`
 - **Recycle Bin** — Contains humorous "deleted" files about software development
-- **Loading screen** — An authentic Windows 95 boot sequence when opening the game
+- **Loading screen** — A Windows 98 launch dialog with segmented progress when opening the remastered game
 - **Keyboard shortcuts** — Navigate the experience without a mouse
 
 ## Mobile Experience
@@ -78,7 +78,7 @@ Then open the URL shown in the terminal (typically `http://localhost:5173`).
 The regular game now uses the approved remaster treatment in all four locations,
 the travel map, dialogue, toolbar, title ticket and object inspections. Navigation,
 hotspots, character proportions, timing and portfolio content are unchanged. The
-Windows 95 desktop and Game Boy mobile presentation retain their original styling.
+The desktop uses a Windows 98 shell with silver bevels, gradient title bars, and a working Start menu. The Game Boy mobile presentation retains its original styling.
 
 The source archive supplies 53 scene/map/shared exports at density 4 (1280×640
 backgrounds), nine full-colour inspections, and the original-resolution title ticket.

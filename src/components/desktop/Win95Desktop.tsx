@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useMobileTerminal } from "../../hooks/useMobileTerminal";
 import { useGameStore } from "../../store/gameStore";
 import { Win95TerminalWindow } from "./Win95TerminalWindow";
@@ -9,7 +9,12 @@ import styles from "./Win95Desktop.module.scss";
 import retroDanieleImg from "../../assets/retro-daniele.png";
 import recycleBinImg from "../../assets/recycle.png";
 import msdosPromptImg from "../../assets/prompt.png";
-import win95LogoImg from "../../assets/win-95.png";
+import win98LogoImg from "../../assets/win-95.png";
+
+import { Windows98StartMenu } from "./Windows98StartMenu";
+import { Windows98Icon } from "./Windows98Icon";
+import { Windows98About } from "./Windows98About";
+import { PROFILE } from "../../config/profile";
 
 interface Win95DesktopProps {
   isOpen: boolean;
@@ -22,15 +27,20 @@ interface DesktopIcon {
   id: string;
   label: string;
   command?: string;
-  action?: "openGame" | "openTerminal" | "openRecycleBin";
+  action?:
+    | "openGame"
+    | "openTerminal"
+    | "openRecycleBin"
+    | "openAbout"
+    | "openResume";
   icon: React.ReactNode;
 }
 
-type WindowType = "game" | "terminal" | "recycleBin";
+type WindowType = "game" | "terminal" | "recycleBin" | "about";
 type ActiveWindow = WindowType | null;
 
 /**
- * Windows 95 Desktop environment with multiple windowed applications
+ * Windows 98 Desktop environment with multiple windowed applications
  * Manages terminal and game windows with taskbar buttons
  */
 export function Win95Desktop({
@@ -53,6 +63,29 @@ export function Win95Desktop({
   // Loading state for game window
   const [isLoading, setIsLoading] = useState(false);
   const [loadingComplete, setLoadingComplete] = useState(false);
+
+  const [startMenuOpen, setStartMenuOpen] = useState(false);
+  const startButtonRef = useRef<HTMLButtonElement>(null);
+  const shellRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!startMenuOpen) return;
+    const dismiss = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !shellRef.current?.contains(event.target)
+      ) {
+        setStartMenuOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", dismiss);
+    return () => document.removeEventListener("pointerdown", dismiss);
+  }, [startMenuOpen]);
+
+  const closeStartMenu = () => {
+    setStartMenuOpen(false);
+    startButtonRef.current?.focus();
+  };
 
   const [time, setTime] = useState(new Date());
   const [openWindows, setOpenWindows] = useState<Set<WindowType>>(
@@ -164,12 +197,33 @@ export function Win95Desktop({
   }, [isOpen]);
 
   const handleIconClick = (icon: DesktopIcon) => {
+    setStartMenuOpen(false);
+    if (icon.action === "openResume") {
+      window.open(PROFILE.resumeUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    if (icon.action === "openAbout") {
+      setOpenWindows((prev) => new Set(prev).add("about"));
+      setMinimizedWindows((prev) => {
+        const next = new Set(prev);
+        next.delete("about");
+        return next;
+      });
+      bringWindowToFront("about");
+      setActiveWindow("about");
+      return;
+    }
     if (icon.action === "openGame") {
       if (!openWindows.has("game")) {
         // Start loading if game isn't open
         startGameLoading();
       } else if (isLoading) {
         // If loading, just bring it to front
+        setMinimizedWindows((prev) => {
+          const next = new Set(prev);
+          next.delete("game");
+          return next;
+        });
         bringWindowToFront("game");
         setActiveWindow("game");
       } else {
@@ -244,9 +298,11 @@ export function Win95Desktop({
 
     // If closing active window, switch to another open non-minimized window
     if (activeWindow === window) {
-      const remaining = [...openWindows].filter(
-        (w) => w !== window && !minimizedWindows.has(w),
-      );
+      const remaining = [...windowZOrder]
+        .reverse()
+        .filter(
+          (w) => w !== window && openWindows.has(w) && !minimizedWindows.has(w),
+        );
       setActiveWindow(remaining.length > 0 ? remaining[0] : null);
     }
   };
@@ -255,9 +311,11 @@ export function Win95Desktop({
     setMinimizedWindows((prev) => new Set(prev).add(window));
     // If this was the active window, find another non-minimized window to activate
     if (activeWindow === window) {
-      const remaining = [...openWindows].filter(
-        (w) => w !== window && !minimizedWindows.has(w),
-      );
+      const remaining = [...windowZOrder]
+        .reverse()
+        .filter(
+          (w) => w !== window && openWindows.has(w) && !minimizedWindows.has(w),
+        );
       setActiveWindow(remaining.length > 0 ? remaining[0] : null);
     }
   };
@@ -282,6 +340,17 @@ export function Win95Desktop({
     }
   };
 
+  const showDesktop = () => {
+    setMinimizedWindows(new Set(openWindows));
+    setActiveWindow(null);
+    setStartMenuOpen(false);
+  };
+
+  const launch = (action: DesktopIcon["action"]) =>
+    handleIconClick({ id: "shortcut", label: "", icon: null, action });
+  const runCommand = (command: string) =>
+    handleIconClick({ id: command, label: command, icon: null, command });
+
   if (!isOpen) return null;
 
   return (
@@ -289,11 +358,21 @@ export function Win95Desktop({
       className={styles.overlay}
       role="dialog"
       aria-modal="true"
-      aria-label="Windows 95 Desktop"
+      aria-label="Windows 98 Desktop"
       data-e2e="win95-desktop"
     >
       {/* Desktop background */}
       <div className={styles.desktop}>
+        <div className={styles.wallpaperBrand} aria-hidden="true">
+          <img src={win98LogoImg} alt="" />
+          <div>
+            Microsoft
+            <span>
+              Windows<strong>98</strong>
+            </span>
+            <small>PORTFOLIO EDITION</small>
+          </div>
+        </div>
         {/* Desktop icons */}
         <div className={styles.desktopIcons}>
           {DESKTOP_ICONS.map((icon) => (
@@ -301,7 +380,6 @@ export function Win95Desktop({
               key={icon.id}
               className={styles.iconButton}
               onClick={() => handleIconClick(icon)}
-              onDoubleClick={() => handleIconClick(icon)}
               type="button"
               aria-label={`Execute ${icon.label}`}
               data-e2e={`desktop-icon-${icon.id}`}
@@ -317,7 +395,6 @@ export function Win95Desktop({
           <button
             className={styles.iconButton}
             onClick={() => handleIconClick(RECYCLE_BIN_ICON)}
-            onDoubleClick={() => handleIconClick(RECYCLE_BIN_ICON)}
             type="button"
             aria-label={RECYCLE_BIN_ICON.label}
             data-e2e="desktop-icon-recycle-bin"
@@ -329,65 +406,98 @@ export function Win95Desktop({
 
         {/* Game loading widget - shown when game is loading */}
         {openWindows.has("game") && isLoading && (
-          <Win95LoadingWidget
-            onCancel={handleLoadingCancel}
-            onComplete={handleLoadingComplete}
-            onFocus={() => {
-              bringWindowToFront("game");
-              setActiveWindow("game");
+          <div
+            className={styles.windowLayer}
+            inert={minimizedWindows.has("game")}
+            style={{
+              visibility: minimizedWindows.has("game") ? "hidden" : "visible",
             }}
-            zIndex={getZIndex("game")}
-            isActive={activeWindow === "game"}
-          />
-        )}
-
-        {/* Game window */}
-        {openWindows.has("game") &&
-          !minimizedWindows.has("game") &&
-          !isLoading &&
-          loadingComplete &&
-          (gameContent || welcomeContent) && (
-            <Win95GameWindow
-              onClose={() => handleCloseWindow("game")}
-              onMinimize={() => handleMinimizeWindow("game")}
-              isActive={activeWindow === "game"}
+          >
+            <Win95LoadingWidget
+              onCancel={handleLoadingCancel}
+              onComplete={handleLoadingComplete}
               onFocus={() => {
                 bringWindowToFront("game");
                 setActiveWindow("game");
               }}
               zIndex={getZIndex("game")}
-              welcomeContent={welcomeContent}
+              isActive={activeWindow === "game"}
+            />
+          </div>
+        )}
+
+        {/* Game window */}
+        {openWindows.has("game") &&
+          !isLoading &&
+          loadingComplete &&
+          (gameContent || welcomeContent) && (
+            <div
+              className={styles.windowLayer}
+              inert={minimizedWindows.has("game")}
+              style={{
+                visibility: minimizedWindows.has("game") ? "hidden" : "visible",
+              }}
             >
-              {gameContent}
-            </Win95GameWindow>
+              <Win95GameWindow
+                onClose={() => handleCloseWindow("game")}
+                onMinimize={() => handleMinimizeWindow("game")}
+                isActive={activeWindow === "game"}
+                onFocus={() => {
+                  bringWindowToFront("game");
+                  setActiveWindow("game");
+                }}
+                zIndex={getZIndex("game")}
+                welcomeContent={welcomeContent}
+              >
+                {gameContent}
+              </Win95GameWindow>
+            </div>
           )}
 
         {/* Terminal window */}
-        {openWindows.has("terminal") && !minimizedWindows.has("terminal") && (
-          <Win95TerminalWindow
-            history={history}
-            input={input}
-            setInput={setInput}
-            handleKeyDown={handleKeyDown}
-            executeInput={executeInput}
-            inputRef={inputRef as React.RefObject<HTMLInputElement>}
-            currentDialogMessage={currentDialogMessage}
-            isTyping={isTyping}
-            skipTypewriter={skipTypewriter}
-            onClose={() => handleCloseWindow("terminal")}
-            onMinimize={() => handleMinimizeWindow("terminal")}
-            isActive={activeWindow === "terminal"}
-            onFocus={() => {
-              bringWindowToFront("terminal");
-              setActiveWindow("terminal");
+        {openWindows.has("terminal") && (
+          <div
+            className={styles.windowLayer}
+            inert={minimizedWindows.has("terminal")}
+            style={{
+              visibility: minimizedWindows.has("terminal")
+                ? "hidden"
+                : "visible",
             }}
-            zIndex={getZIndex("terminal")}
-          />
+          >
+            <Win95TerminalWindow
+              history={history}
+              input={input}
+              setInput={setInput}
+              handleKeyDown={handleKeyDown}
+              executeInput={executeInput}
+              inputRef={inputRef as React.RefObject<HTMLInputElement>}
+              currentDialogMessage={currentDialogMessage}
+              isTyping={isTyping}
+              skipTypewriter={skipTypewriter}
+              onClose={() => handleCloseWindow("terminal")}
+              onMinimize={() => handleMinimizeWindow("terminal")}
+              isActive={activeWindow === "terminal"}
+              onFocus={() => {
+                bringWindowToFront("terminal");
+                setActiveWindow("terminal");
+              }}
+              zIndex={getZIndex("terminal")}
+            />
+          </div>
         )}
 
         {/* Recycle Bin window */}
-        {openWindows.has("recycleBin") &&
-          !minimizedWindows.has("recycleBin") && (
+        {openWindows.has("recycleBin") && (
+          <div
+            className={styles.windowLayer}
+            inert={minimizedWindows.has("recycleBin")}
+            style={{
+              visibility: minimizedWindows.has("recycleBin")
+                ? "hidden"
+                : "visible",
+            }}
+          >
             <Win95RecycleBin
               onClose={() => handleCloseWindow("recycleBin")}
               onMinimize={() => handleMinimizeWindow("recycleBin")}
@@ -398,74 +508,192 @@ export function Win95Desktop({
               }}
               zIndex={getZIndex("recycleBin")}
             />
-          )}
-
-        {/* Taskbar */}
-        <div className={styles.taskbar}>
-          <button
-            className={styles.startButton}
-            type="button"
-            aria-label="Start menu (presentational)"
-            title="Start menu (not functional)"
-          >
-            <img
-              src={win95LogoImg}
-              alt="Windows 95"
-              style={{
-                width: "16px",
-                height: "16px",
-                marginRight: "4px",
-                objectFit: "contain",
-              }}
-            />
-            <span>Start</span>
-          </button>
-
-          <div className={styles.taskbarCenter}>
-            {/* Taskbar buttons for open windows */}
-            {openWindows.has("game") && (
-              <button
-                className={`${styles.taskbarButton} ${activeWindow === "game" ? styles.active : ""}`}
-                onClick={() => handleTaskbarClick("game")}
-                type="button"
-                aria-label="Daniele_Tortora_Portfolio.exe"
-                data-e2e="taskbar-game"
-              >
-                <span>Daniele_Tortora_Portfolio.exe</span>
-              </button>
-            )}
-
-            {openWindows.has("terminal") && (
-              <button
-                className={`${styles.taskbarButton} ${activeWindow === "terminal" ? styles.active : ""}`}
-                onClick={() => handleTaskbarClick("terminal")}
-                type="button"
-                aria-label="MS-DOS Prompt"
-                data-e2e="taskbar-terminal"
-              >
-                <span>MS-DOS Prompt</span>
-              </button>
-            )}
-
-            {openWindows.has("recycleBin") && (
-              <button
-                className={`${styles.taskbarButton} ${activeWindow === "recycleBin" ? styles.active : ""}`}
-                onClick={() => handleTaskbarClick("recycleBin")}
-                type="button"
-                aria-label="Recycle Bin"
-                data-e2e="taskbar-recycle-bin"
-              >
-                <span>Recycle Bin</span>
-              </button>
-            )}
           </div>
+        )}
 
-          <div className={styles.clock}>
-            {time.toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "2-digit",
-              hour12: true,
-            })}
+        {openWindows.has("about") && (
+          <div
+            className={styles.windowLayer}
+            inert={minimizedWindows.has("about")}
+            style={{
+              visibility: minimizedWindows.has("about") ? "hidden" : "visible",
+            }}
+          >
+            <Windows98About
+              onClose={() => handleCloseWindow("about")}
+              onFocus={() => {
+                bringWindowToFront("about");
+                setActiveWindow("about");
+              }}
+              isActive={activeWindow === "about"}
+              zIndex={getZIndex("about")}
+            />
+          </div>
+        )}
+
+        <div
+          ref={shellRef}
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget))
+              setStartMenuOpen(false);
+          }}
+        >
+          {startMenuOpen && (
+            <Windows98StartMenu
+              onClose={closeStartMenu}
+              onGame={() => launch("openGame")}
+              onTerminal={() => launch("openTerminal")}
+              onResume={() => launch("openResume")}
+              onContact={() => runCommand("contact")}
+              onExperience={() => runCommand("experience")}
+              onAbout={() => launch("openAbout")}
+              onShowDesktop={showDesktop}
+            />
+          )}
+          {/* Taskbar */}
+          <div className={styles.taskbar}>
+            <button
+              ref={startButtonRef}
+              className={`${styles.startButton} ${startMenuOpen ? styles.active : ""}`}
+              type="button"
+              aria-label="Start menu"
+              aria-haspopup="menu"
+              aria-expanded={startMenuOpen}
+              aria-controls="windows98-start-menu"
+              onClick={() => setStartMenuOpen((open) => !open)}
+              onKeyDown={(event) => {
+                if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                  event.preventDefault();
+                  setStartMenuOpen(true);
+                }
+              }}
+            >
+              <img src={win98LogoImg} alt="" />
+              <span>Start</span>
+            </button>
+            <div
+              className={styles.quickLaunch}
+              role="toolbar"
+              aria-label="Quick Launch"
+            >
+              <button
+                type="button"
+                title="Show Desktop"
+                aria-label="Show Desktop"
+                onClick={showDesktop}
+              >
+                <Windows98Icon kind="desktop" />
+              </button>
+              <button
+                type="button"
+                title="Launch adventure"
+                aria-label="Launch adventure"
+                onClick={() => launch("openGame")}
+              >
+                <img src={retroDanieleImg} alt="" />
+              </button>
+              <button
+                type="button"
+                title="MS-DOS Prompt"
+                aria-label="Launch MS-DOS Prompt"
+                onClick={() => launch("openTerminal")}
+              >
+                <img src={msdosPromptImg} alt="" />
+              </button>
+            </div>
+
+            <div className={styles.taskbarCenter}>
+              {/* Taskbar buttons for open windows */}
+              {openWindows.has("game") && (
+                <button
+                  className={`${styles.taskbarButton} ${activeWindow === "game" ? styles.active : ""}`}
+                  onClick={() => handleTaskbarClick("game")}
+                  type="button"
+                  aria-label="Daniele_Tortora_Portfolio.exe"
+                  data-e2e="taskbar-game"
+                >
+                  <img
+                    className={styles.taskbarIcon}
+                    src={retroDanieleImg}
+                    alt=""
+                  />
+                  <span>Portfolio — Remastered</span>
+                </button>
+              )}
+
+              {openWindows.has("terminal") && (
+                <button
+                  className={`${styles.taskbarButton} ${activeWindow === "terminal" ? styles.active : ""}`}
+                  onClick={() => handleTaskbarClick("terminal")}
+                  type="button"
+                  aria-label="MS-DOS Prompt"
+                  data-e2e="taskbar-terminal"
+                >
+                  <img
+                    className={styles.taskbarIcon}
+                    src={msdosPromptImg}
+                    alt=""
+                  />
+                  <span>MS-DOS Prompt</span>
+                </button>
+              )}
+
+              {openWindows.has("recycleBin") && (
+                <button
+                  className={`${styles.taskbarButton} ${activeWindow === "recycleBin" ? styles.active : ""}`}
+                  onClick={() => handleTaskbarClick("recycleBin")}
+                  type="button"
+                  aria-label="Recycle Bin"
+                  data-e2e="taskbar-recycle-bin"
+                >
+                  <img
+                    className={styles.taskbarIcon}
+                    src={recycleBinImg}
+                    alt=""
+                  />
+                  <span>Recycle Bin</span>
+                </button>
+              )}
+              {openWindows.has("about") && (
+                <button
+                  type="button"
+                  className={`${styles.taskbarButton} ${activeWindow === "about" ? styles.active : ""}`}
+                  onClick={() => handleTaskbarClick("about")}
+                >
+                  <span className={styles.taskbarIcon}>
+                    <Windows98Icon kind="computer" />
+                  </span>
+                  <span>System Properties</span>
+                </button>
+              )}
+            </div>
+
+            <div
+              className={styles.clock}
+              title={time.toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            >
+              <button
+                type="button"
+                className={styles.soundButton}
+                onClick={toggleSound}
+                aria-label={soundEnabled ? "Mute sound" : "Enable sound"}
+                aria-pressed={soundEnabled}
+                title={soundEnabled ? "Mute sound" : "Enable sound"}
+              >
+                <Windows98Icon kind="sound" />
+                {!soundEnabled && <span className={styles.muted}>×</span>}
+              </button>
+              {time.toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -473,7 +701,7 @@ export function Win95Desktop({
   );
 }
 
-// MS-DOS Prompt Icon (Win95 style)
+// MS-DOS Prompt Icon (Windows 98 style)
 function MSDOSPromptIcon() {
   return (
     <img
@@ -488,7 +716,7 @@ function MSDOSPromptIcon() {
   );
 }
 
-// Recycle Bin Icon (Empty - Win95 style)
+// Recycle Bin Icon (Empty - Windows 98 style)
 function RecycleBinEmptyIcon() {
   return (
     <img
@@ -506,6 +734,18 @@ function RecycleBinEmptyIcon() {
 // Desktop icons
 const DESKTOP_ICONS: DesktopIcon[] = [
   {
+    id: "computer",
+    label: "My Computer",
+    action: "openAbout",
+    icon: <Windows98Icon kind="computer" />,
+  },
+  {
+    id: "resume",
+    label: "My Resume",
+    action: "openResume",
+    icon: <Windows98Icon kind="document" />,
+  },
+  {
     id: "terminal",
     label: "MS-DOS Prompt",
     action: "openTerminal",
@@ -513,7 +753,7 @@ const DESKTOP_ICONS: DesktopIcon[] = [
   },
   {
     id: "game",
-    label: "Daniele_Tortora_Portfolio.exe",
+    label: "Portfolio Adventure",
     action: "openGame",
     icon: (
       <img
