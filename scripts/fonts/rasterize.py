@@ -135,7 +135,7 @@ SIZES = [
         line=19,
         tracking=1,
         space=4,
-        word=2,
+        word=1,
         gap=1,
         upper=False,
         comment="Speech, the status line, and anything longer than a word.",
@@ -434,16 +434,18 @@ def edge_tone(rows: list[str]) -> list[str]:
 
 
 def profiles(g: Glyph):
-    """Per row above the baseline, the blank columns before/after the ink."""
+    """
+    Per row above the baseline, the blank columns before the ink (from the
+    pen) and after it (to the end of the advance less its 1 px gap).
+    """
     left: dict[int, int] = {}
     right: dict[int, int] = {}
-    width = len(g.rows[0]) if g.rows else 0
     for ry, row in enumerate(g.rows):
         u = g.top - ry - 1
         cols = [i for i, c in enumerate(row) if c != "."]
         if cols:
-            left[u] = cols[0]
-            right[u] = width - 1 - cols[-1]
+            left[u] = g.left + cols[0]
+            right[u] = g.advance - 2 - (g.left + cols[-1])
     return left, right
 
 
@@ -464,8 +466,34 @@ def white(a: dict, b: dict, gap: int, band: tuple[int, int], cap_w: int):
     return total / (band[1] - band[0]), tight
 
 
+def blank(a: dict, b: dict, gap: int, rows_apart: int) -> int | None:
+    """Fewest blank columns between two letters, comparing a row of `a` with
+    the row of `b` `rows_apart` above it (None if no such pair of rows)."""
+    ra, lb = a["right"], b["left"]
+    found = [ra[u] + gap + lb[u + rows_apart] for u in ra if u + rows_apart in lb]
+    return min(found) if found else None
+
+
+def touches(a: dict, b: dict, gap: int, slack: int = 0) -> bool:
+    """
+    Whether the ink meets, sideways or on the diagonal, once `slack` px of
+    tracking are added: mixed-case sizes are never set tighter than 1 px of
+    tracking, so their pairs may be kerned in until they'd just touch at 0.
+    """
+    return any(
+        (w := blank(a, b, gap, d)) is not None and w + slack < 1 for d in (-1, 0, 1)
+    )
+
+
 def kern_table(glyphs: list[Glyph], z: Size, chars: str) -> dict[tuple[str, str], int]:
-    """Pair kerning, so every pair has the white of two straight stems."""
+    """
+    Pair kerning, in two steps. Optical: a pair is tucked in until the white
+    between it matches that of two straight stems (never apart: the atlas
+    advance already leaves a 1 px gap, and opening a pair up left holes in
+    words, "Welco me"). Then a guard: no pair may be left more than 1 px
+    wider than the median at its tightest row, so a pair is tucked in as far
+    as it can go without touching, on the diagonal as well as sideways.
+    """
     info = {}
     for g in glyphs:
         if g.char in chars and g.rows:
@@ -474,7 +502,10 @@ def kern_table(glyphs: list[Glyph], z: Size, chars: str) -> dict[tuple[str, str]
     cap_w = max(4, round(z.cap * 0.75))
     ref = info["H"]
     target, _ = white(ref, ref, z.gap, (0, z.cap), cap_w)
-    out: dict[tuple[str, str], int] = {}
+    reach = max(2, z.cap // 4)
+    slack = 0 if z.upper else 1
+
+    chosen: dict[tuple[str, str], int] = {}
     for a in info:
         for b in info:
             # Letters that share no row (an apostrophe over a lowercase m)
@@ -483,24 +514,33 @@ def kern_table(glyphs: list[Glyph], z: Size, chars: str) -> dict[tuple[str, str]
                 continue
             lower = (a.islower() or b.islower()) and not z.upper
             band = (0, z.xh if lower else z.cap)
-            best = None
-            for gap in range(-4, 8):
-                mean, tight = white(info[a], info[b], gap, band, cap_w)
-                if tight < 1:
+            best = (abs(white(info[a], info[b], 1, band, cap_w)[0] - target), 1)
+            for gap in range(1 - reach, 1):
+                if touches(info[a], info[b], gap, slack):
                     continue
-                err = abs(mean - target)
-                if best is None or err < best[0]:
+                err = abs(white(info[a], info[b], gap, band, cap_w)[0] - target)
+                if err < best[0]:
                     best = (err, gap)
-            if best is None:
-                continue
-            # The atlas advance is ink width + 1 px, so gap 1 is 0 kerning.
-            # Kept modest: a pair is never pulled in, or pushed out, by more
-            # than a quarter of the capital height.
-            reach = max(2, z.cap // 4)
-            k = max(-reach, min(reach - 1, best[1] - 1))
-            if k:
-                out[(a, b)] = k
-    return out
+            chosen[(a, b)] = best[1]
+
+    def tightest(pair: tuple[str, str]) -> int:
+        w = blank(info[pair[0]], info[pair[1]], chosen[pair], 0)
+        return w if w is not None else 0
+
+    # Tucking pairs in lowers the median, so go round until nothing moves.
+    moved = True
+    while moved:
+        moved = False
+        widths = sorted(tightest(p) for p in chosen)
+        limit = widths[len(widths) // 2] + 1
+        for pair in chosen:
+            a, b = info[pair[0]], info[pair[1]]
+            while tightest(pair) > limit and not touches(a, b, chosen[pair] - 1, slack):
+                chosen[pair] -= 1
+                moved = True
+
+    # The atlas advance is ink width + 1 px, so a gap of 1 is 0 kerning.
+    return {pair: gap - 1 for pair, gap in chosen.items() if gap != 1}
 
 
 # --- Overrides and output ------------------------------------------------------
