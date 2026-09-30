@@ -73,6 +73,8 @@ let slide = 0;
 const ui = document.getElementById("ui") as HTMLDivElement;
 const readout = document.getElementById("readout") as HTMLParagraphElement;
 const canvas = document.getElementById("stage") as HTMLCanvasElement;
+canvas.width = 320 * Math.max(2, rig.density);
+canvas.height = 160 * Math.max(2, rig.density);
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 function group<T extends string | number>(

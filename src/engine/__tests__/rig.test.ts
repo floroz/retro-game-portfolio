@@ -496,30 +496,27 @@ describe("the shipped rig (HB7)", () => {
   )[0];
   const shipped = parseRig(json, "daniele-rig.png");
 
-  test("is painted at density 2, 72 logical px tall in every facing", () => {
-    expect(shipped.density).toBe(2);
+  test("retains portrait detail at density 4, 72 logical px tall in every facing", () => {
+    expect(shipped.density).toBe(4);
     expect(shipped.figureHeight).toBe(72);
     for (const facing of ["side", "front", "back"] as const)
-      expect(shipped.facings[facing].bounds.h).toBe(144);
+      expect(shipped.facings[facing].bounds.h).toBe(288);
   });
 
   test("has the mouth shapes and the blink the animator uses", () => {
     expect(shipped.mouths).toEqual(["talk-1", "talk-2", "talk-3"]);
     expect(shipped.blinks).toBe(true);
-    const front = shipped.facings.front.parts.find((p) => p.id === "head");
-    // Each drawn head has an "-ink" twin holding its pupils and mouth line,
-    // which the renderer snaps to solid ink (the blink has none).
-    expect(Object.keys(front?.variants ?? {}).sort()).toEqual([
-      "blink",
-      "blink-ink",
-      "ink",
-      "talk-1",
-      "talk-1-ink",
-      "talk-2",
-      "talk-2-ink",
-      "talk-3",
-      "talk-3-ink",
-    ]);
+    // Both visible faces carry the painted expressions themselves; stale
+    // ink-only overlays from the previous design must not cover the new face.
+    for (const facing of ["front", "side"] as const) {
+      const head = shipped.facings[facing].parts.find((p) => p.id === "head");
+      expect(Object.keys(head?.variants ?? {}).sort()).toEqual([
+        "blink",
+        "talk-1",
+        "talk-2",
+        "talk-3",
+      ]);
+    }
   });
 
   test("the walk keeps the planted heel still and the soles on the ground", () => {

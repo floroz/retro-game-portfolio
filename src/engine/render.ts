@@ -1,9 +1,8 @@
 /**
  * Draws one frame in logical px (320x160), scaled by the canvas transform.
- * Frames draw on a 640x320 canvas that CSS scales 2x with
- * `image-rendering: pixelated`, so every pixel stays on the grid: density-1
- * art at 2x nearest-neighbour, pixel for pixel as it looked on the old
- * 320x160 canvas, and density-2 art (the shipped painted art) 1:1.
+ * Frames draw on at least a 640x320 canvas that CSS scales with
+ * `image-rendering: pixelated`. Scene art keeps its existing pixel grid;
+ * the density-4 portrait rig uses a 1280x640 surface to retain face detail.
  * Smoothing is off throughout (docs/art-spec.md, "Phase H": hard pixels,
  * never smooth).
  *
@@ -33,14 +32,7 @@ import type { Rig } from "./rig/rig";
 import { animationFrame } from "./animation";
 import { drawChalk } from "./chalk";
 import { paintOrder, type Paintable } from "./depth";
-import {
-  CANVAS_H,
-  CANVAS_W,
-  CORE,
-  IRIS_MS,
-  NATIVE_H,
-  NATIVE_W,
-} from "./constants";
+import { CANVAS_W, CORE, IRIS_MS, NATIVE_H, NATIVE_W } from "./constants";
 import { snap } from "./density";
 import {
   drawText,
@@ -92,18 +84,22 @@ export interface RenderContext {
 }
 
 /**
- * Sizes the canvas to 640x320 and sets its transform to logical px. Resizing
+ * Retains the rig's native detail (1280x640 for density 4), while scene art
+ * still scales nearest-neighbour on its original grid. Resizing
  * clears the canvas, so it only happens when the size is wrong, right before
  * a full redraw.
  */
 function prepareCanvas(rc: RenderContext) {
   const { ctx } = rc;
   const canvas = ctx.canvas;
-  if (canvas.width !== CANVAS_W || canvas.height !== CANVAS_H) {
-    canvas.width = CANVAS_W;
-    canvas.height = CANVAS_H;
+  const scale = Math.max(CANVAS_W / NATIVE_W, rc.rig?.density ?? 1);
+  const width = NATIVE_W * scale;
+  const height = NATIVE_H * scale;
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
   }
-  ctx.setTransform(CANVAS_W / NATIVE_W, 0, 0, CANVAS_H / NATIVE_H, 0, 0);
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
   ctx.imageSmoothingEnabled = false;
 }
 
@@ -507,11 +503,19 @@ function drawCharacter(rc: RenderContext) {
   const figure = engine.figure();
   const { x, y } = engine.position;
   if (figure.kind === "rig") {
-    // Rasterized on the art's pixel grid: 2 px per logical px for the
-    // 640x320 art (and density-1 art, drawn 2x on the same canvas).
+    // Use the rig's own grid so detailed faces survive the final composite.
     const atlas = rc.images.get(figure.rig.image);
     if (atlas) {
-      drawRig(ctx, atlas, figure.rig, figure.state, x, y, figure.scale, GRID);
+      drawRig(
+        ctx,
+        atlas,
+        figure.rig,
+        figure.state,
+        x,
+        y,
+        figure.scale,
+        Math.max(GRID, figure.rig.density),
+      );
     }
     return;
   }
