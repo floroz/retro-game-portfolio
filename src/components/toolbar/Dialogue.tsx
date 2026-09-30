@@ -119,8 +119,15 @@ export function Dialogue() {
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault();
         const step = e.key === "ArrowDown" ? 1 : -1;
+        // The focused button is authoritative for keyboard navigation. A
+        // stationary pointer or a pending React focus update may light another row.
+        const focusedIndex =
+          e.target instanceof HTMLButtonElement
+            ? rowRefs.current.indexOf(e.target)
+            : -1;
+        const current = focusedIndex >= 0 ? focusedIndex : active;
         const next =
-          active === null ? (step > 0 ? 0 : n - 1) : (active + step + n) % n;
+          current === null ? (step > 0 ? 0 : n - 1) : (current + step + n) % n;
         move(next);
       } else if (confirm) {
         // A focused choice is a button, which activates itself.
@@ -201,7 +208,9 @@ export function Dialogue() {
               onMouseLeave={() =>
                 setPoint({ node: dialogNode, hover: null, focus })
               }
-              onFocus={() => setPoint({ node: dialogNode, hover, focus: i })}
+              onFocus={() =>
+                setPoint({ node: dialogNode, hover: null, focus: i })
+              }
               onBlur={() => setPoint({ node: dialogNode, hover, focus: null })}
             >
               {option.label}
