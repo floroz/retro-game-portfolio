@@ -330,7 +330,12 @@ export interface MovingProp {
   ease?: "linear" | "in" | "out" | "inOut";
   /** Mirror the sprite while it travels left. */
   faceTravel?: boolean;
-  clip?: Rect;
+  /**
+   * Only draws inside this rectangle, or inside any of these rectangles:
+   * window panes with the mullions and posts left out, so the prop passes
+   * behind them.
+   */
+  clip?: Rect | Rect[];
   baselineY?: number;
   /** Played as each pass starts (`"cuckoo"`). */
   sound?: EffectName;
