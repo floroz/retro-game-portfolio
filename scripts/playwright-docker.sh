@@ -21,4 +21,4 @@ docker run --rm -it \
   --ipc=host \
   -e "VITE_TYPEWRITER_SPEED=0" \
   "$IMAGE" \
-  /bin/bash -c "npm ci && npm run test:e2e -- $*"
+  /bin/bash -c 'npm ci && npm run test:e2e -- "$@"' -- "$@"
