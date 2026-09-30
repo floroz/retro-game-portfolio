@@ -29,7 +29,7 @@ import { drawRig } from "./rig/draw";
 import { effectShapes, propFrame, type Shape } from "./effects";
 import { stampOnGrid } from "./raster";
 import type { Rig } from "./rig/rig";
-import { animationFrame } from "./animation";
+import { animationFrame, idleRise } from "./animation";
 import { drawChalk } from "./chalk";
 import { paintOrder, type Paintable } from "./depth";
 import { CANVAS_W, CORE, IRIS_MS, NATIVE_H, NATIVE_W } from "./constants";
@@ -81,6 +81,8 @@ export interface RenderContext {
   /** The cut-out rig, if there is one (assets.ts, `CHARACTER_RIG`). */
   rig?: Rig | null;
   map: TravelMapData;
+  /** Keep seated passengers still and omit decorative foot traffic. */
+  reducedMotion?: boolean;
 }
 
 /**
@@ -338,6 +340,7 @@ function drawShapes(ctx: Ctx, shapes: Shape[], grid: number) {
  * scaled or mirrored, stamped on the grid with hard edges (raster.ts).
  */
 function drawProp(rc: RenderContext, prop: MovingProp, grid: number) {
+  if (rc.reducedMotion && prop.hideForReducedMotion) return;
   const img = rc.images.get(prop.sprite);
   const f = propFrame(prop, rc.engine.now);
   if (!img || !f) return;
@@ -377,6 +380,34 @@ function drawAnimation(rc: RenderContext, anim: SceneAnimation) {
   // Frame size in image pixels.
   const w = Math.floor(img.naturalWidth / anim.frames);
   const h = img.naturalHeight;
+  if (anim.idle) {
+    const split = Math.round(anim.idle.splitY * d);
+    const rise = rc.reducedMotion ? 0 : snap(idleRise(anim, rc.engine.now), d);
+    // Separate at the lap: breathing never slides the shoes or the chair.
+    ctx.drawImage(
+      img,
+      f.frame * w,
+      0,
+      w,
+      split,
+      snap(f.x, d),
+      snap(f.y - rise, d),
+      w / d,
+      split / d + rise,
+    );
+    ctx.drawImage(
+      img,
+      f.frame * w,
+      split,
+      w,
+      h - split,
+      snap(f.x, d),
+      snap(f.y, d) + split / d,
+      w / d,
+      (h - split) / d,
+    );
+    return;
+  }
   if (anim.clip) {
     ctx.save();
     ctx.beginPath();
