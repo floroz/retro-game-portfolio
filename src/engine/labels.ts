@@ -7,8 +7,11 @@
  * board lists cities, and a primary object carries one word. The status line
  * and the toolbar say which sections are where.
  */
+import { PROFILE } from "../config/profile";
 import { COUNTRIES, COUNTRY_ORDER, SECTIONS } from "../config/sections";
 import type { CountrySceneId, LabelSource, Rect, SceneId } from "./types";
+
+type SkillGroup = keyof typeof PROFILE.skills;
 
 const SCENE_NAMES: Record<SceneId, string> = {
   hall: "Airport",
@@ -39,6 +42,13 @@ export function resolveLabel(source: LabelSource): string[] {
       break;
     case "departures":
       return COUNTRY_ORDER.map((c) => COUNTRIES[c].name);
+    case "skills":
+      if (arg === "groups") {
+        return (Object.keys(PROFILE.skills) as SkillGroup[]).map(
+          (g) => PROFILE.skillGroupLabels[g],
+        );
+      }
+      break;
     case "text":
       return arg.split("\n");
   }

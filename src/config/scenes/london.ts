@@ -9,8 +9,9 @@
  * two pixels per logical px.
  *
  * The chalkboard behind the bar opens Skills: the engine letters "SKILLS" on
- * its header and nothing else, since lists belong in the content screen
- * (docs/expansion-plan.md, "Minimal in-world text"). The taps on the bar top
+ * its header and writes the skill groups on the slate in chalk, from
+ * `profile.ts` (the one list allowed in the world, at Daniele's request:
+ * docs/expansion-plan.md, "Minimal in-world text"). The taps on the bar top
  * are a slot row with one tap per skill group, each naming its group on
  * hover, with its own "look at" joke (src/config/slotCopy.ts). The London job
  * photos hang as a 3 x 2 slot row on the bare red wall by the dartboard.
@@ -33,7 +34,7 @@
  * Check it with the dev overlay: `npm run dev`, then `?debug=scene`.
  */
 import { SECTIONS } from "../sections";
-import type { SceneData, Vec } from "../../engine/types";
+import type { Rect, SceneData, Vec } from "../../engine/types";
 import londonBg from "../../assets/scenes/london/bg.png";
 import londonObjBar from "../../assets/scenes/london/obj-bar.png";
 import londonObjTable from "../../assets/scenes/london/obj-table.png";
@@ -68,6 +69,23 @@ const FRUIT_LAMPS: Vec[] = [79, 85.2, 102.7].flatMap((y) =>
 
 /** The window's glass, inside its wooden frame: the rain is clipped to it. */
 const WINDOW_GLASS = { x: 33, y: 10, w: 76, h: 64 };
+
+/**
+ * The chalkboard's slate, measured from the painted plate
+ * (assets/scenes/london/bg.png: art px 284-394 by 28-144, inside the wooden
+ * frame, under the header and above the ledge), in logical px. A test reads
+ * the pixels to keep it honest.
+ */
+export const CHALKBOARD_SLATE: Rect = { x: 142, y: 14, w: 55, h: 58 };
+
+/**
+ * Where the chalk goes: the slate less a 3 px margin on the sides and top,
+ * and cut off at y 66. That is the top of Daniele's head when he stands at
+ * the board (his stand point is y 126, and he is 59 px tall there), so the
+ * list stays clear of him, and it keeps well above the ledge and the chalk
+ * stub on it.
+ */
+export const CHALKBOARD_AREA: Rect = { x: 145, y: 17, w: 49, h: 49 };
 
 /** Daniele's standing height at the back and front of the floor, in px. */
 const LONDON_HEIGHTS = { farHeight: 55, nearHeight: 66 } as const;
@@ -308,6 +326,15 @@ export const LONDON_SCENE: SceneData = {
     },
   ],
   labels: [
+    {
+      // The skill groups in chalk on the slate, from profile.ts. Part of the
+      // wall (no baselineY), so Daniele stands in front of it.
+      id: "board-chalk",
+      source: "skills:groups",
+      x: CHALKBOARD_AREA.x,
+      y: CHALKBOARD_AREA.y,
+      chalk: { area: CHALKBOARD_AREA, seed: 7 },
+    },
     {
       // Gilt lettering on the chalkboard's wooden header.
       id: "board-header",
