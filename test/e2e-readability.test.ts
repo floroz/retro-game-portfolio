@@ -91,9 +91,10 @@ for (const viewport of viewports) {
       const choices = page.locator("[data-e2e=dialog-option]");
       await expect(choices).toHaveCount(4);
       await expectInsideGame(page, choices);
-      // Exercise keyboard highlighting as well as all four visible rows.
+      // Keyboard navigation must follow focus even while another row is hovered.
       await page.mouse.move(0, 0);
       await choices.first().focus();
+      await choices.nth(2).hover();
       await page.keyboard.press("ArrowDown");
       await expect(choices.nth(1)).toBeFocused();
       await screenshot("four-choices");

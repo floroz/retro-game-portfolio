@@ -142,6 +142,18 @@ describe("Toolbar: dialogue choices", () => {
     expect(choices(container)).toHaveLength(0);
   });
 
+  test("arrow keys follow keyboard focus while the pointer rests on another choice", async () => {
+    const { container } = await render(<Panel />);
+    await talkAt("intro-2");
+    const list = choices(container);
+    list[0].focus();
+    await userEvent.hover(list[2]);
+    await userEvent.keyboard("{ArrowDown}");
+    expect(document.activeElement).toBe(list[1]);
+    await userEvent.keyboard("{ArrowDown}");
+    expect(document.activeElement).toBe(list[2]);
+  });
+
   test("Enter on a lone Continue... just continues", async () => {
     await render(<Panel />);
     await talkAt("intro");
