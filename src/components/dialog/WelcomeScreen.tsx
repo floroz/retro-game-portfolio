@@ -8,6 +8,8 @@ import {
   cardPct,
   paintCard,
 } from "./titleCard";
+import boardingPass from "../../assets/title/boarding-pass.png";
+import { PROFILE } from "../../config/profile";
 import styles from "./WelcomeScreen.module.scss";
 
 interface WelcomeScreenProps {
@@ -19,36 +21,20 @@ interface WelcomeScreenProps {
   ready?: boolean;
 }
 
-/** How often the space bar presses itself, in ms. */
-const PRESS_MS = 700;
-
 /**
  * The longest a requested start waits for the art, in ms. A stalled
  * download must never lock the visitor out of the content.
  */
 const WAIT_LIMIT_MS = 12000;
 
-/**
- * The title card, shown in the game window until the visitor starts: a
- * boarding pass laid on the travel trunk's lid (titleCard.ts). The pass is
- * the button, and Space starts the game too. A brass fitting toggles the
- * sound.
- *
- * If the visitor starts before the scene's art has loaded, the pass stays
- * up with "loading" on its stub and the game starts as soon as the art is in.
- *
- * The art is one canvas; the button and the fitting over it are real
- * controls, and the name and title are also in the page for screen readers.
- */
+/** Illustrated boarding pass with real keyboard, pointer and sound controls. */
 export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const soundEnabled = useGameStore((s) => s.soundEnabled);
   const toggleSound = useGameStore((s) => s.toggleSound);
-  const [passLit, setPassLit] = useState(false);
   const [soundHover, setSoundHover] = useState(false);
   const [soundFocus, setSoundFocus] = useState(false);
   const soundLit = soundHover || soundFocus;
-  const [pressed, setPressed] = useState(false);
   const [queued, setQueued] = useState(false);
   const waiting = queued && !ready;
 
@@ -73,25 +59,15 @@ export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
     return () => clearTimeout(timer);
   }, [waiting]);
 
-  // The space bar presses itself, unless the visitor would rather it didn't.
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = setInterval(() => setPressed((p) => !p), PRESS_MS);
-    return () => clearInterval(timer);
-  }, []);
-
   useEffect(() => {
     const ctx = canvasRef.current?.getContext("2d");
     if (ctx) {
       paintCard(ctx, {
-        lit: passLit,
-        pressed: pressed || passLit || waiting,
         soundEnabled,
         soundLit,
-        waiting,
       });
     }
-  }, [passLit, pressed, soundEnabled, soundLit, waiting]);
+  }, [soundEnabled, soundLit]);
 
   // Space starts the game, whatever has focus except a button the visitor
   // tabbed to, which handles its own Space (the pass starts, the fitting
@@ -124,11 +100,21 @@ export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
         aria-hidden="true"
       />
 
+      <img
+        className={styles.ticket}
+        style={cardPct(PASS)}
+        src={boardingPass}
+        alt=""
+        aria-hidden="true"
+        data-e2e="welcome-screen-artwork"
+        draggable={false}
+      />
+
       <h1 className={styles.text} data-e2e="welcome-screen-name">
-        Daniele Tortora
+        {PROFILE.name}
       </h1>
       <p className={styles.text} data-e2e="welcome-screen-title">
-        Senior Software Engineer
+        {PROFILE.title.split(" | ")[0]}
       </p>
 
       <button
@@ -138,11 +124,17 @@ export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
         data-e2e="welcome-screen-prompt"
         aria-label="Press space or click to start"
         onClick={start}
-        onMouseEnter={() => setPassLit(true)}
-        onMouseLeave={() => setPassLit(false)}
-        onFocus={() => setPassLit(true)}
-        onBlur={() => setPassLit(false)}
-      />
+      >
+        <span className={styles.prompt}>
+          <span className={styles.promptLabel}>
+            {waiting ? "HOLD ON" : "PRESS"}
+          </span>
+          <span className={styles.key}>SPACE</span>
+          <span className={styles.promptHint} role="status">
+            {waiting ? "Loading…" : "to start"}
+          </span>
+        </span>
+      </button>
 
       <button
         type="button"

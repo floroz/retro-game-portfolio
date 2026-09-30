@@ -91,8 +91,8 @@ describe("dialogue trees", () => {
   });
 
   test("every choice fits the trunk's page on one line", () => {
-    // 14 art px in from the page's edge, as painted, and out to the hint.
-    const room = (CHOICES_PAGE.w - 28) / 2;
+    // Leave room for the number/pointer column and the right-hand inset.
+    const room = (CHOICES_PAGE.w - 46) / 2;
     for (const [id, node] of nodes) {
       for (const option of node.options ?? []) {
         expect(

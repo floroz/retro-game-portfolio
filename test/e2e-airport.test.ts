@@ -1,25 +1,24 @@
 import { test, expect, type Page } from "@playwright/test";
+import sharp from "sharp";
 
 test.use({ viewport: { width: 1440, height: 1000 } });
 
-// Reproduced on untouched V2 (c382110): Linux WebKit magnifies the art
-// canvas 4x after the density-4 portrait update. Do not bless that as a baseline.
-test.fixme(
-  ({ browserName }) => browserName === "webkit",
-  "Existing V2 canvas scaling fault in Linux WebKit (c382110).",
-);
-
 async function openAirport(page: Page) {
-  await page.clock.install();
+  await page.clock.install({ time: new Date("2030-01-01T00:00:00Z") });
   await page.goto("/");
   await expect(page.locator("[data-e2e=welcome-screen]")).toBeVisible({
     timeout: 30000,
   });
+  // Finish loading art, then freeze before the scene mounts. Freezing after
+  // entering the lounge let real loading time change the passengers' phase.
+  await page.waitForLoadState("networkidle");
+  await page.clock.pauseAt(new Date("2030-01-01T00:01:00Z"));
   await page.keyboard.press("Space");
+  await page.clock.runFor(1000);
   await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();
   await page.keyboard.press("Escape");
+  await page.clock.runFor(1000);
   await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
-  await page.clock.pauseAt(new Date(Date.now() + 1000));
 }
 
 /** Only the seated heads: excludes Daniele, the plane, and the crossing lanes. */
@@ -44,6 +43,55 @@ async function seatedPixels(page: Page) {
     );
   });
 }
+
+test("scene pixels keep their geometry across repeated frames", async ({
+  page,
+}) => {
+  await openAirport(page);
+  // Clear floor landmarks, away from passengers, labels and the character.
+  // Compare against the actual source art so an intended palette change does
+  // not turn this geometry regression into a second screenshot baseline.
+  const points = [
+    { x: 40, y: 145 },
+    { x: 160, y: 150 },
+    { x: 240, y: 150 },
+  ];
+  const { data, info } = await sharp("src/assets/scenes/hall/bg.png")
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const density = info.width / 320;
+  const expected = points.map(({ x, y }) => {
+    const offset = (y * density * info.width + x * density) * 4;
+    return Array.from(data.subarray(offset, offset + 4));
+  });
+  for (let frame = 0; frame < 3; frame++) {
+    await page.clock.runFor(4000);
+    const actual = await page
+      .locator("canvas[data-drawn=hall]")
+      .evaluate((element, landmarks) => {
+        const canvas = element as unknown as {
+          width: number;
+          getContext(kind: string): {
+            getImageData(
+              x: number,
+              y: number,
+              w: number,
+              h: number,
+            ): { data: ArrayLike<number> };
+          };
+        };
+        const scale = canvas.width / 320;
+        return landmarks.map(({ x, y }) =>
+          Array.from(
+            canvas.getContext("2d").getImageData(x * scale, y * scale, 1, 1)
+              .data,
+          ),
+        );
+      }, points);
+    expect(actual).toEqual(expected);
+  }
+});
 
 test("airport passengers breathe and walk across the lounge", async ({
   page,
@@ -70,8 +118,14 @@ test("airport passengers breathe and walk across the lounge", async ({
     .locator('[data-e2e=hotspot][data-hotspot="exit:gate-london"]')
     .first()
     .click({ force: true });
-  await page.clock.runFor(30000);
-  await expect(page.locator("canvas[data-drawn=london]")).toBeVisible();
+  const london = page.locator("canvas[data-drawn=london]");
+  // Stop advancing once travel finishes instead of rendering thousands of
+  // unrelated London frames before asserting that the gate worked.
+  for (let elapsed = 0; elapsed < 30000; elapsed += 1000) {
+    await page.clock.runFor(1000);
+    if (await london.isVisible()) break;
+  }
+  await expect(london).toBeVisible();
 });
 
 test("airport passengers respect reduced motion", async ({ page }) => {

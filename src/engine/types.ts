@@ -403,6 +403,8 @@ export interface SceneLabel {
   font?: "small" | "regular";
   /** Hex colour. Defaults to the core palette's lightest neutral. */
   color?: string;
+  /** A quiet sign surface, painted before its text on the same depth layer. */
+  background?: { area: Rect; color: string };
   /** Hex outline colour, or false for none. Defaults to none. */
   outline?: string | false;
   /**
@@ -421,7 +423,7 @@ export interface SceneLabel {
   /**
    * Chalk lettering on a slate (chalk.ts): the label's lines are centred in
    * `area`, the writable part of the slate with its margins already taken,
-   * in chalk white with a hand-lettered wobble. `x`, `y`, `align`, `font`
+   * in chalk white with clean strokes and a steady baseline. `x`, `y`, `align`, `font`
    * and `maxWidth` are ignored; `color` still sets the chalk. The one place
    * a list appears in the world (docs/expansion-plan.md, "Minimal in-world
    * text").

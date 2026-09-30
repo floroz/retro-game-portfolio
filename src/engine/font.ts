@@ -1,33 +1,16 @@
 /**
- * Engine-drawn text. Art never contains text (docs/expansion-plan.md,
- * Extensibility), so every sign, label, board, caption, and speech line goes
- * through here.
+ * World text is set on the 640x320 pixel grid. The original adventure face
+ * uses open counters and consistent strokes for dialogue and signs; only
+ * display lettering uses the decorative Caslon logo. Art and text both
+ * scale nearest-neighbour, with layout in logical 320x160 coordinates.
  *
- * As in _The Curse of Monkey Island_ (docs/art-spec.md, Phase H, "Text"),
- * text is a serif bitmap font on the art's own 640x320 grid: glyphs from an
- * atlas (bitmapFont.ts) in two tones at most (the letter, and one edge tone
- * on the notches of diagonals and curves), a hard 1 px outline, and for
- * speech a 1 px drop shadow. Every pixel is a whole indexed colour; nothing
- * is smoothed. It's drawn on the text layer
- * (the 640x320 text canvas in Scene.tsx) and shown with the scene at 2x
- * nearest-neighbour, so text pixels line up with art pixels.
- *
- * Layout stays in logical px (320x160), like the rest of the scene data;
- * a logical px is 2 art px. Positions snap to whole art px when drawn.
- *
- * - `logo`: mixed case, large, for the name on the title card.
- * - `regular`: mixed case, for speech and anything longer than a word or two.
- * - `small`: capitals, for signs, boards, and captions.
- * - `tiny`: capitals, only for a label whose `maxWidth` the small size
- *   can't fit.
- *
- * Section icons are written as `{skills}` etc. and drawn inline as pixel
- * art on the same grid (icons.ts).
+ * regular: mixed-case reading text; small/tiny: compact scene signs.
+ * Section icons such as {skills} share the same pixel grid.
  */
 import logoAtlas from "../assets/fonts/serif-logo.txt?raw";
-import regularAtlas from "../assets/fonts/serif-regular.txt?raw";
-import smallAtlas from "../assets/fonts/serif-small.txt?raw";
-import tinyAtlas from "../assets/fonts/serif-tiny.txt?raw";
+import regularAtlas from "../assets/fonts/adventure-regular.txt?raw";
+import smallAtlas from "../assets/fonts/adventure-small.txt?raw";
+import tinyAtlas from "../assets/fonts/adventure-tiny.txt?raw";
 import {
   EDGE,
   INK,

@@ -247,7 +247,7 @@ function staticTrunk(): HTMLCanvasElement | null {
  * A passport entry stamp in red ink at the ticket's far end, "you are
  * here": a double ring round a little plane, worn in places.
  */
-export const PLANE = [
+const PLANE = [
   ".....##....",
   "......##...",
   "#......##..",
@@ -369,7 +369,7 @@ function paintTicketText(
   const { header, country } = t;
   const name = COUNTRIES[country].name.toUpperCase();
   const ty = header.y + Math.round((header.h - cap("small")) / 2);
-  text(layer, name, header.x + 5, ty, "small", PAPER.light, INK);
+  text(layer, name, header.x + 5, ty, "small", PAPER.light, false);
   t.rows.forEach(({ section, rect }) =>
     paintSectionRow(ctx, layer, country, section, rect, view),
   );
@@ -435,10 +435,10 @@ export interface ChoicesView {
   active: number | null;
 }
 
-const CHOICE = "#c9b58a";
+const CHOICE = "#f4ecd8";
 const CHOICE_ACTIVE = "#ffe58a";
 const PAGE = "#1e100c";
-const HINT = "#8a7654";
+const HINT = "#c9b58a";
 
 let lid: HTMLCanvasElement | null = null;
 
@@ -477,7 +477,7 @@ function staticLid(): HTMLCanvasElement | null {
 }
 
 /**
- * The conversation's choices as lines of serif text on the leather page: one
+ * The conversation's choices as lines of clean bitmap text on the leather page: one
  * colour normally, a brighter one for the choice the pointer or keyboard is
  * on. Before Daniele has finished a line there are none, only a dim nudge
  * that a click moves it along.
@@ -504,7 +504,18 @@ export function paintChoices(ctx: Ctx, view: ChoicesView) {
     const r = rows[i];
     const on = view.active === i;
     const color = on ? CHOICE_ACTIVE : CHOICE;
-    text(layer, label, r.x + 14, r.y + CHOICE_CAP_TOP, "regular", color, INK);
+    // A filled row and a pointer identify focus without relying on colour.
+    if (on) fill(ctx, r.x + 9, r.y, r.w - 18, r.h, "#39291c");
+    text(
+      layer,
+      on ? ">" : `${i + 1}.`,
+      r.x + 14,
+      r.y + CHOICE_CAP_TOP,
+      "small",
+      color,
+      false,
+    );
+    text(layer, label, r.x + 30, r.y + CHOICE_CAP_TOP, "regular", color, false);
   });
   text(
     layer,

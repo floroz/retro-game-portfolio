@@ -1,0 +1,13 @@
+{
+  "id": "boarding-pass",
+  "output": "src/assets/title/boarding-pass.png",
+  "task": "v2-readability",
+  "source": "codex",
+  "prompt": "assets-src/prompts/boarding-pass.md",
+  "candidate": "01",
+  "references": [],
+  "approvedRaw": "assets-src/approved/boarding-pass.png",
+  "cleanup": "Built-in image_gen output, 1919x820 RGBA PNG, preserved without image editing. Transparent standalone ticket with perforation at approximately 75% width; blank right stub center accepts the live Space control. Static identity text and destination labels were visually checked for accuracy and contrast. Full resolution is retained so title typography remains readable at desktop sizes; this is title-screen artwork rather than a scene sprite and is outside the scene palette/density pipeline.",
+  "approvedBy": "codex-autonomous-qa",
+  "date": "2026-09-30"
+}

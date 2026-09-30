@@ -137,12 +137,20 @@ describe("WelcomeScreen: the title card", () => {
     await vi.waitFor(() => expect(onDismiss).toHaveBeenCalledTimes(1));
   });
 
-  test("the card is painted on the 2x grid", async () => {
+  test("the ticket artwork loads above the pixel-grid backdrop", async () => {
     const { container } = await render(<Card onDismiss={vi.fn()} />);
+    const artwork = container.querySelector("img")!;
+    await vi.waitFor(() => {
+      expect(artwork.complete).toBe(true);
+      expect(artwork.naturalWidth).toBeGreaterThan(1000);
+    });
+    await expect
+      .element(page.getByText("SPACE", { exact: true }))
+      .toBeVisible();
     const canvas = container.querySelector("canvas")!;
     expect([canvas.width, canvas.height]).toEqual([1280, 800]);
     expect(offGridPixels(canvas)).toBe(0);
-    // Lit and pressed, too.
+    // Hovering the live key leaves the backdrop on its native grid.
     await userEvent.hover(
       page.getByRole("button", { name: "Press space or click to start" }),
     );
