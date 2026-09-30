@@ -81,6 +81,9 @@ export function Scene() {
     const engine = getEngine();
     engine.contentClosed();
     let last = performance.now();
+    const motionPreference = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
     let raf = 0;
     const frame = (t: number) => {
       engine.update(t - last);
@@ -93,6 +96,7 @@ export function Scene() {
         sheet: CHARACTER_SHEET,
         rig: CHARACTER_RIG,
         map: TRAVEL_MAP_DATA,
+        reducedMotion: motionPreference.matches,
       });
       raf = requestAnimationFrame(frame);
     };

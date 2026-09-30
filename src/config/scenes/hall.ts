@@ -36,6 +36,11 @@ import hallObjSeats from "../../assets/scenes/hall/obj-seats.png";
 import hallObjArch from "../../assets/scenes/hall/obj-arch.png";
 import hallObjPlant from "../../assets/scenes/hall/obj-plant.png";
 import hallAnimPlane from "../../assets/scenes/hall/anim-plane.png";
+import businessman from "../../assets/scenes/hall/anim-passenger-businessman.png";
+import family from "../../assets/scenes/hall/anim-passenger-family.png";
+import reader from "../../assets/scenes/hall/anim-passenger-reader.png";
+import windowMan from "../../assets/scenes/hall/anim-passenger-window-man.png";
+import windowWoman from "../../assets/scenes/hall/anim-passenger-window-woman.png";
 
 /**
  * The Hall's perspective, measured from the art (HB2b), in logical px.
@@ -260,6 +265,40 @@ export const HALL_SCENE: SceneData = {
       use: "I watered it. The only happy passenger here.",
     },
   ],
+  // The two window-facing passengers sit behind the red chair backs. The
+  // reader occupies the first seat, in front of its back but behind walkers.
+  animations: [
+    {
+      id: "passenger-reader",
+      strip: reader,
+      frames: 1,
+      frameMs: 1000,
+      x: 139.5,
+      y: 85,
+      baselineY: SEATS_BASELINE + 0.1,
+      idle: { splitY: 22, rise: 0.5, periodMs: 3800, phaseMs: 0 },
+    },
+    {
+      id: "passenger-window-man",
+      strip: windowMan,
+      frames: 1,
+      frameMs: 1000,
+      x: 171.5,
+      y: 83,
+      baselineY: SEATS_BASELINE - 0.1,
+      idle: { splitY: 24, rise: 0.5, periodMs: 4600, phaseMs: 1700 },
+    },
+    {
+      id: "passenger-window-woman",
+      strip: windowWoman,
+      frames: 1,
+      frameMs: 1000,
+      x: 206,
+      y: 84,
+      baselineY: SEATS_BASELINE - 0.1,
+      idle: { splitY: 24, rise: 0.5, periodMs: 4200, phaseMs: 700 },
+    },
+  ],
   // The take-off plane is a moving prop (below); the board flutters in data.
   effects: [
     {
@@ -281,6 +320,40 @@ export const HALL_SCENE: SceneData = {
     },
   ],
   props: [
+    // Crossing lanes are in front of the bench. Entire sprites start and
+    // finish offscreen, with quiet gaps between passes; no teleport in view.
+    {
+      id: "passenger-businessman",
+      sprite: businessman,
+      frames: 4,
+      frameMs: 180,
+      path: [
+        { at: 0, x: 322, y: 80 },
+        { at: 1, x: -38, y: 80 },
+      ],
+      durationMs: 23000,
+      everyMs: 37000,
+      delayMs: 1500,
+      faceTravel: true,
+      baselineY: 133,
+      hideForReducedMotion: true,
+    },
+    {
+      id: "passenger-family",
+      sprite: family,
+      frames: 4,
+      frameMs: 220,
+      path: [
+        { at: 0, x: -64, y: 92 },
+        { at: 1, x: 322, y: 92 },
+      ],
+      durationMs: 31000,
+      everyMs: 49000,
+      delayMs: 8500,
+      faceTravel: true,
+      baselineY: 147,
+      hideForReducedMotion: true,
+    },
     {
       // A plane taking off beyond the right-hand pane, nose up, climbing
       // away up and to the left and shrinking as it goes. It passes behind

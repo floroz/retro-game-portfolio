@@ -158,6 +158,8 @@ export interface SceneAnimation {
   x: number;
   y: number;
   frameMs: number;
+  /** Subtle seated breathing: stretch only above this logical-pixel split. */
+  idle?: { splitY: number; rise: number; periodMs: number; phaseMs: number };
   /**
    * Plays one cycle (or one `motion` pass) every `everyMs`, holding frame 0
    * in between (hidden in between, for a `motion`). Loops forever without it.
@@ -330,6 +332,8 @@ export interface MovingProp {
   ease?: "linear" | "in" | "out" | "inOut";
   /** Mirror the sprite while it travels left. */
   faceTravel?: boolean;
+  /** Decorative pedestrians disappear when reduced motion is requested. */
+  hideForReducedMotion?: boolean;
   /**
    * Only draws inside this rectangle, or inside any of these rectangles:
    * window panes with the mullions and posts left out, so the prop passes
