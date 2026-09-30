@@ -30,6 +30,7 @@ import { effectShapes, propFrame, type Shape } from "./effects";
 import { stampOnGrid } from "./raster";
 import type { Rig } from "./rig/rig";
 import { animationFrame } from "./animation";
+import { drawChalk } from "./chalk";
 import { paintOrder, type Paintable } from "./depth";
 import { CANVAS_W, CORE, IRIS_MS, NATIVE_H, NATIVE_W } from "./constants";
 import { snap } from "./density";
@@ -424,6 +425,10 @@ function drawCaptions(layer: TextLayer, row: SlotRow, items: SlotItem[]) {
  * word still too wide shrinks to fit.
  */
 function drawLabel(layer: TextLayer, label: SceneLabel, now: number) {
+  if (label.chalk) {
+    drawChalk(layer, label);
+    return;
+  }
   const font = label.font ?? "regular";
   const lines = resolveLabel(label.source).flatMap((l) =>
     label.maxWidth ? wrapText(l, label.maxWidth, font) : [l],
