@@ -376,3 +376,30 @@ describe("effects and props in a scene", () => {
     expect(sceneWarnings(zurich, SCENES)).toEqual([]);
   });
 });
+
+describe("the Hall plane's window clip", () => {
+  const plane = SCENES.hall.props?.find((p) => p.id === "plane");
+  const clip = [plane?.clip ?? []].flat();
+
+  test("leaves the mullion and the monitor poles out, so it passes behind them", () => {
+    for (const post of [98, 99, 117, 118, 123, 124]) {
+      expect(clip.some((r) => post >= r.x && post < r.x + r.w)).toBe(false);
+    }
+  });
+
+  test("shows it again in the left pane after it passes the mullion", () => {
+    if (!plane) throw new Error("the Hall has no plane");
+    const start = plane.delayMs ?? 0;
+    const leftPane = clip.filter((r) => r.x + r.w <= 123);
+    const seen = Array.from({ length: 50 }, (_, i) =>
+      propFrame(plane, start + (plane.durationMs * i) / 50),
+    ).some(
+      (f) =>
+        f !== null &&
+        leftPane.some(
+          (r) => f.x >= r.x && f.x < r.x + r.w && f.y >= r.y && f.y < r.y + r.h,
+        ),
+    );
+    expect(seen).toBe(true);
+  });
+});
