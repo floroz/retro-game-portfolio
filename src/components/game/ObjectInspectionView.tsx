@@ -1,5 +1,6 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, type CSSProperties } from "react";
 import type { InspectionReading } from "../../config/inspections";
+import { useInspectionPagination } from "./useInspectionPagination";
 import styles from "./ObjectInspectionView.module.scss";
 
 interface Props {
@@ -9,15 +10,16 @@ interface Props {
 
 /** An illustrated object close-up; text and links remain real, readable HTML. */
 export function ObjectInspectionView({ inspection, onClose }: Props) {
-  const [pageIndex, setPageIndex] = useState(0);
   const dialog = useRef<HTMLDivElement>(null);
   const copy = useRef<HTMLDivElement>(null);
   const opener = useRef<HTMLElement | null>(null);
   const titleId = useId();
-  const pages = inspection.pages?.length
-    ? inspection.pages
-    : [{ title: inspection.title, paragraphs: inspection.paragraphs }];
-  const currentPage = Math.min(pageIndex, pages.length - 1);
+  const {
+    pages,
+    index: currentPage,
+    ready,
+    turnPage,
+  } = useInspectionPagination(inspection, copy);
   const page = pages[currentPage];
 
   useEffect(() => {
@@ -38,11 +40,6 @@ export function ObjectInspectionView({ inspection, onClose }: Props) {
     };
   }, []);
 
-  const turnPage = (next: number) => {
-    setPageIndex(Math.max(0, Math.min(pages.length - 1, next)));
-    copy.current?.scrollTo(0, 0);
-  };
-
   return (
     <div className={styles.backdrop}>
       <div
@@ -50,9 +47,11 @@ export function ObjectInspectionView({ inspection, onClose }: Props) {
         className={styles.dialog}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={titleId}
+        aria-labelledby={page ? titleId : undefined}
+        aria-label={page ? undefined : inspection.title}
         tabIndex={-1}
         data-e2e="object-inspection"
+        data-ready={ready}
         onKeyDown={(event) => {
           if (event.key === "Escape") {
             event.preventDefault();
@@ -94,38 +93,52 @@ export function ObjectInspectionView({ inspection, onClose }: Props) {
             className={styles.copy}
             style={
               inspection.paperTop
-                ? { top: `${inspection.paperTop}%` }
+                ? ({
+                    "--paper-top": `${inspection.paperTop}%`,
+                  } as CSSProperties)
                 : undefined
             }
             ref={copy}
             tabIndex={0}
             aria-label="Inspection text"
           >
-            <p className={styles.subtitle}>{inspection.subtitle}</p>
-            <h2 id={titleId}>{inspection.title}</h2>
-            <div aria-live="polite" aria-atomic="true">
-              {page.title !== inspection.title && <h3>{page.title}</h3>}
-              {page.paragraphs.map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
-              ))}
-              {page.links && (
-                <ul className={styles.links}>
-                  {page.links.map((link) => (
-                    <li key={link.href}>
-                      <a
-                        href={link.href}
-                        target={
-                          link.href.startsWith("mailto:") ? undefined : "_blank"
-                        }
-                        rel="noopener noreferrer"
-                      >
-                        {link.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            {page && (
+              <div
+                className={styles.page}
+                style={{ fontSize: page.fontSize }}
+                data-e2e="inspection-page"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {inspection.subtitle && (
+                  <p className={styles.subtitle}>{inspection.subtitle}</p>
+                )}
+                <h2 id={titleId}>{inspection.title}</h2>
+                {page.title !== inspection.title && <h3>{page.title}</h3>}
+                {page.paragraphs.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+                {page.links?.length ? (
+                  <ul className={styles.links}>
+                    {page.links.map((link, index) => (
+                      <li key={`${link.href}-${index}`}>
+                        <a
+                          href={link.href}
+                          target={
+                            link.href.startsWith("mailto:")
+                              ? undefined
+                              : "_blank"
+                          }
+                          rel="noopener noreferrer"
+                        >
+                          {link.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            )}
           </div>
         </div>
         <nav className={styles.controls} aria-label="Inspection navigation">
