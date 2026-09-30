@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { SECTIONS } from "../../config/sections";
 import { unknownChars } from "../font";
-import { pointInPolygon } from "../geometry";
+import { findPath, pointInPolygon, segmentInPolygon } from "../geometry";
 import { resolveLabel } from "../labels";
 import { SCENES, TRAVEL_MAP_DATA } from "../scenes";
 import { sceneWarnings } from "../validate";
@@ -75,22 +75,22 @@ describe("scene data contract", () => {
     }
   });
 
-  test("each gate's whole sign is clickable, and the arch stays clickable", () => {
+  test("each gate stays visible and clickable beside the boarding desk", () => {
     const hall = SCENES.hall;
     const overlaps = (a: Rect, b: Rect) =>
       a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
     const covers = (rects: Rect[], x: number, y: number) =>
       rects.some((r) => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h);
     // The dark sign boards painted in the HD hall/bg.png (HB2), measured at
-    // 2x and rounded out to logical px: each bevelled frame. And
-    // obj-arch.png's box (36x49 at the arch's position).
+    // 2x and rounded out to logical px: each bevelled frame.
     const signs: Record<string, Rect> = {
       "gate-london": { x: 170, y: 12, w: 38, h: 24 },
       "gate-zurich": { x: 209, y: 12, w: 50, h: 24 },
       "gate-sorrento": { x: 261, y: 12, w: 46, h: 24 },
     };
-    const arch = hall.objects.find((o) => o.id === "arch");
-    const archBox = { x: arch?.x ?? 0, y: arch?.y ?? 0, w: 36, h: 49 };
+    const desk = hall.objects.find((o) => o.id === "boarding-desk");
+    expect(desk).toBeDefined();
+    const deskBox = { x: desk?.x ?? 0, y: desk?.y ?? 0, w: 28, h: 40 };
     for (const exit of hall.exits) {
       const rects = [exit.hotspot, ...(exit.extraHotspots ?? [])];
       const sign = signs[exit.id];
@@ -100,7 +100,36 @@ describe("scene data contract", () => {
         }
       }
       for (const r of rects) {
-        expect(overlaps(r, archBox), `${exit.id} over the arch`).toBe(false);
+        expect(overlaps(r, deskBox), `${exit.id} over the boarding desk`).toBe(
+          false,
+        );
+      }
+    }
+  });
+
+  test("the boarding desk leaves every gate reachable from both sides", () => {
+    const hall = SCENES.hall;
+    // The podium footprint is solid; its sides and the old plant area are open.
+    expect(pointInPolygon([250, 112], hall.walkbox)).toBe(false);
+    for (const start of [
+      [234, 124],
+      [284, 124],
+      [305, 150],
+    ] as const) {
+      expect(pointInPolygon(start, hall.walkbox)).toBe(true);
+      for (const object of [...hall.objects, ...hall.exits]) {
+        const goal = object.interactionPoint;
+        if (!goal) continue;
+        const path = findPath(start, [goal.x, goal.y], hall.walkbox);
+        expect(path.at(-1), object.id).toEqual([goal.x, goal.y]);
+        let previous: readonly [number, number] = start;
+        for (const step of path) {
+          expect(
+            segmentInPolygon(previous, step, hall.walkbox),
+            object.id,
+          ).toBe(true);
+          previous = step;
+        }
       }
     }
   });

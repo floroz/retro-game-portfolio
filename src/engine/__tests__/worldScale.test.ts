@@ -91,8 +91,6 @@ describe("world scale", () => {
     const beside = heightAt(depth, 131, 72);
     expect(SEATS / beside).toBeGreaterThan(0.45);
     expect(SEATS / beside).toBeLessThan(0.58);
-    // Between the arch's posts (y 114) he fits under its beam (44 px clear).
-    expect(heightAt(depth, 114, 72)).toBeLessThanOrEqual(44.5);
     // And never bigger than the rig's own size.
     expect(scaleAt(depth, depth.nearY, 72)).toBeLessThanOrEqual(1);
   });
