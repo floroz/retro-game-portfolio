@@ -497,6 +497,22 @@ export interface Part {
   controllers?: ControllerChange[];
 }
 
+/** Where a borrowed melody comes from, and why it is free to use. */
+export interface MelodySource {
+  /** Short id, e.g. "london-bridge". */
+  id: string;
+  /** The tune's name. */
+  tune: string;
+  /** Edition or transcription the notes were taken from. */
+  source: string;
+  /** Public-domain reasoning (author's death, publication date, tradition). */
+  publicDomain: string;
+  /** What the track takes from it and how it changes it (key, octave, tempo). */
+  use: string;
+  /** Caveats on how well the note-level transcription was verified. */
+  verification?: string;
+}
+
 export interface MusicTrack {
   /** Track id: `hall` → `music-hall`, `public/audio/music/hall.mp3`. */
   id: string;
@@ -517,6 +533,8 @@ export interface MusicTrack {
   sections?: { bar: number; name: string; description?: string }[];
   /** A short description for the provenance record. */
   description?: string;
+  /** Every borrowed melody, with its source and public-domain status. */
+  melodySources?: MelodySource[];
   parts: Part[];
 }
 
@@ -1621,6 +1639,7 @@ export function writeMusicProvenance(
     date: today(),
     midiSource: rel(trackPath),
     description: track.description,
+    ...(track.melodySources ? { melodySources: track.melodySources } : {}),
     tempoBpm: track.bpm,
     meter: (track.meter ?? [4, 4]).join("/"),
     key: track.key,

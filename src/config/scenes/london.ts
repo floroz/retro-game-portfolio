@@ -66,7 +66,11 @@ export const LONDON_SCENE: SceneData = {
   background: londonBg,
   // Loop points from assets-src/provenance/music-london.json and
   // ambience-london.json.
-  music: { src: "/audio/music/london.mp3", loopStart: 0.5, loopEnd: 72.5 },
+  music: {
+    src: "/audio/music/london.mp3",
+    loopStart: 0.46875,
+    loopEnd: 75.46875,
+  },
   ambience: {
     src: "/audio/ambience/london.mp3",
     loopStart: 0.5,
