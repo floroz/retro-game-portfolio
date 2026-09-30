@@ -34,6 +34,8 @@ export function getEngine(): SceneEngine {
       host: {
         openSection: (section) =>
           useGameStore.getState().openTerminalScreen(section),
+        openInspection: (inspection) =>
+          useGameStore.getState().openInspection(inspection),
         sceneChanged: (scene) => useGameStore.getState().setCurrentScene(scene),
         skippableChanged: (skippable) => useGameStore.setState({ skippable }),
         flightChanged: (flyingTo) => useGameStore.setState({ flyingTo }),

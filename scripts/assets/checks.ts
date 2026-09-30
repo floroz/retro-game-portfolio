@@ -72,6 +72,7 @@ export const SHIPPED_ROOTS = [
   "src/assets/scenes",
   "src/assets/shared",
   "src/assets/character",
+  "src/assets/inspections",
 ] as const;
 
 const KEBAB = "[a-z0-9]+(?:-[a-z0-9]+)*";
@@ -89,6 +90,7 @@ export type AssetKind =
   | "slot"
   | "shared"
   | "character"
+  | "inspection"
   | "rig";
 
 export interface ShippedAsset {
@@ -108,6 +110,17 @@ export interface ShippedAsset {
 export function classifyAsset(path: string): ShippedAsset | string | null {
   const parts = path.split("/");
   const file = parts[parts.length - 1];
+
+  if (path.startsWith("src/assets/inspections/")) {
+    if (parts.length !== 4 || !SHARED_FILE.test(file))
+      return `${path}: inspection backdrops are kebab-case .png files directly in src/assets/inspections/`;
+    return {
+      path,
+      id: `inspection-${file.slice(0, -4)}`,
+      kind: "inspection",
+      scene: null,
+    };
+  }
 
   if (path.startsWith("src/assets/scenes/")) {
     if (parts.length !== 5)
@@ -168,6 +181,18 @@ export function checkAssetSize(
   density: AssetDensity = 1,
   style: AssetStyle = "pixel",
 ): string[] {
+  if (asset.kind === "inspection") {
+    const errors: string[] = [];
+    if (density !== 2 || style !== "painted")
+      errors.push(
+        `${asset.path}: inspection backdrops require density 2 and style painted`,
+      );
+    if (width !== 640 || height !== 320)
+      errors.push(
+        `${asset.path}: inspection backdrops must be 640x320, is ${width}x${height}`,
+      );
+    return errors;
+  }
   const scene = nativeSceneSize(density);
   const painted = isPainted(density, style);
   const at =
@@ -226,9 +251,24 @@ export function checkPaintedAlpha(
     : [];
 }
 
+/** Full-frame backgrounds must not reveal the scene through their pixels. */
+export function checkAssetOpacity(
+  asset: ShippedAsset,
+  img: { data: ArrayLike<number> },
+): string[] {
+  if (asset.kind !== "bg" && asset.kind !== "inspection") return [];
+  for (let i = 3; i < img.data.length; i += 4) {
+    if (img.data[i] !== 255)
+      return [
+        `${asset.path}: ${asset.kind === "bg" ? "bg.png" : "inspection backdrop"} must be fully opaque`,
+      ];
+  }
+  return [];
+}
+
 /**
  * The colour group a painted file counts toward: its scene folder, the
- * shared sprites together, or the file itself (the rig).
+ * shared sprites together, or the file itself (a rig or standalone inspection).
  */
 export function colourGroup(asset: ShippedAsset): string {
   if (asset.path.startsWith("src/assets/scenes/") && asset.scene)
@@ -374,6 +414,12 @@ export function checkProvenance(
     }
     if (fileName !== `${r.id}.json`)
       errors.push(`${where}: file must be named ${r.id}.json`);
+  }
+  if (isString(r.output) && r.output.startsWith("src/assets/inspections/")) {
+    const asset = classifyAsset(r.output);
+    if (typeof asset === "string") errors.push(asset);
+    else if (asset && asset.id !== r.id)
+      errors.push(`${where}: inspection provenance id must be ${asset.id}`);
   }
   if (isString(r.date) && !/^\d{4}-\d{2}-\d{2}$/.test(r.date)) {
     errors.push(`${where}: date must be YYYY-MM-DD`);

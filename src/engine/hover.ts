@@ -15,6 +15,7 @@ export function hoverText(target: Interactable): string {
   switch (target.kind) {
     case "object": {
       const { object } = target;
+      if (object.inspection) return `Inspect ${object.name}`;
       return object.action
         ? `Open ${SECTIONS[object.action].label}: ${object.name}`
         : `Look at ${object.name}`;

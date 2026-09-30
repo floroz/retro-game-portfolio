@@ -33,6 +33,7 @@ export function useSceneKeyboard() {
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLTextAreaElement ||
         s.terminalScreenAction !== null ||
+        s.inspection !== null ||
         s.dialogOpen ||
         (s.terminalOpen && !s.gameWindowActive)
       );

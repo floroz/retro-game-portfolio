@@ -26,6 +26,8 @@ The full desktop experience emulates a Windows 95 environment:
 - **Taskbar** — Shows running applications and a system clock
 - **Window management** — Minimize, maximize, close, and drag windows just like the real thing
 - **Game window** — A point-and-click adventure scene where you explore hotspots for About, Skills, Contact, Experience, and Resume
+- **Object inspections** — Illustrated postcards, a working kit, a career album, correspondence and a résumé folder reveal readable live portfolio text and links. Close an inspection to return to the same room and position.
+- **Travel and discovery** — Toolbar sections open immediately; airport gates travel to London, an Alpine chalet and Sorrento. Four duty-free souvenirs have optional playful close-ups.
 - **MS-DOS Terminal** — A retro terminal with commands like `help`, `about`, `skills`, `contact`, `talk`, and `resume`
 - **Recycle Bin** — Contains humorous "deleted" files about software development
 - **Loading screen** — An authentic Windows 95 boot sequence when opening the game

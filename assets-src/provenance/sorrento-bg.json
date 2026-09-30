@@ -1,15 +1,15 @@
 {
   "id": "sorrento-bg",
   "output": "src/assets/scenes/sorrento/bg.png",
-  "task": "HB4",
+  "task": "sorrento-story-inspections",
   "source": "codex",
-  "prompt": "assets-src/prompts/hd/layers-sorrento.md",
+  "prompt": "assets-src/prompts/hd/sorrento-inspections.md",
   "candidate": "01",
-  "references": ["assets-src/refs/hd/sorrento-chosen.png"],
-  "approvedRaw": "assets-src/approved/sorrento-plate@hd.webp",
+  "references": ["assets-src/refs/hd/sorrento-before-inspections.png"],
+  "approvedRaw": "assets-src/approved/sorrento-story-objects.png",
   "density": 2,
   "style": "painted",
-  "cleanup": "HB4: candidate 01 of sorrento-plate@hd (1774x887, the chosen composite with the door, stove, table, chairs and lemon tree edited out) prepared with assets:prepare --painted --no-quantize to 640x320 (Lanczos, hard alpha). Three deterministic changes, no hand painting: (1) hard-edged two-step contact shadows baked under the table, both chairs, the stove and the lemon-tree pot (multiply by 0.82/0.79/0.86 inside, 0.91/0.90/0.94 in the outer ring), because the sprites carry no shadow; (2) contrast: every floor pixel (art y 208 and below) within 0.11 OKLab of the character's sweater, jeans or hair colours (the master F/G/*, H/+/I and 6-8, and every rig colour of the HB7 puppet with at least 6 px) is lightened in small steps in L only (hue kept) until it clears them, which lifts the pale blue tile flowers away from the jeans; (3) quantized together with the seven object sprites and the ferry to one 256-colour palette with no dither. The wall, window, fridge, phone, pans and shelf are the candidate as painted. The magnets go on the bare lower fridge door (two rows of three at logical 52,71 and 52,83).",
+  "cleanup": "Built-in imagegen edited a postcard onto the fridge and an address book above the telephone. scripts/assets/prepare-sorrento-inspections.ts copies only two generated crops after resizing and remapping to the existing 256-colour scene palette. All pixels outside the two crops are unchanged, including the original HB4 furniture contact shadows and floor contrast treatment. The original scene is preserved in assets-src/refs/hd/sorrento-before-inspections.png.",
   "approvedBy": "orchestrator",
-  "date": "2026-09-29"
+  "date": "2026-09-30"
 }

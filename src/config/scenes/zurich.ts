@@ -1,10 +1,9 @@
 /**
- * Zurich: the office at night, overlooking Lake Zurich and the Alps
- * (docs/art-spec.md, scene card `zurich`). Built in task B1, rebuilt at 2x
- * density in RB1, and assembled from the hand-painted HD layers in HB1: an
- * empty-room plate (`bg.png`, candidate 02 of `zurich-plate@hd`) plus the
- * desk, chair, filing cabinet, door and plant as separate sprites, and the
- * cuckoo as a moving prop. Every coordinate is in logical pixels (320x160),
+ * Zurich: a timber chalet study overlooking Lake Zurich and the Alps.
+ * The warm plaster, exposed beams and wool rug share an empty-room plate;
+ * the approved moonlit exterior remains unchanged. The desk, chair, filing
+ * cabinet, door and plant remain separate sprites, with a moving cuckoo prop.
+ * Every coordinate is in logical pixels (320x160),
  * top-left origin; the art is 640x320 and the engine scales positions by its
  * density.
  *
@@ -64,6 +63,7 @@ export const ZURICH_SCENE: SceneData = {
     loopEnd: 30.5,
   },
   floor: "wood",
+  characterShadow: { width: 0.4, depth: 0.085 },
   // The floor from the baseboard (y 101) to the front edge, less the plant's
   // pot corner (x 46 and y 127 clear its leaves and rim). Two keyhole slits
   // (x 170 and x 262) cut out the footprints of the desk and chair
@@ -100,9 +100,18 @@ export const ZURICH_SCENE: SceneData = {
   // at the front edge, a depth scale of 0.8 to 1.0 of the 72 px puppet.
   depth: { farY: 101, nearY: 158, ...HD_WORLD_SCALE },
   entryPoints: { fromHall: { x: 298, y: 112, facing: "w" } },
-  entryLine: `Zurich, where I grew. ${EXPERIENCE} on the CRT, ${RESUME} in the cabinet.`,
+  entryLine: `Zurich. Warm chalet, ${EXPERIENCE} on the CRT, ${RESUME} in the cabinet.`,
   // Topmost last: nearer things come after the things behind them.
   objects: [
+    {
+      id: "career-mementos",
+      name: "Alpine mementos",
+      hotspot: { x: 26, y: 20, w: 66, h: 40 },
+      interactionPoint: { x: 81, y: 111, facing: "n" },
+      action: "experience",
+      look: "Mountain sketch, pressed edelweiss. Career milestones don't always fit spreadsheets.",
+      use: "Opening the career scrapbook. No hiking boots required.",
+    },
     {
       id: "window",
       name: "window",
@@ -127,6 +136,7 @@ export const ZURICH_SCENE: SceneData = {
       y: 87,
       interactionPoint: { x: 52, y: 142, facing: "w" },
       baselineY: PLANT_BASELINE,
+      groundShadows: [{ x: 22, y: 70, width: 35, depth: 6 }],
       look: "The only thing here with better uptime than production.",
       use: "Watered every sprint. It has never missed a retro.",
     },
@@ -139,6 +149,7 @@ export const ZURICH_SCENE: SceneData = {
       hotspot: { x: 136, y: 98, w: 68, h: 28 },
       interactionPoint: { x: 192, y: 131, facing: "n" },
       baselineY: DESK_BASELINE,
+      groundShadows: [{ x: 34, y: 48, width: 64, depth: 6 }],
       look: "Perfectly level since day one, unlike my first pull request.",
       use: "I'd tidy it, but then I'd never find anything.",
     },
@@ -161,13 +172,14 @@ export const ZURICH_SCENE: SceneData = {
     },
     {
       id: "chair",
-      name: "office chair",
+      name: "wool-upholstered chair",
       sprite: zurichObjChair,
       x: 145,
       y: 103,
       interactionPoint: { x: 157, y: 141, facing: "n" },
       baselineY: CHAIR_BASELINE,
-      look: "Five wheels, no opinions. The ideal code reviewer.",
+      groundShadows: [{ x: 13.5, y: 30, width: 22, depth: 5 }],
+      look: "Timber, wool, no swivel. The Swiss take stability seriously.",
       use: "Sitting down is how deadlines sneak up on you.",
     },
     {
@@ -181,6 +193,7 @@ export const ZURICH_SCENE: SceneData = {
       y: 71,
       interactionPoint: { x: 261, y: 128, facing: "n" },
       baselineY: CABINET_BASELINE,
+      groundShadows: [{ x: 23, y: 47, width: 36, depth: 5 }],
       action: "resume",
       look: "Filed under R, for Resume. Also for Really well organised.",
       use: "It all fits on one page. Well, two.",
@@ -251,23 +264,6 @@ export const ZURICH_SCENE: SceneData = {
       everyMs: 20000,
       delayMs: 4000,
       sound: "cuckoo",
-    },
-  ],
-  slots: [
-    {
-      // Bare wallpaper left of the window: two rows of three 20x16 frames.
-      id: "job-photos",
-      kind: "photo-frame",
-      source: "jobs:switzerland",
-      positions: [
-        [16, 20],
-        [42, 20],
-        [68, 20],
-        [16, 42],
-        [42, 42],
-        [68, 42],
-      ],
-      fold: "slot-photo-frame-more",
     },
   ],
   labels: [

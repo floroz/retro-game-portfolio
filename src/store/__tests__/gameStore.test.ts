@@ -380,3 +380,37 @@ describe("gameStore", () => {
     });
   });
 });
+
+describe("object inspections", () => {
+  test("inspection, section and conversation are mutually exclusive", () => {
+    const store = useGameStore.getState();
+    const item = {
+      title: "Souvenir",
+      art: "/test.png",
+      artAlt: "Souvenir",
+      paragraphs: ["A keepsake."],
+    };
+    store.openTerminalScreen("about");
+    store.openInspection(item);
+    expect(useGameStore.getState()).toMatchObject({
+      inspection: item,
+      terminalScreenAction: null,
+      dialogOpen: false,
+    });
+    store.openTerminalScreen("skills");
+    expect(useGameStore.getState()).toMatchObject({
+      inspection: null,
+      terminalScreenAction: "skills",
+    });
+    store.openInspection(item);
+    store.openDialog("intro");
+    expect(useGameStore.getState()).toMatchObject({
+      inspection: null,
+      terminalScreenAction: null,
+      dialogOpen: true,
+    });
+    store.openInspection(item);
+    store.closeTerminalScreen();
+    expect(useGameStore.getState().inspection).toBeNull();
+  });
+});

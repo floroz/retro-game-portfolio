@@ -11,6 +11,7 @@ function setup(
 ) {
   const host = {
     openSection: vi.fn<(s: SectionId) => void>(),
+    openInspection: vi.fn(),
     sceneChanged: vi.fn(),
     sound: vi.fn(),
     flightChanged: vi.fn(),
@@ -53,6 +54,19 @@ const exit = (scene: SceneData, to: string) => {
 };
 
 describe("SceneEngine", () => {
+  test("a souvenir opens its own inspection after walking, without opening a section", () => {
+    const { engine, host } = setup();
+    const souvenir = SCENES.hall.objects.find((item) => item.inspection)!;
+    engine.activate({ kind: "object", object: souvenir });
+    runUntil(engine, () => host.openInspection.mock.calls.length > 0);
+    expect(host.openInspection).toHaveBeenCalledWith(souvenir.inspection);
+    expect(host.openSection).not.toHaveBeenCalled();
+    expect(engine.scene.id).toBe("hall");
+    const position = { ...engine.position };
+    engine.contentClosed();
+    expect(engine.position).toEqual(position);
+  });
+
   test("starts in the Hall at its start point", () => {
     const { engine } = setup();
     expect(engine.scene.id).toBe("hall");

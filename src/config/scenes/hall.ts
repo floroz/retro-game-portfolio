@@ -9,9 +9,9 @@
  * Signposting, kept minimal (docs/expansion-plan.md, "How visitors know where
  * each section is"): the three gates are the exits, each under a dark sign
  * board that carries its gate number and city only (`gate:<country>`). The
- * departures board lists the cities, and the duty-free shelf sells one
- * unlabelled product per section. Hovering names the sections in the status
- * line, and the travel trunk's boarding passes carry the rest.
+ * departures board lists the cities. Four destination souvenirs make the
+ * duty-free shelf an optional discovery, each with its own painted close-up.
+ * The travel trunk's boarding passes keep portfolio information accessible.
  *
  * Walking depth: the row of seats and the boarding desk stand out
  * on the tile floor, each with a `baselineY` on its front feet. The walkbox is one
@@ -27,11 +27,15 @@
  *
  * Check it with the dev overlay: `npm run dev`, then `?debug=scene`.
  */
-import { PROFILE } from "../profile";
 import { COUNTRIES } from "../sections";
+import { SOUVENIRS } from "../souvenirs";
 import type { SceneData } from "../../engine/types";
 import hallBg from "../../assets/scenes/hall/bg.png";
 import dutyFree from "../../assets/scenes/hall/obj-duty-free.png";
+import limoncello from "../../assets/scenes/hall/obj-souvenir-limoncello.png";
+import swissKnife from "../../assets/scenes/hall/obj-souvenir-knife.png";
+import swissCheese from "../../assets/scenes/hall/obj-souvenir-cheese.png";
+import telephone from "../../assets/scenes/hall/obj-souvenir-telephone.png";
 import hallObjSeats from "../../assets/scenes/hall/obj-seats.png";
 import hallObjBoardingDesk from "../../assets/scenes/hall/obj-boarding-desk.png";
 import hallAnimPlane from "../../assets/scenes/hall/anim-plane.png";
@@ -66,12 +70,6 @@ const HALL_DEPTH = {
 /** Front feet of the free-standing objects: the depth-sort lines. */
 const SEATS_BASELINE = 123;
 const BOARDING_DESK_BASELINE = 116;
-
-/** The year of the oldest job in the profile, for the whisky's label. */
-const FIRST_YEAR =
-  PROFILE.workExperience[PROFILE.workExperience.length - 1].period.match(
-    /\d{4}/,
-  )?.[0] ?? "";
 
 /**
  * The window glass the plane shows through: the right-hand pane, then the
@@ -163,47 +161,55 @@ export const HALL_SCENE: SceneData = {
       groundShadows: [{ x: 39, y: 70, width: 80, depth: 5 }],
       hotspot: { x: 0, y: 27, w: 80, h: 10 },
       look: "Duty free: lower prices, and somehow you still spend more.",
-      use: "Pick a product. Each one opens a section.",
+      use: "Four souvenirs, three destinations. Browsing is still free.",
     },
     {
-      id: "perfume",
-      name: "Eau de Résumé",
-      hotspot: { x: 5, y: 37, w: 22, h: 15 },
-      interactionPoint: { x: 16, y: 106, facing: "n" },
-      action: "resume",
-      look: "Eau de Résumé: notes of achievement and printer toner.",
+      id: "limoncello",
+      name: "Sorrento limoncello",
+      sprite: limoncello,
+      x: 17,
+      y: 38.5,
+      baselineY: 97,
+      hotspot: { x: 7, y: 37, w: 29, h: 18 },
+      interactionPoint: { x: 21, y: 106, facing: "n" },
+      inspection: SOUVENIRS.limoncello,
+      look: "Sunshine in a bottle. A very persuasive souvenir.",
     },
     {
-      id: "snow-globe",
-      name: "Vesuvius snow globe",
-      hotspot: { x: 27, y: 37, w: 24, h: 15 },
-      interactionPoint: { x: 39, y: 106, facing: "n" },
-      action: "about",
-      look: "Snow on Vesuvius: rarer than a bargain in here.",
-    },
-    {
-      id: "postcards",
-      name: "postcards",
-      hotspot: { x: 51, y: 37, w: 24, h: 15 },
-      interactionPoint: { x: 63, y: 106, facing: "n" },
-      action: "contact",
-      look: "Stamps already on. Drop me a line: I always write back.",
-    },
-    {
-      id: "whisky",
-      name: `whisky, aged since ${FIRST_YEAR}`,
-      hotspot: { x: 5, y: 58, w: 35, h: 15 },
-      interactionPoint: { x: 22, y: 106, facing: "n" },
-      action: "experience",
-      look: `Matured since ${FIRST_YEAR} in London and Zurich oak. Long TypeScript finish.`,
-    },
-    {
-      id: "toolbox",
-      name: "toolbox of skills",
-      hotspot: { x: 40, y: 58, w: 35, h: 15 },
+      id: "swiss-knife",
+      name: "Swiss Army knife",
+      sprite: swissKnife,
+      x: 50,
+      y: 36.5,
+      baselineY: 97,
+      hotspot: { x: 43, y: 36, w: 30, h: 19 },
       interactionPoint: { x: 57, y: 106, facing: "n" },
-      action: "skills",
-      look: "Every skill I pack for a trip. Hand luggage only, somehow.",
+      inspection: SOUVENIRS.knife,
+      look: "Prepared for every emergency except airport security.",
+    },
+    {
+      id: "swiss-cheese",
+      name: "Swiss cheese wheel",
+      sprite: swissCheese,
+      x: 12.5,
+      y: 61.5,
+      baselineY: 97,
+      hotspot: { x: 7, y: 57, w: 29, h: 19 },
+      interactionPoint: { x: 21, y: 106, facing: "n" },
+      inspection: SOUVENIRS.cheese,
+      look: "Swiss cheese. A souvenir with built-in ventilation.",
+    },
+    {
+      id: "telephone-miniature",
+      name: "London telephone-box miniature",
+      sprite: telephone,
+      x: 53.5,
+      y: 57.5,
+      baselineY: 97,
+      hotspot: { x: 43, y: 57, w: 30, h: 19 },
+      interactionPoint: { x: 57, y: 106, facing: "n" },
+      inspection: SOUVENIRS.telephone,
+      look: "London calling. Very quietly: it's only a miniature.",
     },
     {
       id: "carousel",

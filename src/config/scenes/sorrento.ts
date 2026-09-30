@@ -23,7 +23,6 @@
  * Check it with the dev overlay: `npm run dev`, then `?debug=scene`.
  */
 import { PROFILE } from "../profile";
-import { SECTIONS } from "../sections";
 import { HD_WORLD_SCALE } from "../../engine/constants";
 import type { SceneData } from "../../engine/types";
 import sorrentoBg from "../../assets/scenes/sorrento/bg.png";
@@ -36,8 +35,6 @@ import sorrentoObjChairRight from "../../assets/scenes/sorrento/obj-chair-right.
 import sorrentoObjLemonTree from "../../assets/scenes/sorrento/obj-lemon-tree.png";
 import sorrentoAnimFerry from "../../assets/scenes/sorrento/anim-ferry.png";
 
-const ABOUT = SECTIONS.about.label;
-const CONTACT = SECTIONS.contact.label;
 const FIRST_NAME = PROFILE.name.split(" ")[0];
 
 /** Front feet of the free-standing furniture: the depth-sort lines. */
@@ -71,6 +68,8 @@ export const SORRENTO_SCENE: SceneData = {
     loopEnd: 36.5,
   },
   floor: "tile",
+  // Furniture contact shadows are already painted into the background.
+  characterShadow: { width: 0.38, depth: 0.085 },
   // The tiled floor from the baseboard to the front edge, less the lemon
   // tree's pot. One keyhole slit at x 186 cuts out the footprint of the table
   // and chairs (x 146-226, y 129-140); the stove (x 249-288, y 104-113) is a
@@ -101,7 +100,8 @@ export const SORRENTO_SCENE: SceneData = {
     ...HD_WORLD_SCALE,
   },
   entryPoints: { fromHall: { x: 28, y: 114, facing: "e" } },
-  entryLine: `Sorrento, the next chapter. ${ABOUT} on the fridge, ${CONTACT} by the phone.`,
+  entryLine:
+    "Sorrento. My story's on the fridge; my contacts are by the phone.",
   // Topmost last: nearer things come after the things behind them.
   objects: [
     {
@@ -130,11 +130,11 @@ export const SORRENTO_SCENE: SceneData = {
     },
     {
       id: "fridge",
-      name: "fridge",
+      name: "postcard on the fridge — about me",
       hotspot: { x: 46, y: 38, w: 39, h: 63 },
       interactionPoint: { x: 66, y: 108, facing: "n" },
       action: "about",
-      look: `Everything worth knowing about ${FIRST_NAME} ends up on this fridge.`,
+      look: `The story of ${FIRST_NAME}. The fridge has become my biographer.`,
     },
     {
       id: "pans",
@@ -146,12 +146,12 @@ export const SORRENTO_SCENE: SceneData = {
     },
     {
       id: "phone",
-      name: "wall phone",
+      name: "phone and address book — contact me",
       hotspot: { x: 217, y: 41, w: 31, h: 46 },
       interactionPoint: { x: 234, y: 108, facing: "n" },
       action: "contact",
       sound: "phone-ring",
-      look: "It only rings for good news. Be the good news.",
+      look: "My address book. The phone only rings for good news. Yours, perhaps?",
     },
     {
       id: "stove",
@@ -287,30 +287,6 @@ export const SORRENTO_SCENE: SceneData = {
         [72, 83],
       ],
       fold: "slot-magnet-more",
-    },
-  ],
-  labels: [
-    {
-      // Lettered on the note stuck to the upper fridge door.
-      id: "fridge",
-      source: "section:about",
-      maxWidth: 22,
-      x: 66,
-      y: 55,
-      align: "center",
-      font: "small",
-      color: "#2a2328",
-    },
-    {
-      // Lettered on the blank card above the phone (x 218-248).
-      id: "phone",
-      source: "section:contact",
-      maxWidth: 27,
-      x: 233,
-      y: 43,
-      align: "center",
-      font: "small",
-      color: "#2a2328",
     },
   ],
   exits: [

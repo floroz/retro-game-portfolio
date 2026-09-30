@@ -1,7 +1,7 @@
 {
   "id": "zurich-obj-door",
   "output": "src/assets/scenes/zurich/obj-door.png",
-  "task": "HB1",
+  "task": "V2-chalet",
   "source": "codex",
   "prompt": "assets-src/prompts/hd/layers-zurich.md",
   "candidate": "02",
@@ -12,7 +12,7 @@
   "approvedRaw": "assets-src/approved/zurich-door@hd.webp",
   "density": 2,
   "style": "painted",
-  "cleanup": "HB1: candidate 02 of zurich-door@hd, the full-height closed door with its frame, blank frosted pane and brass knob. Prepared with assets:prepare --painted --no-quantize (Lanczos, hard alpha) at the size given, registered to the style-anchor layout with --align, then quantized with the other eight Zurich layers to one shared 256-colour palette with assets:quantize (no dither); pixels still within 0.08 OKLab of a rig colour after quantizing were remapped inside the palette. Resized to 74x140 (37x70 logical px, about 1.2x Daniele at the back of the room) with its foot on the wall base, at (281, 31) logical px. The candidate's brown wood was 0.03-0.07 OKLab from the hair colours; the wood is retinted to a saturated Swiss red (L 0.38+, C 0.165-0.19, hue 18) and the pane, brass and ink are left alone. HB1b: the outermost 1px of the silhouette is a dark shade of the local colour (an ink edge, L 0.135), replacing the halo pixels the key, the retint and the earlier radial repel left there; the contrast fix is now a per-colour search for the cheapest in-gamut colour outside the rig colours' 0.10 balls (lightness first for neutrals), smoothed over its neighbours, instead of the radial repel. Requantized with the other Zurich layers to one 255-colour palette (the view region weighted 3x so the window gets about 145 colours), then any pixel still within 0.083 OKLab of a rig colour was remapped inside the palette.",
+  "cleanup": "HB1: candidate 02 of zurich-door@hd, the full-height closed door with its frame, blank frosted pane and brass knob. Prepared with assets:prepare --painted --no-quantize (Lanczos, hard alpha) at the size given, registered to the style-anchor layout with --align, then quantized with the other eight Zurich layers to one shared 256-colour palette with assets:quantize (no dither); pixels still within 0.08 OKLab of a rig colour after quantizing were remapped inside the palette. Resized to 74x140 (37x70 logical px, about 1.2x Daniele at the back of the room) with its foot on the wall base, at (281, 31) logical px. The candidate's brown wood was 0.03-0.07 OKLab from the hair colours; the wood is retinted to a saturated Swiss red (L 0.38+, C 0.165-0.19, hue 18) and the pane, brass and ink are left alone. HB1b: the outermost 1px of the silhouette is a dark shade of the local colour (an ink edge, L 0.135), replacing the halo pixels the key, the retint and the earlier radial repel left there; the contrast fix is now a per-colour search for the cheapest in-gamut colour outside the rig colours' 0.10 balls (lightness first for neutrals), smoothed over its neighbours, instead of the radial repel. Requantized with the other Zurich layers to one 255-colour palette (the view region weighted 3x so the window gets about 145 colours), then any pixel still within 0.083 OKLab of a rig colour was remapped inside the palette. Chalet refresh: palette remapped from the preserved pre-chalet layer in assets-src/refs/chalet/ using scripts/assets/chalet.ts; silhouette and position unchanged.",
   "approvedBy": "daniele",
-  "date": "2026-09-29"
+  "date": "2026-09-30"
 }

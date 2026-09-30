@@ -67,6 +67,7 @@ export function Win95Desktop({
   const {
     setGameWindowActive,
     terminalScreenAction,
+    inspection,
     dialogOpen,
     soundEnabled,
     toggleSound,
@@ -135,6 +136,7 @@ export function Win95Desktop({
         isOpen &&
         e.key === "Escape" &&
         !terminalScreenAction &&
+        !inspection &&
         !dialogOpen
       ) {
         // Do nothing - user can click the X button to close if needed
@@ -144,7 +146,7 @@ export function Win95Desktop({
 
     window.addEventListener("keydown", handleGlobalKeyDown);
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, [isOpen, terminalScreenAction, dialogOpen]);
+  }, [isOpen, terminalScreenAction, inspection, dialogOpen]);
 
   // Focus terminal input when terminal is active and user clicks on it
   // Removed auto-focus to allow keyboard shortcuts to work in windowed mode

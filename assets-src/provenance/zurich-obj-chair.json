@@ -1,18 +1,14 @@
 {
   "id": "zurich-obj-chair",
   "output": "src/assets/scenes/zurich/obj-chair.png",
-  "task": "HB1",
+  "task": "V2-chalet",
   "source": "codex",
-  "prompt": "assets-src/prompts/hd/layers-zurich.md",
+  "prompt": "assets-src/prompts/hd/chalet-inspections.md",
   "candidate": "01",
-  "references": [
-    "assets-src/refs/hd/style-anchor.png",
-    "assets-src/refs/hd/scale-sheet.png"
-  ],
-  "approvedRaw": "assets-src/approved/zurich-chair@hd.webp",
+  "references": ["assets-src/refs/chalet/obj-chair.png"],
+  "approvedRaw": "assets-src/approved/chalet/chair.png",
   "density": 2,
   "style": "painted",
-  "cleanup": "HB1: candidate 01 of zurich-chair@hd, the violet-blue office chair from behind. Prepared with assets:prepare --painted --no-quantize (Lanczos, hard alpha) at the size given, registered to the style-anchor layout with --align, then quantized with the other eight Zurich layers to one shared 256-colour palette with assets:quantize (no dither); pixels still within 0.08 OKLab of a rig colour after quantizing were remapped inside the palette. Resized to 50x60 (25x30 logical px), registered at (145, 103) logical px (best fit at scale 0.9 of the anchor's chair); casters on y 133. The periwinkle seat and back were 0.02-0.08 OKLab from the jeans; a smoothed radial repel (margin 0.105) moved them to a purple that also sits better in the plum room. HB1b: the periwinkle is retinted directly to plum violet (hue 322) rather than pushed by the repel. HB1b: the outermost 1px of the silhouette is a dark shade of the local colour (an ink edge, L 0.135), replacing the halo pixels the key, the retint and the earlier radial repel left there; the contrast fix is now a per-colour search for the cheapest in-gamut colour outside the rig colours' 0.10 balls (lightness first for neutrals), smoothed over its neighbours, instead of the radial repel. Requantized with the other Zurich layers to one 255-colour palette (the view region weighted 3x so the window gets about 145 colours), then any pixel still within 0.083 OKLab of a rig colour was remapped inside the palette.",
-  "approvedBy": "daniele",
-  "date": "2026-09-29"
+  "cleanup": "Built-in imagegen chalet redesign. Prepared by scripts/assets/chalet.ts at density 2 with hard alpha and one shared 256-colour scene palette. Background retains the original window frame and moonlit exterior exactly; no furniture baked into the plate. Furniture sprites retain their existing canvas/registration. Awaiting user visual review.",
+  "date": "2026-09-30"
 }

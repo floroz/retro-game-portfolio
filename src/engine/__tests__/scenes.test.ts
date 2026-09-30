@@ -154,11 +154,25 @@ describe("scene data contract", () => {
     }
   });
 
-  test("the Hall's duty-free shelf opens every section", () => {
-    const actions = new Set(SCENES.hall.objects.map((o) => o.action));
-    for (const section of Object.keys(SECTIONS)) {
-      expect(actions.has(section as SectionId), section).toBe(true);
+  test("the Hall's four souvenirs are optional inspections, not portfolio shortcuts", () => {
+    const souvenirs = SCENES.hall.objects.filter((o) => o.inspection);
+    expect(souvenirs.map((o) => o.id)).toEqual([
+      "limoncello",
+      "swiss-knife",
+      "swiss-cheese",
+      "telephone-miniature",
+    ]);
+    for (const souvenir of souvenirs) {
+      expect(souvenir.action, souvenir.id).toBeUndefined();
+      expect(souvenir.sprite, souvenir.id).toBeTruthy();
+      expect(souvenir.hotspot, souvenir.id).toBeDefined();
+      expect(souvenir.inspection?.art, souvenir.id).toBeTruthy();
+      expect(
+        souvenir.inspection?.paragraphs.length,
+        souvenir.id,
+      ).toBeGreaterThan(0);
     }
+    expect(SCENES.hall.objects.some((o) => o.action)).toBe(false);
   });
 
   test("the travel map marks every country", () => {
