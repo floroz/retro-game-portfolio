@@ -139,3 +139,33 @@ test("airport passengers respect reduced motion", async ({ page }) => {
     { maxDiffPixelRatio: 0.02 },
   );
 });
+
+for (const city of ["london", "zurich", "sorrento"] as const) {
+  test(`boarding desk leaves the ${city} gate accessible`, async ({ page }) => {
+    await openAirport(page);
+    const desk = page.getByRole("button", {
+      name: "Look at boarding desk",
+      exact: true,
+    });
+    await expect(desk).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Look at security arch", exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Look at rubber plant", exact: true }),
+    ).toHaveCount(0);
+    await desk.click();
+    // Reach the desk first, then board via the actual door rather than its sign.
+    await page.clock.runFor(12000);
+    await page
+      .locator(`[data-e2e=hotspot][data-hotspot="exit:gate-${city}"]`)
+      .first()
+      .click();
+    const destination = page.locator(`canvas[data-drawn=${city}]`);
+    for (let elapsed = 0; elapsed < 30000; elapsed += 1000) {
+      await page.clock.runFor(1000);
+      if (await destination.isVisible()) break;
+    }
+    await expect(destination).toBeVisible();
+  });
+}
