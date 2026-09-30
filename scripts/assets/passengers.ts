@@ -4,6 +4,7 @@ import { readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { readImage, writePng } from "./lib";
 import { fixedColoursFrom, hardAlpha, quantizeJointly } from "./painted";
+import { animateMotherStride } from "./stride";
 
 const outDir = "src/assets/scenes/hall";
 const specs = [
@@ -81,7 +82,12 @@ for (const spec of specs) {
     .images[0];
   const id = `hall-anim-passenger-${spec.name}`;
   const output = `${outDir}/anim-passenger-${spec.name}.png`;
-  await writePng(output, prepared);
+  await writePng(
+    output,
+    spec.name === "family"
+      ? animateMotherStride(prepared, spec.width)
+      : prepared,
+  );
   writeFileSync(
     `assets-src/provenance/${id}.json`,
     JSON.stringify(
@@ -96,7 +102,7 @@ for (const spec of specs) {
         approvedRaw: raw,
         density: 2,
         style: "painted",
-        cleanup: `Built-in image generation; prepared with scripts/assets/passengers.ts. ${spec.frames} foot-aligned cells, ${spec.width}x${spec.height} art px each; hard alpha and the existing Hall palette.`,
+        cleanup: `Built-in image generation; prepared with scripts/assets/passengers.ts. ${spec.frames} foot-aligned cells, ${spec.width}x${spec.height} art px each; hard alpha and the existing Hall palette.${spec.name === "family" ? " Mother's legs rebuilt as passing poses in frames 1 and 3 by scripts/assets/stride.ts." : ""}`,
         approvedBy: "codex",
         date: "2026-09-30",
       },
