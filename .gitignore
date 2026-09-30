@@ -36,3 +36,5 @@ index.html
 /assets-src/exchange/
 /assets-src/review/
 
+# Vitest browser failure artifacts (not visual baselines)
+/src/**/__tests__/__screenshots__/

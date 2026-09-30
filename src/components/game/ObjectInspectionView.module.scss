@@ -6,7 +6,7 @@
   place-items: center;
   background: rgb(19 13 9 / 64%);
   padding: 3%;
-  container-type: inline-size;
+  container-type: size;
 }
 
 .dialog {
@@ -35,10 +35,9 @@
 
 .copy {
   position: absolute;
-  inset: 20% 10% 20% 52%;
-  overflow: auto;
-  overscroll-behavior: contain;
-  scrollbar-color: #8d6740 transparent;
+  inset: var(--paper-top, 20%) 10% 20% 52%;
+  overflow: hidden;
+  overflow-wrap: anywhere;
   font-size: clamp(20px, 2cqw, 24px);
   line-height: 1.35;
   padding-right: 0.4em;
@@ -67,6 +66,18 @@
     text-underline-offset: 3px;
     overflow-wrap: anywhere;
   }
+}
+
+.page {
+  display: flow-root;
+}
+
+// Font fitting and page turns must settle synchronously, including under
+// reduced-motion rules that give every element a tiny transition duration.
+.page,
+.page * {
+  transition: none !important;
+  animation: none !important;
 }
 
 .subtitle {
@@ -126,7 +137,7 @@
   }
 
   .art {
-    height: 190px;
+    height: min(140px, 20cqh);
     object-fit: cover;
     object-position: left;
   }
@@ -134,7 +145,8 @@
   .copy {
     position: relative;
     inset: auto;
-    max-height: 210px;
+    height: min(300px, 60cqh);
+    box-sizing: border-box;
     padding: 18px 24px;
     background: #eed9ae;
     font-size: 22px;
