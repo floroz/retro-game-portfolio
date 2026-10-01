@@ -436,7 +436,7 @@ export class SceneEngine {
     this.say(lookText(target));
   }
 
-  /** Toolbar and terminal shortcut: go to a section's object and open it. */
+  /** Section shortcut: go to a section's object and open it. */
   goToSection(section: SectionId) {
     this.reset();
     const home = SECTIONS[section].home;
@@ -462,7 +462,7 @@ export class SceneEngine {
     this.leaveToward(home, () => this.fly(home, finish));
   }
 
-  /** Terminal `fly` and the dev overlay: travel to a scene without opening anything. */
+  /** Travel to a scene without opening anything. */
   travelTo(to: SceneId) {
     this.reset();
     if (to === this.current.id) {

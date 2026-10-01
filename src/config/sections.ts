@@ -1,5 +1,5 @@
 /**
- * Where each section lives in the world. The toolbar, the terminal, gate signs,
+ * Where each section lives in the world. The toolbar, gate signs,
  * the travel map, and the router all read this one table.
  */
 import type {
@@ -35,7 +35,7 @@ const SECTION_ORDER: SectionId[] = [
 interface CountryInfo {
   /** City name, used on signs and the map. */
   name: string;
-  /** Country name, for "Fly to" hover text and the terminal. */
+  /** Country name, for "Fly to" hover text. */
   country: string;
   /** Jobs with this `country` in profile.ts leave their memento here. */
   jobCountry: JobCountry;
@@ -59,21 +59,6 @@ export const COUNTRIES: Record<CountrySceneId, CountryInfo> = {
 };
 
 export const COUNTRY_ORDER: CountrySceneId[] = ["london", "zurich", "sorrento"];
-
-/** Words the terminal's `fly` accepts for each scene. */
-const DESTINATIONS: Record<SceneId, string[]> = {
-  hall: ["hall", "airport", "home"],
-  london: ["london", "england", "uk", "pub"],
-  zurich: ["zurich", "switzerland", "office"],
-  sorrento: ["sorrento", "italy", "naples", "kitchen"],
-};
-
-export function destinationFor(word: string): SceneId | undefined {
-  const w = word.toLowerCase();
-  return (Object.keys(DESTINATIONS) as SceneId[]).find((id) =>
-    DESTINATIONS[id].includes(w),
-  );
-}
 
 export function isCountryScene(id: SceneId): id is CountrySceneId {
   return id !== "hall";

@@ -6,69 +6,26 @@ describe("gameStore", () => {
     // Reset store to initial state before each test
     const store = useGameStore.getState();
     store.setHoveredObject(null);
-    store.closeTerminalScreen();
+    store.closeContent();
     store.closeDialog();
     useGameStore.setState({
       welcomeShown: false,
       dialogNode: "", // Reset dialog node
       visitedNodes: new Set(),
-      terminalOpen: true,
       gameWindowActive: true,
       soundEnabled: false,
       currentScene: "hall",
-      sceneRequest: null,
     });
   });
 
   describe("World state", () => {
-    test("should start in the Hall with no pending trip", () => {
-      const state = useGameStore.getState();
-      expect(state.currentScene).toBe("hall");
-      expect(state.sceneRequest).toBeNull();
+    test("should start in the Hall", () => {
+      expect(useGameStore.getState().currentScene).toBe("hall");
     });
 
     test("should track the current scene", () => {
       useGameStore.getState().setCurrentScene("zurich");
       expect(useGameStore.getState().currentScene).toBe("zurich");
-    });
-
-    test("should post a section shortcut and clear overlays", () => {
-      const store = useGameStore.getState();
-      store.openTerminalScreen("about");
-      store.goToSection("skills");
-
-      const state = useGameStore.getState();
-      expect(state.sceneRequest).toMatchObject({
-        kind: "section",
-        section: "skills",
-      });
-      expect(state.terminalScreenAction).toBeNull();
-      expect(state.dialogOpen).toBe(false);
-    });
-
-    test("should post a travel request", () => {
-      useGameStore.getState().travelTo("sorrento");
-      expect(useGameStore.getState().sceneRequest).toMatchObject({
-        kind: "travel",
-        scene: "sorrento",
-      });
-    });
-
-    test("should hand each request over once", () => {
-      const store = useGameStore.getState();
-      store.goToSection("resume");
-      const first = store.takeSceneRequest();
-      expect(first).toMatchObject({ kind: "section", section: "resume" });
-      expect(useGameStore.getState().takeSceneRequest()).toBeNull();
-    });
-
-    test("should give every request a new id", () => {
-      const store = useGameStore.getState();
-      store.goToSection("about");
-      const a = store.takeSceneRequest();
-      store.goToSection("about");
-      const b = useGameStore.getState().takeSceneRequest();
-      expect(a?.id).not.toBe(b?.id);
     });
   });
 
@@ -77,7 +34,7 @@ describe("gameStore", () => {
       const state = useGameStore.getState();
 
       expect(state.hoveredObject).toBeNull();
-      expect(state.terminalScreenAction).toBeNull();
+      expect(state.contentSection).toBeNull();
     });
 
     test("should set hovered object", () => {
@@ -90,82 +47,38 @@ describe("gameStore", () => {
       expect(useGameStore.getState().hoveredObject).toBeNull();
     });
 
-    test("should open terminal screen with action", () => {
+    test("should open the content screen for a section", () => {
       const store = useGameStore.getState();
 
-      store.openTerminalScreen("about");
+      store.openContent("about");
 
       const state = useGameStore.getState();
-      expect(state.terminalScreenAction).toBe("about");
+      expect(state.contentSection).toBe("about");
     });
 
-    test("should open dialog instead of terminal screen for talk action", () => {
+    test("should open dialog instead of the content screen for talk action", () => {
       const store = useGameStore.getState();
 
-      store.openTerminalScreen("talk");
+      store.openContent("talk");
 
       const state = useGameStore.getState();
-      expect(state.terminalScreenAction).toBeNull();
+      expect(state.contentSection).toBeNull();
       expect(state.dialogOpen).toBe(true);
       expect(state.dialogNode).toBe("intro");
     });
 
-    test("should close terminal screen and reset state", () => {
+    test("should close the content screen and reset state", () => {
       const store = useGameStore.getState();
 
-      // Open terminal screen first
-      store.openTerminalScreen("about");
-      expect(useGameStore.getState().terminalScreenAction).toBe("about");
+      // Open the content screen first
+      store.openContent("about");
+      expect(useGameStore.getState().contentSection).toBe("about");
 
-      // Close terminal screen
-      store.closeTerminalScreen();
+      // Close the content screen
+      store.closeContent();
 
       const state = useGameStore.getState();
-      expect(state.terminalScreenAction).toBeNull();
-    });
-  });
-
-  describe("Terminal state", () => {
-    test("should initialize with terminal open", () => {
-      const state = useGameStore.getState();
-
-      expect(state.terminalOpen).toBe(true);
-      expect(state.gameWindowActive).toBe(true);
-    });
-
-    test("should toggle terminal", () => {
-      const store = useGameStore.getState();
-
-      store.toggleTerminal();
-      expect(useGameStore.getState().terminalOpen).toBe(false);
-
-      store.toggleTerminal();
-      expect(useGameStore.getState().terminalOpen).toBe(true);
-    });
-
-    test("should not open terminal when terminal screen is open", () => {
-      const store = useGameStore.getState();
-
-      // Open terminal screen
-      store.openTerminalScreen("about");
-
-      // Close terminal
-      store.toggleTerminal();
-      expect(useGameStore.getState().terminalOpen).toBe(false);
-
-      // Try to open terminal - should stay closed
-      store.toggleTerminal();
-      expect(useGameStore.getState().terminalOpen).toBe(false);
-    });
-
-    test("should close terminal and deactivate game window", () => {
-      const store = useGameStore.getState();
-
-      store.closeTerminal();
-
-      const state = useGameStore.getState();
-      expect(state.terminalOpen).toBe(false);
-      expect(state.gameWindowActive).toBe(false);
+      expect(state.contentSection).toBeNull();
     });
 
     test("should set game window active state", () => {
@@ -227,10 +140,10 @@ describe("gameStore", () => {
 
       store.openDialog("intro");
       store.setDialogReady(true);
-      store.openTerminalScreen("about");
+      store.openContent("about");
 
       const state = useGameStore.getState();
-      expect(state.terminalScreenAction).toBe("about");
+      expect(state.contentSection).toBe("about");
       expect(state.dialogOpen).toBe(false);
       expect(state.dialogReady).toBe(false);
     });
@@ -250,7 +163,7 @@ describe("gameStore", () => {
       const state = useGameStore.getState();
       expect(state.dialogOpen).toBe(true);
       expect(state.dialogNode).toBe("welcome");
-      expect(state.terminalScreenAction).toBeNull();
+      expect(state.contentSection).toBeNull();
     });
 
     test("should open dialog with specific node", () => {
@@ -276,28 +189,6 @@ describe("gameStore", () => {
       expect(consoleErrorSpy).toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
-    });
-
-    test("should keep terminal open in Win95 desktop mode", () => {
-      const store = useGameStore.getState();
-
-      useGameStore.setState({ terminalOpen: true, gameWindowActive: true });
-
-      store.openDialog("intro");
-
-      const state = useGameStore.getState();
-      expect(state.terminalOpen).toBe(true);
-    });
-
-    test("should close terminal when not in Win95 desktop mode", () => {
-      const store = useGameStore.getState();
-
-      useGameStore.setState({ terminalOpen: true, gameWindowActive: false });
-
-      store.openDialog("intro");
-
-      const state = useGameStore.getState();
-      expect(state.terminalOpen).toBe(false);
     });
 
     test("should close dialog", () => {
@@ -390,27 +281,27 @@ describe("object inspections", () => {
       artAlt: "Souvenir",
       paragraphs: ["A keepsake."],
     };
-    store.openTerminalScreen("about");
+    store.openContent("about");
     store.openInspection(item);
     expect(useGameStore.getState()).toMatchObject({
       inspection: item,
-      terminalScreenAction: null,
+      contentSection: null,
       dialogOpen: false,
     });
-    store.openTerminalScreen("skills");
+    store.openContent("skills");
     expect(useGameStore.getState()).toMatchObject({
       inspection: null,
-      terminalScreenAction: "skills",
+      contentSection: "skills",
     });
     store.openInspection(item);
     store.openDialog("intro");
     expect(useGameStore.getState()).toMatchObject({
       inspection: null,
-      terminalScreenAction: null,
+      contentSection: null,
       dialogOpen: true,
     });
     store.openInspection(item);
-    store.closeTerminalScreen();
+    store.closeContent();
     expect(useGameStore.getState().inspection).toBeNull();
   });
 });

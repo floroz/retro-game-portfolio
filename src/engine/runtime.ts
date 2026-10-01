@@ -32,8 +32,7 @@ export function getEngine(): SceneEngine {
       // Scenes built to the Phase H world scale (`farHeight`, `nearHeight`)
       // draw the rig; the rest keep the sprite sheet until they're rebuilt.
       host: {
-        openSection: (section) =>
-          useGameStore.getState().openTerminalScreen(section),
+        openSection: (section) => useGameStore.getState().openContent(section),
         openInspection: (inspection) =>
           useGameStore.getState().openInspection(inspection),
         sceneChanged: (scene) => useGameStore.getState().setCurrentScene(scene),

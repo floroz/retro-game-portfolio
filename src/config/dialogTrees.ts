@@ -278,7 +278,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "hire-contact": {
     speaker: "daniele",
-    text: "Email: danieletortora.contact@gmail.com. Also on LinkedIn and GitHub—links in the toolbar. Or type 'contact' in the terminal!",
+    text: "Email: danieletortora.contact@gmail.com. Also on LinkedIn and GitHub—links in the toolbar. Or press Contact in the toolbar!",
     options: [
       {
         id: "back",
@@ -303,14 +303,14 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Goodbye
   bye: {
     speaker: "daniele",
-    text: "No worries! Feel free to explore, open the terminal (try 'help'), or look for Easter eggs. Come back anytime!",
+    text: "No worries! Feel free to explore, fly to a gate or two, or look for Easter eggs. Come back anytime!",
     options: [{ id: "close", label: "[Close dialog]", nextNode: "__close__" }],
   },
 
   // Easter eggs
   "easter-egg-click": {
     speaker: "daniele",
-    text: "Still clicking? You'd make a great QA engineer. Press T to open the terminal—there might be hidden commands...",
+    text: "Still clicking? You'd make a great QA engineer. Try looking at everything—there might be a few surprises...",
     options: [{ id: "back", label: "Good tip!", nextNode: "welcome" }],
   },
 };

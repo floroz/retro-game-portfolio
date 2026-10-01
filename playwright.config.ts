@@ -60,8 +60,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command:
-      "npm run generate:html && VITE_TYPEWRITER_SPEED=0 npx vite build && npm run preview",
+    command: "npm run generate:html && npx vite build && npm run preview",
     url: baseURL,
     reuseExistingServer: !isCI,
   },

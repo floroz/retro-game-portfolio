@@ -50,19 +50,16 @@ test("Start menu supports keyboard navigation, dismissal and System Properties",
   await expect(properties).toBeHidden();
 });
 
-test("minimize, Show Desktop and restore preserve window contents and geometry", async ({
+test("minimize, Show Desktop and restore preserve window geometry", async ({
   page,
 }) => {
   await openDesktop(page);
-  await page
-    .getByRole("button", { name: "Launch MS-DOS Prompt", exact: true })
-    .click();
-  const terminal = page.locator("[data-e2e=win95-terminal-window]");
+  await page.locator("[data-e2e=desktop-icon-recycle-bin]").click();
   const window = page
     .locator("[data-e2e=win95-window]")
-    .filter({ has: terminal });
-  const input = terminal.locator("[data-e2e=terminal-input]");
-  await input.fill("keep this unfinished command");
+    .filter({ hasText: "Recycle Bin" });
+  const taskbarButton = page.locator("[data-e2e=taskbar-recycle-bin]");
+  await expect(window).toBeVisible();
   const original = await window.boundingBox();
   await window.getByRole("button", { name: "Maximize window" }).click();
   await expect(
@@ -73,26 +70,23 @@ test("minimize, Show Desktop and restore preserve window contents and geometry",
     .toBeGreaterThan(original!.width);
   const maximized = await window.boundingBox();
   expect(maximized!.y + maximized!.height).toBeLessThanOrEqual(964);
-  await expect(page).toHaveScreenshot("terminal-maximized.png");
   await window.getByRole("button", { name: "Restore window" }).click();
   await expect.poll(() => window.boundingBox()).toEqual(original);
   await window.getByRole("button", { name: "Minimize window" }).click();
-  await expect(terminal).toBeHidden();
-  await page.locator("[data-e2e=taskbar-terminal]").click();
-  await expect(terminal).toBeVisible();
+  await expect(window).toBeHidden();
+  await taskbarButton.click();
+  await expect(window).toBeVisible();
   await expect.poll(() => window.boundingBox()).toEqual(original);
-  await expect(input).toHaveValue("keep this unfinished command");
   await page.getByRole("button", { name: "Show Desktop", exact: true }).click();
-  await expect(terminal).toBeHidden();
+  await expect(window).toBeHidden();
   await expect(page.locator("[data-e2e=welcome-screen]")).toBeHidden();
   await page
     .getByRole("button", { name: "Launch adventure", exact: true })
     .click();
   await expect(page.locator("[data-e2e=welcome-screen]")).toBeVisible();
-  await page.locator("[data-e2e=taskbar-terminal]").click();
-  await expect(terminal).toBeVisible();
+  await taskbarButton.click();
+  await expect(window).toBeVisible();
   await expect.poll(() => window.boundingBox()).toEqual(original);
-  await expect(input).toHaveValue("keep this unfinished command");
   await page.setViewportSize({ width: 1024, height: 768 });
   await expect(
     window.getByRole("button", { name: "Close window" }),
@@ -137,15 +131,19 @@ test("Start shortcuts reach portfolio content and tray sound is reversible", asy
   ).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Mute sound", exact: true }).click();
   await expect(sound).toHaveAttribute("aria-pressed", "false");
-  for (const name of ["Contact", "Work Experience"]) {
+  for (const [name, section] of [
+    ["Contact", "Contact"],
+    ["Work Experience", "Experience"],
+  ] as const) {
     await page.getByRole("button", { name: "Start menu", exact: true }).click();
     await page.getByRole("menuitem", { name, exact: true }).click();
     await expect(page.getByRole("menu", { name: "Start menu" })).toBeHidden();
-    const terminal = page.locator("[data-e2e=win95-terminal-window]");
-    await expect(terminal).toBeVisible();
-    await expect(terminal).toContainText(
-      name === "Contact" ? PROFILE.email : PROFILE.workExperience[0].company,
-    );
+    const content = page.getByRole("dialog", { name: section, exact: true });
+    await expect(content).toBeVisible();
+    if (section === "Contact")
+      await expect(content).toContainText(PROFILE.email);
+    await page.keyboard.press("Escape");
+    await expect(content).toBeHidden();
   }
 });
 
