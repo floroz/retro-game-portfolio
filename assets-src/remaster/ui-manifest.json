@@ -3,38 +3,38 @@
   "assets": [
     {
       "output": "src/assets/remaster/inspections/about.webp",
-      "source": "assets-src/approved/sorrento-inspection-about.png",
+      "source": "assets-src/approved/location-inspections/about.png",
       "width": 1280,
       "height": 640,
-      "treatment": "Same composition at density 4; full source colours and soft edges."
+      "treatment": "Location cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
     },
     {
       "output": "src/assets/remaster/inspections/contact.webp",
-      "source": "assets-src/approved/sorrento-inspection-contact.png",
+      "source": "assets-src/approved/location-inspections/contact.png",
       "width": 1280,
       "height": 640,
-      "treatment": "Same composition at density 4; full source colours and soft edges."
+      "treatment": "Location cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
     },
     {
       "output": "src/assets/remaster/inspections/experience.webp",
-      "source": "assets-src/approved/chalet/experience.png",
+      "source": "assets-src/approved/location-inspections/experience.png",
       "width": 1280,
       "height": 640,
-      "treatment": "Same composition at density 4; full source colours and soft edges."
+      "treatment": "Location cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
     },
     {
       "output": "src/assets/remaster/inspections/resume.webp",
-      "source": "assets-src/approved/chalet/resume.png",
+      "source": "assets-src/approved/location-inspections/resume.png",
       "width": 1280,
       "height": 640,
-      "treatment": "Same composition at density 4; full source colours and soft edges."
+      "treatment": "Location cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
     },
     {
       "output": "src/assets/remaster/inspections/skills.webp",
-      "source": "assets-src/approved/inspection-skills.png",
+      "source": "assets-src/approved/location-inspections/skills.png",
       "width": 1280,
       "height": 640,
-      "treatment": "Same composition at density 4; full source colours and soft edges."
+      "treatment": "Location cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
     },
     {
       "output": "src/assets/remaster/inspections/souvenir-cheese.webp",
