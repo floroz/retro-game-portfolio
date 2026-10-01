@@ -22,7 +22,7 @@ test("portfolio opens immediately and essential content is one tap away", async 
   page,
 }) => {
   await enterKitchen(page);
-  for (const label of ["Experience", "Résumé", "Contact"]) {
+  for (const label of ["Experience", "Resume", "Contact"]) {
     await expect(sectionLink(page, label)).toBeInViewport();
     await sectionLink(page, label).tap();
     await expect(page.locator("[data-e2e=pocket-reading]")).toBeVisible();
@@ -39,7 +39,7 @@ test("painted objects open the corresponding content", async ({ page }) => {
     ["Postcards · About", "About Daniele"],
     ["Telephone · Contact", "Contact"],
     ["Career album · Experience", "Experience"],
-    ["Document folder · Résumé", "Résumé"],
+    ["Document folder · Resume", "Resume"],
     ["Backpack and laptop · Skills", "Skills"],
   ]) {
     await page.getByRole("link", { name: object, exact: true }).tap();
@@ -76,7 +76,7 @@ test("career album scrolls through the full work history", async ({ page }) => {
     .toBe(0);
 });
 
-test("contact and résumé use the shared profile links", async ({ page }) => {
+test("contact and resume use the shared profile links", async ({ page }) => {
   await enterKitchen(page);
   await sectionLink(page, "Contact").tap();
   await expect(page.getByRole("link", { name: PROFILE.email })).toHaveAttribute(
@@ -97,7 +97,7 @@ test("contact and résumé use the shared profile links", async ({ page }) => {
       page.getByRole("link", { name, exact: false }),
     ).toHaveAttribute("rel", /noopener/);
   }
-  await sectionLink(page, "Résumé").tap();
+  await sectionLink(page, "Resume").tap();
   await expect(
     page.getByRole("link", { name: /Read or download my resume/ }),
   ).toHaveAttribute("href", PROFILE.resumeUrl);
@@ -133,7 +133,7 @@ test("dialogue is optional and survives an inspection", async ({ page }) => {
   await expect(
     page.getByText("A proper moka takes its time.", { exact: false }),
   ).toBeVisible();
-  await sectionLink(page, "Résumé").tap();
+  await sectionLink(page, "Resume").tap();
   await page.getByRole("link", { name: "← Sorrento" }).tap();
   await expect(
     page.getByText("A proper moka takes its time.", { exact: false }),
@@ -144,12 +144,16 @@ test("dialogue is optional and survives an inspection", async ({ page }) => {
   ).toBeFocused();
 });
 
-test("labels can be hidden without disabling objects", async ({ page }) => {
+test("scene stays free of labels while objects remain accessible", async ({
+  page,
+}) => {
   await enterKitchen(page);
-  await page.getByRole("button", { name: "Labels on" }).tap();
-  await expect(
-    page.getByRole("button", { name: "Labels off" }),
-  ).toHaveAttribute("aria-pressed", "false");
+  const scene = page.locator("[data-e2e=pocket-scene]");
+  await expect(scene).toHaveText("");
+  await expect(page.getByRole("button", { name: /Labels/ })).toHaveCount(0);
+  await expect(page.locator("header")).not.toContainText("Chapter");
+  await scene.getByRole("link", { name: "Telephone · Contact" }).focus();
+  await expect(scene).toHaveText("");
   await page
     .getByRole("link", { name: "Telephone · Contact", exact: true })
     .tap();
@@ -209,7 +213,7 @@ test("landscape remains usable without a rotate-screen barrier", async ({
 }) => {
   await enterKitchen(page);
   await page.setViewportSize({ width: 844, height: 390 });
-  await sectionLink(page, "Résumé").tap();
+  await sectionLink(page, "Resume").tap();
   await page
     .getByRole("link", { name: /Read or download my resume/ })
     .scrollIntoViewIfNeeded();
@@ -244,7 +248,7 @@ for (const label of [
   "Experience",
   "Skills",
   "Contact",
-  "Résumé",
+  "Resume",
 ]) {
   test(`portrait visual: ${label}`, async ({ page }) => {
     await enterKitchen(page);
@@ -258,10 +262,9 @@ for (const label of [
         );
     }
     await page.evaluate("document.fonts.ready");
-    await expect(page).toHaveScreenshot(
-      `pocket-${label === "Résumé" ? "resume" : label.toLowerCase()}.png`,
-      { animations: "disabled" },
-    );
+    await expect(page).toHaveScreenshot(`pocket-${label.toLowerCase()}.png`, {
+      animations: "disabled",
+    });
   });
 }
 
@@ -274,7 +277,7 @@ test("welcome recommends desktop before entering and keeps content accessible", 
     page.getByText("The full game is on desktop.", { exact: true }),
   ).toBeVisible();
   await expect(page.locator("[data-e2e=pocket-scene]")).toHaveCount(0);
-  for (const label of ["Experience", "Résumé", "Contact"]) {
+  for (const label of ["Experience", "Resume", "Contact"]) {
     await page
       .getByRole("navigation", { name: "Quick portfolio access" })
       .getByRole("link", { name: label, exact: true })

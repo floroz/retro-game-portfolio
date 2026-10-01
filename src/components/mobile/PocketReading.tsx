@@ -15,7 +15,7 @@ export function PocketReading({ section }: { section: SectionId }) {
       />
       <div className={styles.paper}>
         <p className={styles.eyebrow}>{inspection.subtitle}</p>
-        <h1>{section === "resume" ? "Résumé" : inspection.title}</h1>
+        <h1>{section === "resume" ? "Resume" : inspection.title}</h1>
         {section === "experience" ? (
           <>
             <p>{PROFILE.experienceSummary.split("\n\n")[0]}</p>
