@@ -63,11 +63,15 @@ test("career album scrolls through the full work history", async ({ page }) => {
   });
   await lastJob.scrollIntoViewIfNeeded();
   await expect(lastJob).toBeInViewport();
-  expect(
-    await page
-      .locator("[data-e2e=pocket-reading]")
-      .evaluate((el) => el.scrollTop),
-  ).toBeGreaterThan(0);
+  // Tall screens can show the whole history at once, so scroll to the end
+  // to give the reset below something to undo.
+  const reading = page.locator("[data-e2e=pocket-reading]");
+  await reading.evaluate((el) => el.scrollTo(0, el.scrollHeight));
+  const { scrollTop, overflows } = await reading.evaluate((el) => ({
+    scrollTop: el.scrollTop,
+    overflows: el.scrollHeight > el.clientHeight,
+  }));
+  if (overflows) expect(scrollTop).toBeGreaterThan(0);
   await sectionLink(page, "Contact").tap();
   await expect
     .poll(() =>
