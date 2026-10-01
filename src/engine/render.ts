@@ -203,7 +203,11 @@ export function renderFrame(rc: RenderContext) {
   for (const effect of scene.effects ?? []) {
     add(effect.baselineY, (r) =>
       withClip(r.ctx, effect.clip, () =>
-        drawShapes(r.ctx, effectShapes(effect, engine.now), GRID),
+        drawShapes(
+          r.ctx,
+          effectShapes(effect, engine.now, r.reducedMotion),
+          GRID,
+        ),
       ),
     );
   }

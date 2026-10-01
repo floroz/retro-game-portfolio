@@ -253,3 +253,69 @@ for (const city of ["london", "zurich", "sorrento"] as const) {
     await expect(destination).toBeVisible();
   });
 }
+
+for (const reducedMotion of ["no-preference", "reduce"] as const) {
+  test(`Swiss room ambient motion respects ${reducedMotion}`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion });
+    await openAirport(page);
+    await page
+      .getByRole("button", {
+        name: "Fly to Zurich: Experience, Resume",
+        exact: true,
+      })
+      .first()
+      .click();
+    const canvas = page.locator("canvas[data-drawn=zurich]");
+    for (let elapsed = 0; elapsed < 30000; elapsed += 500) {
+      await advanceScene(page, 500);
+      if (await canvas.isVisible()) break;
+    }
+    await expect(canvas).toBeVisible();
+    await advanceScene(page, 2000);
+    await expect(
+      page.getByRole("button", {
+        name: "Look at sleeping Swiss cow",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Look at rubber plant", exact: true }),
+    ).toHaveCount(0);
+
+    // Read only the three ambient regions, excluding stars, speech and Daniele.
+    const pixels = () =>
+      canvas.evaluate((element) => {
+        const scene = element as unknown as {
+          width: number;
+          getContext(kind: string): {
+            getImageData(
+              x: number,
+              y: number,
+              w: number,
+              h: number,
+            ): { data: ArrayLike<number> };
+          };
+        };
+        const d = scene.width / 320;
+        return [
+          { x: 219, y: 36, w: 9, h: 10 },
+          { x: 5, y: 125, w: 35, h: 20 },
+          { x: 65, y: 108, w: 14, h: 16 },
+        ].map(({ x, y, w, h }) =>
+          Array.from(
+            scene.getContext("2d").getImageData(x * d, y * d, w * d, h * d)
+              .data,
+          ),
+        );
+      });
+    const before = await pixels();
+    await page.clock.runFor(700);
+    const after = await pixels();
+    for (let i = 0; i < before.length; i++) {
+      if (reducedMotion === "reduce") expect(after[i]).toEqual(before[i]);
+      else expect(after[i]).not.toEqual(before[i]);
+    }
+  });
+}
