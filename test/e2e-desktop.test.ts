@@ -79,6 +79,8 @@ test("minimize, Show Desktop and restore preserve window contents and geometry",
   await window.getByRole("button", { name: "Minimize window" }).click();
   await expect(terminal).toBeHidden();
   await page.locator("[data-e2e=taskbar-terminal]").click();
+  await expect(terminal).toBeVisible();
+  await expect.poll(() => window.boundingBox()).toEqual(original);
   await expect(input).toHaveValue("keep this unfinished command");
   await page.getByRole("button", { name: "Show Desktop", exact: true }).click();
   await expect(terminal).toBeHidden();
@@ -88,10 +90,39 @@ test("minimize, Show Desktop and restore preserve window contents and geometry",
     .click();
   await expect(page.locator("[data-e2e=welcome-screen]")).toBeVisible();
   await page.locator("[data-e2e=taskbar-terminal]").click();
+  await expect(terminal).toBeVisible();
+  await expect.poll(() => window.boundingBox()).toEqual(original);
   await expect(input).toHaveValue("keep this unfinished command");
   await page.setViewportSize({ width: 1024, height: 768 });
   await expect(
     window.getByRole("button", { name: "Close window" }),
+  ).toBeInViewport();
+});
+
+test("Show Desktop restores the active adventure at its original size", async ({
+  page,
+}) => {
+  await openDesktop(page);
+  await page.keyboard.press("Space");
+  await page.clock.runFor(1000);
+  await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.clock.runFor(1000);
+  const canvas = page.locator("canvas[data-drawn=hall]");
+  await expect(canvas).toBeVisible();
+  const original = await canvas.boundingBox();
+  expect(original!.width).toBeGreaterThan(0);
+  await page.getByRole("button", { name: "Show Desktop", exact: true }).click();
+  await expect(canvas).toBeHidden();
+  // Let the resize observer measure the hidden window before restoring it.
+  await page.clock.runFor(1000);
+  await page.locator("[data-e2e=taskbar-game]").click();
+  await page.clock.runFor(100);
+  await expect(canvas).toBeVisible();
+  await expect.poll(() => canvas.boundingBox()).toEqual(original);
+  await expect(page.locator("[data-e2e=welcome-screen]")).toBeHidden();
+  await expect(
+    page.locator("[data-e2e=toolbar-button]").first(),
   ).toBeInViewport();
 });
 

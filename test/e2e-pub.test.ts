@@ -1,5 +1,5 @@
 import { test, expect, type Page, type Locator } from "@playwright/test";
-import { IRIS_MS } from "../src/engine/constants";
+import { IRIS_MS, NATIVE_W } from "../src/engine/constants";
 import { advanceScene } from "./clock";
 
 test.use({ viewport: { width: 1440, height: 1000 } });
@@ -159,6 +159,22 @@ test("the foreground table has paths behind and in front, and the jukebox respon
   await openPub(page);
   const scene = page.locator("[data-e2e=scene]");
   const canvas = page.locator("canvas[data-drawn=london]");
+  const expectTableDepth = async (position: "behind" | "in-front") => {
+    const bounds = await canvas.boundingBox();
+    if (!bounds) throw new Error("Pub canvas has no visible bounds");
+    const scale = bounds.width / NATIVE_W;
+    // A full-scene tolerance can hide a missing character or wrong depth.
+    // Keep the player, table and both seated guests prominent in this check.
+    await expect(page).toHaveScreenshot(`pub-table-depth-${position}.png`, {
+      clip: {
+        x: bounds.x + 29 * scale,
+        y: bounds.y + 59 * scale,
+        width: 66 * scale,
+        height: 100 * scale,
+      },
+      maxDiffPixelRatio: 0.01,
+    });
+  };
 
   await page
     .locator('[data-e2e=hotspot][data-hotspot="object:window"]')
@@ -168,6 +184,7 @@ test("the foreground table has paths behind and in front, and the jukebox respon
   await expect(scene).toHaveScreenshot("pub-table-walk-behind.png", {
     maxDiffPixelRatio: 0.02,
   });
+  await expectTableDepth("behind");
 
   await page
     .locator('[data-e2e=hotspot][data-hotspot="object:table"]')
@@ -177,6 +194,7 @@ test("the foreground table has paths behind and in front, and the jukebox respon
   await expect(scene).toHaveScreenshot("pub-table-walk-in-front.png", {
     maxDiffPixelRatio: 0.02,
   });
+  await expectTableDepth("in-front");
 
   const jukebox = page
     .locator('[data-e2e=hotspot][data-hotspot="object:jukebox"]')
