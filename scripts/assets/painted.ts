@@ -1,10 +1,9 @@
 /**
- * Painted density-2 assets (docs/art-spec.md, Phase H, Decisions,
- * "Resolution"; task H0b). Phase H art matches MI3's pixel density: painted
- * in full colour, authored at 640x320 (density 2 over the 320x160 logical
- * grid), and shown at 2x with nearest-neighbour, so every art pixel is a hard
- * 2x2 block on screen. That needs three things the density-4 path (hd.ts)
- * doesn't do:
+ * Painted density-2 assets (Phase H). Phase H art matches MI3's pixel density:
+ * painted in full colour, authored at 640x320 (density 2 over the 320x160
+ * logical grid), and shown at 2x with nearest-neighbour, so every art pixel is
+ * a hard 2x2 block on screen. That needs three things the density-4 path
+ * (hd.ts) doesn't do:
  *
  * 1. **Hard alpha** (`hardAlpha`): every pixel is fully opaque or fully
  *    transparent, with a threshold on the soft matte, so the silhouette is a

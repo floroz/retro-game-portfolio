@@ -1,8 +1,8 @@
 /**
- * The cut-out rig contract (docs/art-spec.md, Phase H, "Character"): the
- * shape of `src/assets/character/daniele-rig.json`, which `npm run
- * assets:rig` (scripts/assets/rigpack.ts) writes and the engine's rig
- * renderer reads. Change it only together with both sides.
+ * The cut-out rig contract: the shape of
+ * `src/assets/character/daniele-rig.json`, which `npm run assets:rig`
+ * (scripts/assets/rigpack.ts) writes and the engine's rig renderer reads.
+ * Change it only together with both sides.
  *
  * Daniele is one HD drawing per facing, split into parts that hang off each
  * other at joints. Every coordinate is in atlas pixels, `density` per

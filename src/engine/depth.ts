@@ -1,8 +1,7 @@
 /**
- * Paint order (docs/art-spec.md, "Layers, depth, and slots"): things without
- * a floor line are on the wall and always behind; the rest sort by floor
- * line. An object is drawn over Daniele while his feet are above its
- * `baselineY` (behind it), and under him otherwise.
+ * Paint order: things without a floor line are on the wall and always behind;
+ * the rest sort by floor line. An object is drawn over Daniele while his feet
+ * are above its `baselineY` (behind it), and under him otherwise.
  */
 export interface Paintable {
   /** Floor line in native px, or null for the wall layer. */

@@ -1,5 +1,5 @@
 /**
- * MIDI source as code → .mid → FluidSynth → MP3 (docs/art-spec.md, Audio).
+ * MIDI source as code → .mid → FluidSynth → MP3.
  *
  *   npm run assets:music -- [track...] [--preview] [--soundfont <file.sf2>]
  *
@@ -63,7 +63,7 @@ export const SAMPLE_RATE = 48000;
 export const CHANNELS = 2;
 /** MIDI ticks per quarter note: divisible by 2, 3, 4, 5, 8, 16 and 32. */
 export const PPQ = 480;
-/** Loudness target for music (docs/art-spec.md, Audio: Levels). */
+/** Loudness target for music. */
 export const MUSIC_LUFS = -20;
 /** Highest true peak allowed after gain. */
 export const MAX_TRUE_PEAK_DBTP = -1;

@@ -1,10 +1,10 @@
 /**
- * Stamping transformed art onto the art's pixel grid (docs/art-spec.md,
- * "Phase H": hard pixels, never smooth). Anything rotated or scaled, such
- * as the rig's parts or a plane shrinking into the distance, is painted on
- * a scratch canvas at the grid's own resolution, its alpha made 0 or 255,
- * then drawn on whole grid pixels, nearest-neighbour. The CSS 2x upscale
- * then keeps it crisp and on the same grid as the scene.
+ * Stamping transformed art onto the art's pixel grid (hard pixels, never
+ * smooth). Anything rotated or scaled, such as the rig's parts or a plane
+ * shrinking into the distance, is painted on a scratch canvas at the grid's own
+ * resolution, its alpha made 0 or 255, then drawn on whole grid pixels,
+ * nearest-neighbour. The CSS 2x upscale then keeps it crisp and on the same
+ * grid as the scene.
  */
 
 /** Alpha at or above this is ink; below it, nothing. */

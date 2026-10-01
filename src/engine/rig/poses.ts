@@ -1,7 +1,7 @@
 /**
- * Daniele's pose clips (docs/art-spec.md, "Phase H", "Character"), as data
- * in the format of clip.ts. The engine plays them on the cut-out rig
- * (rigTypes.ts); HB7 fine-tunes the numbers on the real parts.
+ * Daniele's pose clips, as data in the format of clip.ts. The engine plays them
+ * on the cut-out rig (rigTypes.ts); HB7 fine-tunes the numbers on the real
+ * parts.
  *
  * Conventions (transform.ts): angles in degrees, counter-clockwise on
  * screen. In the side view, which faces east, positive swings a hanging

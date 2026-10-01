@@ -1,5 +1,5 @@
 /**
- * London ambience: the pub on a rainy evening (docs/art-spec.md, Audio).
+ * London ambience: the pub on a rainy evening.
  *
  * - Rain on the window, heard from inside: a muffled wash that gusts, with
  *   drops ticking on the glass and heavier ones pattering on the sill.

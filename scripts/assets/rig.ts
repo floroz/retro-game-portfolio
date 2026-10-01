@@ -1,6 +1,5 @@
 /**
- * Cut-out rig parts to daniele-rig.png + daniele-rig.json (docs/art-spec.md,
- * Phase H, "Character"; task HB7).
+ * Cut-out rig parts to daniele-rig.png + daniele-rig.json.
  *
  *   npm run assets:rig -- --parts <dir> [--source <dir>/rig.json]
  *     [--out-dir src/assets/character] [--padding 2]

@@ -181,13 +181,13 @@ describe("scene data contract", () => {
     }
   });
 
-  // docs/expansion-plan.md, "Minimal in-world text": labels are one word or
-  // a city, and spoken lines are about 12 words or fewer.
+  // Minimal in-world text: labels are one word or a city, and spoken lines are
+  // about 12 words or fewer.
   const words = (line: string) => line.split(/\s+/).filter(Boolean).length;
 
   test.each(scenes)("%s: in-world labels are a word or two", (id, scene) => {
     // Except a chalkboard: the London menu of skill groups is a list, at
-    // Daniele's request (docs/expansion-plan.md, "Minimal in-world text").
+    // Daniele's request.
     for (const label of (scene.labels ?? []).filter((l) => !l.chalk)) {
       for (const line of resolveLabel(label.source)) {
         expect(words(line), `${id}/${label.id}: ${line}`).toBeLessThanOrEqual(

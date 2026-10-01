@@ -1,6 +1,5 @@
 /**
- * Cut an object sprite out of a composite along a polygon
- * (docs/art-spec.md, B1–B5 step 3).
+ * Cut an object sprite out of a composite along a polygon.
  *
  *   npm run assets:cutout -- <composite.png> --poly "x,y x,y x,y ..." --out <obj.png>
  *     [--hole <composite-with-hole.png>]   the composite with the object removed,

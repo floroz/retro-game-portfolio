@@ -1,5 +1,5 @@
 /**
- * `npm run lint:assets` (docs/art-spec.md, How an asset gets made, step 6).
+ * `npm run lint:assets`.
  *
  * Fails if any shipped asset is off-palette, uses another scene's ramp, has
  * partial alpha, is the wrong size, is badly named, or has no provenance
@@ -65,7 +65,7 @@ function walk(dir: string): string[] {
 
 const rel = (p: string) => relative(REPO_ROOT, p).split("\\").join("/");
 
-/** Shipped audio (docs/art-spec.md, File layout and Audio). */
+/** Shipped audio. */
 const AUDIO_ROOT = "public/audio";
 const AUDIO_FILE =
   /^public\/audio\/(music|ambience|sfx)\/([a-z0-9]+(?:-[a-z0-9]+)*)\.mp3$/;

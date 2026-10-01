@@ -1,5 +1,5 @@
 /**
- * Shared asset tooling (docs/art-spec.md, Tooling).
+ * Shared asset tooling.
  *
  * Everything that touches pixels lives here: image I/O through `sharp`, an
  * exact area-average downscale for any ratio, the OKLab nearest-colour remap
@@ -81,10 +81,10 @@ export function sceneForAssetId(assetId: string): SceneId | null {
 // --- Density -------------------------------------------------------------------
 
 /**
- * Pixel density (docs/art-spec.md, Phase R). Scene data stays in logical
- * 320x160 px; density 1 art is drawn at that size and density 2 art (the
- * remaster) at twice it, so a native size is the logical size times the
- * density. The transition runs one scene at a time, so both are valid.
+ * Pixel density (Phase R). Scene data stays in logical 320x160 px; density 1
+ * art is drawn at that size and density 2 art (the remaster) at twice it, so a
+ * native size is the logical size times the density. The transition runs one
+ * scene at a time, so both are valid.
  */
 export const DENSITIES = [1, 2] as const;
 export type Density = (typeof DENSITIES)[number];
@@ -1305,9 +1305,9 @@ export interface CharacterMetrics {
 }
 
 /**
- * The character at each density (docs/art-spec.md, Character and Phase R):
- * 32x64 cells with feet on row 61 at density 1, and 64x128 cells with feet on
- * row 123 (the bottom row of logical row 61) and a 114–116 px figure at 2.
+ * The character at each density (Phase R): 32x64 cells with feet on row 61 at
+ * density 1, and 64x128 cells with feet on row 123 (the bottom row of logical
+ * row 61) and a 114–116 px figure at 2.
  */
 const CHARACTER_METRICS: Record<Density, CharacterMetrics> = {
   1: {

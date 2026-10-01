@@ -1,6 +1,6 @@
 /**
- * The bitmap glyph atlases world text is drawn from (docs/art-spec.md,
- * Phase H, "Text"). Each size is a text file in `src/assets/fonts/`,
+ * The bitmap glyph atlases world text is drawn from. Each size is a text file
+ * in `src/assets/fonts/`,
  * rasterized 1-bit from Libre Caslon Text (SIL OFL 1.1) by
  * `scripts/fonts/rasterize.py` and hand-tuned there: a header of metrics,
  * then one block per glyph (`glyph <code point> <advance> <left> <top>`

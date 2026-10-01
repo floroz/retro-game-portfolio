@@ -1,5 +1,5 @@
 /**
- * Sorrento theme: a kitchen over the Gulf of Naples (docs/art-spec.md, Audio).
+ * Sorrento theme: a kitchen over the Gulf of Naples.
  *
  * A light Neapolitan tarantella in 6/8: mandolin tremolo over a nylon
  * guitar's "um-pa-pa" and an upright bass, with an accordion for the minor

@@ -1,6 +1,5 @@
 /**
- * London theme, Merseybeat cut: a pub jukebox in 1964 (docs/art-spec.md,
- * Audio).
+ * London theme, Merseybeat cut: a pub jukebox in 1964.
  *
  * KEPT AS AN ALTERNATIVE, not used by the scene: the game's London theme is
  * the punk/ska cut (london.ts). To bring this one back, point `music` in

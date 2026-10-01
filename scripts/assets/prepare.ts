@@ -1,5 +1,5 @@
 /**
- * Raw candidate to HD asset (docs/art-spec.md, Phase H; see hd.ts).
+ * Raw candidate to HD asset (Phase H; see hd.ts).
  *
  *   npm run assets:prepare -- <input.png> --out <asset.png> [options]
  *

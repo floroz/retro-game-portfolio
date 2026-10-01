@@ -1,10 +1,9 @@
 /**
- * Procedural effects and moving props (docs/art-spec.md, "Phase H"): what
- * to draw at engine time `now`, from the scene's `effects` and `props`
- * (types.ts). Pure and deterministic, with no `Math.random`: randomness
- * comes from a hash of the effect's id and indices, so a scene looks the
- * same on every visit, and every rule is unit tested. render.ts draws the
- * shapes on the art's pixel grid with hard pixels.
+ * Procedural effects and moving props: what to draw at engine time `now`, from
+ * the scene's `effects` and `props` (types.ts). Pure and deterministic, with no
+ * `Math.random`: randomness comes from a hash of the effect's id and indices,
+ * so a scene looks the same on every visit, and every rule is unit tested.
+ * render.ts draws the shapes on the art's pixel grid with hard pixels.
  */
 import type {
   FlutterEffect,

@@ -1,5 +1,5 @@
 /**
- * How fast Daniele walks (docs/art-spec.md, "Phase H": the world scale).
+ * How fast Daniele walks at the Phase H world scale.
  *
  * Adventure games slow the character down with depth: a walker who is small
  * because he's far away covers proportionally less of the screen, so he

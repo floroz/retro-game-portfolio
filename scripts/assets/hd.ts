@@ -1,8 +1,8 @@
 /**
- * HD asset preparation (docs/art-spec.md, Phase H; task H0). Phase H art is
- * hand-painted at 1280x640, density 4 over the 320x160 logical grid, with no
- * palette and soft alpha, so none of the pixel-art path applies: no
- * area-average downscale, no palette remap, no alpha threshold.
+ * HD asset preparation (Phase H). Phase H art is hand-painted at 1280x640,
+ * density 4 over the 320x160 logical grid, with no palette and soft alpha, so
+ * none of the pixel-art path applies: no area-average downscale, no palette
+ * remap, no alpha threshold.
  *
  * A raw candidate becomes an HD asset in four steps, in this order:
  *
