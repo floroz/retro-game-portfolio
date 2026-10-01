@@ -48,9 +48,9 @@ function App() {
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
 
   const {
-    terminalScreenAction,
+    contentSection,
     inspection,
-    closeTerminalScreen,
+    closeContent,
     welcomeShown,
     dismissWelcome,
     openDialog,
@@ -58,8 +58,8 @@ function App() {
 
   const reading =
     inspection ??
-    (terminalScreenAction && terminalScreenAction !== "talk"
-      ? sectionInspection(terminalScreenAction)
+    (contentSection && contentSection !== "talk"
+      ? sectionInspection(contentSection)
       : null);
 
   // Open intro dialog after welcome screen is dismissed (desktop only)
@@ -90,16 +90,16 @@ function App() {
             <>
               {reading && (
                 <ObjectInspectionView
-                  key={inspection?.title ?? terminalScreenAction}
+                  key={inspection?.title ?? contentSection}
                   inspection={reading}
-                  onClose={closeTerminalScreen}
+                  onClose={closeContent}
                 />
               )}
               {/* The scene stays mounted under the content screen, so the
                   visitor comes back to the same room, mid-animation. */}
               <div
                 className={styles.gameLayer}
-                inert={terminalScreenAction !== null || inspection !== null}
+                inert={contentSection !== null || inspection !== null}
               >
                 <GameCanvas>
                   {/* Scene area - 1280x640 */}

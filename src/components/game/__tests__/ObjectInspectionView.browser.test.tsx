@@ -49,8 +49,8 @@ function SceneWithInspection() {
 }
 
 function ToolbarWithInspection() {
-  const section = useGameStore((state) => state.terminalScreenAction);
-  const close = useGameStore((state) => state.closeTerminalScreen);
+  const section = useGameStore((state) => state.contentSection);
+  const close = useGameStore((state) => state.closeContent);
   return (
     <div style={{ position: "relative", width: 1000, height: 600 }}>
       {section && section !== "talk" && (
@@ -109,8 +109,7 @@ describe("Object inspection", () => {
     await expect.element(opener).toHaveFocus();
     expect(useGameStore.getState()).toMatchObject({
       currentScene: "sorrento",
-      terminalScreenAction: null,
-      sceneRequest: null,
+      contentSection: null,
     });
   });
 

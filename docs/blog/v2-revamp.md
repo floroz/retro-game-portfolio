@@ -1,12 +1,14 @@
 > **Editor's note: refresh prompt. Remove before publishing.**
 >
-> **Last refreshed against:** `origin/v2` at `c40af23` (2026-09-30, 19:06).
+> **Last refreshed against:** `origin/V2.1` at `acc62ce` (2026-10-01, 11:49). The trunk moved from `origin/v2` to `origin/V2.1` on 2026-09-30; `origin/v2` stops at `69464ea`.
 >
 > To bring this post up to date after more commits land, paste the prompt below into Codex or Claude Code, from a checkout of this repository. It works from git and GitHub alone, so it gives the same result in either tool.
 
 ```text
 Refresh the engineering blog post docs/blog/v2-revamp.md with everything that has
-landed on origin/v2 since it was last refreshed. Work from git history first.
+landed on the trunk since it was last refreshed. The trunk is the branch named in
+the "Last refreshed against" line (origin/V2.1 at the last refresh; origin/v2
+before that). Work from git history first.
 
 1. Find the baseline. Run `git fetch origin`. Read the "Last refreshed against"
    line at the top of docs/blog/v2-revamp.md; that SHA is the baseline. If it is
@@ -14,9 +16,10 @@ landed on origin/v2 since it was last refreshed. Work from git history first.
 
 2. Collect the history since the baseline, oldest first:
    - git log --reverse --format='%h %ad %an %s%n%b%n%(trailers)' \
-       --date=format:'%Y-%m-%d %H:%M' <baseline>..origin/v2
-   - git diff --stat <baseline> origin/v2
-   - Plan changes: git log -p <baseline>..origin/v2 -- docs/art-spec.md docs/expansion-plan.md
+       --date=format:'%Y-%m-%d %H:%M' <baseline>..origin/<trunk>
+   - git diff --stat <baseline> origin/<trunk>
+   - Plan changes: git log -p <baseline>..origin/<trunk> -- docs/art-spec.md \
+       docs/expansion-plan.md docs/encoded-images.md AGENTS.md
    - For every merged PR number in a subject: gh pr view <n> --json title,body,mergedAt,files
      (if gh is unavailable, use the commit bodies and say so).
    Times in the post are local (UTC+2).
@@ -33,7 +36,7 @@ landed on origin/v2 since it was last refreshed. Work from git history first.
      correction. Do not quietly rewrite old numbers; state the new ones with the
      SHA they were counted at.
    - Keep these distinct: what Daniele requested, what an agent proposed, what
-     merged into origin/v2, what exists only locally or on unmerged branches, and
+     merged into the trunk, what exists only locally or on unmerged branches, and
      what is still undecided.
    - Model attribution: a Co-authored-by trailer is the agent's own declaration,
      and a model named in a recommendation proves nothing. Name a model only when
@@ -45,11 +48,11 @@ landed on origin/v2 since it was last refreshed. Work from git history first.
      intent and corrections, cited by session and time. Git remains the record of
      what shipped. If you have none, say the refresh is git-only.
 
-5. Update the "Last refreshed against" line to the origin/v2 SHA you covered, and
+5. Update the "Last refreshed against" line to the trunk SHA you covered, and
    add a dated Changelog entry at the top of the Changelog naming the SHA range and
    the PRs covered.
 
-6. Work on a docs/blog-* branch based on origin/v2. Change only files under
+6. Work on a docs/blog-* branch based on the trunk. Change only files under
    docs/blog/. Run `npm run format`, review the diff, and make one conventional
    commit (docs(blog): ...). Do not push or merge until Daniele approves the exact
    diff. Report anything you could not check.
@@ -59,7 +62,7 @@ landed on origin/v2 since it was last refreshed. Work from git history first.
 
 _What one developer, two model families, and about seventy pull requests taught us about planning work for agents, including the parts that went wrong._
 
-> **Status: living post.** The main narrative below is a snapshot of `origin/v2` at `1d7b716` (2026-09-30, 00:56 local time), when the branch reached Daniele's G4 review. It was drafted by an AI agent (Sonnet) from the plan, git history and pull request descriptions. A [September 30 addendum](#september-30-addendum-codex-work-and-new-review-directions) records later commits and Daniele's direct Codex conversations without forcing them into that earlier narrative yet. A [Claude Code history review](#september-30-history-review-the-claude-code-conversations) then checks the earlier narrative against the Claude Code transcripts and lists the corrections it found. Treat its open decisions as open, and its local-only work as distinct from merged PRs.
+> **Status: living post.** The main narrative below is a snapshot of `origin/v2` at `1d7b716` (2026-09-30, 00:56 local time), when the branch reached Daniele's G4 review. It was drafted by an AI agent (Sonnet) from the plan, git history and pull request descriptions. A [September 30 addendum](#september-30-addendum-codex-work-and-new-review-directions) records later commits and Daniele's direct Codex conversations without forcing them into that earlier narrative yet. A [Claude Code history review](#september-30-history-review-the-claude-code-conversations) then checks the earlier narrative against the Claude Code transcripts and lists the corrections it found. An [October 1 update](#october-1-update-v21-on-the-desktop) covers the move to a `V2.1` branch: the creative review closed, a fourth art direction (a remaster of the same paintings), a Windows 98 desktop, E2E running at last, and faster loading. Daniele describes the desktop as about 95% done; the mobile redesign is still in progress and is not covered. Treat its open decisions as open, and its local-only work as distinct from merged PRs.
 
 ## TL;DR
 
@@ -68,6 +71,7 @@ _What one developer, two model families, and about seventy pull requests taught 
 - **The pace:** every commit on the revamp falls between 10:00 on 2026-09-29 and 00:56 on the 30th. The plan landed at 10:00 and the last commit at the time of writing is 00:56. In between, 69 pull requests were merged into `v2` (71 were opened, two were throwaway tests), by agents that merged their own work.
 - **What went wrong:** the art direction changed three times, and each change was a human looking at the running game, not a failed check. About three hours of pixel-art work (Phase R) was superseded within minutes of being finished. A smooth-rendering path and a smooth font were built in about half an hour and then abandoned, and the font was rebuilt from scratch 45 minutes later. The orchestrator also kept making Daniele's picks for him after he was back at the keyboard, until he asked why, and then, 14 minutes after the plan said the picks were his, he handed them back. Since the last update the pattern repeated at a smaller scale: one shared world scale made Daniele taller than the Hall's gate doors, and every agent's checks passed on art that a screenshot review then rejected (a posterized window view, colour fringes, a clipped CRT word, a label hanging off its card). The character then took two more review rounds before he read as a person and not a paper doll (a screenshot review by Daniele, then the orchestrator's own), and the last three PRs cleared the dead code and the open questions the earlier updates had listed. And there were the usual operational papercuts of running many agents at once.
 - **What held up:** the scene data contract, the plan-as-single-source-of-truth rules, the lane boundary between the model families, the tooling that measures things (colour contrast, scale, loudness, "is every 2×2 block one colour") instead of asking anyone's opinion, and treating every visual decision as reversible. The corrected direction now shows end to end: the text is a bitmap serif on the art's own pixel grid, the toolbar is a painted travel trunk, all four rooms and the travel map are painted from generated layers with a cut-out Daniele walking in them, and conversations work the way they do in _The Curse of Monkey Island_. The cut-out rig needed no engine change when its art arrived, because its contract had been merged first. What also held up was the habit of measuring the world (doors, counters, floor patterns) instead of trusting a constant, and, once Daniele asked for it, the orchestrator screenshotting the running game after every merge. The last one paid off twice at the end: the puppet was polished from a screenshot review, and the "two clicks to any section" promise became a script that checks all 28 cases.
+- **Since then, on `V2.1` (to `acc62ce`, 2026-10-01):** Daniele took the open creative review to Codex and closed it in one evening. Content now opens in painted object close-ups instead of a terminal, the duty-free shop sells souvenirs instead of shortcuts, Zurich is an Alpine chalet, and Sorrento's labels became props. Then came a fourth art direction, and the cheapest so far: a remaster that re-exports the same approved paintings at 1280×640 with smooth rendering and generates no new art. A Windows 98 desktop followed. The E2E suite now runs in Docker and CI (255 tests, 213 Linux baselines). A Claude Code PR cut the shipped images from 19.3 MB to 2.6 MB and put a real loading dialog in front of them. The plan files were not updated for any of it, and one font change went in without anyone asking him. The desktop is, in his words, about 95% done; mobile is in progress.
 
 ![The v1 background: a teal wall with a vending machine, a red banner, a wall clock, a door and a corkboard above a brown checkered floor.](images/01-v1-single-background.webp)
 
@@ -91,7 +95,8 @@ _Version 1: one AI-painted background, five hotspots placed as percentages._
 14. [What's next](#whats-next)
 15. [September 30 addendum: Codex work and new review directions](#september-30-addendum-codex-work-and-new-review-directions)
 16. [September 30 history review: the Claude Code conversations](#september-30-history-review-the-claude-code-conversations)
-17. [Changelog](#changelog)
+17. [October 1 update: V2.1 on the desktop](#october-1-update-v21-on-the-desktop)
+18. [Changelog](#changelog)
 
 ## The starting point
 
@@ -635,7 +640,7 @@ These are from the working sessions rather than from git, so they are reported, 
 
 ### Debts
 
-- **`v2` has not been through E2E since it forked.** Advisory CI was the right call for speed, but PRs #33, #50, and #59 all note that "E2E snapshots will change", #60 changed the E2E selectors, #74 changed the E2E dialog helper, and no baseline has been regenerated. The project's own rules require Docker-generated Linux baselines, so this is a known chunk of work before `v2` can merge into `main`. The 0×0 dialogue group (#75) is a bug that a suite like that would have found.
+- **`v2` has not been through E2E since it forked.** Advisory CI was the right call for speed, but PRs #33, #50, and #59 all note that "E2E snapshots will change", #60 changed the E2E selectors, #74 changed the E2E dialog helper, and no baseline has been regenerated. The project's own rules require Docker-generated Linux baselines, so this is a known chunk of work before `v2` can merge into `main`. The 0×0 dialogue group (#75) is a bug that a suite like that would have found. (Correction, October 1: paid on `V2.1`, where 255 E2E tests run in CI against 213 Linux baselines. It is still true of `origin/v2`. See [E2E, finally](#e2e-finally).)
 - **Dead code: paid.** The density-4 smooth rendering path, the dev-only `?hd=<scene>` preview (which forced the shared world scale onto a scene and so overrode the Hall's and London's measured perspectives), and the Fredoka text layer are all gone; I3a (#79) removed the first two. What is left of density 4 is its rules in the rig packer and the asset tooling. The leftovers list for G4 (unreferenced files, old raws) is not dead code so much as undecided files.
 - **The puppet: paid, in two rounds.** HR1 (#76) fixed what Daniele's review found (seams, pauldrons, limb thickness, head size, back legs, ragged outline) and HR2 (#78) fixed what the orchestrator found next (no contour where limbs cross the body, stiff shoulders, small hands, a static idle, pupils that blurred).
 - **Hair contrast leans on the puppet's ink outline** in London and Sorrento. The outline was recut and the edge metric re-measured (London 0.922 to 0.931, Sorrento 0.990 to 0.991 after HR2), but there is still no single contrast-walk script in the tree, and Sorrento's terracotta wall (0.053 to 0.062 OKLab from the brightest hair shades) is still on the QA list with no decision to repaint it.
@@ -705,6 +710,16 @@ Two things to read carefully. First, the tooling (13,000+ lines of TypeScript th
 
 **16. Turn a hand check into a script when it is a promise.** "A visitor reaches any section in one or two clicks" was in `AGENTS.md` from the start and had been checked by hand, twice. `check:reachability` is 239 lines that run all 28 cases from a fresh page each time and print the trip lengths. It is the check on `v2` that the promise still holds, and it is cheap enough to run before every merge.
 
+The next four come from the [October 1 update](#october-1-update-v21-on-the-desktop).
+
+**17. Keep the sources, and a remaster is just a re-export.** The fourth art direction generated no new art. Every approved asset had been cut from a much larger raw, and the provenance rule ("the approved raw candidate is the only thing an asset can be regenerated from") had kept those raws. Scene data in logical pixels meant the remaster changed no coordinates at all. Two decisions from the first morning, both made for other reasons, turned a new look into a script.
+
+**18. A decision made in a chat has to land in the plan, or the plan stops being true.** The plan's authority came from task cards that agents read before working. When Daniele directed Codex one request at a time, nobody's job was to write the decisions back. On `V2.1` the plan still says "never smooth", the bitmap serif, the night office and Win95. The cheap version of the fix is one plan line per accepted request, or a plan that says which branch it describes.
+
+**19. Show options so the person can choose between them.** Three times the human's time went on how the options were shown, not on choosing: HG1's single image in the side panel, interactive layout studies that could not be clicked, and painted concepts that mixed style with interaction until he asked what the options were. An option should be a labelled picture of the thing as it would ship, with one line on how it differs.
+
+**20. "Skip the tests for now" is a loan with a short term.** It was said twice on September 30 (the scene rollout and Windows 98). The result was one CI run with 42 E2E failures, repaid the next morning in one commit. Lesson 9's advisory CI was a loan for the whole branch. A loan that names its repayment ("until I review it") turned out cheap, and the bill came in one run, not at the end.
+
 ## What's next
 
 State of play at `1d7b716`: every task in the plan is done, and the branch is at G4. Title card, Hall, London, Zurich and Sorrento are painted from generated layers at 640×320 shown at 2× with hard pixels. The cut-out Daniele walks in them with one clean outline, at a pace that follows depth, and the painted travel map, the shared sprites, the bitmap serif, the travel-trunk controls and the MI3-style conversations are all in. The dev-only preview and the density-4 render path are gone, the OG image comes from the real game, and every section is one click from every scene (28 of 28 in a script). Codex has nothing left in the plan's tables, and neither does the Opus lane. The plan has no open task left except keeping this post current.
@@ -713,7 +728,7 @@ What is left is Daniele's, and it is all in the plan's G4 checklist:
 
 - **Review the running branch** (`npm run dev` on `v2`): title card, intro, all four rooms, the flights, every section, and the Game Boy view. The Game Boy view was not redesigned, and I3a checked it only for regressions.
 - **Listen to the audio.** Nobody has.
-- **Regenerate the E2E baselines in Docker,** which the agents' machines do not have. This is the one item that blocks merging into `main`, where CI runs E2E.
+- **Regenerate the E2E baselines in Docker,** which the agents' machines do not have. This is the one item that blocks merging into `main`, where CI runs E2E. (Done on `V2.1` by October 1; see [E2E, finally](#e2e-finally).)
 - **Answer the content question:** "based in Switzerland" against a Sorrento kitchen framed as the move to Italy.
 - **Decide the leftovers:** `public/resume.pdf`, `daniele-static.png`, `retro-daniele.png`, the sprite-sheet character fallback, the old remaster raws and prompts, and `mobile-view-og.png`.
 - **Known and unfixed, also on `main`:** `exit` does not close the MS-DOS window. Also open from the QA list: the Hall's use-n reach is still not visible in the running game, and Sorrento's wall against the brightest hair shades has no verdict.
@@ -747,9 +762,9 @@ There was also a delivery lesson after #87 and #88: Daniele still saw the old Lo
 Later on September 30, Daniele reviewed the running Hall, Zurich and Sorrento scenes and the content viewer. These are **new requirements and questions**, not changes already implemented in the commits above:
 
 - **Hall duty-free:** the products are hard to identify and visually weak. Daniele questioned whether a product shelf that shortcuts to the same sections as the toolbar is useful at all. Its function should be reviewed before redrawing it. If it stays, the objects need much more legible artwork. This also reopens the earlier post's claim that the shelf was a settled part of the information-access design.
-- **Zurich:** the wallpaper and furnishings do not convey Switzerland strongly enough. Asked what the room should represent, Daniele chose a **traditional Alpine chalet**. He wants the interior, furnishings and palette reconsidered while keeping the existing view. This replaces the earlier night-office interior brief as the current direction for the next design exploration; it does not imply a new scene has been built yet.
+- **Zurich:** the wallpaper and furnishings do not convey Switzerland strongly enough. Asked what the room should represent, Daniele chose a **traditional Alpine chalet**. He wants the interior, furnishings and palette reconsidered while keeping the existing view. This replaces the earlier night-office interior brief as the current direction for the next design exploration; it does not imply a new scene has been built yet. (Correction, October 1: the chalet was built at 19:50 the same evening, in `c84abf5`.)
 - **Sorrento:** the large About and Contact labels placed on scene objects feel out of place. Daniele wants a different way for the objects to communicate their roles within the illustrated world. A follow-up question interpreted his wording as a request for 3D; he explicitly corrected that interpretation, so no 3D direction has been chosen.
-- **Content presentation:** clicking these objects still opens a black, green-text terminal-style viewer that Daniele sees as leftover from V1. He wants the information to remain dynamic and easy to update, but presented in a way that belongs to the game. Three initial layout studies were offered: a traveller's journal, illustrated object close-ups and a character-led folio. He rejected that set and pointed to _The Curse of Monkey Island_ for the **style and presentation of information**. Do not write that he chose the object-close-up recommendation. The replacement remains undecided.
+- **Content presentation:** clicking these objects still opens a black, green-text terminal-style viewer that Daniele sees as leftover from V1. He wants the information to remain dynamic and easy to update, but presented in a way that belongs to the game. Three initial layout studies were offered: a traveller's journal, illustrated object close-ups and a character-led folio. He rejected that set and pointed to _The Curse of Monkey Island_ for the **style and presentation of information**. Do not write that he chose the object-close-up recommendation. The replacement remains undecided. (Correction, October 1: he chose illustrated object close-ups at 18:37 from a second, painted set of options, and they shipped in `c84abf5`. See [Closing the open creative review](#closing-the-open-creative-review).)
 
 The stable content requirement through all of these changes is that editable portfolio text stays in data, especially `src/config/profile.ts`, instead of being baked into generated art. The tension now worth exploring is how to keep the one-click route to important information while making each visible object feel natural and unmistakable in its scene. The old solution, the duty-free shelf plus terminal-like content overlay, is under review; the desired replacement is not yet selected.
 
@@ -865,8 +880,316 @@ From the Claude Code side, in addition to the Codex addendum's list (the duty-fr
 - **The images Daniele attached.** Eight appear in [S1]. They are described here, not reproduced, and one of them is a screenshot from a commercial game.
 - **Two short Claude Code sessions today that tried to start this same review.** Both were interrupted before doing anything.
 
+## October 1 update: V2.1 on the desktop
+
+This section covers `c40af23..acc62ce`: 32 commits (24 of them not merges) on `origin/V2.1`, from 18:50 on September 30 to 11:49 on October 1, and PRs #92 to #94. It was written in a Claude Code session (Opus 5.5). Four research sub-agents gathered the material from git, the PRs, and Daniele's Codex and Claude Code transcripts for the same window. When Daniele asked for this update, he described the desktop as about 95% done and the mobile experience as still in progress. That description is his, given to the writer, and is not recorded in git or in a transcript. So this section treats the desktop as nearly settled and the mobile work as unfinished. Where the new history contradicts an earlier section, it says so under [What this corrects](#what-this-corrects).
+
+**Sources.**
+
+- **[C]** is a Codex session, cited by session-id prefix and local time. The runtime metadata records `gpt-6-astra` at high effort for every Codex session cited here.
+- **[CC]** is a Claude Code session, cited the same way, with the model named from its transcript.
+
+Times are UTC+2.
+
+### Who did what
+
+The split between the tools changed again, and git shows only part of it.
+
+- **No declarations in git for the Codex work.** None of the 14 non-blog commits from September 30 has a trailer or a commit body. Neither do `d268c6a`, `ed148e6`, `87e2ed9` (#94) or `d715c52`. The transcripts show that these were made in Codex sessions. Several of those sessions spawned sub-agents of their own: three for the scene rollout, three for the remaster, and one for the Windows 98 windows.
+- **The Claude Code work** in the window is #93 (preloading and WebP), the travel-map origin fix (`52d9b09`), the size budgets and the docs. Each carries a `Co-Authored-By: Claude Opus 5.5` trailer. The rest of the Claude Code work is this post's own commits.
+- **The art.** Its provenance records say `source: codex` and its prompts say "built-in image generation". As before, the project record does not name the image model behind that tool.
+
+**Where the branch lived.** `V2.1` itself was checked out in a Codex worktree (`~/.codex/worktrees/50c8`), and the Claude Code sessions on October 1 worked around it. The preload session left that checkout alone and worked in its own. The travel-map session checked that the Codex checkout had no uncommitted changes, then fast-forwarded it in place [CC 23f30fea 11:03].
+
+**No PRs on September 30.** That evening's work went straight onto `V2.1`, with no PR per change. PR #92 (`V2.1` into `main`) opened at 22:27 and was the only place to review it. On October 1, two PRs (#93 and #94) targeted `V2.1`.
+
+**No orchestrator.** There is no orchestrator here in the sense the earlier sections use: no task cards, no Gate log, no `Plan read at` lines. Daniele directed each Codex task himself and restated the rule each time: "verify it yourself with QA and screenshot and then merge back into V2" [C 01a0f32a 18:33].
+
+### Closing the open creative review
+
+The [September 30 addendum](#september-30-addendum-codex-work-and-new-review-directions) ended with four open questions. All four were settled in about 45 minutes, in one Codex session that gathered requirements before writing any code [C 01a0f31e 18:20–19:04]. They shipped together in `c84abf5` (19:50, 117 files, +1,681 / −881). Three Codex sub-agents worked on the scenes in parallel, while the root agent built the new viewer. Daniele's instruction was: "Use subagents to carry out these changes in parallel on each scene, skip worrying about e2e tests until the work is completed" [C 01a0f345 19:31].
+
+**The content viewer.** It took three rounds.
+
+1. Codex's first three layout studies were the traveller's journal, object close-ups and character-led folio that the addendum names. They were interactive pages that he could not interact with in the side panel: "I cannot interact with the layout to inspect the options" (18:27). Re-rendered as images, they were rejected, and he pointed to _The Curse of Monkey Island_ for "style and presentation of informations" (18:28).
+2. The second round was three painted concepts, and he could not tell what the choice was: "I can see three images but I don't understand what are the options" (18:36). Codex said it had mixed up the visual style with the interaction, and restated the options as Daniele talks to you, inspect the object, and open a shared book.
+3. He chose the second at 18:37. A limoncello close-up was built as a preview first. Its text was "barely readable" until it moved to larger, darker book-style type (19:01 to 19:04).
+
+What shipped is `ObjectInspectionView`:
+
+- A modal with a painted backdrop on the left and real HTML text from `profile.ts` on the right.
+- Paged: Experience is ten pages, a summary and one per job.
+- A focus trap. Escape closes it and the arrow keys turn the pages.
+- `TerminalScreen` and its content file are deleted (679 lines).
+- Five section backdrops:
+  - About: a postcard album on the Sorrento table.
+  - Contact: a telephone and an address book.
+  - Experience: a career album on the chalet desk.
+  - Resume: a document folio.
+  - Skills: a leather tool roll on the pub table.
+
+**The duty-free shelf.** Codex recommended keeping the shop as something to explore, and removing its five section shortcuts. Daniele agreed and suggested what to put there instead: "a limoncello bottle, a swiss army knife, a swiss cheese, a phone booth suvenir" (18:43). Each souvenir opens its own close-up with joke copy (`souvenirs.ts`), and none of them leads to portfolio content. "Eau de Résumé" is gone.
+
+**The toolbar opens content in place.** That recommendation also changed what a boarding pass does.
+
+- **Before:** a section click walked Daniele to an exit and flew him to the section's city. The content opened on arrival, and these are the 0.2 to 3.9 s trips that `check:reachability` measured.
+- **Now:** the content opens at once, in the current room. The comment in `Toolbar.tsx` says "Gates remain the way to travel between scenes."
+
+**Sorrento's labels.** The engine-drawn ABOUT and CONTACT labels are deleted. Two edits to the plate add a postcard on the fridge and an address book by the phone. The hover names carry each object's role, for example "postcard on the fridge — about me".
+
+**Zurich becomes a chalet.** The requirements came first: "Traditional Alpine chalet", changing "Interior, furnishings and palette; retain the view" (18:22 to 18:23).
+
+- The plate and every sprite were regenerated, with honey pine panelling, limewash, beams and a wool rug. The moonlit view was kept.
+- The six job-photo slots (`jobs:switzerland`) are gone, replaced by one Experience hotspot. So one of the plan's own extensibility examples, a photo frame per job, is no longer in the game. The jobs now live on the pages of the Experience close-up.
+- The scene id is still `zurich`.
+
+**Two smaller Hall changes**, made before that batch, came from his screenshots:
+
+- A staffed boarding desk replaced the security arch and the plant, which were "really out of place" (`aa1d20e`, 18:50).
+- The turquoise carpet became stone tiles (`c8725bf`, 19:33). A new `shadows.ts` draws stepped contact shadows under the furniture and under Daniele. The duty-free shop was cut out of the plate as its own sprite. The carpet's triangles had been the perspective cue that HB2b measured, and the comment that cited them was rewritten.
+
+Two process points came out of this batch.
+
+1. **He caught a mock-up problem before it reached code.** The souvenir preview pasted smooth, detailed art into the pixel scene, "a stark contrast" (18:46). Codex agreed that it "fails as an integration mockup".
+2. **"Skip worrying about e2e tests" had a cost.** `c84abf5` deleted the terminal screen while four E2E files still selected it. Nothing updated those files until `8653426`, two and a half hours later. This is inferred from the diffs, because no test run of that state exists.
+
+![An illustrated close-up of a red leather career album open on a wooden desk beside a green banker's lamp. The left page holds a photo of an Alpine chalet and mountains, a floppy disk and a fountain pen. The right page is cream paper with the heading Experience and a short summary in a serif typeface. Below is a bar with Back to the scene and a page counter reading 1 / 10.](images/22-inspection-experience.webp)
+
+_The Experience close-up on `V2.1`: a painted backdrop, with live text from `profile.ts` on the paper. From the committed Linux E2E baseline (`desktop-inspection-experience`), shown as a lossy WebP._
+
+### The fourth art direction: a remaster
+
+At 20:41 Daniele opened a new Codex session with a different kind of request: "The game is nearly perfect… if we imagine this being a 1994-1996 game, we want to improve the graphics as if this was a remastered version… This branch will be called V2.1… The ultimate goal here isn't to start any work, but to do an assessment" [C 01a0f39f 20:41]. The scope he gave it was "Adventure scenes and UI; preserve the Win95/Game Boy styling".
+
+**The assessment found that no new art was needed.** Every approved Phase H asset had been cut from a much larger raw image, with backgrounds from 1774×887 candidates, and the 640×320 versions were downscales of those. Re-exporting the same sources at 1280×640 ("density 4") would sharpen everything without moving any layout. The assessment named three risks:
+
+- Some fixes existed only in the small images, such as the sign masks and the red seat recolour.
+- Pixel edges had been painted into the chalet and inspection art.
+- The text was drawn as low-resolution pixels.
+
+It proposed one comparison scene first.
+
+**The study.** That scene is `575d7f5` (21:22). `/?remaster=hall` shows the shipped Hall and a remastered one side by side, with a draggable divider, a dialogue toggle and click-to-walk in both. It is built from 14 re-exported assets, and `hall-manifest.json` says `"generatedArtwork": false`. Three minutes after Codex reported it, Daniele wrote: "remaster looks great, can we roll it out everywhere?" [C 01a0f39f 21:27].
+
+**The rollout.** `8653426` (22:17, 242 files) applied the remaster everywhere, with three more Codex sub-agents:
+
+- 39 world exports.
+- Ten UI exports: nine inspections at 1280×640, and the title ticket at its original 1919×820.
+- A rewrite of the E2E suite.
+
+Codex reported "no replacement illustrations were generated". The scene data did not change at all. `artwork.ts` maps each original image URL to its remastered twin, and geometry, timing and content are shared. That is the first day's decision to store positions in logical pixels, paying off for the third art change.
+
+**What changed in the engine reverses Phase H's central rule.**
+
+- **Smooth, not hard pixels.** The art and text canvases are now 1280×640, drawn with `imageSmoothingEnabled` at high quality and with soft alpha, and the CSS `pixelated` mixin is gone. The renderer's header comment used to cite the art spec's "hard pixels, never smooth".
+- **Arial, not the bitmap serif.** In-world lettering no longer uses the Libre Caslon bitmap serif. `lettering.ts` draws canvas Arial, stretched horizontally so each line keeps the bitmap font's measured width and cap height, so every label still fits where T3's fitting placed it. The bitmap atlases remain, for metrics and for the section icons.
+- **A density-4 path is back.** I3a deleted one 21 hours earlier, as dead code left over from the first misreading of Phase H. This one is a different kind of thing: a re-export of existing art, not a display-resolution canvas for stand-ins. Even so, lesson 7 ("Don't delete what a human might send back") fits it almost word for word.
+
+**Is this the "smooth breaks the style" mistake again?** Not quite. The correction at 21:15 on the 29th was about smooth lettering and an art direction with no visible pixels. The remaster keeps the painted pixel-art look in the images, which are the same paintings sampled at a higher resolution, and smooths only the edges and the text. Daniele approved both the comparison and the rollout on screen. The scene text is the closest thing to what he rejected the day before, and none of the transcripts read for this update show him commenting on it.
+
+![Two stacked crops of the airport hall. Top: the V2 version, with blocky pixel lettering on the gate boards reading GATE 1 LONDON, GATE 2 ZURICH, GATE 3 SORRENTO, and visibly stepped edges on Daniele, the seated passengers, the red seats and the boarding-desk attendant. Bottom: the same scene, layout and characters, with smooth edges and clean sans-serif lettering on the boards.](images/20-hall-pixel-vs-remaster.webp)
+
+_The Hall in the `/?remaster=hall` study at 1440 px wide: the V2 treatment (top) and the remaster (bottom), cropped from the two committed Linux baselines. Every position is identical. Only the sampling and the lettering change._
+
+**The plan was not updated.** At `acc62ce`, `docs/art-spec.md` still says art is "displayed at 2× with nearest-neighbour: hard, visible pixels, never smooth", and still specifies the bitmap serif. `docs/expansion-plan.md` still describes the night office, a duty-free shelf with "one product per section", `TerminalScreen`, and a Win95 shell. The only policy document that changed is `AGENTS.md`.
+
+The earlier sections of this post call the plan the single source of truth. On `V2.1`, the code and the plan disagree on resolution, smoothing, text, the content viewer, Zurich, the shop and the shell. The rule that made the plan authoritative was written for agents working from task cards. Daniele's direct requests to Codex went around it, and nobody's task was to write the decisions back. (Lesson 18.) Once this update pointed it out, Daniele decided the outdated plans should go: [floroz/retro-game-portfolio#96](https://github.com/floroz/retro-game-portfolio/pull/96) deletes both files and the CI plan guard, and rewrites the 83 code comments that cited them. That PR is open.
+
+### The inspection font, three times in one evening
+
+The inspection text shows the cost of that most clearly.
+
+1. **19:54: Georgia rejected.** Daniele, on the first version of the inspections: "the font used for this section while being extremely readable it really feels like it breaks the experience… keep the font readable but continue giving that 1996-1998 feeling" [C 01a0f345 19:54]. The font was Georgia.
+2. **19:57: a pixel serif.** Three minutes later, `3cc5738` replaced it with two WOFF fonts built from T3's Caslon bitmap atlases (`scripts/fonts/inspection.py`, one contour per run of ink).
+3. **22:17: Georgia again.** Two hours and twenty minutes later, the remaster's UI sub-agent set the inspections back to `Georgia, "Times New Roman", serif`. Codex's progress note at 21:44 gives the reasoning: the inspection fonts "are built from bitmap glyphs", so it was moving them to "smooth serif lettering". It did not ask. In the commit, the change is one line of SCSS.
+
+Daniele approved the rollout on the strength of the Hall comparison, which has no inspection in it, and later approved the PR. Nothing in the record shows him signing off on Georgia, the one font he had rejected by name that evening. The two WOFF files are still in the tree, unused.
+
+### Windows 98
+
+Eleven minutes after the remaster rollout, Daniele opened another Codex session: "update on v2.1 branch the current Win95 Desktop experience, to actually become a Windows 98 so it better matched the updated/remastered theme of the game. Proceed without worrying about tests… ask my feedback at the end" [C 01a0f401 22:28]. That reverses the scope he had set at 20:42 ("preserve the Win95/Game Boy styling"), explicitly and in his own words.
+
+Two branches were built in parallel, one of them by a Codex sub-agent, and both merged at 22:37 (`7b1fdf9`, `2a3cb12`). They added:
+
+- **A Start menu** with Play the adventure, MS-DOS Prompt, My Resume, Work Experience, Contact, About this computer and Show Desktop. It is navigable with the arrow keys, Home, End and Escape.
+- **Quick Launch**, a tray sound toggle and a clock.
+- **A "System Properties" window** ("Portfolio Edition").
+- **Maximize and restore**, also by double-clicking the title bar.
+- **A Windows 98 launch dialog.**
+
+The components kept their `Win95*` file names. `AGENTS.md`'s period-authenticity principle now names Windows 98. He approved the result the next morning: "yes - I am happy with this version, we want to update the tests so we have good visual regression and unit tests coverage to have the PR ready" [C 01a0f39f, October 1 09:37].
+
+![A teal Windows 98 style desktop with icons for My Computer, My Resume, MS-DOS Prompt, Portfolio Adventure and a Recycle Bin. The Start menu is open, with a vertical Windows98 banner and entries for Play the adventure, MS-DOS Prompt, My Resume, Work Experience, Contact, About this computer and Show Desktop. A Windows 98 Portfolio Edition logo sits at the lower right, and the taskbar shows Quick Launch icons, a Portfolio Remastered task button, and a tray with a sound icon and a clock.](images/23-windows-98-start-menu.webp)
+
+_The Windows 98 shell with the Start menu open, from the committed Linux baseline `start-menu` (1440×1000, scaled down)._
+
+### E2E, finally
+
+The earlier sections list "E2E has never run on v2" as the main debt, and the Docker baselines as the one G4 item that blocked a merge into `main`. On `V2.1` that debt is paid, and paying it is the most operational part of this update.
+
+- **First green run.** `8653426` was the first commit on the branch with a green E2E job in CI, on PR #92's first run. `575d7f5` had pointed the PR workflow and the plan guard at `V2.1`.
+- **Then red.** The next push, `13a3b51`, carried the Windows 98 shell and failed: 42 E2E failures and two browser-test failures (CI run 36774117689). The shell had shipped under "Proceed without worrying about tests".
+- **The fix, `d268c6a`** (October 1, 10:00):
+  - 132 refreshed baselines, and 15 new ones for the shell (desktop, launch dialog, Start menu, System Properties, a maximized terminal).
+  - Two test races fixed. A browser test that waited 200 ms for a welcome message now polls for it, and tests that shared a pointer position now unhover.
+  - One real bug: on a cold WebKit load, the launch dialog mounted before the stylesheet applied and was positioned against an unstyled parent, so it now waits for `load`.
+  - CI then passed 679 unit, 63 browser and 249 E2E tests.
+- **Where it stands.** After #94 and the travel-map test, 255 E2E tests passed in CI at `d715c52`, across Chromium, Firefox, WebKit, mobile Chrome, mobile Safari and a tablet. There are 213 baselines, all of them Linux (there were 110 at `c40af23`), and none for macOS or Windows. When this was written, the CI run on the merge of #93 (`acc62ce`) had passed lint, build, unit and browser tests and was still running E2E.
+
+**Docker.** Docker had been the blocker: "none of the machines the agents ran on has Docker". By the evening of September 30, Codex was running the suite in Docker on Daniele's machine (the record does not say when Docker was installed). On October 1 it had been stopped, and Codex started it again. Running locally was not smooth:
+
+- WebKit crashed at about 7 GB of Docker's 7.75 GB (September 30, 18:49).
+- Parallel worktrees shared one `node_modules` volume and wiped it. The fix, `bfe05c6`, is on local `v2` only; see [Local only, and in progress](#local-only-and-in-progress).
+- `playwright-docker.sh` uses `-it`, so it fails without a terminal, which is how agents run it [CC 23f30fea].
+- Firefox crashed with several workers and passed with one.
+- Local WebKit failed 16 of 39 tests on an unmodified `V2.1`, so #93 left WebKit to CI.
+
+**Two visible changes still passed.** The jukebox's notes and the map's new airfield both fit inside the full-scene screenshot tolerance. So `d715c52` added focused crops of the airfield at desktop and compact sizes. A screenshot test is only as sensitive as its crop.
+
+### Load like a game (#93)
+
+The one large Claude Code task in the window started from a screenshot of a half-loaded scene: "A true game loads all the assets first and then it begins so the user doesn't experience any loading during the scene with the layout broken" [CC 8e420c49, Opus 5.5, October 1 10:00].
+
+**The remaster had made loading much worse.** The shipped scene images went from 640×320 to 1280×640 lossless PNG: 1.2 to 1.7 MB per background, and about 18.7 MB in `src/assets/remaster/`. The review ran in a temporary worktree and changed no code. It found that:
+
+- about 15 MB downloaded before Start;
+- the launch dialog was a fixed 1.5 s animation;
+- the 1.8 MB boarding pass was requested last, after about 50 other images had started loading;
+- every image had the same priority.
+
+Daniele asked for "a feature branch and PR against V2.1 … so I can see the diff" (10:25). #93 did four things, and he merged it himself at 11:49.
+
+1. **WebP at build time.** A new Vite plugin (`scripts/vite/optimize-images.ts`, using sharp) encodes painted art as lossy WebP at quality 90, and pixel art of 256 colours or fewer as lossless. Alpha is always lossless. The PR reports:
+   - all shipped images: from 19.3 MB to 2.6 MB;
+   - a background: from 1.2–1.7 MB to 74–122 KB;
+   - the boarding pass: from 1,866 KB to 394 KB;
+   - the title card plus the Hall: from 4.95 MB to about 0.75 MB;
+   - alpha identical in all 136 assets.
+
+   These are the PR's own figures. The first commit said 2.7 MB, and this update did not run a build to check either number. The sources stay in git as full-quality PNG. Tests that measure pixels compare against the shipped WebP (`shippedArt`), not the source.
+
+2. **Four load tiers** (`src/engine/preload.ts`):
+   1. the boarding pass;
+   2. Daniele and the Hall, at high priority;
+   3. the other scenes and the map, at low priority;
+   4. the inspection cards, warmed into the HTTP cache only.
+
+   Images are decoded before they are shown. The launch dialog's bar now follows the real progress of the first two tiers. It keeps the 1.5 s minimum and gives up waiting after 12 s, so a stalled download cannot lock anyone out. The 650 KB portrait that was used as a 48 px desktop icon was replaced by a 20 KB, 96 px icon.
+
+3. **Budgets as a test** (`98cddd7`). Daniele asked how future art would be handled, and answered "yes" to the agent's proposal (11:20). The launch art (tiers 1 and 2) must stay under 1 MB, "about 1.5 s on 5 Mbps", and any one image under 512 KB, both measured with the build's own encoder. The guide says: "When a budget fails, shrink, simplify or split the art. Don't raise the limit."
+   - **The cost:** a cold build takes about 18 s instead of about 2. An encode cache brings a warm build down to about 3 s.
+   - **The check:** to answer his question, the agent merged in #94, which had landed while #93 was open. Its sleeping cow went from 107 KB to 21 KB and was preloaded with no extra wiring.
+4. **Docs an agent loads only when it needs them.** He asked for the loading strategy to go in `AGENTS.md` (`a2e9c22`). Five minutes later he asked for it to move to its own file, "So agents don't always read that content if they are not concerned with … images" (`0d91459`, `docs/encoded-images.md`, 129 lines). `AGENTS.md` keeps a two-line pointer. It is the plan's Owns-line rule, applied to context: give an agent what its task needs, and no more.
+
+The PR lists what it left out of scope: the Google Fonts `@import` chain, the unhashed `/audio/` files served with `max-age=0`, and the order in which audio loads.
+
+### Smaller things
+
+- **The first flight had no origin** (`52d9b09`, Claude Code, Opus 5.5). Daniele: "first time we take the plan from the hall, the plane leaves from an un known destination randomly on the map" [CC 23f30fea 10:36].
+  - **Cause:** flights from the Hall started at the map's unmarked `hall` point in central France. Later flights left from the last country visited, so they looked right.
+  - **Fix:** when a route starts at the Hall, the map draws an airfield and a "Departures" label.
+  - **Left alone:** once a city has been visited, a flight from the Hall still leaves from that city. The session treated that as intended behaviour.
+- **The jukebox** (`ed148e6`). At his request it was previewed before it was built.
+  - He rejected the first version: the gentle sway "makes me a bit nauseaus… something less regular that happens at interval? The musical notes are perfect". Then he asked "occasional pulse can you make it every 5 sec?", and finally said "perfect implement and merge into v2.1" [C 01a0f6a2 10:43–11:09].
+  - Every five seconds it pulses by 1% for 650 ms. The notes are hidden under `prefers-reduced-motion`.
+- **A pendulum and a sleeping cow** (#94). "Instead of the plant… a Swiss cow sleeping in the room? it can have the Zzz animation" [C 01a0f6a6 10:48].
+  - The pendulum was cut out of the plate into its own layer, and swings through 0.38 rad every 1.8 s.
+  - The cow was generated with the built-in image tool. It breathes on a 4.2 s cycle under rising Zs, and both are frozen under reduced motion. The walkbox moved to give it the corner.
+  - Every new ambient effect in this window has a reduced-motion state. That is becoming a convention, but the plan does not record it.
+
+![The Zurich room as an Alpine chalet at night: pine panelling and beams, a framed mountain print and an edelweiss, a window over the moonlit lake and mountains, a cuckoo clock with a pendulum, a red door, and a grey filing cabinet labelled RESUME. A pine desk holds a beige computer whose screen reads EXP. A brown and white cow sleeps on the floor at the left, with Zs above it. Daniele stands by the desk. Below is the trunk toolbar, with the Zurich boarding pass stamped.](images/21-zurich-alpine-chalet.webp)
+
+_Zurich on `V2.1`: the chalet from `c84abf5`, the pendulum and the sleeping cow from #94, and the remaster's smooth rendering and lettering. From the committed Linux baseline `desktop-zurich`._
+
+### Incidents
+
+- **Stale checkouts, again.** Several Codex worktrees started from a `v2` that was older than Daniele's local one, and Codex had to go looking for the newer checkout. His correction: "you always have to refresh and pull latest changes before re-assessing the scope" [C 01a0f345 19:05]. It is the same class of problem as the stale server on port 5180, seen from the agent's side.
+- **Concurrent merges.** Changes kept arriving while other work was in flight:
+  - The boarding desk landed separately on two branches (`aa1d20e` and `c27eaac` are the same patch).
+  - The Windows 98 merge landed in the middle of the test refresh for PR #92 and broke its snapshots.
+  - The travel-map fix arrived during the jukebox merge.
+  - The Swiss and jukebox effect types conflicted in `effects.ts` (`36793de`).
+  - #93 arrived in the middle of a re-baseline.
+- **Auto-review blocks.** Codex's automatic reviewer blocked three pushes:
+  - the Codex blog addendum, flagged as "personal and project history as potentially sensitive";
+  - an update to PR #92's description that conflicted with the "preserve Win95" scope;
+  - the Swiss changes, which went through once Daniele said "yes go ahead".
+- **The formatter crossed checkouts.** `npm run format` in the main checkout reached into a Claude Code worktree under `.claude/worktrees/`. Codex added that folder to `.prettierignore`, and has not committed the change.
+- **A fix on the wrong branch.**
+  1. A Claude Code session on Sonnet 5.5 looked at the airport mother's stuck walk ("the lady never change forward leg" [CC 4009ba0a 20:34]) and diagnosed an art problem.
+  2. Regenerating her sprite broke the Hall's 256-colour lint, so it wrote a one-shot, in-place edit of the PNG. It did this in the main checkout and did not commit it.
+  3. A Codex session found the change, asked about it, and was told "Validate and finish the existing fix" [C 01a0f3a5 20:47]. It committed `9a9ae9a` with a regression test. Her ankle spans went from 44, 43, 43 and 45 px to 44, 36, 43 and 34 px.
+  4. That commit is on local `v2` only. `V2.1` branched from `3cc5738`, before it existed, so the airport family that ships still has the stuck leg. The backport PR described below carries the fix over.
+
+### Local only, and in progress
+
+None of the following is on `origin/V2.1`, and none of it is counted as shipped.
+
+- **Five commits on Daniele's local `v2`** after `3cc5738`:
+  - the walk fix (`9a9ae9a`);
+  - measured shrink-then-paginate for the inspection text (`87a94f1`);
+  - per-run isolation of Docker dependencies (`bfe05c6`);
+  - two commits that stabilise tests (`0160525` and `6e31a66`).
+
+  `V2.1` pages its inspections, building one set of pages per section from `profile.ts`, but it does not measure text to fit it, and it has none of the other four commits. They came from the Codex session that ran the scene rollout, and the remaster branched before them.
+
+  Daniele asked for them to be backported. [floroz/retro-game-portfolio#97](https://github.com/floroz/retro-game-portfolio/pull/97) does that, and it is open. Two of the five needed real work, not just a cherry-pick:
+  - **The walk fix.** It was written for the 640×320 sheet, but `V2.1` ships a 2× re-export of the unfixed raw. The stride script now tells the legs apart on a half-size grid, where its tuned landmarks hold, and shears the full-size pixels.
+  - **The text fit.** It exposed a `V2.1` bug: the Resume and Contact cards were silently clipping their last link off the paper. Making the fit work also needed a fix of its own. `clientWidth` rounds to whole pixels, and with Georgia half a pixel was enough to wrap a line.
+
+  The other three commits were partly superseded by fixes `V2.1` had already made in its own way.
+
+- **Mobile.** On October 1 at 10:33, Daniele started a mobile redesign in Codex. He asked for "the same principle applied for the mobile version, which is currently the Game Boy", now that the game had moved "towards a 1998 style", and chose a direction called "Pocket Adventure".
+  - **The first slice was rejected:** "It's a bit underwhelming. Also we are using character that doesn look like the one on desktop, this is a big issue… we do need some info to the users that the full experience of the game is on desktop" [C 01a0f698 10:57].
+  - **Since then,** the work has been studies: a seated scene, day and night, a moon that moves opposite the sun, boats, steam.
+  - **At the end of this window** it is all uncommitted in the main checkout. The Game Boy view on `V2.1` is unchanged, and its 24 baselines have not moved. This post will cover the redesign when it lands.
+- **PRs.** PR #92 (`V2.1` into `main`) is open. The earlier draft PR #90 (`v2` into `main`, opened at 18:55 on September 30) was closed at 11:28 on October 1, and the record does not say by whom.
+
+### What this corrects
+
+1. **E2E.** "E2E has not been run on v2" and "Regenerate the E2E baselines in Docker" ([Debts](#debts), [What's next](#whats-next), and lessons 9 and 14) are paid on `V2.1`: 255 E2E tests run in CI against 213 Linux baselines. They are still true of `origin/v2`, which stops at `69464ea`. Once Docker was running, the advisory-CI loan from lesson 9 was repaid in about half a day, and the interest was one run with 42 failures.
+2. **The content viewer.** The September 30 addendum said not to write that Daniele chose the object close-ups. He did, at 18:37 [C 01a0f31e], from a second set of options. The first set was rejected, as the addendum says.
+3. **The chalet.** The addendum said the Alpine chalet direction "does not imply a new scene has been built yet". The chalet was built at 19:50 (`c84abf5`).
+4. **Phase H's display rules.** [Direction 3](#direction-3-phase-h-and-a-correction-to-the-correction) and [Text, twice](#text-twice-from-smooth-to-a-bitmap-serif) describe 640×320 at 2× nearest-neighbour, hard pixels, and a bitmap serif on the art grid. Those rules describe `v2`. `V2.1` renders at 1280×640 with smoothing and Arial lettering. The images earlier in this post show the `v2` state.
+5. **Density 4.** [Engine highlights](#engine-highlights) says the density-4 path "was unused for four hours and then removed". On `V2.1`, density 4 is back, for the remaster.
+6. **One click to any section.** "Every section is one click from every scene" still holds, and more directly than before, because a section now opens in place with no flight. The trip times `check:reachability` reports (0.2 to 3.9 s) describe the old behaviour. The script has not changed, and it was not re-run for this update.
+7. **The leftovers list.** `retro-daniele.png` is no longer the desktop icon, but it is still in the tree for the README. New unreferenced files have joined the list: the Hall's old arch and plant, both Zurich plant sprites, and the two inspection WOFF fonts. `public/resume.pdf` and `mobile-view-og.png` are unchanged.
+
+### Still open
+
+- **The plan and the code disagree.** Daniele chose to remove the plan; #96 does it and is awaiting review.
+- **Georgia in the inspections.** Nobody asked Daniele about it.
+- **The Arial scene lettering.** It needs a look by eye, against his rejection of smooth text on the 29th.
+- **The five local `v2` commits.** They are backported in #97, which is awaiting review.
+- **The mobile redesign.**
+- **Still open from earlier updates:**
+  - "Based in Switzerland" is still in `dialogTrees.ts`, and it also appears on the welcome card of the mobile study.
+  - Nobody has judged the audio by ear: no transcript records a verdict on the punk and ska London.
+  - There is still no committed contrast-walk script or QA script.
+- **CI.** The E2E run on `acc62ce` was still going, and after that comes the merge of #92.
+
+### Numbers for this update
+
+Counted at `acc62ce` from `c40af23`, unless stated.
+
+| What                                  | Number                                                                                                                                   |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Commits                               | 32 (24 not merges), all under one author identity                                                                                        |
+| ... with a model trailer              | 9, all Claude Opus 5.5: six from #93 and the map fix, three from this post. None of the Codex commits has one.                           |
+| PRs                                   | #93 and #94 merged into `V2.1`; #92 (`V2.1` into `main`) open. The September 30 work went in without PRs.                                |
+| Files changed / lines added / removed | 491 / 7,943 / 2,016, including about 210 lines of this post's previous update                                                            |
+| Linux E2E baselines                   | 213 [110]                                                                                                                                |
+| Unit / browser / E2E tests            | 687 / 63 / 255 in CI at `d715c52`, with #93 reporting 694 unit tests after its merge [598 unit and 52 browser at `1d7b716`; E2E not run] |
+| Shipped image weight                  | 19.3 MB to 2.6 MB (#93's figure; not re-measured)                                                                                        |
+| Remaster exports                      | 63 (14 Hall, 39 world, 10 UI); no new art generated                                                                                      |
+| Codex sub-agents                      | 7 (3 for the scene rollout, 3 for the remaster, 1 for the Windows 98 windows)                                                            |
+| Wall-clock                            | 18:50 on September 30 to 11:49 on October 1, with no commits between 22:38 and 10:00                                                     |
+
+The bracketed numbers are earlier counts.
+
 ## Changelog
 
+- **2026-10-01 (V2.1 desktop update):** Covered `c40af23..acc62ce` on `origin/V2.1` (32 commits) and PRs #92 (open), #93 and #94, from git, the PRs, and Daniele's Codex and Claude Code transcripts (read by four research sub-agents; Codex models from its runtime metadata). Added an [October 1 update](#october-1-update-v21-on-the-desktop): the open creative review closed in one Codex session (illustrated object inspections chosen at the third round, souvenirs instead of duty-free shortcuts, sections opening in place, Sorrento labels as props, Zurich as an Alpine chalet), the boarding desk and floor shadows, the remaster (63 density-4 re-exports of the approved sources, no new art, smooth rendering and Arial lettering), the inspection font changed three times in one evening, Windows 98, E2E running in Docker and CI (255 tests, 213 Linux baselines), #93's WebP build, load tiers and size budgets, the travel-map origin, jukebox, pendulum and cow, the incidents, the work that exists only on local `v2` or uncommitted (including the walk fix and the mobile redesign), and the plan files that no longer match the code. Corrected, inline and in a list: the E2E debt, the addendum's "do not write that he chose" note, the chalet not yet built, Phase H's display rules and the density-4 removal as `v2`-only, the reachability trip times, and the leftovers list. Added lessons 17 to 20, a TL;DR line and four images taken from the committed Linux E2E baselines. Generalised the refresh prompt from `origin/v2` to the current trunk, and moved the "Last refreshed against" marker to `acc62ce`. Mobile is in progress and deliberately not covered.
 - **2026-09-30 (Claude Code history review):** Added a dated, source-anchored review of the Claude Code transcripts ([S1] the orchestrator session, [S2] the 28 September asset-pipeline session) against the post, the plan, git and the PRs. It records twelve corrections: the Phase R trigger, the origin of Direction 1, the recommended options behind the smooth Phase H reading, the origin of the containers rule, the no-API rule as Daniele's correction, who merged past the permission check, the source and scope of the Sonnet rule, the brief behind UI1's concepts, the pupils option, the orchestrator's wording of the delegation, the first human verdict on the audio, and the start of planning on the 28th. It also adds a timeline of requested, proposed, shipped and open items; the spend-limit stall and the plan commits made outside the session; the runtime model record for all 59 sub-agents; the HG1 display problem; the collision in Daniele's checkout on the 30th; T4's rejected finer grid; A3's music; and what the review could not access. It complements, and does not repeat, the Codex addendum above. Also added, at the top of the file, an editor's refresh prompt that works in Codex or Claude Code from git history, and a "Last refreshed against" marker set to `c40af23`, which includes A3b (#91), the punk and ska London.
 - **2026-09-30 (history addendum):** Recorded the direct Codex image-tool workflow and its model-attribution limit; the Phase H completion counts; G4 fixes; later Codex-directed character, Hall, pub and readability work; the stale-server checkout incident; and Daniele's still-open creative review of the duty-free shelf, Alpine chalet, Sorrento labels and content viewer. Earlier numerical snapshots remain tied to their stated commit rather than silently recalculated.
 - **2026-09-30 (fourth update, 00:56):** Updated at `origin/v2` `1d7b716`, covering #76 to #79. The branch is now at G4, Daniele's final review, and the status line says so. Added the puppet's two review rounds (HR1: the seams came from a ring on every part, fixed by painting the parts and inking the posed union once; HR2: after the orchestrator judged it a stiff paper doll, a contour where limbs cross the body, sloped shoulders, bigger hands, a breathing idle with the feet planted, and pupils that stay dark at any scale), with the torso-stretch foot-slide bug, the ink colour trade-off between London and Zurich's night window, and a before and after image; I3a (dev preview and the density-4 render path removed, the OG image generated from the real game with draw hooks instead of timers, `check:reachability` with 28 of 28 cases in one click, the regression checks, and the queued title-card start); and what is left for Daniele at G4 (audio, the E2E baselines that need Docker, the "based in Switzerland" question, and the leftovers list). Rewrote the passages that said the puppet, the density-4 path and the `?hd=` preview were in progress or still in the tree, and the debts, What's next and numbers to match. Refreshed the numbers (69 merged PRs, 128 commits, 598 unit tests plus 52 browser tests, 24 Gate log rows) and added lessons 15 and 16. Two new images.
