@@ -40,6 +40,7 @@ Vite prints the local URL, usually `http://localhost:5173`.
 | Dialogue, terminal commands, scene hotspots | `src/config/dialogTrees.ts`, `src/config/commands.ts`, `src/config/scene.ts`                    |
 | SEO and generated HTML                      | `src/config/profile.ts`, `scripts/generate-html.ts`, `scripts/generate-og-image.ts`             |
 | Styling                                     | Component `*.module.scss` files and `src/styles/`                                               |
+| Image loading, compression, size budgets    | `src/engine/preload.ts`, `src/engine/assets.ts`, `scripts/vite/optimize-images.ts`              |
 
 `src/config/profile.ts` supplies shared personal information to desktop, mobile, terminal, and SEO views. Dialogue text lives in `src/config/dialogTrees.ts`. The game store starts fresh on each page load; it does not persist state.
 
@@ -51,6 +52,16 @@ Vite prints the local URL, usually `http://localhost:5173`.
 - After modifying any file, run `npm run format` at the end of your edits. Review the resulting diff, since this command formats the whole repository.
 
 For detailed content changes, see `.agents/skills/update-portfolio-content/SKILL.md`.
+
+## Add or change art
+
+Commit images under `src/assets/` as PNG, WebP or JPEG sources. Don't compress them by hand: `vite build` re-encodes each one as WebP (`scripts/vite/optimize-images.ts`). Painted art goes lossy at q90. Pixel art, meaning 256 colours or fewer, stays lossless, and transparency is always exact. The dev server serves the sources unchanged.
+
+- **Scene art needs no wiring.** Backgrounds, sprites, object states, animation strips, props and slots listed in a scene config are preloaded automatically, as are new scenes added to `SCENES`. `preload.test.ts` fails if canvas art is missing from the load order.
+- **Art drawn as a plain `<img>` must be listed by hand** in `src/engine/preload.ts`. That covers the boarding pass and the inspection and souvenir cards; add any new title, overlay or card art there. Otherwise it downloads only when it first appears, and paints in progressively.
+- **Keep within the size budgets.** `assetBudget.test.ts` measures each preloaded image with the build's own encoder. The title card plus the first scene must stay under 1 MB, since the launch dialog waits for them; any single image must stay under 512 KB. If a budget fails, shrink or split the art instead of raising the limit.
+- **Images outside `src/assets/` are not optimised.** That includes anything in `public/` or referenced from SCSS `url()`, and any other format.
+- **Compare canvas pixels with the shipped art.** An E2E check that compares the canvas with an image's pixels must use the art the build ships. Lossy WebP moves colours by a few levels, so a raw PNG comparison fails. Use `shippedArt` in `test/e2e-airport.test.ts`.
 
 ## Verify changes
 
