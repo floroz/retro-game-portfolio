@@ -8,7 +8,7 @@ import { ObjectInspectionView } from "./components/game/ObjectInspectionView";
 import { sectionInspection } from "./config/inspections";
 import { Win95Desktop } from "./components/desktop/Win95Desktop";
 import { WelcomeScreen } from "./components/dialog/WelcomeScreen";
-import { RetroConsole } from "./components/mobile/RetroConsole";
+import { PocketAdventure } from "./components/mobile/PocketAdventure";
 import { useGameStore } from "./store/gameStore";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useIsMobile } from "./hooks/useIsMobile";
@@ -31,7 +31,7 @@ function App() {
   useKeyboardShortcuts();
 
   // Scene music, ambience, and effects when sound is on (desktop only; the
-  // Game Boy has its own sounds)
+  // Pocket Adventure opens quietly)
   useSceneAudio({ enabled: !isMobile });
 
   // Start loading the art straight away, title card and Hall first, so the
@@ -72,9 +72,9 @@ function App() {
     }
   }, [isMobile, welcomeDismissed, welcomeShown, openDialog]);
 
-  // Mobile experience - RetroPlay Game Boy-style console
+  // Portrait adventure with direct access to the portfolio.
   if (isMobile) {
-    return <RetroConsole />;
+    return <PocketAdventure />;
   }
 
   // Desktop experience - Windows 98 shell with the remastered game
