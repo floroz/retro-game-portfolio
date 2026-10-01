@@ -2,7 +2,7 @@ import { PROFILE } from "../../config/profile";
 import { POCKET_ART } from "./pocketAssets";
 import styles from "./PocketAdventure.module.scss";
 
-export function PocketWelcome() {
+export function PocketWelcome({ onContinue }: { onContinue: () => void }) {
   return (
     <div className={styles.welcome} data-e2e="pocket-welcome">
       <div className={styles.welcomeHeading}>
@@ -36,7 +36,7 @@ export function PocketWelcome() {
           On your phone? Come in for a coffee and a pocket-sized look at my
           work.
         </p>
-        <a className={styles.enter} href="#pocket-home">
+        <a className={styles.enter} href="#pocket-home" onClick={onContinue}>
           Enter Pocket Adventure <span aria-hidden="true">→</span>
         </a>
         <p className={styles.quickLabel}>
@@ -46,9 +46,15 @@ export function PocketWelcome() {
           className={styles.welcomeLinks}
           aria-label="Quick portfolio access"
         >
-          <a href="#pocket-experience">Experience</a>
-          <a href="#pocket-resume">Resume</a>
-          <a href="#pocket-contact">Contact</a>
+          <a href="#pocket-experience" onClick={onContinue}>
+            Experience
+          </a>
+          <a href="#pocket-resume" onClick={onContinue}>
+            Resume
+          </a>
+          <a href="#pocket-contact" onClick={onContinue}>
+            Contact
+          </a>
         </nav>
         <p className={styles.desktopAddress}>
           The full adventure awaits at{" "}

@@ -14,7 +14,7 @@ The approved seated scene now runs in the mobile application on `floroz/pocket-a
 
 The mobile experience replaces the Game Boy with a portrait Sorrento kitchen. It has one location and no chapter numbering. London, Zurich and the airport are unimplemented ideas for future mobile locations. The desktop world is unchanged.
 
-First-time visitors see an illustrated invitation explaining that the full game is on desktop and recommending a computer for the complete experience. They can enter the kitchen or go straight to experience, résumé or contact. Direct section links bypass the invitation. The kitchen's Desktop edition link returns to it.
+Every page load opens with an illustrated invitation explaining that the full game is on desktop and recommending a computer for the complete experience. They can enter the kitchen or go straight to experience, résumé or contact. A refresh, including on a direct section link, shows it again; once dismissed there is no way back to it until the next load.
 
 The portrait painting stays at its native 2:3 aspect ratio. Hotspots are percentages of that exact painting; the image is never cropped independently of the controls. The surrounding stage absorbs extra space. Experience, résumé and contact remain directly accessible even while reading or talking. About and skills have both objects and navigation links.
 
