@@ -1,7 +1,7 @@
 /** Export the approved inspection originals without the V2 palette reduction.
  * The title ticket already has its original resolution; encode the same pixels
- * losslessly to reduce its download. Section cards use the location artwork;
- * souvenirs keep their recovered V2 sources.
+ * losslessly to reduce its download. Portfolio and souvenir cards use the
+ * approved location and airport duty-free artwork.
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import sharp from "sharp";
@@ -14,7 +14,7 @@ const inspections = [
   ]),
   ...["cheese", "knife", "limoncello", "telephone"].map((name) => [
     `souvenir-${name}`,
-    `hall-souvenir-${name}-inspection.png`,
+    `duty-free-inspections/${name}.png`,
   ]),
 ];
 
@@ -41,7 +41,7 @@ for (const [name, raw] of inspections) {
     height: 640,
     treatment: raw.startsWith("location-inspections/")
       ? "Location cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
-      : "Same composition at density 4; full source colours and soft edges.",
+      : "Airport duty-free cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/souvenirs.ts.",
   });
 }
 const source = "assets-src/approved/boarding-pass.png";

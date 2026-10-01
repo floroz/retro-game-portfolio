@@ -14,8 +14,6 @@ interface ReadingPage {
 
 export interface InspectionReading extends ObjectInspection {
   pages?: ReadingPage[];
-  /** Text-safe insets measured inside the artwork, in percent. */
-  paperInsets?: { top: number; right: number; bottom: number; left: number };
 }
 
 /** Every word of professional content comes from the shared profile. */
