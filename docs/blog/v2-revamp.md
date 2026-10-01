@@ -993,7 +993,7 @@ _The Hall in the `/?remaster=hall` study at 1440 px wide: the V2 treatment (top)
 
 **The plan was not updated.** At `acc62ce`, `docs/art-spec.md` still says art is "displayed at 2× with nearest-neighbour: hard, visible pixels, never smooth", and still specifies the bitmap serif. `docs/expansion-plan.md` still describes the night office, a duty-free shelf with "one product per section", `TerminalScreen`, and a Win95 shell. The only policy document that changed is `AGENTS.md`.
 
-The earlier sections of this post call the plan the single source of truth. On `V2.1`, the code and the plan disagree on resolution, smoothing, text, the content viewer, Zurich, the shop and the shell. The rule that made the plan authoritative was written for agents working from task cards. Daniele's direct requests to Codex went around it, and nobody's task was to write the decisions back. (Lesson 18.)
+The earlier sections of this post call the plan the single source of truth. On `V2.1`, the code and the plan disagree on resolution, smoothing, text, the content viewer, Zurich, the shop and the shell. The rule that made the plan authoritative was written for agents working from task cards. Daniele's direct requests to Codex went around it, and nobody's task was to write the decisions back. (Lesson 18.) Once this update pointed it out, Daniele decided the outdated plans should go: [floroz/retro-game-portfolio#96](https://github.com/floroz/retro-game-portfolio/pull/96) deletes both files and the CI plan guard, and rewrites the 83 code comments that cited them. That PR is open.
 
 ### The inspection font, three times in one evening
 
@@ -1119,7 +1119,7 @@ _Zurich on `V2.1`: the chalet from `c84abf5`, the pendulum and the sleeping cow 
   1. A Claude Code session on Sonnet 5.5 looked at the airport mother's stuck walk ("the lady never change forward leg" [CC 4009ba0a 20:34]) and diagnosed an art problem.
   2. Regenerating her sprite broke the Hall's 256-colour lint, so it wrote a one-shot, in-place edit of the PNG. It did this in the main checkout and did not commit it.
   3. A Codex session found the change, asked about it, and was told "Validate and finish the existing fix" [C 01a0f3a5 20:47]. It committed `9a9ae9a` with a regression test. Her ankle spans went from 44, 43, 43 and 45 px to 44, 36, 43 and 34 px.
-  4. That commit is on local `v2` only. `V2.1` branched from `3cc5738`, before it existed, so the airport family that ships still has the stuck leg.
+  4. That commit is on local `v2` only. `V2.1` branched from `3cc5738`, before it existed, so the airport family that ships still has the stuck leg. The backport PR described below carries the fix over.
 
 ### Local only, and in progress
 
@@ -1132,6 +1132,12 @@ None of the following is on `origin/V2.1`, and none of it is counted as shipped.
   - two commits that stabilise tests (`0160525` and `6e31a66`).
 
   `V2.1` pages its inspections, building one set of pages per section from `profile.ts`, but it does not measure text to fit it, and it has none of the other four commits. They came from the Codex session that ran the scene rollout, and the remaster branched before them.
+
+  Daniele asked for them to be backported. [floroz/retro-game-portfolio#97](https://github.com/floroz/retro-game-portfolio/pull/97) does that, and it is open. Two of the five needed real work, not just a cherry-pick:
+  - **The walk fix.** It was written for the 640×320 sheet, but `V2.1` ships a 2× re-export of the unfixed raw. The stride script now tells the legs apart on a half-size grid, where its tuned landmarks hold, and shears the full-size pixels.
+  - **The text fit.** It exposed a `V2.1` bug: the Resume and Contact cards were silently clipping their last link off the paper. Making the fit work also needed a fix of its own. `clientWidth` rounds to whole pixels, and with Georgia half a pixel was enough to wrap a line.
+
+  The other three commits were partly superseded by fixes `V2.1` had already made in its own way.
 
 - **Mobile.** On October 1 at 10:33, Daniele started a mobile redesign in Codex. He asked for "the same principle applied for the mobile version, which is currently the Game Boy", now that the game had moved "towards a 1998 style", and chose a direction called "Pocket Adventure".
   - **The first slice was rejected:** "It's a bit underwhelming. Also we are using character that doesn look like the one on desktop, this is a big issue… we do need some info to the users that the full experience of the game is on desktop" [C 01a0f698 10:57].
@@ -1151,10 +1157,10 @@ None of the following is on `origin/V2.1`, and none of it is counted as shipped.
 
 ### Still open
 
-- **The plan and the code disagree.** Either the plan is updated to `V2.1`'s direction, or it stops being the source of truth for `V2.1`.
+- **The plan and the code disagree.** Daniele chose to remove the plan; #96 does it and is awaiting review.
 - **Georgia in the inspections.** Nobody asked Daniele about it.
 - **The Arial scene lettering.** It needs a look by eye, against his rejection of smooth text on the 29th.
-- **The five local `v2` commits.** Should they be carried onto `V2.1`, the walk fix in particular?
+- **The five local `v2` commits.** They are backported in #97, which is awaiting review.
 - **The mobile redesign.**
 - **Still open from earlier updates:**
   - "Based in Switzerland" is still in `dialogTrees.ts`, and it also appears on the welcome card of the mobile study.
