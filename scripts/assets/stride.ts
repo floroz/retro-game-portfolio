@@ -1,6 +1,8 @@
 /**
  * Rebuild the mother's legs after preparing the generated family walk sheet.
- * Applied by `npx tsx scripts/assets/passengers.ts`.
+ * Applied by `npx tsx scripts/assets/passengers.ts` to the 124x112 cells, and
+ * by `npx tsx scripts/assets/remaster-hall.ts` at `scale` 2 to the remaster's
+ * 248x224 cells, which keep the same foot-aligned layout.
  *
  * The generated frames all show her in the same wide stride, so she slides
  * while the boy (whose frames do alternate) walks. This keeps frames 0 and 2
@@ -117,34 +119,127 @@ function liftLegs(data: Uint8ClampedArray, stride: number, ox: number): Legs {
   return { trailing, leading };
 }
 
+/**
+ * One pixel per `scale` x `scale` block, used only to tell the legs apart:
+ * opaque where any of the block shows, so the faint edges a smooth resample
+ * leaves around the trousers are not mistaken for gaps or stray runs.
+ */
+function toGrid(image: PixelImage, scale: number): PixelImage {
+  const width = image.width / scale;
+  const height = image.height / scale;
+  const data = new Uint8ClampedArray(width * height * 4);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const sum = [0, 0, 0];
+      let weight = 0;
+      for (let j = 0; j < scale; j++) {
+        for (let i = 0; i < scale; i++) {
+          const k = ((y * scale + j) * image.width + x * scale + i) * 4;
+          const a = image.data[k + 3];
+          for (let c = 0; c < 3; c++) sum[c] += image.data[k + c] * a;
+          weight += a;
+        }
+      }
+      if (weight < 32) continue;
+      const o = (y * width + x) * 4;
+      for (let c = 0; c < 3; c++) data[o + c] = Math.round(sum[c] / weight);
+      data[o + 3] = 255;
+    }
+  }
+  return { data, width, height };
+}
+
+/** Lift the sheet's own pixels under each grid pixel of a leg. */
+function liftBlocks(
+  legs: Legs,
+  image: PixelImage,
+  data: Uint8ClampedArray,
+  scale: number,
+  ox: number,
+): Legs {
+  const lift = (leg: Pixel[]) =>
+    leg.flatMap(({ x, y }) => {
+      const block: Pixel[] = [];
+      for (let j = 0; j < scale; j++) {
+        for (let i = 0; i < scale; i++) {
+          const px = x * scale + i;
+          const py = y * scale + j;
+          const k = (py * image.width + ox + px) * 4;
+          const [r, g, b, alpha] = image.data.subarray(k, k + 4);
+          // A block can straddle her and the boy; leave his pixels in place.
+          // Above her shoes, the soft edges of his hand and trainers reach
+          // past the landmarks at this size, and nothing of her trousers is as
+          // bright or as orange. At the shoes, the grid's call stands: her
+          // loafers catch orange and white highlights of their own.
+          const his =
+            Math.floor(px / scale) < BOY_X &&
+            Math.floor(py / scale) < SHOE_Y &&
+            (r + g + b > 330 || (r > 140 && r - b > 70));
+          if (!alpha || his) continue;
+          const rgba: Rgba = [
+            image.data[k],
+            image.data[k + 1],
+            image.data[k + 2],
+            image.data[k + 3],
+          ];
+          block.push({ x: px, y: py, rgba });
+          data[k + 3] = 0;
+        }
+      }
+      return block;
+    });
+  return { trailing: lift(legs.trailing), leading: lift(legs.leading) };
+}
+
 /** Mean x of a leg's pixels on one row. */
 function centre(leg: Pixel[], y: number): number {
   const row = leg.filter((p) => p.y === y);
   return row.reduce((sum, p) => sum + p.x, 0) / Math.max(row.length, 1);
 }
 
+/**
+ * `scale` is the sheet's size relative to the 124x112 cells the landmarks
+ * above were measured on. The legs are told apart on a grid of that size, and
+ * then sheared on the sheet's own pixels so a smooth export keeps smooth edges.
+ */
 export function animateMotherStride(
   image: PixelImage,
   cellWidth: number,
+  scale = 1,
 ): PixelImage {
   const { width, height } = image;
-  const data = new Uint8ClampedArray(image.data);
+  const grid = scale === 1 ? image : toGrid(image, scale);
+  const gridData = new Uint8ClampedArray(grid.data);
+  const data = scale === 1 ? gridData : new Uint8ClampedArray(image.data);
+  const at = (n: number) => Math.round(n * scale);
+  const hipY = at(HIP_Y);
+  const ankleY = at(ANKLE_Y);
 
   const lifted = new Map<number, Legs>();
   for (const frame of Object.keys(PASSES)) {
-    lifted.set(Number(frame), liftLegs(data, width, Number(frame) * cellWidth));
+    const legs = liftLegs(
+      gridData,
+      grid.width,
+      (Number(frame) * cellWidth) / scale,
+    );
+    lifted.set(
+      Number(frame),
+      scale === 1
+        ? legs
+        : liftBlocks(legs, image, data, scale, Number(frame) * cellWidth),
+    );
   }
   // Swap in a clean loafer wherever the boy's trainer covered hers.
   for (const [frame, donor] of Object.entries(SHOE_DONOR)) {
     const mine = lifted.get(Number(frame))!;
     const theirs = lifted.get(donor)!;
     const dx = Math.round(
-      centre(mine.trailing, ANKLE_Y) - centre(theirs.trailing, ANKLE_Y),
+      centre(mine.trailing, ankleY) - centre(theirs.trailing, ankleY),
     );
     mine.trailing = [
-      ...mine.trailing.filter((p) => p.y <= ANKLE_Y),
+      ...mine.trailing.filter((p) => p.y <= ankleY),
       ...theirs.trailing
-        .filter((p) => p.y > ANKLE_Y)
+        .filter((p) => p.y > ankleY)
         .map((p) => ({ ...p, x: p.x + dx })),
     ];
   }
@@ -159,19 +254,19 @@ export function animateMotherStride(
     const paint = (leg: Pixel[], shear: number, length: number) => {
       const rows = new Map<number, Pixel[]>();
       for (const p of leg) rows.set(p.y, [...(rows.get(p.y) ?? []), p]);
-      const last = Math.max(...rows.keys()) - HIP_Y;
+      const last = Math.max(...rows.keys()) - hipY;
       // Walk the destination rows and pick one source row for each, so a
       // shortened leg drops whole rows rather than overlapping them.
       for (let d = 0; d <= Math.round(last * length); d++) {
         const r = Math.min(last, Math.round(d / length));
-        const x0 = Math.round(shear * Math.min(r, ANKLE_Y - HIP_Y));
-        for (const p of rows.get(HIP_Y + r) ?? []) {
+        const x0 = Math.round(shear * Math.min(r, ankleY - hipY));
+        for (const p of rows.get(hipY + r) ?? []) {
           const x = p.x + x0;
-          const y = HIP_Y + d;
+          const y = hipY + d;
           if (x < 0 || x >= cellWidth || y >= height) continue;
           const px = y * width + ox + x;
           // The boy stands in front of her back leg.
-          if (x < BOY_X && occupied[px]) continue;
+          if (x < at(BOY_X) && occupied[px]) continue;
           data.set(p.rgba, px * 4);
         }
       }
@@ -184,11 +279,12 @@ export function animateMotherStride(
   // hid by repeating the wheel's edge beside them.
   for (const frame of Object.keys(PASSES)) {
     const ox = Number(frame) * cellWidth;
-    for (let y = SHOE_Y; y < height; y++) {
-      for (let x = TROLLEY_X; x <= TOE_X + 6; x++) {
+    const toeX = at(TOE_X);
+    for (let y = at(SHOE_Y); y < height; y++) {
+      for (let x = at(TROLLEY_X); x <= toeX + at(6); x++) {
         const src = (y * width + x) * 4;
-        const toe = x <= TOE_X && image.data[src] - image.data[src + 2] >= 25;
-        const from = toe ? src + (TOE_X + 1 - x) * 4 : src;
+        const toe = x <= toeX && image.data[src] - image.data[src + 2] >= 25;
+        const from = toe ? src + (toeX + 1 - x) * 4 : src;
         data.set(image.data.subarray(from, from + 4), (y * width + ox + x) * 4);
       }
     }
