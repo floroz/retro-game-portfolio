@@ -19,9 +19,7 @@ const specs = [
 const palette = fixedColoursFrom(
   await Promise.all(
     readdirSync(outDir)
-      .filter(
-        (name) => name.endsWith(".png") && !name.startsWith("anim-passenger-"),
-      )
+      .filter((name) => name.endsWith(".png"))
       .map((name) => readImage(join(outDir, name))),
   ),
   256,
