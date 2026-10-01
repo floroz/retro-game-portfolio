@@ -81,6 +81,8 @@ test("new feature test", async ({ page }) => {
 });
 ```
 
+To compare canvas pixels with an image, compare with the art the build ships, not its PNG source. The build encodes painted art as lossy WebP (`scripts/vite/optimize-images.ts`), which moves colours by a few levels. Use the `shippedArt` helper in `test/e2e-airport.test.ts`.
+
 ### Step 2: Generate Initial Snapshots
 
 ```bash
@@ -139,6 +141,10 @@ Small pixel differences (< 1%) may occur due to timing. Solutions:
 1. Add `await page.waitForTimeout(300)` before screenshot
 2. Use `reducedMotion: "reduce"` (already configured)
 3. Ensure animations complete before capturing
+
+### Canvas Pixels Differ From the Source Image by a Few Levels
+
+The test compares against a PNG source, but the build ships lossy WebP. Compare against `shippedArt(path)` instead of reading the PNG with sharp.
 
 ### Docker Command Fails
 

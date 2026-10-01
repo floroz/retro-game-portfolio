@@ -3,6 +3,7 @@ import { preloadTiers } from "../preload";
 import { allImages } from "../runtime";
 import { sceneImages } from "../assets";
 import { SCENES } from "../scenes";
+import { START_SCENE } from "../SceneEngine";
 
 describe("preload order", () => {
   const tiers = preloadTiers();
@@ -16,11 +17,13 @@ describe("preload order", () => {
     for (const url of allImages()) expect(urls).toContain(url);
   });
 
-  test("loads the title card, then the Hall, before anything else", () => {
+  test("loads the title card, then the first scene, before anything else", () => {
     expect(tiers[0].urls).toHaveLength(1);
     expect(tiers[0].urls[0]).toMatch(/boarding-pass/);
     const launch = [...tiers[0].urls, ...tiers[1].urls];
-    for (const url of sceneImages(SCENES.hall)) expect(launch).toContain(url);
+    for (const url of sceneImages(SCENES[START_SCENE])) {
+      expect(launch).toContain(url);
+    }
     expect(tiers.slice(0, 2).every((tier) => tier.priority === "high")).toBe(
       true,
     );

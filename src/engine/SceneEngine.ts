@@ -152,6 +152,9 @@ interface Timer {
   fn: () => void;
 }
 
+/** Where the game opens unless told otherwise. */
+export const START_SCENE: SceneId = "hall";
+
 export interface EngineOptions {
   scenes: SceneRegistry;
   travelMap: TravelMapData;
@@ -212,7 +215,7 @@ export class SceneEngine {
     this.rig = opts.rig ?? null;
     this.rigAnimator = this.rig ? new RigAnimator(this.rig, opts.rng) : null;
     this.rigFor = opts.rigFor ?? hasWorldScale;
-    const start = opts.start ?? "hall";
+    const start = opts.start ?? START_SCENE;
     this.start = start;
     this.current = this.scenes[start];
     const ep = this.entryPoint(this.current, "start");

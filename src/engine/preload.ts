@@ -1,10 +1,14 @@
 /**
  * Loads the game's art in the order the visitor meets it: the title card's
- * boarding pass, then Daniele and the Hall, then the other scenes and the
- * travel map, then the inspection cards. Each tier starts once the one
- * before it has finished, so the art on screen next never shares bandwidth
- * with art the visitor can't reach yet. The launch dialog's progress bar
- * follows the first two tiers.
+ * boarding pass, then Daniele and the first scene (the Hall), then the
+ * other scenes and the travel map, then the inspection cards. Each tier
+ * starts once the one before it has finished, so the art on screen next
+ * never shares bandwidth with art the visitor can't reach yet. The launch
+ * dialog's progress bar follows the first two tiers.
+ *
+ * Canvas art is listed from the scene configs, so a new scene, sprite or
+ * animation needs nothing here. Art drawn as a plain `<img>` (the boarding
+ * pass, the inspection cards) is listed by hand: add any new one below.
  */
 import boardingPass from "../assets/remaster/title/boarding-pass.webp";
 import { sectionInspection } from "../config/inspections";
@@ -16,6 +20,7 @@ import {
   travelMapImages,
 } from "./assets";
 import { images } from "./runtime";
+import { START_SCENE } from "./SceneEngine";
 import { SCENES, TRAVEL_MAP_DATA } from "./scenes";
 import type { SectionId } from "./types";
 
@@ -51,12 +56,11 @@ export function preloadTiers(): PreloadTier[] {
   };
   return [
     tier([boardingPass], "high"),
-    // The game opens in the Hall (SceneEngine's default start).
     tier(
       [
         CHARACTER_SHEET.image,
         ...(CHARACTER_RIG ? [CHARACTER_RIG.image] : []),
-        ...sceneImages(SCENES.hall),
+        ...sceneImages(SCENES[START_SCENE]),
       ],
       "high",
     ),
@@ -80,7 +84,7 @@ export function preloadTiers(): PreloadTier[] {
 
 const TIERS = preloadTiers();
 
-/** What the launch dialog waits for: the title card and the Hall. */
+/** What the launch dialog waits for: the title card and the first scene. */
 const LAUNCH_IMAGES = TIERS.slice(0, 2).flatMap((tier) => tier.urls);
 
 /** Fetches an image into the browser's cache, then lets it go. */
