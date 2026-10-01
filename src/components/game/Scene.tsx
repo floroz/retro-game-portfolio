@@ -53,9 +53,8 @@ export function Scene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const textRef = useRef<HTMLCanvasElement>(null);
   const currentScene = useGameStore((s) => s.currentScene);
-  const sceneRequest = useGameStore((s) => s.sceneRequest);
   const contentOpen = useGameStore(
-    (s) => s.terminalScreenAction !== null || s.inspection !== null,
+    (s) => s.contentSection !== null || s.inspection !== null,
   );
   const setHoveredObject = useGameStore((s) => s.setHoveredObject);
   const spriteInfo = useSyncExternalStore(images.subscribe, images.getInfo);
@@ -65,11 +64,9 @@ export function Scene() {
   useSceneKeyboard();
   useConversation();
 
-  // Preload everything once, so no scene change ever flashes. Requests
-  // posted while the game was closed (a terminal command) are dropped.
+  // Preload everything once, so no scene change ever flashes.
   useEffect(() => {
     void images.loadAll(allImages());
-    useGameStore.getState().takeSceneRequest();
     useGameStore.getState().setCurrentScene(getEngine().scene.id);
   }, []);
 
@@ -106,16 +103,6 @@ export function Scene() {
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
   }, [contentOpen]);
-
-  // Terminal travel requests arrive through the store.
-  useEffect(() => {
-    if (!sceneRequest) return;
-    const request = useGameStore.getState().takeSceneRequest();
-    if (!request) return;
-    const engine = getEngine();
-    if (request.kind === "section") engine.goToSection(request.section);
-    else engine.travelTo(request.scene);
-  }, [sceneRequest]);
 
   const onFloorClick = (e: MouseEvent<HTMLDivElement>) => {
     const [x, y] = nativePoint(e);

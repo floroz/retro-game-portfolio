@@ -32,10 +32,10 @@ export function useSceneKeyboard() {
       return (
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLTextAreaElement ||
-        s.terminalScreenAction !== null ||
+        s.contentSection !== null ||
         s.inspection !== null ||
         s.dialogOpen ||
-        (s.terminalOpen && !s.gameWindowActive)
+        !s.gameWindowActive
       );
     };
     const onDown = (e: KeyboardEvent) => {

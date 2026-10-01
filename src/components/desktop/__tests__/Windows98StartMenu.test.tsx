@@ -6,7 +6,6 @@ function setup() {
   const actions = {
     onClose: vi.fn(),
     onGame: vi.fn(),
-    onTerminal: vi.fn(),
     onResume: vi.fn(),
     onContact: vi.fn(),
     onExperience: vi.fn(),
@@ -34,7 +33,6 @@ describe("Windows 98 Start menu", () => {
 
   test.each([
     ["Play the adventure", "onGame"],
-    ["MS-DOS Prompt", "onTerminal"],
     ["My Resume", "onResume"],
     ["Contact", "onContact"],
     ["Work Experience", "onExperience"],

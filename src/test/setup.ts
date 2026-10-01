@@ -8,6 +8,3 @@ afterEach(() => {
   vi.clearAllTimers();
   vi.useRealTimers();
 });
-
-// Mock environment variables for tests
-vi.stubEnv("VITE_TYPEWRITER_SPEED", "0"); // Instant typewriter for tests
