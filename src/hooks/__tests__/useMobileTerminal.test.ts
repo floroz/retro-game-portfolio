@@ -339,7 +339,7 @@ describe("useMobileTerminal", () => {
         (l) => l.type === "output",
       );
       expect(out?.content).toContain("Departures");
-      expect(out?.content).toContain("zurich");
+      expect(out?.content).toContain("zürich");
       expect(travelTo).not.toHaveBeenCalled();
     });
 

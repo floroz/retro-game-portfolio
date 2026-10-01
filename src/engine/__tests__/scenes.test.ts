@@ -75,6 +75,30 @@ describe("scene data contract", () => {
     }
   });
 
+  test("gates and return points follow the journey from left to right", () => {
+    const hall = SCENES.hall;
+    const gates = [...hall.exits].sort((a, b) => a.hotspot.x - b.hotspot.x);
+    expect(gates.map((gate) => gate.to)).toEqual([
+      "sorrento",
+      "london",
+      "zurich",
+    ]);
+    for (const [index, gate] of gates.entries()) {
+      if (gate.to === "hall") throw new Error("A gate must lead to a country");
+      expect(resolveLabel(`gate:${gate.to}`)).toEqual([
+        `Gate ${index + 1}`,
+        SCENES[gate.to].name,
+      ]);
+      const returnExit = SCENES[gate.to].exits.find(
+        (exit) => exit.to === "hall",
+      );
+      expect(returnExit).toBeDefined();
+      const point = hall.entryPoints[returnExit!.entry];
+      expect(point.x).toBe(gate.interactionPoint?.x);
+      expect(point.y).toBe(gate.interactionPoint?.y);
+    }
+  });
+
   test("each gate stays visible and clickable beside the boarding desk", () => {
     const hall = SCENES.hall;
     const overlaps = (a: Rect, b: Rect) =>
@@ -84,9 +108,9 @@ describe("scene data contract", () => {
     // The dark sign boards painted in the HD hall/bg.png (HB2), measured at
     // 2x and rounded out to logical px: each bevelled frame.
     const signs: Record<string, Rect> = {
-      "gate-london": { x: 170, y: 12, w: 38, h: 24 },
-      "gate-zurich": { x: 209, y: 12, w: 50, h: 24 },
-      "gate-sorrento": { x: 261, y: 12, w: 46, h: 24 },
+      "gate-sorrento": { x: 170, y: 12, w: 38, h: 24 },
+      "gate-london": { x: 209, y: 12, w: 50, h: 24 },
+      "gate-zurich": { x: 261, y: 12, w: 46, h: 24 },
     };
     const desk = hall.objects.find((o) => o.id === "boarding-desk");
     expect(desk).toBeDefined();
