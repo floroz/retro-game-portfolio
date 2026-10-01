@@ -9,8 +9,10 @@
  * of the Alps; Sorrento on the Italian west coast south of Naples. Each has
  * at least 4 logical px of land around it. The engine draws the city's name
  * centred 12 px above each marker (its sections go in the toolbar's status
- * line). The Hall has no marker: flights start from central France, roughly
- * equidistant from all three.
+ * line). The Hall is no city: its first flight starts from central France,
+ * roughly equidistant from all three, under a small airfield symbol and
+ * `hallLabel` so the plane never takes off from an unmarked spot. Later
+ * flights leave from the last country visited.
  *
  * Routes are quadratic bezier control points, bowed gently north like a
  * flight path (a fifth of the trip's length; London-Sorrento less, and
@@ -36,6 +38,7 @@ export const TRAVEL_MAP: TravelMapData = {
     sorrento: [204, 114],
   },
   hall: [110, 76],
+  hallLabel: "Departures",
   routes: {
     "hall-london": [99, 47],
     "hall-zurich": [130, 57],

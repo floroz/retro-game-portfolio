@@ -528,8 +528,14 @@ export interface TravelMapData {
   background: string;
   /** Marker centre for each country. */
   markers: Record<CountrySceneId, Vec>;
-  /** Where a flight starts when the visitor hasn't visited a country yet. */
+  /**
+   * Where a flight starts when the visitor hasn't visited a country yet.
+   * The engine marks it with a small airfield symbol and `hallLabel`, so
+   * the first take-off has a visible origin.
+   */
   hall: Vec;
+  /** Name drawn beside the Hall's airfield symbol on the travel map. */
+  hallLabel: string;
   /**
    * Optional bezier control point per route, keyed "from-to" with `hall` as
    * a possible origin ("hall-london", "london-zurich"). Defaults to an arc.
