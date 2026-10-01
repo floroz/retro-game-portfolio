@@ -3,8 +3,9 @@
  */
 import sharp from "sharp";
 import { mkdir, writeFile } from "node:fs/promises";
-import { readImage, rgbToOklab } from "./lib";
+import { readImage, rgbToOklab, type Image as PixelImage } from "./lib";
 import { oklabToRgb } from "./hd";
+import { animateMotherStride } from "./stride";
 
 const raw = "assets-src/approved";
 const out = "src/assets/remaster/hall";
@@ -155,21 +156,34 @@ for (const spec of [
       };
     }),
   );
+  const sheet = await sharp({
+    create: {
+      width: spec.w * spec.frames,
+      height: spec.h,
+      channels: 4,
+      background: clear,
+    },
+  })
+    .composite(frames)
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  let image: PixelImage = {
+    data: new Uint8ClampedArray(sheet.data),
+    width: sheet.info.width,
+    height: sheet.info.height,
+  };
+  // The generated mother never changes legs; rebuild her passing poses as
+  // passengers.ts does, on the doubled cell.
+  if (spec.name === "family") image = animateMotherStride(image, spec.w, 2);
   await save(
     `anim-passenger-${spec.name}`,
-    await sharp({
-      create: {
-        width: spec.w * spec.frames,
-        height: spec.h,
-        channels: 4,
-        background: clear,
-      },
+    await sharp(Buffer.from(image.data), {
+      raw: { width: image.width, height: image.height, channels: 4 },
     })
-      .composite(frames)
       .png()
       .toBuffer(),
     source,
-    "Same frame count, timing, padded cells and foot alignment as passengers.ts, at twice the export resolution. Soft alpha and full colour.",
+    `Same frame count, timing, padded cells and foot alignment as passengers.ts, at twice the export resolution. Soft alpha and full colour.${spec.name === "family" ? " Mother's legs rebuilt as passing poses in frames 1 and 3 by scripts/assets/stride.ts at scale 2." : ""}`,
   );
 }
 
