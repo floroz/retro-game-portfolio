@@ -117,9 +117,15 @@ export function Win95Desktop({
     return () => clearInterval(interval);
   }, []);
 
-  // Start loading game on mount
+  // Rnd measures its parent on mount. Wait for initial styles to apply before
+  // positioning the launch dialog, including on a cold WebKit page load.
   useEffect(() => {
-    startGameLoading();
+    if (document.readyState === "complete") {
+      startGameLoading();
+      return;
+    }
+    window.addEventListener("load", startGameLoading, { once: true });
+    return () => window.removeEventListener("load", startGameLoading);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
