@@ -1,8 +1,26 @@
-import { expect, test, describe } from "vitest";
+import { beforeEach, expect, test, describe } from "vitest";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { Win95TerminalWindow } from "../Win95TerminalWindow";
 import { useMobileTerminal } from "../../../hooks/useMobileTerminal";
+import { useGameStore } from "../../../store/gameStore";
+import { DIALOG_TREE } from "../../../config/dialogTrees";
+
+const initialState = useGameStore.getState();
+beforeEach(() =>
+  useGameStore.setState({ ...initialState, visitedNodes: new Set() }, true),
+);
+
+async function waitForConversation(container: HTMLElement) {
+  await expect
+    .poll(() => {
+      const messages = container.querySelectorAll(
+        '[data-e2e="dialog-agent-message"]',
+      );
+      return messages.item(messages.length - 1)?.textContent;
+    })
+    .toContain(DIALOG_TREE.welcome.text);
+}
 
 /**
  * Test wrapper component that provides full terminal functionality
@@ -256,7 +274,7 @@ describe("Win95 Terminal Window - Browser Tests", () => {
       await userEvent.keyboard("{Enter}");
 
       // Wait for dialog to appear
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await waitForConversation(container);
 
       // Verify starting message
       const terminalOutput = container.querySelector(
@@ -282,7 +300,7 @@ describe("Win95 Terminal Window - Browser Tests", () => {
       // Execute talk command
       await userEvent.fill(inputField, "talk");
       await userEvent.keyboard("{Enter}");
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await waitForConversation(container);
 
       // Verify options appear
       const dialogOptions = container.querySelectorAll(
@@ -312,7 +330,7 @@ describe("Win95 Terminal Window - Browser Tests", () => {
       // Execute talk command
       await userEvent.fill(inputField, "talk");
       await userEvent.keyboard("{Enter}");
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await waitForConversation(container);
 
       const dialogMessagesBefore = container.querySelectorAll(
         '[data-e2e="dialog-agent-message"]',

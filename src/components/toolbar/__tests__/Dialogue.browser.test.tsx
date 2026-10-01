@@ -47,6 +47,9 @@ beforeEach(async () => {
   );
   // Wide enough for the panel to be on screen, so a click can land.
   await page.viewport(1300, 900);
+  // Browser tests share pointer position; a previous hover must not select a
+  // freshly mounted conversation when the next test expects no active choice.
+  await userEvent.unhover(document.body);
 });
 
 describe("Toolbar: dialogue choices", () => {
