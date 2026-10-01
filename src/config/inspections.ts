@@ -14,6 +14,8 @@ interface ReadingPage {
 
 export interface InspectionReading extends ObjectInspection {
   pages?: ReadingPage[];
+  /** Text-safe insets measured inside the artwork, in percent. */
+  paperInsets?: { top: number; right: number; bottom: number; left: number };
 }
 
 /** Every word of professional content comes from the shared profile. */
@@ -22,9 +24,11 @@ export function sectionInspection(section: SectionId): InspectionReading {
     case "about":
       return {
         title: `About ${PROFILE.name.split(" ")[0]}`,
-        subtitle: "A postcard from home",
+        subtitle: "Excess baggage, Sorrento edition",
         art: aboutArt,
-        artAlt: "A postcard album on a Sorrento kitchen table",
+        artAlt:
+          "Daniele tries to close a suitcase full of lemons, hiking boots and a handheld console on a Sorrento terrace",
+        paperInsets: { top: 16, right: 8, bottom: 18, left: 55 },
         paragraphs: [],
         pages: PROFILE.bio.split("\n\n").map((paragraph) => ({
           title: PROFILE.name,
@@ -34,10 +38,11 @@ export function sectionInspection(section: SectionId): InspectionReading {
     case "skills":
       return {
         title: "Skills",
-        subtitle: "The working kit",
+        subtitle: "London calling. Skills answering.",
         art: skillsArt,
         artAlt:
-          "A leather tool roll, notebook and brass instruments on an oak table",
+          "A closed red London phone booth shelters under an umbrella beside Big Ben and a blank noticeboard",
+        paperInsets: { top: 22, right: 8, bottom: 22, left: 56 },
         paragraphs: [],
         pages: Object.entries(PROFILE.skills).map(([group, skills]) => ({
           title: PROFILE.skillGroupLabels[group as keyof typeof PROFILE.skills],
@@ -47,13 +52,15 @@ export function sectionInspection(section: SectionId): InspectionReading {
     case "experience":
       return {
         title: "Experience",
-        subtitle: "A career in mementos",
+        subtitle: "All aboard the Swiss career express",
         art: experienceArt,
-        artAlt: "A career album and mementos on a chalet desk",
+        artAlt:
+          "A red Swiss train carries suitcases and a lounging cow up an Alpine viaduct beside a timetable board",
+        paperInsets: { top: 20, right: 8, bottom: 28, left: 54 },
         paragraphs: [],
         pages: [
           ...PROFILE.experienceSummary.split("\n\n").map((paragraph) => ({
-            title: "From the career album",
+            title: "The journey so far",
             paragraphs: [paragraph],
           })),
           ...PROFILE.workExperience.map((job) => ({
@@ -65,9 +72,11 @@ export function sectionInspection(section: SectionId): InspectionReading {
     case "contact":
       return {
         title: "Contact",
-        subtitle: "The address book",
+        subtitle: "A direct line from Sorrento",
         art: contactArt,
-        artAlt: "A telephone and open address book in Sorrento",
+        artAlt:
+          "A red telephone connects to tin cans on a tiled Sorrento terrace, with lemons and the Bay of Naples behind it",
+        paperInsets: { top: 14, right: 8, bottom: 20, left: 55 },
         paragraphs: [],
         pages: [
           {
@@ -88,9 +97,11 @@ export function sectionInspection(section: SectionId): InspectionReading {
     case "resume":
       return {
         title: "Resume",
-        subtitle: "The document folder",
+        subtitle: "One small document. Swiss-sized paper trail.",
         art: resumeArt,
-        artAlt: "A resume folio and papers on a wooden desk",
+        artAlt:
+          "A Swiss ticket machine buries a surprised station clerk in an endlessly unrolling paper ticket",
+        paperInsets: { top: 16, right: 8, bottom: 18, left: 48 },
         paragraphs: [],
         pages: [
           {

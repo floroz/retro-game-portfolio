@@ -35,7 +35,8 @@
 
 .copy {
   position: absolute;
-  inset: var(--paper-top, 20%) 10% 20% 52%;
+  inset: var(--paper-top, 20%) var(--paper-right, 10%) var(--paper-bottom, 20%)
+    var(--paper-left, 52%);
   overflow: hidden;
   overflow-wrap: anywhere;
   font-size: clamp(20px, 2cqw, 24px);
@@ -129,6 +130,40 @@
 .dialog :focus-visible {
   outline: 2px solid #b06a21;
   outline-offset: 2px;
+}
+
+.dialog[data-travel-art="true"] {
+  color: #29213d;
+  background: #30205a;
+
+  .copy a {
+    color: #513188;
+  }
+
+  .links {
+    margin: 0.5em 0 0;
+
+    li:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .controls {
+    color: #fff6d5;
+
+    button {
+      background: #493078;
+      border-color: #ac91d8;
+
+      &:hover:not(:disabled) {
+        background: #614194;
+      }
+    }
+  }
+
+  :focus-visible {
+    outline-color: #8960c2;
+  }
 }
 
 @container (max-width: 720px) {

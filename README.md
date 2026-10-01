@@ -26,7 +26,7 @@ The full desktop experience emulates a Windows 98 environment:
 - **Start menu and taskbar** — Launch applications and portfolio shortcuts, use Quick Launch and Show Desktop, toggle sound, and switch between running windows
 - **Window management** — Minimize, maximize, close, and drag windows just like the real thing
 - **Game window** — A point-and-click adventure scene where you explore hotspots for About, Skills, Contact, Experience, and Resume
-- **Object inspections** — Illustrated postcards, a working kit, a career album, correspondence and a résumé folder reveal readable live portfolio text and links. Close an inspection to return to the same room and position.
+- **Object inspections** — Cartoon close-ups connect About and Contact to Sorrento, Skills to London, and Experience and Resume to Switzerland. A suitcase, phone contraption, London booth, Swiss train and runaway ticket frame readable live portfolio text and links. Close an inspection to return to the same room and position.
 - **Travel and discovery** — Toolbar sections open immediately; airport gates travel to London, an Alpine chalet and Sorrento. Four duty-free souvenirs have optional playful close-ups.
 - **Recycle Bin** — Contains humorous "deleted" files about software development
 - **Loading screen** — A Windows 98 launch dialog with segmented progress when opening the remastered game
@@ -81,7 +81,10 @@ hotspots, character proportions, timing and portfolio content are unchanged. The
 The source archive supplies 53 scene/map/shared exports at density 4 (1280×640
 backgrounds), nine full-colour inspections, and the original-resolution title ticket.
 Soft sprite edges and native canvas lettering preserve the original logical layout.
-No new artwork was generated. Some source art has baked-in pixel texture; the tiny
+The five portfolio inspections now use newly generated location-themed cartoon
+artwork, with text-safe areas measured for the live HTML. See
+[the inspection artwork notes](docs/location-inspection-art.md) for sources and rebuild details.
+Some source art has baked-in pixel texture; the tiny
 limoncello sprite and code-drawn toolbar icons still retain their original detail.
 
 Rebuild the exports with `npx tsx scripts/assets/remaster-hall.ts`,
