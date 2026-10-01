@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import { useMobileTerminal } from "../../hooks/useMobileTerminal";
 import { useGameStore } from "../../store/gameStore";
 import { Win95TerminalWindow } from "./Win95TerminalWindow";
@@ -6,7 +12,7 @@ import { Win95GameWindow } from "./Win95GameWindow";
 import { Win95LoadingWidget } from "./Win95LoadingWidget";
 import { Win95RecycleBin } from "./Win95RecycleBin";
 import styles from "./Win95Desktop.module.scss";
-import retroDanieleImg from "../../assets/retro-daniele.png";
+import retroDanieleImg from "../../assets/retro-daniele-icon.png";
 import recycleBinImg from "../../assets/recycle.png";
 import msdosPromptImg from "../../assets/prompt.png";
 import win98LogoImg from "../../assets/win-95.png";
@@ -15,6 +21,7 @@ import { Windows98StartMenu } from "./Windows98StartMenu";
 import { Windows98Icon } from "./Windows98Icon";
 import { Windows98About } from "./Windows98About";
 import { PROFILE } from "../../config/profile";
+import { launchProgress, subscribeProgress } from "../../engine/preload";
 
 interface Win95DesktopProps {
   isOpen: boolean;
@@ -62,6 +69,8 @@ export function Win95Desktop({
 
   // Loading state for game window
   const [isLoading, setIsLoading] = useState(false);
+  // The launch dialog's bar follows the title card and Hall art.
+  const artLoaded = useSyncExternalStore(subscribeProgress, launchProgress);
   const [loadingComplete, setLoadingComplete] = useState(false);
 
   const [startMenuOpen, setStartMenuOpen] = useState(false);
@@ -420,6 +429,7 @@ export function Win95Desktop({
             }}
           >
             <Win95LoadingWidget
+              progress={artLoaded}
               onCancel={handleLoadingCancel}
               onComplete={handleLoadingComplete}
               onFocus={() => {

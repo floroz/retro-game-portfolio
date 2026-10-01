@@ -14,6 +14,7 @@ import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { useSceneAudio } from "./hooks/useSceneAudio";
 import { allImages, images } from "./engine/runtime";
+import { startPreload } from "./engine/preload";
 
 /** Every image the game draws, listed once. */
 const ALL_IMAGES = allImages();
@@ -33,10 +34,10 @@ function App() {
   // Game Boy has its own sounds)
   useSceneAudio({ enabled: !isMobile });
 
-  // Start loading every scene image while the welcome screen is up, so the
-  // Hall is ready the moment the visitor presses a key (desktop only).
+  // Start loading the art straight away, title card and Hall first, so the
+  // launch dialog covers the download (desktop only).
   useEffect(() => {
-    if (!isMobile) void images.loadAll(allImages());
+    if (!isMobile) startPreload();
   }, [isMobile]);
 
   // True once every scene image has loaded (or failed), so the title card

@@ -40,6 +40,7 @@ Vite prints the local URL, usually `http://localhost:5173`.
 | Dialogue, terminal commands, scene hotspots | `src/config/dialogTrees.ts`, `src/config/commands.ts`, `src/config/scene.ts`                    |
 | SEO and generated HTML                      | `src/config/profile.ts`, `scripts/generate-html.ts`, `scripts/generate-og-image.ts`             |
 | Styling                                     | Component `*.module.scss` files and `src/styles/`                                               |
+| Image loading, compression, size budgets    | `docs/encoded-images.md`, `src/engine/preload.ts`, `scripts/vite/optimize-images.ts`            |
 
 `src/config/profile.ts` supplies shared personal information to desktop, mobile, terminal, and SEO views. Dialogue text lives in `src/config/dialogTrees.ts`. The game store starts fresh on each page load; it does not persist state.
 
@@ -51,6 +52,10 @@ Vite prints the local URL, usually `http://localhost:5173`.
 - After modifying any file, run `npm run format` at the end of your edits. Review the resulting diff, since this command formats the whole repository.
 
 For detailed content changes, see `.agents/skills/update-portfolio-content/SKILL.md`.
+
+## Art and images
+
+Before adding, replacing, resizing or loading an image, or editing the image pipeline, read [`docs/encoded-images.md`](docs/encoded-images.md). The short version: commit full-quality sources under `src/assets/`. The build compresses them, and the game preloads them in tiers behind the launch dialog.
 
 ## Verify changes
 
