@@ -114,7 +114,7 @@
 
 .navigation {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) 52px;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) 44px;
   gap: 1px;
   flex-shrink: 0;
   padding: 1px 1px max(1px, env(safe-area-inset-bottom));
@@ -129,7 +129,7 @@
     background: #3c2b21;
     text-decoration: none;
     font:
-      clamp(16px, 5vw, 20px) / 1.1 "Libre Caslon Text",
+      clamp(15px, 4.4vw, 20px) / 1.1 "Libre Caslon Text",
       Georgia,
       serif;
     border-top: 1px solid #946e46;
