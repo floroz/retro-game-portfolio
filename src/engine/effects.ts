@@ -12,8 +12,10 @@ import type {
   LampsEffect,
   MovingProp,
   MusicNotesEffect,
+  PendulumEffect,
   RainEffect,
   SceneEffect,
+  SleepEffect,
   SteamEffect,
   StarsEffect,
 } from "./types";
@@ -271,6 +273,71 @@ function musicNotes(effect: MusicNotesEffect, now: number): Shape[] {
   return out;
 }
 
+function pendulum(e: PendulumEffect, now: number): Shape[] {
+  const angle = e.angle * Math.sin((now / e.periodMs) * Math.PI * 2);
+  const x = e.x + Math.sin(angle) * e.length;
+  const y = e.y + Math.cos(angle) * e.length;
+  return [
+    { kind: "line", x1: e.x, y1: e.y, x2: x, y2: y, color: e.edge },
+    {
+      kind: "line",
+      x1: e.x + 0.25,
+      y1: e.y,
+      x2: x + 0.25,
+      y2: y,
+      color: e.color,
+    },
+    { kind: "disc", x, y, r: e.radius, color: e.edge },
+    { kind: "disc", x, y, r: e.radius - 0.4, color: e.color },
+    {
+      kind: "disc",
+      x: x - 0.25,
+      y: y - 0.35,
+      r: e.radius * 0.35,
+      color: e.highlight,
+    },
+  ];
+}
+
+function sleep(e: SleepEffect, now: number): Shape[] {
+  return Array.from({ length: 3 }, (_, i) => {
+    const phase = ((now % e.periodMs) / e.periodMs + i / 3) % 1;
+    const x = e.x + phase * e.drift;
+    const y = e.y - phase * e.rise;
+    const size = 1.5 + phase * 2;
+    const alpha = Math.min(1, phase * 8, (1 - phase) * 5);
+    return [
+      {
+        kind: "line" as const,
+        x1: x,
+        y1: y,
+        x2: x + size,
+        y2: y,
+        color: e.color,
+        alpha,
+      },
+      {
+        kind: "line" as const,
+        x1: x + size,
+        y1: y,
+        x2: x,
+        y2: y + size,
+        color: e.color,
+        alpha,
+      },
+      {
+        kind: "line" as const,
+        x1: x,
+        y1: y + size,
+        x2: x + size,
+        y2: y + size,
+        color: e.color,
+        alpha,
+      },
+    ];
+  }).flat();
+}
+
 /** The shapes an effect draws at engine time `now` (ms). */
 export function effectShapes(
   effect: SceneEffect,
@@ -281,6 +348,10 @@ export function effectShapes(
   switch (effect.kind) {
     case "music-notes":
       return musicNotes(effect, now);
+    case "pendulum":
+      return pendulum(effect, reducedMotion ? 0 : now);
+    case "sleep":
+      return sleep(effect, reducedMotion ? effect.periodMs / 6 : now);
     case "rain":
       return rain(effect, now);
     case "steam":
