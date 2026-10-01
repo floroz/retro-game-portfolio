@@ -8,44 +8,63 @@ interface Win95LoadingWidgetProps {
   isActive: boolean;
   onFocus: () => void;
   zIndex: number;
+  /** Share of the launch art loaded, from 0 to 1 (default 1). */
+  progress?: number;
 }
 
+/** The shortest launch, in ms, so the dialog reads as a real one. */
 const LOADING_DURATION = 1500;
+/**
+ * The longest launch, in ms. A stalled download must never lock the
+ * visitor out of the content; the title card still holds the start.
+ */
+const LOADING_LIMIT = 12000;
 const TOTAL_SEGMENTS = 22;
 
-/** Windows 98 launch dialog. Every scheduled callback is disposed on close. */
+/**
+ * Windows 98 launch dialog. The bar fills no faster than the art loads
+ * and no faster than the shortest launch, and the game opens once both
+ * are done. Every scheduled callback is disposed on close.
+ */
 export function Win95LoadingWidget({
   onCancel,
   onComplete,
   isActive,
   onFocus,
   zIndex,
+  progress: loaded = 1,
 }: Win95LoadingWidgetProps) {
-  const [progress, setProgress] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
+  const [timeUp, setTimeUp] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
   const completeLoading = useEffectEvent(onComplete);
+  const done = timedOut || (timeUp && loaded >= 1);
+  const progress = done
+    ? TOTAL_SEGMENTS
+    : Math.floor(Math.min(elapsed / LOADING_DURATION, loaded) * TOTAL_SEGMENTS);
 
   useEffect(() => {
     const startedAt = Date.now();
     const interval = window.setInterval(() => {
-      const elapsed = Date.now() - startedAt;
-      setProgress(
-        Math.min(
-          TOTAL_SEGMENTS,
-          Math.floor((elapsed / LOADING_DURATION) * TOTAL_SEGMENTS),
-        ),
-      );
+      setElapsed(Math.min(LOADING_DURATION, Date.now() - startedAt));
     }, LOADING_DURATION / TOTAL_SEGMENTS);
-    const completion = window.setTimeout(() => {
+    const minimum = window.setTimeout(() => {
       window.clearInterval(interval);
-      setProgress(TOTAL_SEGMENTS);
-      completeLoading();
+      setElapsed(LOADING_DURATION);
+      setTimeUp(true);
     }, LOADING_DURATION + 100);
+    const limit = window.setTimeout(() => setTimedOut(true), LOADING_LIMIT);
 
     return () => {
       window.clearInterval(interval);
-      window.clearTimeout(completion);
+      window.clearTimeout(minimum);
+      window.clearTimeout(limit);
     };
   }, []);
+
+  useEffect(() => {
+    if (done) completeLoading();
+  }, [done]);
 
   return (
     <Rnd
