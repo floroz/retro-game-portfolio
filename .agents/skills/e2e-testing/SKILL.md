@@ -22,7 +22,7 @@ This skill guides running E2E tests and updating visual regression snapshots for
 | Run specific browser           | `npm run test:e2e:docker -- --project=chromium`                             |
 | Run specific test              | `npm run test:e2e:docker -- -g "test name"`                                 |
 
-The Docker script and Playwright web server set `VITE_TYPEWRITER_SPEED=0` so typewriter text appears immediately during tests. CI runs `npm run test:e2e` inside the Playwright container; the local Docker wrapper provides the same Linux environment.
+CI runs `npm run test:e2e` inside the Playwright container; the local Docker wrapper provides the same Linux environment.
 
 ## Workflow: After Modifying a Feature
 

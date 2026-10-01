@@ -5,16 +5,13 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { useMobileTerminal } from "../../hooks/useMobileTerminal";
 import { useGameStore } from "../../store/gameStore";
-import { Win95TerminalWindow } from "./Win95TerminalWindow";
 import { Win95GameWindow } from "./Win95GameWindow";
 import { Win95LoadingWidget } from "./Win95LoadingWidget";
 import { Win95RecycleBin } from "./Win95RecycleBin";
 import styles from "./Win95Desktop.module.scss";
 import retroDanieleImg from "../../assets/retro-daniele-icon.png";
 import recycleBinImg from "../../assets/recycle.png";
-import msdosPromptImg from "../../assets/prompt.png";
 import win98LogoImg from "../../assets/win-95.png";
 
 import { Windows98StartMenu } from "./Windows98StartMenu";
@@ -22,6 +19,7 @@ import { Windows98Icon } from "./Windows98Icon";
 import { Windows98About } from "./Windows98About";
 import { PROFILE } from "../../config/profile";
 import { launchProgress, subscribeProgress } from "../../engine/preload";
+import type { SectionId } from "../../engine/types";
 
 interface Win95DesktopProps {
   isOpen: boolean;
@@ -33,40 +31,22 @@ interface Win95DesktopProps {
 interface DesktopIcon {
   id: string;
   label: string;
-  command?: string;
-  action?:
-    | "openGame"
-    | "openTerminal"
-    | "openRecycleBin"
-    | "openAbout"
-    | "openResume";
+  action: "openGame" | "openRecycleBin" | "openAbout" | "openResume";
   icon: React.ReactNode;
 }
 
-type WindowType = "game" | "terminal" | "recycleBin" | "about";
+type WindowType = "game" | "recycleBin" | "about";
 type ActiveWindow = WindowType | null;
 
 /**
  * Windows 98 Desktop environment with multiple windowed applications
- * Manages terminal and game windows with taskbar buttons
+ * Manages the game, Recycle Bin and System Properties windows with taskbar buttons
  */
 export function Win95Desktop({
   isOpen,
   gameContent,
   welcomeContent,
 }: Win95DesktopProps) {
-  const {
-    history,
-    input,
-    setInput,
-    handleKeyDown,
-    executeInput,
-    inputRef,
-    currentDialogMessage,
-    isTyping,
-    skipTypewriter,
-  } = useMobileTerminal();
-
   // Loading state for game window
   const [isLoading, setIsLoading] = useState(false);
   // The launch dialog's bar follows the title card and Hall art.
@@ -108,11 +88,13 @@ export function Win95Desktop({
 
   const {
     setGameWindowActive,
-    terminalScreenAction,
+    contentSection,
     inspection,
     dialogOpen,
     soundEnabled,
     toggleSound,
+    dismissWelcome,
+    openContent,
   } = useGameStore();
 
   // Update game store when game window becomes active/inactive
@@ -174,16 +156,16 @@ export function Win95Desktop({
     handleCloseWindow("game");
   };
 
-  // Handle Escape key - Only close desktop if no terminal screen/dialog is open
-  // (Terminal screen and dialog components handle their own ESC key)
+  // Handle Escape key - Only close desktop if no content screen/dialog is open
+  // (Content screen and dialog components handle their own ESC key)
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // Don't close desktop on ESC - let terminal screen/dialogs handle it
+      // Don't close desktop on ESC - let content screen/dialogs handle it
       // In windowed mode, ESC should not close the entire desktop
       if (
         isOpen &&
         e.key === "Escape" &&
-        !terminalScreenAction &&
+        !contentSection &&
         !inspection &&
         !dialogOpen
       ) {
@@ -194,10 +176,7 @@ export function Win95Desktop({
 
     window.addEventListener("keydown", handleGlobalKeyDown);
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, [isOpen, terminalScreenAction, inspection, dialogOpen]);
-
-  // Focus terminal input when terminal is active and user clicks on it
-  // Removed auto-focus to allow keyboard shortcuts to work in windowed mode
+  }, [isOpen, contentSection, inspection, dialogOpen]);
 
   // Prevent body scroll when open
   useEffect(() => {
@@ -251,15 +230,6 @@ export function Win95Desktop({
         bringWindowToFront("game");
         setActiveWindow("game");
       }
-    } else if (icon.action === "openTerminal") {
-      setOpenWindows((prev) => new Set(prev).add("terminal"));
-      setMinimizedWindows((prev) => {
-        const next = new Set(prev);
-        next.delete("terminal");
-        return next;
-      });
-      bringWindowToFront("terminal");
-      setActiveWindow("terminal");
     } else if (icon.action === "openRecycleBin") {
       setOpenWindows((prev) => new Set(prev).add("recycleBin"));
       setMinimizedWindows((prev) => {
@@ -269,21 +239,6 @@ export function Win95Desktop({
       });
       bringWindowToFront("recycleBin");
       setActiveWindow("recycleBin");
-    } else if (icon.command) {
-      // Open terminal if not already open
-      setOpenWindows((prev) => new Set(prev).add("terminal"));
-      setMinimizedWindows((prev) => {
-        const next = new Set(prev);
-        next.delete("terminal");
-        return next;
-      });
-      bringWindowToFront("terminal");
-      setActiveWindow("terminal");
-      executeInput(icon.command);
-      // Focus input after command
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
     }
   };
 
@@ -363,8 +318,13 @@ export function Win95Desktop({
 
   const launch = (action: DesktopIcon["action"]) =>
     handleIconClick({ id: "shortcut", label: "", icon: null, action });
-  const runCommand = (command: string) =>
-    handleIconClick({ id: command, label: command, icon: null, command });
+  // Start menu shortcut: bring up the adventure and open the section there,
+  // skipping the title card so the content is one click away.
+  const showSection = (section: SectionId) => {
+    launch("openGame");
+    dismissWelcome();
+    openContent(section);
+  };
 
   if (!isOpen) return null;
 
@@ -466,35 +426,6 @@ export function Win95Desktop({
             </div>
           )}
 
-        {/* Terminal window */}
-        {openWindows.has("terminal") && (
-          <div
-            className={styles.windowLayer}
-            inert={minimizedWindows.has("terminal")}
-            hidden={minimizedWindows.has("terminal")}
-          >
-            <Win95TerminalWindow
-              history={history}
-              input={input}
-              setInput={setInput}
-              handleKeyDown={handleKeyDown}
-              executeInput={executeInput}
-              inputRef={inputRef as React.RefObject<HTMLInputElement>}
-              currentDialogMessage={currentDialogMessage}
-              isTyping={isTyping}
-              skipTypewriter={skipTypewriter}
-              onClose={() => handleCloseWindow("terminal")}
-              onMinimize={() => handleMinimizeWindow("terminal")}
-              isActive={activeWindow === "terminal"}
-              onFocus={() => {
-                bringWindowToFront("terminal");
-                setActiveWindow("terminal");
-              }}
-              zIndex={getZIndex("terminal")}
-            />
-          </div>
-        )}
-
         {/* Recycle Bin window */}
         {openWindows.has("recycleBin") && (
           <div
@@ -544,10 +475,9 @@ export function Win95Desktop({
             <Windows98StartMenu
               onClose={closeStartMenu}
               onGame={() => launch("openGame")}
-              onTerminal={() => launch("openTerminal")}
               onResume={() => launch("openResume")}
-              onContact={() => runCommand("contact")}
-              onExperience={() => runCommand("experience")}
+              onContact={() => showSection("contact")}
+              onExperience={() => showSection("experience")}
               onAbout={() => launch("openAbout")}
               onShowDesktop={showDesktop}
             />
@@ -594,14 +524,6 @@ export function Win95Desktop({
               >
                 <img src={retroDanieleImg} alt="" />
               </button>
-              <button
-                type="button"
-                title="MS-DOS Prompt"
-                aria-label="Launch MS-DOS Prompt"
-                onClick={() => launch("openTerminal")}
-              >
-                <img src={msdosPromptImg} alt="" />
-              </button>
             </div>
 
             <div className={styles.taskbarCenter}>
@@ -620,23 +542,6 @@ export function Win95Desktop({
                     alt=""
                   />
                   <span>Portfolio — Remastered</span>
-                </button>
-              )}
-
-              {openWindows.has("terminal") && (
-                <button
-                  className={`${styles.taskbarButton} ${activeWindow === "terminal" ? styles.active : ""}`}
-                  onClick={() => handleTaskbarClick("terminal")}
-                  type="button"
-                  aria-label="MS-DOS Prompt"
-                  data-e2e="taskbar-terminal"
-                >
-                  <img
-                    className={styles.taskbarIcon}
-                    src={msdosPromptImg}
-                    alt=""
-                  />
-                  <span>MS-DOS Prompt</span>
                 </button>
               )}
 
@@ -703,21 +608,6 @@ export function Win95Desktop({
   );
 }
 
-// MS-DOS Prompt Icon (Windows 98 style)
-function MSDOSPromptIcon() {
-  return (
-    <img
-      src={msdosPromptImg}
-      alt="MS-DOS Prompt"
-      style={{
-        width: "100%",
-        height: "100%",
-        objectFit: "contain",
-      }}
-    />
-  );
-}
-
 // Recycle Bin Icon (Empty - Windows 98 style)
 function RecycleBinEmptyIcon() {
   return (
@@ -746,12 +636,6 @@ const DESKTOP_ICONS: DesktopIcon[] = [
     label: "My Resume",
     action: "openResume",
     icon: <Windows98Icon kind="document" />,
-  },
-  {
-    id: "terminal",
-    label: "MS-DOS Prompt",
-    action: "openTerminal",
-    icon: <MSDOSPromptIcon />,
   },
   {
     id: "game",
