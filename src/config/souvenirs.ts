@@ -14,8 +14,8 @@ export const SOUVENIRS = {
     ],
     art: limoncello,
     artAlt:
-      "A golden limoncello bottle with a lemon label on a wooden duty-free counter.",
-    paperTop: 34,
+      "An enormous Sorrento lemon balances over a tiny limoncello bottle on a majolica stand at an airport gift counter.",
+    paperInsets: { top: 17, right: 8, bottom: 23, left: 56 },
   },
   knife: {
     title: "Swiss Army knife",
@@ -26,8 +26,8 @@ export const SOUVENIRS = {
     ],
     art: knife,
     artAlt:
-      "An open red Swiss Army pocketknife with a silver blade and corkscrew.",
-    paperTop: 34,
+      "A red Swiss Army knife unfolds an umbrella and espresso holder at a Swiss airport gift counter, with a passenger jet outside.",
+    paperInsets: { top: 17, right: 8, bottom: 23, left: 55 },
   },
   cheese: {
     title: "Swiss cheese",
@@ -37,8 +37,8 @@ export const SOUVENIRS = {
     ],
     art: cheese,
     artAlt:
-      "A golden Swiss cheese wheel with a cut face showing its characteristic holes.",
-    paperTop: 34,
+      "A Swiss cheese wheel becomes rolling luggage with a red cross strap, beside a cheese-wedge travel pouch in an Alpine airport.",
+    paperInsets: { top: 16, right: 8, bottom: 25, left: 55 },
   },
   telephone: {
     title: "London calling",
@@ -49,7 +49,7 @@ export const SOUVENIRS = {
     ],
     art: telephone,
     artAlt:
-      "A red London telephone-box miniature with a domed roof and pale blue window panes.",
-    paperTop: 34,
+      "A closed miniature London phone booth shelters under its own umbrella and raincloud in a gift box at an airport souvenir stand.",
+    paperInsets: { top: 23, right: 8, bottom: 24, left: 56 },
   },
 } satisfies Record<string, ObjectInspection>;

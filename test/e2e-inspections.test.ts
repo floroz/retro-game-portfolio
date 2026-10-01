@@ -132,26 +132,73 @@ for (const viewport of [
   });
 }
 
-for (const [name, title] of [
-  ["Sorrento limoncello", "Limoncello"],
-  ["Swiss Army knife", "Swiss Army knife"],
-  ["Swiss cheese wheel", "Swiss cheese"],
-  ["London telephone-box miniature", "London calling"],
+for (const viewport of [
+  { width: 1440, height: 1000 },
+  { width: 900, height: 640 },
 ]) {
-  test(`souvenir close-up: ${title}`, async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 1000 });
-    await openAirport(page);
-    await page
-      .getByRole("button", { name: `Inspect ${name}`, exact: true })
-      .click();
-    await page.clock.runFor(12000);
-    await ready(page);
-    await expect(
-      page.getByRole("dialog", { name: title, exact: true }),
-    ).toBeVisible();
-    await expectTextFits(page);
-    await page.keyboard.press("Escape");
-    await expect(page.locator("[data-e2e=object-inspection]")).toHaveCount(0);
-    await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
+  test.describe(`souvenir close-ups at ${viewport.width}px`, () => {
+    test.use({ viewport });
+    for (const [id, name, title] of [
+      ["limoncello", "Sorrento limoncello", "Limoncello"],
+      ["knife", "Swiss Army knife", "Swiss Army knife"],
+      ["cheese", "Swiss cheese wheel", "Swiss cheese"],
+      ["telephone", "London telephone-box miniature", "London calling"],
+    ]) {
+      test(`souvenir close-up: ${title}`, async ({ page }) => {
+        await openAirport(page);
+        const opener = page.getByRole("button", {
+          name: `Inspect ${name}`,
+          exact: true,
+        });
+        // Keyboard activation keeps the originating hotspot focused in every
+        // browser, including Safari where mouse clicks need not focus buttons.
+        await opener.focus();
+        await page.keyboard.press("Enter");
+        await page.clock.runFor(12000);
+        await ready(page);
+        const inspection = page.getByRole("dialog", {
+          name: title,
+          exact: true,
+        });
+        await expect(inspection).toBeVisible();
+        await expect(inspection.locator("img")).toHaveJSProperty(
+          "naturalWidth",
+          1280,
+        );
+        await expect(inspection.locator("img")).toHaveJSProperty(
+          "naturalHeight",
+          640,
+        );
+        await expectTextFits(page);
+        await expectTextInsideArtwork(page);
+        await expect(inspection).toHaveScreenshot(
+          `souvenir-${id}-${viewport.width}.png`,
+          { animations: "disabled", timeout: 30000 },
+        );
+        for (let index = 0; index < 20; index++) {
+          await expectTextFits(page);
+          await expectTextInsideArtwork(page);
+          const next = inspection.getByRole("button", {
+            name: "Next page",
+            exact: true,
+          });
+          if (!(await next.count()) || (await next.isDisabled())) break;
+          await page.keyboard.press("ArrowRight");
+          await expect(
+            inspection.getByLabel(new RegExp(`^Page ${index + 2} of `)),
+          ).toBeVisible();
+          if (index === 19)
+            throw new Error("Souvenir pagination did not reach the final page");
+        }
+        await page.keyboard.press("Escape");
+        await expect(inspection).toHaveCount(0);
+        await expect(opener).toBeFocused();
+        await expect(page.locator("[data-e2e=scene]")).toHaveAttribute(
+          "data-scene",
+          "hall",
+        );
+        await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
+      });
+    }
   });
 }

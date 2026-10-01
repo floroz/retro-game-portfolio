@@ -118,6 +118,8 @@ export interface ObjectInspection {
   artAlt: string;
   /** Top edge of the live text area, as a percentage of the illustration. */
   paperTop?: number;
+  /** Text-safe insets measured inside the artwork, in percent. */
+  paperInsets?: { top: number; right: number; bottom: number; left: number };
 }
 
 /** A brief compression around a fixed foot line, with long rests between. */
