@@ -47,7 +47,7 @@ export function PocketWelcome() {
           aria-label="Quick portfolio access"
         >
           <a href="#pocket-experience">Experience</a>
-          <a href="#pocket-resume">Résumé</a>
+          <a href="#pocket-resume">Resume</a>
           <a href="#pocket-contact">Contact</a>
         </nav>
         <p className={styles.desktopAddress}>

@@ -24,8 +24,7 @@ export function createPocketScene(root: HTMLElement, images: PocketImages) {
   const sun = layer("sun"),
     moon = layer("moon"),
     reflection = layer("reflection");
-  const moonReflection = layer("moon-reflection"),
-    phaseLabel = layer("phase");
+  const moonReflection = layer("moon-reflection");
   const {
     day: dayPainting,
     night: nightPainting,
@@ -42,8 +41,7 @@ export function createPocketScene(root: HTMLElement, images: PocketImages) {
   const vesselCtx = vessel.getContext("2d")!;
   let elapsed = 0,
     ambientTime = 0,
-    manualTime: number | null = null,
-    lastLabel = "";
+    manualTime: number | null = null;
   let active = false,
     playing = true,
     previous = 0,
@@ -615,16 +613,6 @@ export function createPocketScene(root: HTMLElement, images: PocketImages) {
     }
     canvas.dataset.stage = String(stage);
     canvas.dataset.night = night.toFixed(3);
-    const label = [
-      "Day",
-      "Sunset · Ischia",
-      "Night",
-      "Dawn · light from the east",
-    ][stage];
-    if (label !== lastLabel) {
-      lastLabel = label;
-      phaseLabel.textContent = label;
-    }
   }
 
   function running() {

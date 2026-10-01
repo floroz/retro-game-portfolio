@@ -96,9 +96,6 @@ export function PocketScene({ active, playing, sipRequest }: Props) {
             />
           </div>
         </div>
-        <span className={styles.phase} data-layer="phase">
-          Day
-        </span>
       </div>
       {status !== "ready" && (
         <div className={styles.loading} role="status">

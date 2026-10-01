@@ -32,7 +32,6 @@ export function PocketAdventure() {
     () => "welcome" as const,
   );
   const section = route === "home" || route === "welcome" ? null : route;
-  const [hints, setHints] = useState(true);
   const [playing, setPlaying] = useState(true);
   const [sipRequest, setSipRequest] = useState(0);
   const ambience = usePocketAmbience(route === "home" && playing);
@@ -66,7 +65,7 @@ export function PocketAdventure() {
     <main className={styles.adventure} data-e2e="pocket-adventure">
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>Pocket Adventure · Chapter I</p>
+          <p className={styles.eyebrow}>Pocket Adventure</p>
           <p className={styles.name}>The Sorrento kitchen</p>
         </div>
         {section ? (
@@ -102,32 +101,23 @@ export function PocketAdventure() {
             {POCKET_HOTSPOTS.map((hotspot) => (
               <a
                 key={hotspot.section}
-                className={`${styles.hotspot} ${hints ? styles.hint : ""}`}
+                className={styles.hotspot}
                 href={`#pocket-${hotspot.section}`}
                 aria-label={hotspot.label}
                 style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%` }}
                 onClick={(event) => {
                   opener.current = event.currentTarget;
                 }}
-              >
-                <span aria-hidden="true">
-                  {hotspot.section === "experience"
-                    ? "Album"
-                    : POCKET_SECTIONS.find(({ id }) => id === hotspot.section)
-                        ?.label}
-                </span>
-              </a>
+              />
             ))}
             <button
               ref={talk}
               type="button"
-              className={`${styles.hotspot} ${styles.talk} ${hints ? styles.hint : ""}`}
+              className={styles.hotspot}
               style={{ left: "24%", top: "49%" }}
               aria-label={`Talk to ${PROFILE.name.split(" ")[0]}`}
               onClick={() => setConversation("greeting")}
-            >
-              <span aria-hidden="true">Talk</span>
-            </button>
+            />
           </div>
           {conversation && (
             <div
@@ -177,13 +167,6 @@ export function PocketAdventure() {
             onClick={ambience.toggle}
           >
             Sound {ambience.enabled ? "on" : "off"}
-          </button>
-          <button
-            type="button"
-            aria-pressed={hints}
-            onClick={() => setHints(!hints)}
-          >
-            Labels {hints ? "on" : "off"}
           </button>
         </div>
       </div>

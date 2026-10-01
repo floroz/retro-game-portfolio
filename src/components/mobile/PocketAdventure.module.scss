@@ -126,27 +126,6 @@
   text-decoration: none;
   cursor: pointer;
   z-index: 1;
-
-  span {
-    opacity: 0;
-    padding: 2px 5px;
-    border: 1px solid #d1a46a;
-    background: #322218;
-    font:
-      12px / 1.4 Georgia,
-      serif;
-    white-space: nowrap;
-  }
-
-  &:focus-visible span,
-  &:hover span,
-  &.hint span {
-    opacity: 1;
-  }
-}
-
-.talk {
-  min-height: 44px;
 }
 
 .sceneCaption {
