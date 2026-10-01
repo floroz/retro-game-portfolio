@@ -1,0 +1,15 @@
+{
+  "id": "hall-obj-duty-free",
+  "output": "src/assets/scenes/hall/obj-duty-free.png",
+  "task": "v2-airport-souvenirs",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/hall-souvenirs.md",
+  "candidate": "01",
+  "references": ["assets-src/refs/hd/hall-before-stone.png"],
+  "approvedRaw": "assets-src/approved/hall-duty-free-empty.png",
+  "density": 2,
+  "style": "painted",
+  "approvedBy": "codex",
+  "date": "2026-09-30",
+  "cleanup": "Built-in imagegen removed all old merchandise from the independent fixture. scripts/assets/hall-souvenirs.ts prepares 160x142 art pixels with hard alpha and the existing Hall palette. Four separate souvenir sprites are added in scene data. Floor shadow and awning lettering remain separate."
+}

@@ -1,0 +1,18 @@
+{
+  "id": "travel-map-bg",
+  "output": "src/assets/scenes/travel-map/bg.png",
+  "task": "HB5",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/travel-map.md",
+  "candidate": "03",
+  "references": [
+    "assets-src/refs/hd/travel-map-current.png",
+    "assets-src/refs/hd/style-anchor.png"
+  ],
+  "approvedRaw": "assets-src/approved/travel-map-bg@hd.webp",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "HB5: candidate 03 of travel-map-bg@hd (1774x887, exactly 2:1) prepared with assets:prepare --painted to 640x320: Lanczos resize, hard alpha, quantized to 256 colours with no dithering. No hand cleanup: the candidate is a bare two-tone sepia map with a dark inked coastline and painted mountain ranges, with no markers, borders, route lines or text. The coastline differs from the earlier maps, so the markers, Hall start point and bezier routes in src/config/scenes/travel-map.ts were re-registered by eye and checked against a land/sea mask: London (70,33) in south-east England west of the Thames estuary, Zurich (158,58) north of the Alps, Sorrento (204,114) on the Italian west coast south of Naples, Hall start (110,76) in central France (logical px). Each marker has at least 4 logical px of land around it. The routes bow north and keep at least 18 px from every marker they don't join.",
+  "approvedBy": "daniele",
+  "date": "2026-09-29"
+}

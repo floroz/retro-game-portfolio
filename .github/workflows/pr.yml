@@ -2,7 +2,7 @@ name: PR Review
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, v2, V2.1]
 
 jobs:
   lint:
@@ -94,16 +94,11 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          # Disable typewriter animation to avoid timing issues in E2E tests
-          VITE_TYPEWRITER_SPEED: "0"
 
       - name: Run E2E tests
         run: npm run test:e2e
         env:
           CI: true
-          # Disable typewriter animation to avoid timing issues in E2E tests
-          VITE_TYPEWRITER_SPEED: "0"
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4

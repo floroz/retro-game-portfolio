@@ -1,0 +1,15 @@
+{
+  "id": "sorrento-bg",
+  "output": "src/assets/scenes/sorrento/bg.png",
+  "task": "sorrento-story-inspections",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/sorrento-inspections.md",
+  "candidate": "01",
+  "references": ["assets-src/refs/hd/sorrento-before-inspections.png"],
+  "approvedRaw": "assets-src/approved/sorrento-story-objects.png",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "Built-in imagegen edited a postcard onto the fridge and an address book above the telephone. scripts/assets/prepare-sorrento-inspections.ts copies only two generated crops after resizing and remapping to the existing 256-colour scene palette. All pixels outside the two crops are unchanged, including the original HB4 furniture contact shadows and floor contrast treatment. The original scene is preserved in assets-src/refs/hd/sorrento-before-inspections.png.",
+  "approvedBy": "orchestrator",
+  "date": "2026-09-30"
+}

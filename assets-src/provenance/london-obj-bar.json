@@ -1,0 +1,18 @@
+{
+  "id": "london-obj-bar",
+  "output": "src/assets/scenes/london/obj-bar.png",
+  "task": "HB3",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/layers-london.md",
+  "density": 2,
+  "style": "painted",
+  "approvedBy": "orchestrator",
+  "date": "2026-09-29",
+  "candidate": "02",
+  "references": [
+    "assets-src/refs/hd/london-chosen.png",
+    "assets-src/refs/hd/scale-sheet.png"
+  ],
+  "approvedRaw": "assets-src/approved/london-bar@hd.webp",
+  "cleanup": "HB3: candidate 02 of london-bar@hd (the whole counter with a clear top), keyed from its own alpha, registered onto the chosen composite with assets:prepare --align (scale 0.196 of raw), prepared to painted density 2 with assets:prepare --painted --no-quantize, then quantized jointly with the other London layers (assets:quantize, one palette of at most 244 colours, no dither; the folder totals 256 colours with the bus, which added 13 of its own). 316x68 art px at logical (97, 86.5). The bar top is bare for the tap row."
+}

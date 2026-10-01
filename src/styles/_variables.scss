@@ -6,41 +6,15 @@
    and exposed as CSS custom properties below.
    ============================================ */
 
-// Toolbar accent – GitHub (dark charcoal)
-$color-github: #2b2b3e;
-$color-github-light: #505070;
-$color-github-dark: #141428;
-
-// Toolbar accent – LinkedIn (brand blue)
-$color-linkedin: #1a5a8a;
-$color-linkedin-light: #3090c0;
-$color-linkedin-dark: #0e3a5a;
-
-// Toolbar accent – Talk (warm orange / amber)
-$color-talk: #b85a1a;
-$color-talk-light: #e08040;
-$color-talk-dark: #8a3a0a;
-$color-talk-icon: #ffe880;
-
-// Toolbar accent – Sound ON (retro green)
+// Sound toggle (welcome screen) – ON (retro green)
 $color-sound-on: #2a6a2a;
 $color-sound-on-light: #4a9a4a;
 $color-sound-on-dark: #1a4a1a;
 
-// Toolbar accent – Sound OFF (retro red)
+// Sound toggle (welcome screen) – OFF (retro red)
 $color-sound-off: #8b2a2a;
 $color-sound-off-light: #b04a4a;
 $color-sound-off-dark: #601010;
-
-// Toolbar base – warm dark brown-navy
-$color-toolbar-bg-top: #3a3548;
-$color-toolbar-bg-bottom: #2a2535;
-$color-toolbar-border: #504a5e;
-
-// Action buttons – warm muted purple-brown
-$color-action: #4a4558;
-$color-action-light: #6e6882;
-$color-action-dark: #2a2535;
 
 // Win95 Desktop font size
 $win-95-desktop-font-size: 12px;
@@ -81,25 +55,6 @@ $retro-font-size-menu: 12px; // Menu items (Press Start 2P)
      ============================================ */
   --font-heading: "Press Start 2P", monospace;
   --font-body: "IBM Plex Mono", "Courier New", monospace;
-  --font-terminal: "VT323", "Courier New", monospace;
-
-  /* ============================================
-     TERMINAL-SPECIFIC STYLES
-     ============================================ */
-  --terminal-bg: #000;
-  --terminal-text: #0f0;
-  --terminal-text-cyan: #00d4aa;
-  --terminal-text-amber: #fa0;
-  --terminal-text-bright: #0c0;
-  --terminal-text-dim: #0a0;
-  --terminal-text-error: #ff6b6b;
-  --terminal-font-size-sm: #{to-rem(16px)}; // Small text (banners, hints)
-  --terminal-font-size-base: #{to-rem(18px)}; // Base terminal text
-  --terminal-font-size-input: #{to-rem(20px)}; // Input text (prevents iOS zoom)
-  --terminal-line-height: 1.4;
-  --terminal-letter-spacing: #{to-rem(0.5px)};
-  --terminal-border: #{to-rem(1px)} solid var(--terminal-text);
-  --terminal-border-width: #{to-rem(2px)};
 
   /* ============================================
      COLORS
@@ -112,29 +67,13 @@ $retro-font-size-menu: 12px; // Menu items (Press Start 2P)
   --color-floor-light: #d4a574;
   --color-floor-dark: #b8956a;
 
-  /* UI colors - Retro terminal aesthetic */
+  /* UI colors - Retro aesthetic */
   --color-bg-dark: #1a1a2e;
-  --color-border: #{$color-toolbar-border};
   --color-accent: #ffd700;
-  --color-toolbar-bg: #{$color-toolbar-bg-bottom};
-  --color-toolbar-border: #{$color-toolbar-border};
-  --color-button-bg: #{$color-action};
-  --color-button-hover: #{lighten-color($color-action, 10%)};
-  --color-button-border: #{$color-action-light};
   --color-text-primary: #e8c44a;
   --color-text-secondary: #d4c4a4;
 
-  /* Toolbar accent colors (Warm Retro palette) */
-  --color-github: #{$color-github};
-  --color-github-light: #{$color-github-light};
-  --color-github-dark: #{$color-github-dark};
-  --color-linkedin: #{$color-linkedin};
-  --color-linkedin-light: #{$color-linkedin-light};
-  --color-linkedin-dark: #{$color-linkedin-dark};
-  --color-talk: #{$color-talk};
-  --color-talk-light: #{$color-talk-light};
-  --color-talk-dark: #{$color-talk-dark};
-  --color-talk-icon: #{$color-talk-icon};
+  /* Sound toggle colors (Warm Retro palette) */
   --color-sound-on: #{$color-sound-on};
   --color-sound-on-light: #{$color-sound-on-light};
   --color-sound-on-dark: #{$color-sound-on-dark};
@@ -197,24 +136,4 @@ $retro-font-size-menu: 12px; // Menu items (Press Start 2P)
   --transition-fast: 0.1s ease;
   --transition-base: 0.2s ease;
   --transition-slow: 0.3s ease;
-
-  /* ============================================
-     RetroPlay Console — Game Boy-inspired handheld
-     ============================================ */
-  /* LCD Screen Colors (authentic Game Boy green) */
-  --retro-lcd-bg: #9bbc0f; /* Lightest green — screen background */
-  --retro-lcd-text: #0f380f; /* Darkest green — text, active elements */
-  --retro-lcd-mid: #306230; /* Medium green — borders, secondary */
-  --retro-lcd-light: #8bac0f; /* Light green — highlights, cursor row */
-
-  /* Console Shell Colors (classic gray plastic) */
-  --retro-shell: #c0c0c4; /* Main body gray */
-  --retro-shell-light: #d8d8dc; /* Highlight edge */
-  --retro-shell-dark: #8a8a8e; /* Shadow edge */
-  --retro-shell-inner: #a0a0a4; /* Inner bezel around screen */
-
-  /* Hardware Button Colors */
-  --retro-btn-dark: #2a2a32; /* D-pad and A/B buttons */
-  --retro-btn-face: #3a3a42; /* Button face color */
-  --retro-btn-small: #5a5a62; /* Start/Sound buttons */
 }

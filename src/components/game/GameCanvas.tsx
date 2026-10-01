@@ -5,7 +5,7 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import { VIEWPORT } from "../../config/scene";
+import { VIEWPORT } from "../../engine/constants";
 import styles from "./GameCanvas.module.scss";
 
 interface GameCanvasProps {

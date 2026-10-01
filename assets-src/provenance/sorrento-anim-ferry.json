@@ -1,0 +1,15 @@
+{
+  "id": "sorrento-anim-ferry",
+  "output": "src/assets/scenes/sorrento/anim-ferry.png",
+  "task": "HB4",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/layers-sorrento.md",
+  "candidate": "01",
+  "references": ["assets-src/refs/hd/sorrento-chosen.png"],
+  "approvedRaw": "assets-src/approved/sorrento-ferry@hd.webp",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "HB4: candidate 01 of sorrento-ferry@hd (the chunkiest silhouette at this size: hull, two decks, funnel, stern flag), prepared with assets:prepare --painted --no-quantize (alpha key, Lanczos, hard alpha at 128), then quantized with the rest of the scene to one shared 256-colour palette (assets:quantize, no dither), 44x18 art px (22x9 logical), a single frame. It is a moving prop, not an animation strip: it sails east across the window from logical x 93 to x 195 along y 48 in 70 s, clipped to the window's view (logical 115,25 80x46) so it slips behind the shutters.",
+  "approvedBy": "orchestrator",
+  "date": "2026-09-29"
+}

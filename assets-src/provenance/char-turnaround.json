@@ -1,0 +1,15 @@
+{
+  "id": "char-turnaround",
+  "output": "assets-src/refs/remaster/char-turnaround@4x.png",
+  "task": "RA",
+  "source": "codex",
+  "prompt": "assets-src/prompts/remaster/char-turnaround.md",
+  "candidate": "02",
+  "references": ["assets-src/refs/remaster/char-turnaround-current@8x.png"],
+  "approvedRaw": "assets-src/approved/char-turnaround@2x.webp",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Keyed (OKLab flood fill) and sliced into three 64x128 frames (front, right, back), 115 px tall with the feet on row 123 and matching head sizes, core palette only, no partial alpha. Sweater brought back to the v1 anchor's value: body G with F folds and shadow side, the lit navy step * only on the upper-left shoulder and chest planes and the lit arm edges; hand-placed armpit, elbow and blousing creases and a hem band in all three views. Jeans: grey seam pixels removed, the shadow side of each leg stepped down one value (I to +, + to H) so the legs read round; the back view gained a V yoke, a centre seam and two patch pockets. Faces: grey hairline, brow and lip pixels repainted in wood and skin, keeping the eyes, nose, smile and full beard; the white crew-neck collar kept in the front and side views. Hands redrawn on skin B-E. Two red key-fringe pixels removed, grey scuffs cleaned off the back shoes, and a notch in the front left leg's outline filled. Selective outline on every edge: 0 on the shadow side (right and bottom), the local ramp's darkest (F navy, 6 wood, B skin) on the lit side. The 4x reference is flattened onto pure magenta (#FF00FF); every 4th pixel gives the native frames.",
+  "approvedBy": "opus-orchestrator (delegated RG1b)",
+  "date": "2026-09-29"
+}

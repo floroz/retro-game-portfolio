@@ -1,0 +1,15 @@
+{
+  "id": "london-obj-jukebox",
+  "output": "src/assets/scenes/london/obj-jukebox.png",
+  "task": "pub-depth-jukebox",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/london-jukebox.md",
+  "candidate": "01",
+  "references": [],
+  "approvedRaw": "assets-src/approved/london-jukebox.webp",
+  "density": 2,
+  "style": "painted",
+  "approvedBy": "codex",
+  "date": "2026-09-30",
+  "cleanup": "Built-in image generation; scripts/assets/jukebox.ts trims, fits to a 66x102 art-pixel cell and maps to the existing London palette with hard alpha."
+}

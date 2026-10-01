@@ -1,0 +1,15 @@
+{
+  "id": "slot-photo-frame-more",
+  "output": "src/assets/shared/slots/slot-photo-frame-more.png",
+  "task": "HB6",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/shared.md",
+  "candidate": "03",
+  "references": ["assets-src/refs/hd/style-anchor.png"],
+  "approvedRaw": "assets-src/approved/slot-photo-frame-more@hd.webp",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "Cut from the approved shared-sprites@hd sheet (HC4, assets-src/exchange/raw/shared-sprites@hd/), prepared to painted density 2 with assets:prepare --painted --no-quantize (Lanczos to exactly twice the density-1 logical footprint so SHARED_LOGICAL_SIZES is unchanged, hard alpha, saturation 1.2, levels 6,246,1), a 1px ink edge darkened on the silhouette, then all eight shared sprites quantized to one shared 256-colour palette with assets:quantize (no dither). Candidate 03 red shoebox of photos, fitted to 40x32.",
+  "approvedBy": "daniele",
+  "date": "2026-09-29"
+}

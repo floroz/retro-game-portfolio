@@ -1,0 +1,12 @@
+{
+  "id": "char-use-e",
+  "output": "assets-src/character/char-use-e.png",
+  "task": "RB7",
+  "source": "opus",
+  "derivedFrom": "char-turnaround",
+  "palette": "v2",
+  "density": 2,
+  "cleanup": "Redrawn at 2x density (64x128 cells, feet on row 123, origin (32, 123), 115 px tall) on the approved remaster turnaround (assets-src/refs/remaster/char-turnaround@4x.png, RG1b), core palette only. The current 1x frames were nearest-upscaled as the pose and timing template and every frame was onion-skinned against them. The anchor's side body with its sleeve-and-hand sprite cut at the elbow (row 57): frame 1 (half reach) has the upper arm swung 16 degrees forward and the forearm turned to point forward, frame 2 (full reach) the whole arm raised to shoulder height with six plain sleeve rows taken out so the hand lands where the 1x hand does. The jeans behind the hanging hand are repainted from the plain rows below. Codex RC7 char-use-e@2x used as reference for the bent elbow. I2 (contrast walk): the lit-side outline of the hair, beard edge and shoes moves from wood 6 to the v2 darkest wood &, the local ramp's darkest step, on every silhouette-edge 6 pixel (talk heads follow their idle frames), so the head and feet separate from wood and plum walls: & is 0.119 OKLab from Zurich's wallpaper j (6 was 0.070) and 0.127 from London's panel wood 7 (6 was 0.060).",
+  "approvedBy": "opus (RB7 build agent, delegated pick)",
+  "date": "2026-09-29"
+}

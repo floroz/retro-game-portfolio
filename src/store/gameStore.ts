@@ -1,49 +1,48 @@
 import { create } from "zustand";
+import type { ActionType } from "../types/game";
 import type {
-  Position,
-  Direction,
-  CharacterState,
-  ActionType,
-} from "../types/game";
-import { SCENE_CONFIG, clampToWalkableArea } from "../config/scene";
+  CountrySceneId,
+  ObjectInspection,
+  SceneId,
+} from "../engine/types";
 import { DIALOG_TREE } from "../config/dialogTrees";
 
 interface GameState {
-  // Character state
-  characterPosition: Position;
-  characterDirection: Direction;
-  characterState: CharacterState;
-  targetPosition: Position | null;
+  // World state. Daniele's position and animation live in the scene engine
+  // (src/engine/SceneEngine.ts), which runs every frame outside React.
+  currentScene: SceneId;
+  /** A trip or the travel map is playing, and a click skips it. */
+  skippable: boolean;
+  /** Where the travel map is flying to, while it plays. */
+  flyingTo: CountrySceneId | null;
 
   // Interaction state
+  /** Status-line text for whatever the pointer is over. */
   hoveredObject: string | null;
-  pendingAction: { action: ActionType; targetPos: Position } | null;
-  terminalScreenAction: ActionType | null;
-  terminalOpen: boolean;
+  contentSection: ActionType | null;
+  inspection: ObjectInspection | null;
   gameWindowActive: boolean; // Track if game window is active in Win95 desktop
 
   // Dialog state
   welcomeShown: boolean;
   dialogOpen: boolean;
   dialogNode: string;
+  /**
+   * Daniele has said the current line, so its choices are up in the panel.
+   * The scene sets it (see `useConversation`).
+   */
+  dialogReady: boolean;
   visitedNodes: Set<string>;
   soundEnabled: boolean;
 
-  // Character actions
-  setCharacterPosition: (position: Position) => void;
-  setCharacterDirection: (direction: Direction) => void;
-  setCharacterState: (state: CharacterState) => void;
-  moveTo: (position: Position) => void;
-  stopMovement: () => void;
-  onArrival: () => void;
+  // World actions
+  setCurrentScene: (scene: SceneId) => void;
 
   // Interaction actions
   setHoveredObject: (id: string | null) => void;
-  triggerAction: (action: ActionType, targetPos: Position) => void;
-  openTerminalScreen: (action: ActionType) => void;
-  closeTerminalScreen: () => void;
-  toggleTerminal: () => void;
-  closeTerminal: () => void;
+  openContent: (action: ActionType) => void;
+  openInspection: (inspection: ObjectInspection) => void;
+  closeContent: () => void;
   setGameWindowActive: (active: boolean) => void;
 
   // Dialog actions
@@ -51,6 +50,7 @@ interface GameState {
   openDialog: (startNode?: string) => void;
   closeDialog: () => void;
   selectDialogOption: (nodeId: string) => void;
+  setDialogReady: (ready: boolean) => void;
   toggleSound: () => void;
   setSoundEnabled: (enabled: boolean) => void;
 }
@@ -58,127 +58,60 @@ interface GameState {
 // Always show welcome on each page load (no persistence)
 
 export const useGameStore = create<GameState>((set, get) => ({
-  // Initial character state
-  characterPosition: SCENE_CONFIG.characterStart,
-  characterDirection: "right",
-  characterState: "idle",
-  targetPosition: null,
+  currentScene: "hall",
+  skippable: false,
+  flyingTo: null,
 
   // Initial interaction state
   hoveredObject: null,
-  pendingAction: null,
-  terminalScreenAction: null,
-  terminalOpen: true, // Always start in Win95 Desktop mode
+  contentSection: null,
+  inspection: null,
   gameWindowActive: true, // Game window is active by default
 
   // Initial dialog state - always start fresh
   welcomeShown: false,
   dialogOpen: false,
   dialogNode: "",
+  dialogReady: false,
   visitedNodes: new Set<string>(),
   soundEnabled: false,
 
-  // Character actions
-  setCharacterPosition: (position) => {
-    const clamped = clampToWalkableArea(position.x, position.y);
-    set({ characterPosition: clamped });
-  },
-
-  setCharacterDirection: (direction) => set({ characterDirection: direction }),
-
-  setCharacterState: (state) => set({ characterState: state }),
-
-  moveTo: (position) => {
-    const clamped = clampToWalkableArea(position.x, position.y);
-    const { characterPosition } = get();
-
-    // Determine direction based on target
-    const direction: Direction =
-      clamped.x >= characterPosition.x ? "right" : "left";
-
-    set({
-      targetPosition: clamped,
-      characterDirection: direction,
-      characterState: "walking",
-    });
-  },
-
-  stopMovement: () => {
-    set({
-      targetPosition: null,
-      characterState: "idle",
-    });
-  },
-
-  onArrival: () => {
-    const { pendingAction, openDialog } = get();
-
-    set({
-      targetPosition: null,
-      characterState: "idle",
-    });
-
-    // If there was a pending action, execute it
-    if (pendingAction) {
-      // "talk" action opens the adventure dialog
-      if (pendingAction.action === "talk") {
-        set({ pendingAction: null });
-        openDialog("intro");
-      } else {
-        set({
-          terminalScreenAction: pendingAction.action,
-          pendingAction: null,
-          characterState: "interacting",
-        });
-      }
-    }
-  },
+  // World actions
+  // The pointer is over nothing in the new scene yet.
+  setCurrentScene: (scene) => set({ currentScene: scene, hoveredObject: null }),
 
   // Interaction actions
   setHoveredObject: (id) => set({ hoveredObject: id }),
 
-  triggerAction: (action, targetPos) => {
-    const clamped = clampToWalkableArea(targetPos.x, targetPos.y);
-
-    // Set pending action and start walking to target
-    set({
-      pendingAction: { action, targetPos: clamped },
-    });
-
-    // Start moving to the interaction point
-    get().moveTo(clamped);
-  },
-
-  openTerminalScreen: (action: ActionType) => {
+  openContent: (action: ActionType) => {
     // "talk" action opens the adventure dialog instead
     if (action === "talk") {
       get().openDialog("intro");
       return;
     }
 
+    // A content screen ends any conversation.
     set({
-      terminalScreenAction: action,
-      characterState: "interacting",
+      contentSection: action,
+      inspection: null,
+      hoveredObject: null,
+      dialogOpen: false,
+      dialogReady: false,
     });
   },
 
-  closeTerminalScreen: () => {
+  openInspection: (inspection) =>
     set({
-      terminalScreenAction: null,
-      pendingAction: null,
-      characterState: "idle",
-    });
+      inspection,
+      contentSection: null,
+      hoveredObject: null,
+      dialogOpen: false,
+      dialogReady: false,
+    }),
+
+  closeContent: () => {
+    set({ contentSection: null, inspection: null });
   },
-
-  toggleTerminal: () => {
-    const { terminalOpen, terminalScreenAction } = get();
-    // Don't open terminal if terminal screen is open
-    if (terminalScreenAction && !terminalOpen) return;
-
-    set({ terminalOpen: !terminalOpen });
-  },
-
-  closeTerminal: () => set({ terminalOpen: false, gameWindowActive: false }),
 
   setGameWindowActive: (active: boolean) => set({ gameWindowActive: active }),
 
@@ -188,8 +121,6 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   openDialog: (startNode = "welcome") => {
-    const { terminalOpen, gameWindowActive } = get();
-
     // Validate that the dialog node exists
     if (!DIALOG_TREE[startNode]) {
       console.error(
@@ -199,23 +130,22 @@ export const useGameStore = create<GameState>((set, get) => ({
       return;
     }
 
-    // Close other overlays first
-    // Don't close terminal if we're in Win95 desktop mode with game window active
-    const shouldKeepTerminalOpen = terminalOpen && gameWindowActive;
+    // Asking for the line already being said changes nothing: the scene
+    // would not say it again, and its choices would never come back.
+    const { dialogOpen, dialogNode, dialogReady } = get();
+    const again = dialogOpen && dialogNode === startNode;
 
     set({
       dialogOpen: true,
       dialogNode: startNode,
-      terminalScreenAction: null,
-      terminalOpen: shouldKeepTerminalOpen,
+      dialogReady: again ? dialogReady : false,
+      contentSection: null,
+      inspection: null,
     });
   },
 
   closeDialog: () => {
-    set({
-      dialogOpen: false,
-      characterState: "idle",
-    });
+    set({ dialogOpen: false, dialogReady: false });
   },
 
   selectDialogOption: (nodeId: string) => {
@@ -235,9 +165,12 @@ export const useGameStore = create<GameState>((set, get) => ({
     // Track visited nodes and update current node
     set((state) => ({
       dialogNode: nodeId,
+      dialogReady: false,
       visitedNodes: new Set([...state.visitedNodes, nodeId]),
     }));
   },
+
+  setDialogReady: (ready: boolean) => set({ dialogReady: ready }),
 
   toggleSound: () => {
     set((state) => ({ soundEnabled: !state.soundEnabled }));

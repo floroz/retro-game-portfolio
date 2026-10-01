@@ -1,0 +1,18 @@
+{
+  "id": "hall-obj-seats",
+  "output": "src/assets/scenes/hall/obj-seats.png",
+  "task": "HB2",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/layers-hall.md",
+  "candidate": "01",
+  "references": [
+    "assets-src/refs/hd/hall-chosen.png",
+    "assets-src/refs/hd/scale-sheet.png"
+  ],
+  "approvedRaw": "assets-src/approved/hall-seats@hd.webp",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "HB2: candidate 01 of hall-seats@hd, keyed from its own alpha, resized (Lanczos) and registered on the chosen composite with assets:prepare --painted --no-quantize --align (scale 1.03, 182x54 art px at 271,192, feet on art row 246), hard alpha. The upholstery was hue-rotated from blue to red (hue 20 degrees, chroma x1.12) and its shading darkened: the blue cushions stood within 0.08 OKLab of the jeans whenever Daniele stood in front of the seats. Quantized jointly with the Hall plate.",
+  "approvedBy": "orchestrator",
+  "date": "2026-09-29"
+}

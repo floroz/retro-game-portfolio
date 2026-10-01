@@ -1,0 +1,18 @@
+{
+  "id": "sorrento-obj-door",
+  "output": "src/assets/scenes/sorrento/obj-door.png",
+  "task": "HB4",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/layers-sorrento.md",
+  "candidate": "01",
+  "references": [
+    "assets-src/refs/hd/sorrento-chosen.png",
+    "assets-src/refs/hd/scale-sheet.png"
+  ],
+  "approvedRaw": "assets-src/approved/sorrento-door@hd.webp",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "HB4: candidate 01 of sorrento-door@hd, cropped to its alpha bounds, stretched 3.6% wider so its frame matches the open state's, then prepared with assets:prepare --painted --no-quantize (alpha key, Lanczos, hard alpha at 128), then quantized with the rest of the scene to one shared 256-colour palette (assets:quantize, no dither). 76x150 art px (38x75 logical) at logical 3,25, about 1.3x Daniele's back-of-room height. The frame and the door leaf are one sprite; the wall behind stays in the plate.",
+  "approvedBy": "orchestrator",
+  "date": "2026-09-29"
+}

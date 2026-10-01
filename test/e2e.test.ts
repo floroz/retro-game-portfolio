@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { PROFILE } from "../src/config/profile";
 
 // Ensure desktop viewport for all tests
 test.use({
@@ -18,11 +19,13 @@ async function waitForGameWindowReady(page: Page) {
   });
 }
 
-// Helper: Dismiss welcome screen and wait for dialog to appear
+// Helper: Dismiss welcome screen and wait for the conversation's first choices
 async function dismissWelcomeAndWaitForDialog(page: Page) {
   await page.keyboard.press("Space");
   const dialog = page.locator("[data-e2e=adventure-dialog]");
   await expect(dialog).toBeVisible({ timeout: 5000 });
+  // Daniele says the line over his head; Enter skips ahead to the choices.
+  await page.keyboard.press("Enter");
   await expect(page.locator("[data-e2e=dialog-options]")).toBeVisible({
     timeout: 30000,
   });
@@ -68,6 +71,11 @@ test.describe("Portfolio E2E Tests", () => {
     // Wait for game canvas to appear inside the Win95 game window
     const gameCanvas = page.locator("[data-e2e=game-canvas]");
     await expect(gameCanvas).toBeVisible({ timeout: 10000 });
+    // Preserve the portrait atlas's detail instead of shrinking it through
+    // the old 640x320 scene surface before CSS scales the game up again.
+    const paintedScene = page.locator("canvas[data-drawn]");
+    await expect(paintedScene).toHaveAttribute("width", "1280");
+    await expect(paintedScene).toHaveAttribute("height", "640");
   });
 });
 
@@ -171,107 +179,102 @@ test.describe("Visual Regression Tests", () => {
     });
   });
 
-  test("terminal screen - skills", async ({ page }) => {
+  for (const section of [
+    "skills",
+    "experience",
+    "about",
+    "contact",
+    "resume",
+  ]) {
+    test(`illustrated inspection - ${section}`, async ({ page }) => {
+      await page.goto("/");
+      await page.waitForLoadState("networkidle");
+      await waitForGameWindowReady(page);
+      await dismissWelcomeAndWaitForDialog(page);
+      await page.keyboard.press("Escape");
+      await page
+        .getByRole("button", { name: new RegExp(`^${section}, in `, "i") })
+        .click();
+
+      const inspection = page.locator("[data-e2e=object-inspection]");
+      await expect(inspection).toHaveAttribute("data-ready", "true", {
+        timeout: 30000,
+      });
+      await expect(inspection.getByRole("heading", { level: 2 })).toHaveText(
+        section === "about" ? "About Daniele" : new RegExp(`^${section}$`, "i"),
+      );
+      await expect(inspection.getByRole("img")).toBeVisible();
+      await expect(inspection.getByLabel("Inspection text")).toBeInViewport();
+      if (section === "contact") {
+        await expect(inspection.locator('a[href^="mailto:"]')).toBeVisible();
+        await expect(
+          inspection.getByRole("link", { name: "LinkedIn", exact: true }),
+        ).toBeVisible();
+      }
+      if (section === "resume") {
+        await expect(
+          inspection.getByRole("link", {
+            name: "Read or download my resume (PDF)",
+          }),
+        ).toHaveAttribute("href", /\.pdf$/);
+      }
+      await expect(page).toHaveScreenshot(`04-inspection-${section}.png`, {
+        fullPage: true,
+        animations: "disabled",
+        maxDiffPixelRatio: 0.02,
+        timeout: 30000,
+      });
+    });
+  }
+
+  test("illustrated skills inspection pagination", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-
-    // Wait for Win95 desktop and game window
     await waitForGameWindowReady(page);
-
-    // Wait for welcome screen and dismiss it
-    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
-    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
-
-    // Dismiss welcome screen and wait for dialog
-    const adventureDialog = await dismissWelcomeAndWaitForDialog(page);
-
-    // Close the dialog by pressing Escape
+    await dismissWelcomeAndWaitForDialog(page);
     await page.keyboard.press("Escape");
-    await expect(adventureDialog).toBeHidden({ timeout: 10000 });
-
-    // Wait for game scene to be ready
-    await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
-    await expect(page.locator("[data-e2e=toolbar]")).toBeVisible();
-
-    // Click on the Skills button in the toolbar to open the terminal screen
-    const skillsButton = page.getByTitle("Skills");
-    await expect(skillsButton).toBeVisible({ timeout: 5000 });
-    await skillsButton.click();
-
-    // Wait for terminal screen to appear (replaces game canvas inside game window)
-    const terminalScreen = page.locator("[data-e2e=terminal-screen]");
-    await expect(terminalScreen).toBeVisible({ timeout: 15000 });
-
-    // Verify terminal screen content is loaded (after boot sequence)
-    await expect(page.locator("[data-e2e=terminal-screen-title]")).toBeVisible({
+    await page.getByRole("button", { name: /^Skills, in / }).click();
+    const inspection = page.locator("[data-e2e=object-inspection]");
+    await expect(inspection).toHaveAttribute("data-ready", "true", {
       timeout: 30000,
     });
+    // Pages are measured to fit the card, so a long skill group can continue
+    // onto a second page under the same heading. Read the total it settled on.
+    const label = await inspection
+      .getByLabel(/^Page 1 of \d+$/)
+      .getAttribute("aria-label");
+    const pageCount = Number(label?.match(/of (\d+)$/)?.[1]);
+    expect(pageCount).toBeGreaterThanOrEqual(
+      Object.keys(PROFILE.skills).length,
+    );
     await expect(
-      page.locator("[data-e2e=terminal-screen-content]"),
-    ).toBeVisible({ timeout: 10000 });
-
-    // Allow rendering to stabilize (boot animation + content)
-    await page.waitForTimeout(1500);
-
-    await expect(page).toHaveScreenshot("04-terminal-screen-skills.png", {
-      fullPage: true,
-      animations: "disabled",
-      maxDiffPixelRatio: 0.02,
-      timeout: 30000,
-    });
-  });
-
-  test("terminal screen - skills pagination", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
-    await waitForGameWindowReady(page);
-    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
-    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
-    const adventureDialog = await dismissWelcomeAndWaitForDialog(page);
-    await page.keyboard.press("Escape");
-    await expect(adventureDialog).toBeHidden({ timeout: 10000 });
-
-    await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
-
-    // Open Skills terminal screen
-    await page.getByTitle("Skills").click();
-    const terminalScreen = page.locator("[data-e2e=terminal-screen]");
-    await expect(terminalScreen).toBeVisible({ timeout: 15000 });
+      inspection.getByRole("button", { name: "Previous page" }),
+    ).toBeDisabled();
+    const pageText = inspection.locator("[data-e2e=inspection-page]");
+    const firstPage = await pageText.textContent();
+    await page.keyboard.press("ArrowRight");
     await expect(
-      page.locator("[data-e2e=terminal-screen-content]"),
-    ).toBeVisible({ timeout: 10000 });
-
-    // Verify pagination is visible (skills has multiple pages)
-    const pagination = page.locator("[data-e2e=terminal-screen-pagination]");
-    await expect(pagination).toBeVisible();
-    await expect(pagination).toContainText("1 / 5");
-
-    // Navigate to page 2
-    await page.keyboard.press("ArrowRight");
-    await expect(pagination).toContainText("2 / 5");
-
-    // Navigate to page 3
-    await page.keyboard.press("ArrowRight");
-    await expect(pagination).toContainText("3 / 5");
-
-    // Navigate to last page
-    await page.keyboard.press("ArrowRight");
-    await page.keyboard.press("ArrowRight");
-    await expect(pagination).toContainText("5 / 5");
-
-    // Should not go beyond last page
-    await page.keyboard.press("ArrowRight");
-    await expect(pagination).toContainText("5 / 5");
-
-    // Navigate back
+      inspection.getByLabel(`Page 2 of ${pageCount}`, { exact: true }),
+    ).toBeVisible();
+    await expect(pageText).not.toHaveText(firstPage!);
+    for (let i = 2; i <= pageCount; i++)
+      await page.keyboard.press("ArrowRight");
+    await expect(
+      inspection.getByLabel(`Page ${pageCount} of ${pageCount}`, {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      inspection.getByRole("button", { name: "Next page" }),
+    ).toBeDisabled();
     await page.keyboard.press("ArrowLeft");
-    await expect(pagination).toContainText("4 / 5");
-
-    await page.waitForTimeout(500);
-
+    await expect(
+      inspection.getByLabel(`Page ${pageCount - 1} of ${pageCount}`, {
+        exact: true,
+      }),
+    ).toBeVisible();
     await expect(page).toHaveScreenshot(
-      "04b-terminal-screen-skills-page2.png",
+      "04-inspection-skills-penultimate.png",
       {
         fullPage: true,
         animations: "disabled",
@@ -281,167 +284,21 @@ test.describe("Visual Regression Tests", () => {
     );
   });
 
-  test("terminal screen - dismiss with escape", async ({ page }) => {
+  test("boarding-pass inspection returns to the same scene with Escape", async ({
+    page,
+  }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-
     await waitForGameWindowReady(page);
-    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
-    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
-    const adventureDialog = await dismissWelcomeAndWaitForDialog(page);
+    await dismissWelcomeAndWaitForDialog(page);
     await page.keyboard.press("Escape");
-    await expect(adventureDialog).toBeHidden({ timeout: 10000 });
-
-    await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
-
-    // Open Skills terminal screen
-    await page.getByTitle("Skills").click();
-    const terminalScreen = page.locator("[data-e2e=terminal-screen]");
-    await expect(terminalScreen).toBeVisible({ timeout: 15000 });
-    await expect(
-      page.locator("[data-e2e=terminal-screen-content]"),
-    ).toBeVisible({ timeout: 10000 });
-
-    // Dismiss with Escape
+    await page.getByRole("button", { name: /^Skills, in / }).click();
+    const inspection = page.locator("[data-e2e=object-inspection]");
+    await expect(inspection).toBeVisible({ timeout: 30000 });
     await page.keyboard.press("Escape");
-    await expect(terminalScreen).not.toBeVisible({ timeout: 5000 });
-
-    // Game canvas should be visible again
-    await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible({
-      timeout: 5000,
-    });
-  });
-
-  test("terminal screen - experience", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
-    await waitForGameWindowReady(page);
-    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
-    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
-    const adventureDialog = await dismissWelcomeAndWaitForDialog(page);
-    await page.keyboard.press("Escape");
-    await expect(adventureDialog).toBeHidden({ timeout: 10000 });
-
-    await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
-
-    // Open Experience terminal screen
-    await page.getByTitle("Experience").click();
-    const terminalScreen = page.locator(
-      "[data-e2e=terminal-screen][data-action=experience]",
-    );
-    await expect(terminalScreen).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("[data-e2e=terminal-screen-title]")).toBeVisible({
-      timeout: 30000,
-    });
-
-    await page.waitForTimeout(1500);
-
-    await expect(page).toHaveScreenshot("04c-terminal-screen-experience.png", {
-      fullPage: true,
-      animations: "disabled",
-      maxDiffPixelRatio: 0.02,
-      timeout: 30000,
-    });
-  });
-
-  test("terminal screen - about", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
-    await waitForGameWindowReady(page);
-    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
-    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
-    const adventureDialog = await dismissWelcomeAndWaitForDialog(page);
-    await page.keyboard.press("Escape");
-    await expect(adventureDialog).toBeHidden({ timeout: 10000 });
-
-    await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
-
-    // Open About terminal screen
-    await page.getByTitle("About").click();
-    const terminalScreen = page.locator(
-      "[data-e2e=terminal-screen][data-action=about]",
-    );
-    await expect(terminalScreen).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("[data-e2e=terminal-screen-title]")).toBeVisible({
-      timeout: 30000,
-    });
-
-    await page.waitForTimeout(1500);
-
-    await expect(page).toHaveScreenshot("04d-terminal-screen-about.png", {
-      fullPage: true,
-      animations: "disabled",
-      maxDiffPixelRatio: 0.02,
-      timeout: 30000,
-    });
-  });
-
-  test("terminal screen - contact", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
-    await waitForGameWindowReady(page);
-    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
-    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
-    const adventureDialog = await dismissWelcomeAndWaitForDialog(page);
-    await page.keyboard.press("Escape");
-    await expect(adventureDialog).toBeHidden({ timeout: 10000 });
-
-    await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
-
-    // Open Contact terminal screen
-    await page.getByTitle("Contact").click();
-    const terminalScreen = page.locator(
-      "[data-e2e=terminal-screen][data-action=contact]",
-    );
-    await expect(terminalScreen).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("[data-e2e=terminal-screen-title]")).toBeVisible({
-      timeout: 30000,
-    });
-
-    await page.waitForTimeout(1500);
-
-    await expect(page).toHaveScreenshot("04e-terminal-screen-contact.png", {
-      fullPage: true,
-      animations: "disabled",
-      maxDiffPixelRatio: 0.02,
-      timeout: 30000,
-    });
-  });
-
-  test("terminal screen - resume", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
-    await waitForGameWindowReady(page);
-    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
-    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
-    const adventureDialog = await dismissWelcomeAndWaitForDialog(page);
-    await page.keyboard.press("Escape");
-    await expect(adventureDialog).toBeHidden({ timeout: 10000 });
-
-    await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
-
-    // Open Resume terminal screen
-    await page.getByTitle("Resume").click();
-    const terminalScreen = page.locator(
-      "[data-e2e=terminal-screen][data-action=resume]",
-    );
-    await expect(terminalScreen).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("[data-e2e=terminal-screen-title]")).toBeVisible({
-      timeout: 30000,
-    });
-
-    await page.waitForTimeout(1500);
-
-    await expect(page).toHaveScreenshot("04f-terminal-screen-resume.png", {
-      fullPage: true,
-      animations: "disabled",
-      maxDiffPixelRatio: 0.02,
-      timeout: 30000,
-    });
+    await expect(inspection).toBeHidden();
+    await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
+    await expect(page.locator("[data-e2e=toolbar]")).toBeVisible();
   });
 
   test("closing game window", async ({ page }) => {
@@ -463,93 +320,6 @@ test.describe("Visual Regression Tests", () => {
 
     // Taskbar should no longer show game button
     await expect(page.locator("[data-e2e=taskbar-game]")).not.toBeVisible();
-  });
-
-  test("opening terminal window", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
-    // Wait for Win95 desktop
-    await expect(page.locator("[data-e2e=win95-desktop]")).toBeVisible({
-      timeout: 30000,
-    });
-
-    // Double-click the terminal desktop icon to open terminal
-    const terminalIcon = page.locator("[data-e2e=desktop-icon-terminal]");
-    await expect(terminalIcon).toBeVisible();
-    await terminalIcon.dblclick();
-
-    // Wait for terminal window to appear
-    const terminalWindow = page.locator("[data-e2e=win95-terminal-window]");
-    await expect(terminalWindow).toBeVisible({ timeout: 5000 });
-
-    // Verify terminal content is loaded
-    await expect(page.locator("[data-e2e=terminal-input]")).toBeVisible();
-
-    // Verify taskbar shows terminal button
-    await expect(page.locator("[data-e2e=taskbar-terminal]")).toBeVisible();
-
-    // Longer delay to ensure terminal is fully rendered
-    await page.waitForTimeout(1000);
-
-    await expect(page).toHaveScreenshot("05-terminal.png", {
-      fullPage: true,
-      animations: "disabled",
-      maxDiffPixelRatio: 0.02,
-      timeout: 30000,
-    });
-  });
-
-  test("terminal overlayed on game window", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
-    // Wait for Win95 desktop and game window to be ready
-    await waitForGameWindowReady(page);
-
-    // Wait for welcome screen and dismiss it to get to the game scene
-    const welcomeScreen = page.locator("[data-e2e=welcome-screen]");
-    await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
-
-    // Dismiss welcome and wait for dialog
-    const adventureDialog = await dismissWelcomeAndWaitForDialog(page);
-
-    // Close dialog to show game scene
-    await page.keyboard.press("Escape");
-    await expect(adventureDialog).toBeHidden({ timeout: 10000 });
-
-    // Verify game window is visible with scene
-    await expect(page.locator("[data-e2e=game-canvas]")).toBeVisible();
-
-    // Open terminal via desktop icon
-    // The game window may cover the icon, so use dispatchEvent
-    const terminalIcon = page.locator("[data-e2e=desktop-icon-terminal]");
-    await expect(terminalIcon).toBeVisible();
-    await terminalIcon.dispatchEvent("click");
-    // Double-click is needed so dispatch another click
-    await terminalIcon.dispatchEvent("click");
-
-    // Wait for terminal window to appear
-    const terminalWindow = page.locator("[data-e2e=win95-terminal-window]");
-    await expect(terminalWindow).toBeVisible({ timeout: 5000 });
-
-    // Both windows should be visible
-    await expect(page.locator("[data-e2e=win95-game-window]")).toBeVisible();
-    await expect(terminalWindow).toBeVisible();
-
-    // Both taskbar buttons should be visible
-    await expect(page.locator("[data-e2e=taskbar-game]")).toBeVisible();
-    await expect(page.locator("[data-e2e=taskbar-terminal]")).toBeVisible();
-
-    // Allow time for rendering
-    await page.waitForTimeout(1000);
-
-    await expect(page).toHaveScreenshot("06-terminal-overlay.png", {
-      fullPage: true,
-      animations: "disabled",
-      maxDiffPixelRatio: 0.02,
-      timeout: 30000,
-    });
   });
 
   test("toolbar keyboard navigation", async ({ page }) => {

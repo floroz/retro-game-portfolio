@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rig preview</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        background: #1b1a1f;
+        color: #e8dcc8;
+        font:
+          13px/1.4 system-ui,
+          sans-serif;
+      }
+      #ui {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 14px;
+        align-items: center;
+        margin-block-end: 10px;
+      }
+      #ui button[aria-pressed="true"] {
+        background: #e0b040;
+      }
+      canvas {
+        display: block;
+        inline-size: 1280px;
+        max-inline-size: 100%;
+        aspect-ratio: 2 / 1;
+        image-rendering: pixelated;
+        background: #3a3350;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="ui"></div>
+    <canvas id="stage" width="640" height="320"></canvas>
+    <p id="readout"></p>
+    <script type="module" src="./preview.ts"></script>
+  </body>
+</html>

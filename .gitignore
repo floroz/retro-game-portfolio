@@ -31,3 +31,10 @@ index.html
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Asset pipeline: Codex hand-off and Opus review previews
+/assets-src/exchange/
+/assets-src/review/
+
+# Vitest browser failure artifacts (not visual baselines)
+/src/**/__tests__/__screenshots__/

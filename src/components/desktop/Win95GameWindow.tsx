@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Win95Window } from "./Win95Window";
+import { PROFILE } from "../../config/profile";
 import styles from "./Win95GameWindow.module.scss";
 
 /**
@@ -8,16 +9,16 @@ import styles from "./Win95GameWindow.module.scss";
  * These must stay in sync with Win95Window.module.scss & Win95GameWindow.module.scss.
  *
  * Horizontal (per side): .window border 2px + .content margin 2px + .content border 2px = 6px
- * Vertical: .window border-top 2px + titleBar ~26px + .content margin-top 2px
+ * Vertical: .window border-top 2px + titleBar 22px + .content margin-top 2px
  *         + .content border-top 2px + .content border-bottom 2px
- *         + .content margin-bottom 2px + .window border-bottom 2px = 38px
+ *         + .content margin-bottom 2px + .window border-bottom 2px = 34px
  */
 const CHROME_H = 12; // 6px × 2 sides
-const CHROME_V = 38; // title bar + borders + margins
+const CHROME_V = 34; // title bar + borders + margins
 
 /** Full-size outer dimensions so the inner content area is exactly 1280×800 */
 const FULL_WIDTH = 1280 + CHROME_H; // 1292
-const FULL_HEIGHT = 800 + CHROME_V; // 838
+const FULL_HEIGHT = 800 + CHROME_V; // 834
 
 /** Outer aspect ratio — accounts for chrome so the game canvas fills perfectly */
 const ASPECT_RATIO = FULL_WIDTH / FULL_HEIGHT;
@@ -33,44 +34,33 @@ interface Win95GameWindowProps {
   isActive: boolean;
   onFocus: () => void;
   zIndex: number;
-  dialogContent?: ReactNode; // Dialog content to render inside window
   welcomeContent?: ReactNode; // Welcome screen content to render before game
 }
 
 /**
  * Compute constrained window dimensions that fit the viewport
- * while respecting the locked aspect ratio and the minimum size.
+ * while respecting the locked aspect ratio and reserving room for the taskbar.
  */
 function computeConstrainedSize(
   currentWidth: number,
   currentHeight: number,
 ): { width: number; height: number } {
-  const maxW = window.innerWidth * 0.95;
-  const maxH = window.innerHeight * 0.9;
-
-  // Start from the current size, but cap to viewport limits
-  let width = Math.min(currentWidth, maxW);
-  let height = Math.min(Math.round(width / ASPECT_RATIO), currentHeight);
-
-  // Recompute with aspect ratio after clamping height
-  if (height > maxH) {
-    height = maxH;
-    width = Math.round(height * ASPECT_RATIO);
-  } else {
-    // Ensure aspect ratio is maintained
-    height = Math.round(width / ASPECT_RATIO);
-  }
-
-  // Clamp to minimum
-  width = Math.max(width, MIN_WIDTH);
-  height = Math.max(height, MIN_HEIGHT);
+  const maxW = Math.max(1, window.innerWidth - 24);
+  const maxH = Math.max(1, window.innerHeight - 36 - 24);
+  const width = Math.min(
+    currentWidth,
+    currentHeight * ASPECT_RATIO,
+    maxW,
+    maxH * ASPECT_RATIO,
+  );
+  const height = width / ASPECT_RATIO;
 
   return { width, height };
 }
 
 /**
  * Compute the initial window dimensions so the window fits in the viewport
- * while respecting the locked aspect ratio and the minimum size.
+ * while respecting the locked aspect ratio and reserving room for the taskbar.
  */
 function computeInitialSize(): { width: number; height: number } {
   return computeConstrainedSize(FULL_WIDTH, FULL_HEIGHT);
@@ -83,7 +73,7 @@ function computeCenteredPosition(size: { width: number; height: number }): {
 } {
   return {
     x: Math.max(0, window.innerWidth / 2 - size.width / 2),
-    y: Math.max(0, window.innerHeight / 2 - size.height / 2),
+    y: Math.max(0, (window.innerHeight - 36 - size.height) / 2),
   };
 }
 
@@ -94,15 +84,14 @@ function clampPosition(
 ): { x: number; y: number } {
   return {
     x: Math.max(0, Math.min(pos.x, window.innerWidth - size.width)),
-    y: Math.max(0, Math.min(pos.y, window.innerHeight - size.height)),
+    y: Math.max(0, Math.min(pos.y, window.innerHeight - 36 - size.height)),
   };
 }
 
 /**
- * Windows 95 style game window
- * Wraps the game scene in a Win95 window frame
- * Can show welcome screen or game content
- * Dialogs are rendered inside the content area for containment
+ * Windows 98 style game window
+ * Wraps the game scene in a Windows 98 window frame
+ * Can show the title card or game content
  *
  * Uses controlled mode for Rnd so the window automatically adapts
  * when the browser viewport is resized.
@@ -114,7 +103,6 @@ export function Win95GameWindow({
   isActive,
   onFocus,
   zIndex,
-  dialogContent,
   welcomeContent,
 }: Win95GameWindowProps) {
   const [windowState, setWindowState] = useState(() => {
@@ -151,7 +139,7 @@ export function Win95GameWindow({
   return (
     <Win95Window
       controlled
-      title="Daniele_Tortora_Portfolio.exe - Interactive Portfolio"
+      title={`${PROFILE.name} — Portfolio Remastered`}
       onClose={onClose}
       onMinimize={onMinimize}
       isActive={isActive}
@@ -163,8 +151,8 @@ export function Win95GameWindow({
       onDragStop={handleDragStop}
       minWidth={MIN_WIDTH}
       minHeight={MIN_HEIGHT}
-      maxWidth="95vw"
-      maxHeight="90vh"
+      maxWidth="100vw"
+      maxHeight="calc(100vh - 36px)"
       aspectRatio={ASPECT_RATIO}
       contentClassName={styles.gameContent}
       showMinimizeButton={true}
@@ -172,8 +160,6 @@ export function Win95GameWindow({
       <div className={styles.innerContent} data-e2e="win95-game-window">
         {/* Show welcome screen if provided, otherwise show game content */}
         {welcomeContent || children}
-        {/* Dialogs rendered inside window for containment */}
-        {dialogContent}
       </div>
     </Win95Window>
   );

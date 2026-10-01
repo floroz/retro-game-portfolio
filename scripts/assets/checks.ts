@@ -1,0 +1,568 @@
+/**
+ * Pure checks behind `npm run lint:assets` (validate.ts): shipped asset
+ * naming, provenance records, and the character sheet JSON. Kept apart from
+ * validate.ts so they can be unit tested without touching the file system.
+ */
+import {
+  LOGICAL_SCENE_SIZE,
+  characterMetrics,
+  characterTags,
+  isSceneId,
+  type CharacterSheetJson,
+  type Density,
+  type SceneId,
+} from "./lib";
+
+/**
+ * Every density a shipped asset may have: 1 (the original art), 2 (the Phase
+ * R remaster), and 4 (Phase H's hand-painted HD art, 1280x640 scenes). All
+ * three are valid while scenes move to HD one at a time. `lib.ts` (read-only)
+ * knows only the pixel-art densities, 1 and 2.
+ */
+export const ASSET_DENSITIES = [1, 2, 4] as const;
+export type AssetDensity = (typeof ASSET_DENSITIES)[number];
+
+export function isAssetDensity(value: unknown): value is AssetDensity {
+  return (ASSET_DENSITIES as readonly unknown[]).includes(value);
+}
+
+/**
+ * How a density-2 asset was made: "pixel" (Phase R's pixel art on the master
+ * palette; the default when a record has no "style") or "painted" (Phase H
+ * at MI3 pixel density: painted full colour, quantized to at most 256 colours
+ * per scene with no dither, hard alpha). Only density 2 takes a style.
+ */
+export const ASSET_STYLES = ["pixel", "painted"] as const;
+export type AssetStyle = (typeof ASSET_STYLES)[number];
+
+/** The most colours one scene folder's painted files may use together. */
+export const MAX_SCENE_COLOURS = 256;
+
+/**
+ * HD (density 4) art and painted density-2 art have no master palette, so
+ * they skip the palette and ramp rules (and density 4, with soft edges, the
+ * hard-alpha rule too). Naming, provenance, sizes, and one density per scene
+ * folder still apply.
+ */
+export function usesPixelRules(
+  density: AssetDensity,
+  style: AssetStyle = "pixel",
+): boolean {
+  return density !== 4 && !isPainted(density, style);
+}
+
+/** True for Phase H's painted density-2 art. */
+export function isPainted(density: AssetDensity, style: AssetStyle): boolean {
+  return density === 2 && style === "painted";
+}
+
+/** Native scene size at a density: 320x160, 640x320, or 1280x640. */
+export function nativeSceneSize(density: AssetDensity): {
+  w: number;
+  h: number;
+} {
+  return {
+    w: LOGICAL_SCENE_SIZE.w * density,
+    h: LOGICAL_SCENE_SIZE.h * density,
+  };
+}
+
+/** Folders whose images ship and must pass the validator. */
+export const SHIPPED_ROOTS = [
+  "src/assets/scenes",
+  "src/assets/shared",
+  "src/assets/character",
+  "src/assets/inspections",
+] as const;
+
+const KEBAB = "[a-z0-9]+(?:-[a-z0-9]+)*";
+const SCENE_FILE = new RegExp(
+  `^(bg|fg|obj-${KEBAB}(?:@${KEBAB})?|anim-${KEBAB})\\.png$`,
+);
+const SLOT_FILE = new RegExp(`^slot-${KEBAB}\\.png$`);
+const SHARED_FILE = new RegExp(`^${KEBAB}\\.png$`);
+
+export type AssetKind =
+  | "bg"
+  | "fg"
+  | "obj"
+  | "anim"
+  | "slot"
+  | "shared"
+  | "character"
+  | "inspection"
+  | "rig";
+
+export interface ShippedAsset {
+  path: string;
+  /** Asset id from the art spec's naming rules, e.g. zurich-obj-door@open. */
+  id: string;
+  kind: AssetKind;
+  /** Scene whose ramp the asset may use; null means the core only. */
+  scene: SceneId | null;
+}
+
+/**
+ * Classify a shipped file by its repo-relative path. Returns an error string
+ * when the path breaks the naming rules, or null for files that aren't images
+ * the validator handles (daniele.json is checked separately).
+ */
+export function classifyAsset(path: string): ShippedAsset | string | null {
+  const parts = path.split("/");
+  const file = parts[parts.length - 1];
+
+  if (path.startsWith("src/assets/inspections/")) {
+    if (parts.length !== 4 || !SHARED_FILE.test(file))
+      return `${path}: inspection backdrops are kebab-case .png files directly in src/assets/inspections/`;
+    return {
+      path,
+      id: `inspection-${file.slice(0, -4)}`,
+      kind: "inspection",
+      scene: null,
+    };
+  }
+
+  if (path.startsWith("src/assets/scenes/")) {
+    if (parts.length !== 5)
+      return `${path}: scene assets live directly in src/assets/scenes/<scene>/`;
+    const scene = parts[3];
+    if (!isSceneId(scene)) return `${path}: unknown scene "${scene}"`;
+    if (!SCENE_FILE.test(file)) {
+      return `${path}: scene files are bg.png, fg.png, obj-<id>.png, obj-<id>@<state>.png, or anim-<id>.png (kebab-case)`;
+    }
+    const stem = file.slice(0, -4);
+    const kind: AssetKind =
+      stem === "bg"
+        ? "bg"
+        : stem === "fg"
+          ? "fg"
+          : stem.startsWith("obj-")
+            ? "obj"
+            : "anim";
+    return { path, id: `${scene}-${stem}`, kind, scene };
+  }
+
+  if (path.startsWith("src/assets/shared/")) {
+    const inSlots = parts[3] === "slots";
+    if (inSlots && parts.length !== 5)
+      return `${path}: slot sprites live directly in src/assets/shared/slots/`;
+    if (inSlots && !SLOT_FILE.test(file))
+      return `${path}: slot sprites are named slot-<kind>.png (kebab-case)`;
+    if (!inSlots && !SHARED_FILE.test(file))
+      return `${path}: shared sprites are kebab-case .png files`;
+    return {
+      path,
+      id: file.slice(0, -4),
+      kind: inSlots ? "slot" : "shared",
+      scene: null,
+    };
+  }
+
+  if (path.startsWith("src/assets/character/")) {
+    if (file === "daniele.json" || file === "daniele-rig.json") return null;
+    if (path === "src/assets/character/daniele.png")
+      return { path, id: "char-sheet", kind: "character", scene: null };
+    if (path === "src/assets/character/daniele-rig.png")
+      return { path, id: "char-rig", kind: "rig", scene: null };
+    return `${path}: the character folder holds only daniele.png, daniele.json, daniele-rig.png, and daniele-rig.json`;
+  }
+
+  return `${path}: not under ${SHIPPED_ROOTS.join(", ")}`;
+}
+
+/**
+ * Size rules per kind, at the asset's density and style (from its provenance
+ * record; density 1 and "pixel" when it has none). Returns error strings.
+ */
+export function checkAssetSize(
+  asset: ShippedAsset,
+  width: number,
+  height: number,
+  density: AssetDensity = 1,
+  style: AssetStyle = "pixel",
+): string[] {
+  if (asset.kind === "inspection") {
+    const errors: string[] = [];
+    if (density !== 2 || style !== "painted")
+      errors.push(
+        `${asset.path}: inspection backdrops require density 2 and style painted`,
+      );
+    if (width !== 640 || height !== 320)
+      errors.push(
+        `${asset.path}: inspection backdrops must be 640x320, is ${width}x${height}`,
+      );
+    return errors;
+  }
+  const scene = nativeSceneSize(density);
+  const painted = isPainted(density, style);
+  const at =
+    density === 1 ? "" : ` at density ${density}${painted ? " (painted)" : ""}`;
+  if (
+    (asset.kind === "bg" || asset.kind === "fg") &&
+    (width !== scene.w || height !== scene.h)
+  ) {
+    return [
+      `${asset.path}: ${asset.kind} must be ${scene.w}x${scene.h}${at}, is ${width}x${height}`,
+    ];
+  }
+  if (
+    (asset.kind === "obj" || asset.kind === "anim") &&
+    (width > scene.w || height > scene.h)
+  ) {
+    return [
+      `${asset.path}: larger than the ${scene.w}x${scene.h} scene${at} (${width}x${height})`,
+    ];
+  }
+  if (asset.kind === "rig" && density !== 4 && !painted)
+    return [
+      `${asset.path}: the cut-out rig is painted art: density 2 with "style": "painted", or density 4`,
+    ];
+  if (asset.kind === "character" && (density === 4 || painted))
+    return [
+      `${asset.path}: the HD character is the cut-out rig (daniele-rig.png), not a density ${density}${painted ? " painted" : ""} sheet`,
+    ];
+  if (
+    painted &&
+    ["obj", "anim", "slot", "shared"].includes(asset.kind) &&
+    (width % 2 !== 0 || height % 2 !== 0)
+  ) {
+    return [
+      `${asset.path}: painted density-2 sprites have even sides, a whole number of logical px (is ${width}x${height})`,
+    ];
+  }
+  return [];
+}
+
+/**
+ * Painted density-2 images have hard alpha: every pixel fully opaque or
+ * fully transparent. Returns error strings.
+ */
+export function checkPaintedAlpha(
+  asset: ShippedAsset,
+  img: { data: ArrayLike<number> },
+): string[] {
+  let partial = 0;
+  for (let i = 3; i < img.data.length; i += 4)
+    if (img.data[i] > 0 && img.data[i] < 255) partial++;
+  return partial
+    ? [
+        `${asset.path}: ${partial} pixels have partial alpha; painted density-2 art has hard alpha (assets:prepare --painted)`,
+      ]
+    : [];
+}
+
+/** Full-frame backgrounds must not reveal the scene through their pixels. */
+export function checkAssetOpacity(
+  asset: ShippedAsset,
+  img: { data: ArrayLike<number> },
+): string[] {
+  if (asset.kind !== "bg" && asset.kind !== "inspection") return [];
+  for (let i = 3; i < img.data.length; i += 4) {
+    if (img.data[i] !== 255)
+      return [
+        `${asset.path}: ${asset.kind === "bg" ? "bg.png" : "inspection backdrop"} must be fully opaque`,
+      ];
+  }
+  return [];
+}
+
+/**
+ * The colour group a painted file counts toward: its scene folder, the
+ * shared sprites together, or the file itself (a rig or standalone inspection).
+ */
+export function colourGroup(asset: ShippedAsset): string {
+  if (asset.path.startsWith("src/assets/scenes/") && asset.scene)
+    return `src/assets/scenes/${asset.scene}`;
+  if (asset.kind === "slot" || asset.kind === "shared")
+    return "src/assets/shared";
+  return asset.path;
+}
+
+/**
+ * At most 256 colours per scene folder across all its painted files (and
+ * across the shared sprites, and per rig atlas). `colours` holds each file's
+ * distinct visible colours, packed 0xRRGGBB. Returns error strings.
+ */
+export function checkPaintedColours(
+  entries: readonly { asset: ShippedAsset; colours: ReadonlySet<number> }[],
+  max = MAX_SCENE_COLOURS,
+): string[] {
+  const groups = new Map<string, { colours: Set<number>; files: number }>();
+  for (const { asset, colours } of entries) {
+    const key = colourGroup(asset);
+    const g = groups.get(key) ?? { colours: new Set<number>(), files: 0 };
+    for (const c of colours) g.colours.add(c);
+    g.files++;
+    groups.set(key, g);
+  }
+  const errors: string[] = [];
+  for (const [key, g] of groups) {
+    if (g.colours.size > max)
+      errors.push(
+        `${key}: its ${g.files} painted file(s) use ${g.colours.size} colours together, more than ${max}; quantize them to one palette (assets:quantize)`,
+      );
+  }
+  return errors;
+}
+
+/**
+ * Every image in one scene folder shares a density and a style: a scene
+ * switches to 2x (Phase R) or to painted art (Phase H) all at once. Takes
+ * each asset with its density and style ("pixel" when absent).
+ */
+export function checkSceneDensities(
+  assets: readonly {
+    asset: ShippedAsset;
+    density: AssetDensity;
+    style?: AssetStyle;
+  }[],
+): string[] {
+  const byScene = new Map<string, Map<string, string[]>>();
+  for (const { asset, density, style } of assets) {
+    if (!asset.path.startsWith("src/assets/scenes/") || !asset.scene) continue;
+    const mode = isPainted(density, style ?? "pixel")
+      ? `${density} painted`
+      : String(density);
+    const scene = byScene.get(asset.scene) ?? new Map<string, string[]>();
+    scene.set(mode, [...(scene.get(mode) ?? []), asset.path]);
+    byScene.set(asset.scene, scene);
+  }
+  const errors: string[] = [];
+  for (const [scene, densities] of byScene) {
+    if (densities.size < 2) continue;
+    const parts = [...densities]
+      .sort(([a], [b]) => a.localeCompare(b, "en", { numeric: true }))
+      .map(([d, paths]) => `density ${d}: ${paths.join(", ")}`);
+    errors.push(
+      `src/assets/scenes/${scene}: mixes densities; move the whole scene at once (${parts.join("; ")})`,
+    );
+  }
+  return errors;
+}
+
+// --- Provenance ----------------------------------------------------------------------
+
+export interface ProvenanceRecord {
+  id: string;
+  output: string;
+  task: string;
+  source: "codex" | "opus";
+  palette?: string;
+  prompt?: string;
+  candidate?: string;
+  references?: string[];
+  approvedRaw?: string;
+  derivedFrom?: string;
+  cleanup?: string;
+  approvedBy?: string;
+  /** Absent means 1. Remastered (Phase R) assets have 2, HD (Phase H) ones 4. */
+  density?: AssetDensity;
+  /** Density 2 only: "painted" for Phase H at MI3 pixel density. Absent means "pixel". */
+  style?: AssetStyle;
+  date: string;
+}
+
+/**
+ * The density a provenance record declares: its "density" field, or 1 when
+ * it has none or the field is invalid (checkProvenance reports that).
+ */
+export function provenanceDensity(record: unknown): AssetDensity {
+  if (typeof record !== "object" || record === null) return 1;
+  const d = (record as { density?: unknown }).density;
+  return isAssetDensity(d) ? d : 1;
+}
+
+/**
+ * The style a provenance record declares: "painted" when its "style" field
+ * says so, else "pixel" (checkProvenance reports invalid values).
+ */
+export function provenanceStyle(record: unknown): AssetStyle {
+  if (typeof record !== "object" || record === null) return "pixel";
+  return (record as { style?: unknown }).style === "painted"
+    ? "painted"
+    : "pixel";
+}
+
+const isString = (v: unknown): v is string =>
+  typeof v === "string" && v.length > 0;
+
+/**
+ * Check one record against assets-src/provenance/schema.json. `fileName` is
+ * the record's file name, which must be `<id>.json`. `exists` tells whether a
+ * repo-relative path exists.
+ */
+export function checkProvenance(
+  value: unknown,
+  fileName: string,
+  exists: (path: string) => boolean,
+): string[] {
+  const where = `assets-src/provenance/${fileName}`;
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return [`${where}: not a JSON object`];
+  }
+  const r = value as Record<string, unknown>;
+  const errors: string[] = [];
+  const need = (key: string) => {
+    if (!isString(r[key])) errors.push(`${where}: "${key}" is required`);
+  };
+  ["id", "output", "task", "source", "date"].forEach(need);
+  if (isString(r.id)) {
+    if (
+      !/^[a-z0-9]+(?:-[a-z0-9]+)*(?:@[a-z0-9]+(?:-[a-z0-9]+)*)?$/.test(r.id)
+    ) {
+      errors.push(`${where}: id "${r.id}" isn't kebab-case`);
+    }
+    if (fileName !== `${r.id}.json`)
+      errors.push(`${where}: file must be named ${r.id}.json`);
+  }
+  if (isString(r.output) && r.output.startsWith("src/assets/inspections/")) {
+    const asset = classifyAsset(r.output);
+    if (typeof asset === "string") errors.push(asset);
+    else if (asset && asset.id !== r.id)
+      errors.push(`${where}: inspection provenance id must be ${asset.id}`);
+  }
+  if (isString(r.date) && !/^\d{4}-\d{2}-\d{2}$/.test(r.date)) {
+    errors.push(`${where}: date must be YYYY-MM-DD`);
+  }
+  if (
+    r.palette !== undefined &&
+    !(isString(r.palette) && /^v\d+$/.test(r.palette))
+  ) {
+    errors.push(`${where}: palette must look like "v1"`);
+  }
+  if (r.source !== undefined && r.source !== "codex" && r.source !== "opus") {
+    errors.push(`${where}: source must be "codex" or "opus"`);
+  }
+  if (r.source === "codex") {
+    ["prompt", "candidate", "approvedRaw"].forEach(need);
+    if (!Array.isArray(r.references) || !r.references.every(isString)) {
+      errors.push(
+        `${where}: codex assets need a "references" array (it may be empty)`,
+      );
+    }
+  }
+  if (r.source === "opus") {
+    for (const key of ["prompt", "candidate", "approvedRaw"]) {
+      if (r[key] !== undefined)
+        errors.push(`${where}: "${key}" is only for codex assets`);
+    }
+  }
+  if (r.density !== undefined && !isAssetDensity(r.density)) {
+    errors.push(
+      `${where}: density must be one of ${ASSET_DENSITIES.join(", ")} (a number)`,
+    );
+  }
+  if (
+    r.style !== undefined &&
+    !(ASSET_STYLES as readonly unknown[]).includes(r.style)
+  ) {
+    errors.push(`${where}: style must be "pixel" or "painted"`);
+  }
+  if (r.style === "painted" && r.density !== 2) {
+    errors.push(
+      `${where}: "style": "painted" is density 2 art; add "density": 2`,
+    );
+  }
+  if (r.style === "painted" && r.palette !== undefined) {
+    errors.push(
+      `${where}: painted art has no master palette; leave out "palette"`,
+    );
+  }
+  if (
+    r.density === 2 &&
+    r.style !== "painted" &&
+    r.source === "codex" &&
+    isString(r.approvedRaw) &&
+    !r.approvedRaw.endsWith("@2x.webp")
+  ) {
+    errors.push(
+      `${where}: a density 2 codex asset's approved raw is assets-src/approved/<id>@2x.webp, not ${r.approvedRaw}`,
+    );
+  }
+  for (const key of ["derivedFrom", "cleanup", "approvedBy"]) {
+    if (r[key] !== undefined && !isString(r[key]))
+      errors.push(`${where}: "${key}" must be a string`);
+  }
+  const paths = [
+    r.output,
+    r.prompt,
+    r.approvedRaw,
+    ...(Array.isArray(r.references) ? r.references : []),
+  ];
+  for (const p of paths) {
+    if (isString(p) && !exists(p)) errors.push(`${where}: ${p} doesn't exist`);
+  }
+  return errors;
+}
+
+// --- Character sheet ---------------------------------------------------------------------
+
+/**
+ * Check daniele.json against its sheet at `density` (from the char-sheet
+ * provenance record; default 1): tags, frame counts, cell sizes, and origin.
+ */
+export function checkCharacterJson(
+  value: unknown,
+  sheet: { width: number; height: number },
+  density: Density = 1,
+): string[] {
+  const where = "src/assets/character/daniele.json";
+  if (typeof value !== "object" || value === null)
+    return [`${where}: not a JSON object`];
+  const json = value as Partial<CharacterSheetJson>;
+  const errors: string[] = [];
+  if (
+    !json.size ||
+    json.size.w !== sheet.width ||
+    json.size.h !== sheet.height
+  ) {
+    errors.push(
+      `${where}: size doesn't match daniele.png (${sheet.width}x${sheet.height})`,
+    );
+  }
+  if (typeof json.stride !== "number" || json.stride <= 0)
+    errors.push(`${where}: stride must be positive`);
+  const frames = json.frames ?? [];
+  frames.forEach((f, i) => {
+    if (
+      f.x < 0 ||
+      f.y < 0 ||
+      f.x + f.w > sheet.width ||
+      f.y + f.h > sheet.height
+    ) {
+      errors.push(`${where}: frame ${i} falls outside the sheet`);
+    }
+  });
+  if ((json.density ?? 1) !== density) {
+    errors.push(
+      `${where}: density ${String(json.density ?? 1)} doesn't match the char-sheet provenance record's density ${density}`,
+    );
+  }
+  for (const [tag, spec] of Object.entries(characterTags(density))) {
+    const t = json.tags?.[tag];
+    if (!t) {
+      errors.push(`${where}: missing tag ${tag}`);
+      continue;
+    }
+    const count = t.to - t.from + 1;
+    if (count !== spec.frames)
+      errors.push(`${where}: ${tag} has ${count} frames, needs ${spec.frames}`);
+    for (let i = t.from; i <= t.to; i++) {
+      const f = frames[i];
+      if (!f || f.w !== spec.cell.w || f.h !== spec.cell.h) {
+        errors.push(
+          `${where}: ${tag} frame ${i - t.from} isn't ${spec.cell.w}x${spec.cell.h}`,
+        );
+        break;
+      }
+    }
+  }
+  const { origin } = characterMetrics(density);
+  if (
+    json.origin &&
+    (json.origin.x !== origin.x || json.origin.y !== origin.y)
+  ) {
+    errors.push(`${where}: origin must be (${origin.x}, ${origin.y})`);
+  }
+  return errors;
+}

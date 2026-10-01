@@ -1,0 +1,399 @@
+{
+  "facings": {
+    "front": {
+      "feet": {
+        "x": 52.791666666666664,
+        "y": 288
+      },
+      "parts": {
+        "torso": {
+          "file": "front/torso.png",
+          "pivot": {
+            "x": 52.791666666666664,
+            "y": 155.92727272727274
+          },
+          "z": 5
+        },
+        "upper-arm-r": {
+          "file": "front/upper-arm-r.png",
+          "pivot": {
+            "x": 18.375,
+            "y": 70.69090909090909
+          },
+          "z": 8,
+          "parent": "torso"
+        },
+        "forearm-r": {
+          "file": "front/forearm-r.png",
+          "pivot": {
+            "x": 13.416666666666666,
+            "y": 115.49090909090908
+          },
+          "z": 7,
+          "parent": "upper-arm-r"
+        },
+        "thigh-r": {
+          "file": "front/thigh-r.png",
+          "pivot": {
+            "x": 37.333333333333336,
+            "y": 155.92727272727274
+          },
+          "z": 4,
+          "parent": "torso"
+        },
+        "shin-r": {
+          "file": "front/shin-r.png",
+          "pivot": {
+            "x": 32.666666666666664,
+            "y": 211.2
+          },
+          "z": 3,
+          "parent": "thigh-r"
+        },
+        "upper-arm-l": {
+          "file": "front/upper-arm-l.png",
+          "pivot": {
+            "x": 86.625,
+            "y": 70.69090909090909
+          },
+          "z": 8,
+          "parent": "torso"
+        },
+        "forearm-l": {
+          "file": "front/forearm-l.png",
+          "pivot": {
+            "x": 91.875,
+            "y": 115.49090909090908
+          },
+          "z": 7,
+          "parent": "upper-arm-l"
+        },
+        "thigh-l": {
+          "file": "front/thigh-l.png",
+          "pivot": {
+            "x": 67.95833333333333,
+            "y": 155.92727272727274
+          },
+          "z": 4,
+          "parent": "torso"
+        },
+        "shin-l": {
+          "file": "front/shin-l.png",
+          "pivot": {
+            "x": 72.625,
+            "y": 211.2
+          },
+          "z": 3,
+          "parent": "thigh-l"
+        },
+        "head": {
+          "file": "front/head.png",
+          "offset": {
+            "x": 33,
+            "y": 0
+          },
+          "pivot": {
+            "x": 52.791666666666664,
+            "y": 57.30909090909091
+          },
+          "parent": "torso",
+          "z": 6,
+          "variants": {
+            "talk-1": {
+              "file": "front/head-talk-1.png",
+              "offset": {
+                "x": 33,
+                "y": 0
+              }
+            },
+            "talk-2": {
+              "file": "front/head-talk-2.png",
+              "offset": {
+                "x": 33,
+                "y": 0
+              }
+            },
+            "talk-3": {
+              "file": "front/head-talk-3.png",
+              "offset": {
+                "x": 33,
+                "y": 0
+              }
+            },
+            "blink": {
+              "file": "front/head-blink.png",
+              "offset": {
+                "x": 33,
+                "y": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "side": {
+      "feet": {
+        "x": 0,
+        "y": 0
+      },
+      "parts": {
+        "torso": {
+          "file": "side/torso.png",
+          "offset": {
+            "x": -26,
+            "y": -232
+          },
+          "pivot": {
+            "x": 0,
+            "y": -138
+          },
+          "z": 5
+        },
+        "head": {
+          "file": "side/head.png",
+          "offset": {
+            "x": -22,
+            "y": -288
+          },
+          "pivot": {
+            "x": 0,
+            "y": -228
+          },
+          "z": 6,
+          "parent": "torso",
+          "variants": {
+            "talk-1": {
+              "file": "side/head-talk-1.png",
+              "offset": {
+                "x": -22,
+                "y": -288
+              }
+            },
+            "talk-2": {
+              "file": "side/head-talk-2.png",
+              "offset": {
+                "x": -22,
+                "y": -288
+              }
+            },
+            "talk-3": {
+              "file": "side/head-talk-3.png",
+              "offset": {
+                "x": -22,
+                "y": -288
+              }
+            },
+            "blink": {
+              "file": "side/head-blink.png",
+              "offset": {
+                "x": -22,
+                "y": -288
+              }
+            }
+          }
+        },
+        "upper-arm-r": {
+          "file": "side/upper-arm-r.png",
+          "offset": {
+            "x": -14,
+            "y": -228
+          },
+          "pivot": {
+            "x": 0,
+            "y": -218
+          },
+          "z": 8,
+          "parent": "torso"
+        },
+        "forearm-r": {
+          "file": "side/forearm-r.png",
+          "offset": {
+            "x": -12,
+            "y": -180
+          },
+          "pivot": {
+            "x": 0,
+            "y": -172
+          },
+          "z": 9,
+          "parent": "upper-arm-r"
+        },
+        "thigh-r": {
+          "file": "side/thigh-r.png",
+          "offset": {
+            "x": -12,
+            "y": -146
+          },
+          "pivot": {
+            "x": 4,
+            "y": -138
+          },
+          "z": 4,
+          "parent": "torso"
+        },
+        "shin-r": {
+          "file": "side/shin-r.png",
+          "offset": {
+            "x": -12,
+            "y": -76
+          },
+          "pivot": {
+            "x": 4,
+            "y": -70
+          },
+          "z": 3,
+          "parent": "thigh-r"
+        },
+        "upper-arm-l": {
+          "file": "side/upper-arm-l.png",
+          "offset": {
+            "x": -20,
+            "y": -228
+          },
+          "pivot": {
+            "x": -6,
+            "y": -218
+          },
+          "z": 0,
+          "parent": "torso"
+        },
+        "forearm-l": {
+          "file": "side/forearm-l.png",
+          "offset": {
+            "x": -18,
+            "y": -180
+          },
+          "pivot": {
+            "x": -6,
+            "y": -172
+          },
+          "z": 1,
+          "parent": "upper-arm-l"
+        },
+        "thigh-l": {
+          "file": "side/thigh-l.png",
+          "offset": {
+            "x": -20,
+            "y": -146
+          },
+          "pivot": {
+            "x": -4,
+            "y": -138
+          },
+          "z": 2,
+          "parent": "torso"
+        },
+        "shin-l": {
+          "file": "side/shin-l.png",
+          "offset": {
+            "x": -20,
+            "y": -76
+          },
+          "pivot": {
+            "x": -4,
+            "y": -70
+          },
+          "z": 1,
+          "parent": "thigh-l"
+        }
+      }
+    },
+    "back": {
+      "feet": {
+        "x": 56,
+        "y": 288
+      },
+      "parts": {
+        "torso": {
+          "file": "back/torso.png",
+          "pivot": {
+            "x": 56,
+            "y": 155.92727272727274
+          },
+          "z": 5
+        },
+        "upper-arm-l": {
+          "file": "back/upper-arm-l.png",
+          "pivot": {
+            "x": 21.583333333333332,
+            "y": 70.69090909090909
+          },
+          "z": 8,
+          "parent": "torso"
+        },
+        "forearm-l": {
+          "file": "back/forearm-l.png",
+          "pivot": {
+            "x": 16.625,
+            "y": 115.49090909090908
+          },
+          "z": 7,
+          "parent": "upper-arm-l"
+        },
+        "thigh-l": {
+          "file": "back/thigh-l.png",
+          "pivot": {
+            "x": 40.541666666666664,
+            "y": 155.92727272727274
+          },
+          "z": 4,
+          "parent": "torso"
+        },
+        "shin-l": {
+          "file": "back/shin-l.png",
+          "pivot": {
+            "x": 35.875,
+            "y": 211.2
+          },
+          "z": 3,
+          "parent": "thigh-l"
+        },
+        "upper-arm-r": {
+          "file": "back/upper-arm-r.png",
+          "pivot": {
+            "x": 89.83333333333333,
+            "y": 70.69090909090909
+          },
+          "z": 8,
+          "parent": "torso"
+        },
+        "forearm-r": {
+          "file": "back/forearm-r.png",
+          "pivot": {
+            "x": 95.08333333333333,
+            "y": 115.49090909090908
+          },
+          "z": 7,
+          "parent": "upper-arm-r"
+        },
+        "thigh-r": {
+          "file": "back/thigh-r.png",
+          "pivot": {
+            "x": 71.16666666666667,
+            "y": 155.92727272727274
+          },
+          "z": 4,
+          "parent": "torso"
+        },
+        "shin-r": {
+          "file": "back/shin-r.png",
+          "pivot": {
+            "x": 75.83333333333333,
+            "y": 211.2
+          },
+          "z": 3,
+          "parent": "thigh-r"
+        },
+        "head": {
+          "file": "back/head.png",
+          "pivot": {
+            "x": 56,
+            "y": 52.36363636363637
+          },
+          "z": 6,
+          "parent": "torso"
+        }
+      }
+    }
+  }
+}

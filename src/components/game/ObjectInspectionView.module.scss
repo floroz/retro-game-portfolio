@@ -1,0 +1,189 @@
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgb(19 13 9 / 64%);
+  padding: 3%;
+  container-type: size;
+}
+
+.dialog {
+  width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  color: #382413;
+  background: #302015;
+  box-shadow: 0 8px 30px #0009;
+  font-family: Georgia, "Times New Roman", serif;
+  font-synthesis: none;
+  outline: none;
+}
+
+.illustration {
+  position: relative;
+  aspect-ratio: 2;
+}
+
+.art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: auto;
+}
+
+.copy {
+  position: absolute;
+  inset: var(--paper-top, 20%) var(--paper-right, 10%) var(--paper-bottom, 20%)
+    var(--paper-left, 52%);
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-size: clamp(20px, 2cqw, 24px);
+  line-height: 1.35;
+  padding-right: 0.4em;
+
+  h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 400;
+    font-size: 1.65em;
+    line-height: 1.1;
+    margin: 0 0 0.5em;
+  }
+
+  h3 {
+    font-weight: 400;
+    font-size: 1.05em;
+    margin: 0 0 0.7em;
+  }
+
+  p {
+    margin: 0 0 0.8em;
+    white-space: pre-line;
+  }
+
+  a {
+    color: #713518;
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+  }
+}
+
+.page {
+  display: flow-root;
+}
+
+// Font fitting and page turns must settle synchronously, including under
+// reduced-motion rules that give every element a tiny transition duration.
+.page,
+.page * {
+  transition: none !important;
+  animation: none !important;
+}
+
+.subtitle {
+  font-size: 0.85em;
+  letter-spacing: 0.02em;
+}
+
+.links {
+  padding-left: 1em;
+
+  li {
+    margin-bottom: 0.5em;
+  }
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 0.65em 1em;
+  color: #f5dfaf;
+  font-size: clamp(20px, 2cqw, 24px);
+
+  button {
+    color: inherit;
+    font: inherit;
+    background: #4b3020;
+    border: 1px solid #aa7c45;
+    padding: 0.4em 0.7em;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: #674528;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+  }
+}
+
+.pages {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+}
+
+.dialog :focus-visible {
+  outline: 2px solid #b06a21;
+  outline-offset: 2px;
+}
+
+.dialog[data-travel-art="true"] {
+  color: #29213d;
+  background: #30205a;
+
+  .copy a {
+    color: #513188;
+  }
+
+  .links {
+    margin: 0.5em 0 0;
+
+    li:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .controls {
+    color: #fff6d5;
+
+    button {
+      background: #493078;
+      border-color: #ac91d8;
+
+      &:hover:not(:disabled) {
+        background: #614194;
+      }
+    }
+  }
+
+  :focus-visible {
+    outline-color: #8960c2;
+  }
+}
+
+@container (max-width: 720px) {
+  .illustration {
+    aspect-ratio: auto;
+  }
+
+  .art {
+    height: min(140px, 20cqh);
+    object-fit: cover;
+    object-position: left;
+  }
+
+  .copy {
+    position: relative;
+    inset: auto;
+    height: min(300px, 60cqh);
+    box-sizing: border-box;
+    padding: 18px 24px;
+    background: #eed9ae;
+    font-size: 22px;
+  }
+}

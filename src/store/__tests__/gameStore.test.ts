@@ -1,160 +1,31 @@
 import { describe, test, expect, beforeEach, vi } from "vitest";
 import { useGameStore } from "../gameStore";
-import { SCENE_CONFIG } from "../../config/scene";
-import type { Position } from "../../types/game";
 
 describe("gameStore", () => {
   beforeEach(() => {
     // Reset store to initial state before each test
     const store = useGameStore.getState();
-    store.setCharacterPosition(SCENE_CONFIG.characterStart);
-    store.setCharacterDirection("right");
-    store.setCharacterState("idle");
-    store.stopMovement();
     store.setHoveredObject(null);
-    store.closeTerminalScreen();
+    store.closeContent();
     store.closeDialog();
     useGameStore.setState({
       welcomeShown: false,
       dialogNode: "", // Reset dialog node
       visitedNodes: new Set(),
-      terminalOpen: true,
       gameWindowActive: true,
       soundEnabled: false,
+      currentScene: "hall",
     });
   });
 
-  describe("Character state", () => {
-    test("should initialize with default character state", () => {
-      const state = useGameStore.getState();
-
-      expect(state.characterPosition).toEqual(SCENE_CONFIG.characterStart);
-      expect(state.characterDirection).toBe("right");
-      expect(state.characterState).toBe("idle");
-      expect(state.targetPosition).toBeNull();
+  describe("World state", () => {
+    test("should start in the Hall", () => {
+      expect(useGameStore.getState().currentScene).toBe("hall");
     });
 
-    test("should update character position", () => {
-      const newPosition: Position = { x: 100, y: 200 };
-      const store = useGameStore.getState();
-
-      store.setCharacterPosition(newPosition);
-
-      expect(useGameStore.getState().characterPosition).toEqual(newPosition);
-    });
-
-    test("should clamp character position to walkable area", () => {
-      const store = useGameStore.getState();
-
-      // Try to set position outside walkable area
-      store.setCharacterPosition({ x: -100, y: -100 });
-
-      const { characterPosition } = useGameStore.getState();
-      // Position should be clamped to valid range
-      expect(characterPosition.x).toBeGreaterThanOrEqual(0);
-      expect(characterPosition.y).toBeGreaterThanOrEqual(0);
-    });
-
-    test("should update character direction", () => {
-      const store = useGameStore.getState();
-
-      store.setCharacterDirection("left");
-      expect(useGameStore.getState().characterDirection).toBe("left");
-
-      store.setCharacterDirection("right");
-      expect(useGameStore.getState().characterDirection).toBe("right");
-    });
-
-    test("should update character state", () => {
-      const store = useGameStore.getState();
-
-      store.setCharacterState("walking");
-      expect(useGameStore.getState().characterState).toBe("walking");
-
-      store.setCharacterState("interacting");
-      expect(useGameStore.getState().characterState).toBe("interacting");
-    });
-  });
-
-  describe("Character movement", () => {
-    test("should start movement to target position", () => {
-      const store = useGameStore.getState();
-      const initialPos = { ...store.characterPosition };
-      const targetPos: Position = { x: initialPos.x + 100, y: initialPos.y };
-
-      store.moveTo(targetPos);
-
-      const state = useGameStore.getState();
-      expect(state.targetPosition).toEqual(targetPos);
-      expect(state.characterState).toBe("walking");
-      expect(state.characterDirection).toBe("right"); // Moving right
-    });
-
-    test("should set direction to left when moving left", () => {
-      const store = useGameStore.getState();
-      const initialPos = { ...store.characterPosition };
-      const targetPos: Position = { x: initialPos.x - 100, y: initialPos.y };
-
-      store.moveTo(targetPos);
-
-      const state = useGameStore.getState();
-      expect(state.characterDirection).toBe("left");
-    });
-
-    test("should stop movement and return to idle", () => {
-      const store = useGameStore.getState();
-
-      // Start moving
-      store.moveTo({ x: 500, y: 300 });
-      expect(useGameStore.getState().characterState).toBe("walking");
-
-      // Stop
-      store.stopMovement();
-
-      const state = useGameStore.getState();
-      expect(state.targetPosition).toBeNull();
-      expect(state.characterState).toBe("idle");
-    });
-
-    test("should handle arrival without pending action", () => {
-      const store = useGameStore.getState();
-
-      store.moveTo({ x: 500, y: 300 });
-      store.onArrival();
-
-      const state = useGameStore.getState();
-      expect(state.targetPosition).toBeNull();
-      expect(state.characterState).toBe("idle");
-    });
-
-    test("should execute pending action on arrival", () => {
-      const store = useGameStore.getState();
-
-      // Trigger action that creates a pending action
-      store.triggerAction("about", { x: 500, y: 300 });
-
-      // Simulate arrival
-      store.onArrival();
-
-      const state = useGameStore.getState();
-      expect(state.pendingAction).toBeNull();
-      expect(state.terminalScreenAction).toBe("about");
-      expect(state.characterState).toBe("interacting");
-    });
-
-    test("should open dialog on arrival when pending talk action", () => {
-      const store = useGameStore.getState();
-
-      // Trigger talk action
-      store.triggerAction("talk", { x: 500, y: 300 });
-
-      // Simulate arrival
-      store.onArrival();
-
-      const state = useGameStore.getState();
-      expect(state.pendingAction).toBeNull();
-      expect(state.dialogOpen).toBe(true);
-      expect(state.dialogNode).toBe("intro");
+    test("should track the current scene", () => {
+      useGameStore.getState().setCurrentScene("zurich");
+      expect(useGameStore.getState().currentScene).toBe("zurich");
     });
   });
 
@@ -163,8 +34,7 @@ describe("gameStore", () => {
       const state = useGameStore.getState();
 
       expect(state.hoveredObject).toBeNull();
-      expect(state.terminalScreenAction).toBeNull();
-      expect(state.pendingAction).toBeNull();
+      expect(state.contentSection).toBeNull();
     });
 
     test("should set hovered object", () => {
@@ -177,98 +47,38 @@ describe("gameStore", () => {
       expect(useGameStore.getState().hoveredObject).toBeNull();
     });
 
-    test("should trigger action and start movement", () => {
+    test("should open the content screen for a section", () => {
       const store = useGameStore.getState();
-      const targetPos: Position = { x: 500, y: 300 };
 
-      store.triggerAction("about", targetPos);
+      store.openContent("about");
 
       const state = useGameStore.getState();
-      // Note: position might be clamped to walkable area
-      expect(state.pendingAction).toBeTruthy();
-      expect(state.pendingAction?.action).toBe("about");
-      expect(state.characterState).toBe("walking");
+      expect(state.contentSection).toBe("about");
     });
 
-    test("should open terminal screen with action", () => {
+    test("should open dialog instead of the content screen for talk action", () => {
       const store = useGameStore.getState();
 
-      store.openTerminalScreen("about");
+      store.openContent("talk");
 
       const state = useGameStore.getState();
-      expect(state.terminalScreenAction).toBe("about");
-      expect(state.characterState).toBe("interacting");
-    });
-
-    test("should open dialog instead of terminal screen for talk action", () => {
-      const store = useGameStore.getState();
-
-      store.openTerminalScreen("talk");
-
-      const state = useGameStore.getState();
-      expect(state.terminalScreenAction).toBeNull();
+      expect(state.contentSection).toBeNull();
       expect(state.dialogOpen).toBe(true);
       expect(state.dialogNode).toBe("intro");
     });
 
-    test("should close terminal screen and reset state", () => {
+    test("should close the content screen and reset state", () => {
       const store = useGameStore.getState();
 
-      // Open terminal screen first
-      store.openTerminalScreen("about");
-      expect(useGameStore.getState().terminalScreenAction).toBe("about");
+      // Open the content screen first
+      store.openContent("about");
+      expect(useGameStore.getState().contentSection).toBe("about");
 
-      // Close terminal screen
-      store.closeTerminalScreen();
+      // Close the content screen
+      store.closeContent();
 
       const state = useGameStore.getState();
-      expect(state.terminalScreenAction).toBeNull();
-      expect(state.pendingAction).toBeNull();
-      expect(state.characterState).toBe("idle");
-    });
-  });
-
-  describe("Terminal state", () => {
-    test("should initialize with terminal open", () => {
-      const state = useGameStore.getState();
-
-      expect(state.terminalOpen).toBe(true);
-      expect(state.gameWindowActive).toBe(true);
-    });
-
-    test("should toggle terminal", () => {
-      const store = useGameStore.getState();
-
-      store.toggleTerminal();
-      expect(useGameStore.getState().terminalOpen).toBe(false);
-
-      store.toggleTerminal();
-      expect(useGameStore.getState().terminalOpen).toBe(true);
-    });
-
-    test("should not open terminal when terminal screen is open", () => {
-      const store = useGameStore.getState();
-
-      // Open terminal screen
-      store.openTerminalScreen("about");
-
-      // Close terminal
-      store.toggleTerminal();
-      expect(useGameStore.getState().terminalOpen).toBe(false);
-
-      // Try to open terminal - should stay closed
-      store.toggleTerminal();
-      expect(useGameStore.getState().terminalOpen).toBe(false);
-    });
-
-    test("should close terminal and deactivate game window", () => {
-      const store = useGameStore.getState();
-
-      store.closeTerminal();
-
-      const state = useGameStore.getState();
-      expect(state.terminalOpen).toBe(false);
-      expect(state.gameWindowActive).toBe(false);
+      expect(state.contentSection).toBeNull();
     });
 
     test("should set game window active state", () => {
@@ -292,6 +102,52 @@ describe("gameStore", () => {
       expect(state.visitedNodes.size).toBe(0);
     });
 
+    test("a line's choices are up only once Daniele has said it", () => {
+      const store = useGameStore.getState();
+
+      store.openDialog("intro");
+      expect(useGameStore.getState().dialogReady).toBe(false);
+
+      store.setDialogReady(true);
+      expect(useGameStore.getState().dialogReady).toBe(true);
+
+      // Choosing an option moves to the next line, which he has to say.
+      store.selectDialogOption("intro-2");
+      expect(useGameStore.getState().dialogNode).toBe("intro-2");
+      expect(useGameStore.getState().dialogReady).toBe(false);
+
+      store.setDialogReady(true);
+      store.selectDialogOption("__close__");
+      expect(useGameStore.getState().dialogOpen).toBe(false);
+      expect(useGameStore.getState().dialogReady).toBe(false);
+    });
+
+    test("opening the line already being said leaves its choices up", () => {
+      const store = useGameStore.getState();
+
+      store.openDialog("intro");
+      store.setDialogReady(true);
+      store.openDialog("intro");
+      expect(useGameStore.getState().dialogReady).toBe(true);
+
+      // A different line has to be said first.
+      store.openDialog("welcome");
+      expect(useGameStore.getState().dialogReady).toBe(false);
+    });
+
+    test("opening a content screen ends the conversation", () => {
+      const store = useGameStore.getState();
+
+      store.openDialog("intro");
+      store.setDialogReady(true);
+      store.openContent("about");
+
+      const state = useGameStore.getState();
+      expect(state.contentSection).toBe("about");
+      expect(state.dialogOpen).toBe(false);
+      expect(state.dialogReady).toBe(false);
+    });
+
     test("should dismiss welcome", () => {
       const store = useGameStore.getState();
 
@@ -307,7 +163,7 @@ describe("gameStore", () => {
       const state = useGameStore.getState();
       expect(state.dialogOpen).toBe(true);
       expect(state.dialogNode).toBe("welcome");
-      expect(state.terminalScreenAction).toBeNull();
+      expect(state.contentSection).toBeNull();
     });
 
     test("should open dialog with specific node", () => {
@@ -335,28 +191,6 @@ describe("gameStore", () => {
       consoleErrorSpy.mockRestore();
     });
 
-    test("should keep terminal open in Win95 desktop mode", () => {
-      const store = useGameStore.getState();
-
-      useGameStore.setState({ terminalOpen: true, gameWindowActive: true });
-
-      store.openDialog("intro");
-
-      const state = useGameStore.getState();
-      expect(state.terminalOpen).toBe(true);
-    });
-
-    test("should close terminal when not in Win95 desktop mode", () => {
-      const store = useGameStore.getState();
-
-      useGameStore.setState({ terminalOpen: true, gameWindowActive: false });
-
-      store.openDialog("intro");
-
-      const state = useGameStore.getState();
-      expect(state.terminalOpen).toBe(false);
-    });
-
     test("should close dialog", () => {
       const store = useGameStore.getState();
 
@@ -369,7 +203,6 @@ describe("gameStore", () => {
 
       const state = useGameStore.getState();
       expect(state.dialogOpen).toBe(false);
-      expect(state.characterState).toBe("idle");
     });
 
     test("should select dialog option and navigate", () => {
@@ -436,5 +269,39 @@ describe("gameStore", () => {
       store.toggleSound();
       expect(useGameStore.getState().soundEnabled).toBe(false);
     });
+  });
+});
+
+describe("object inspections", () => {
+  test("inspection, section and conversation are mutually exclusive", () => {
+    const store = useGameStore.getState();
+    const item = {
+      title: "Souvenir",
+      art: "/test.png",
+      artAlt: "Souvenir",
+      paragraphs: ["A keepsake."],
+    };
+    store.openContent("about");
+    store.openInspection(item);
+    expect(useGameStore.getState()).toMatchObject({
+      inspection: item,
+      contentSection: null,
+      dialogOpen: false,
+    });
+    store.openContent("skills");
+    expect(useGameStore.getState()).toMatchObject({
+      inspection: null,
+      contentSection: "skills",
+    });
+    store.openInspection(item);
+    store.openDialog("intro");
+    expect(useGameStore.getState()).toMatchObject({
+      inspection: null,
+      contentSection: null,
+      dialogOpen: true,
+    });
+    store.openInspection(item);
+    store.closeContent();
+    expect(useGameStore.getState().inspection).toBeNull();
   });
 });

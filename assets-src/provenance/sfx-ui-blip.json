@@ -1,0 +1,24 @@
+{
+  "id": "sfx-ui-blip",
+  "output": "public/audio/sfx/ui-blip.mp3",
+  "task": "A2",
+  "source": "opus",
+  "date": "2026-09-29",
+  "recipe": "assets-src/audio/sfx/ui-blip.ts",
+  "description": "UI blip: a short two-step square-wave blip (C6 then F6), low-passed so it stays soft.",
+  "loudness": {
+    "integratedLufs": -70,
+    "lraLu": 0,
+    "truePeakDbtp": -2.9,
+    "samplePeakDbfs": -2.88,
+    "gainDb": -3.57,
+    "target": "-3 dBFS sample peak"
+  },
+  "render": {
+    "synth": "scripts/assets/sfx.ts (seeded, deterministic)",
+    "seed": 15,
+    "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "sampleRate": 48000,
+    "channels": 1
+  }
+}

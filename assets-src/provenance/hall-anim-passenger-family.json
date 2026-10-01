@@ -1,0 +1,15 @@
+{
+  "id": "hall-anim-passenger-family",
+  "output": "src/assets/scenes/hall/anim-passenger-family.png",
+  "task": "airport-passengers",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/hall-passengers.md",
+  "candidate": "01",
+  "references": [],
+  "approvedRaw": "assets-src/approved/passengers/family.webp",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "Built-in image generation; prepared with scripts/assets/passengers.ts. 4 foot-aligned cells, 124x112 art px each; hard alpha and the existing Hall palette. Mother's legs rebuilt as passing poses in frames 1 and 3 by scripts/assets/stride.ts.",
+  "approvedBy": "codex",
+  "date": "2026-09-30"
+}
