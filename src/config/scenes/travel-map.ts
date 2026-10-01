@@ -1,8 +1,7 @@
 /**
- * Travel map (docs/expansion-plan.md, "Moving between scenes"): a sepia map
- * of Western Europe, flown over by a small plane between the Hall and each
- * country. Coordinates are logical px (320x160), top-left origin; the
- * painted background is 640x320 at density 2.
+ * Travel map: a sepia map of Western Europe, flown over by a small plane
+ * between the Hall and each country. Coordinates are logical px (320x160),
+ * top-left origin; the painted background is 640x320 at density 2.
  *
  * Markers sit on the real cities of the HD painted map (HB5, candidate 03):
  * London south-east England, just west of the Thames estuary; Zurich north

@@ -1,5 +1,5 @@
 /**
- * Scene data contract (docs/art-spec.md, "Scene data contract").
+ * Scene data contract.
  *
  * The engine reads these shapes and the build tasks write them, one file per
  * scene in `src/config/scenes/<scene>.ts`. Every coordinate is in native,
@@ -52,7 +52,7 @@ export interface StandPoint {
  * clamped outside. Give either:
  *
  * - `farHeight` and `nearHeight`: his standing height in logical px, the
- *   world scale of HD scenes (docs/art-spec.md, "Phase H", the scale sheet).
+ *   world scale of HD scenes.
  *   Spread `HD_WORLD_SCALE` (constants.ts) for the Phase H defaults, 58 and
  *   72 px, which is a depth scale of 0.8 to 1.0 for the 72 px HD puppet;
  * - or `farScale` and `nearScale`: a scale of the character's own size, as
@@ -216,11 +216,10 @@ export interface SceneAnimation {
 }
 
 /**
- * Procedural effects (docs/art-spec.md, "Phase H": effects are procedural
- * in the engine), drawn from data on the art's pixel grid with hard pixels.
- * Every one is deterministic in engine time, so it's the same on every
- * visit and testable. Colours are hex. Each may have a `baselineY` to
- * depth-sort like an object, and a `clip` to stay inside a window.
+ * Procedural effects, drawn from data on the art's pixel grid with hard pixels.
+ * Every one is deterministic in engine time, so it's the same on every visit
+ * and testable. Colours are hex. Each may have a `baselineY` to depth-sort like
+ * an object, and a `clip` to stay inside a window.
  */
 interface EffectBase {
   id: string;
@@ -383,11 +382,10 @@ export interface PropKey {
 }
 
 /**
- * A sprite that travels a path (docs/art-spec.md, "Phase H": moving props
- * slide along paths): the bus past the window, the ferry across the bay,
- * planes taking off, the cuckoo bird popping out. Each pass takes
- * `durationMs` and starts every `everyMs` (back to back without it), first
- * at `delayMs`; it's hidden between passes.
+ * A sprite that travels a path: the bus past the window, the ferry across the
+ * bay, planes taking off, the cuckoo bird popping out. Each pass takes
+ * `durationMs` and starts every `everyMs` (back to back without it), first at
+ * `delayMs`; it's hidden between passes.
  */
 export interface MovingProp {
   id: string;
@@ -497,8 +495,7 @@ export interface SceneLabel {
    * `area`, the writable part of the slate with its margins already taken,
    * in chalk white with clean strokes and a steady baseline. `x`, `y`, `align`, `font`
    * and `maxWidth` are ignored; `color` still sets the chalk. The one place
-   * a list appears in the world (docs/expansion-plan.md, "Minimal in-world
-   * text").
+   * a list appears in the world.
    */
   chalk?: { area: Rect; seed?: number };
   baselineY?: number;

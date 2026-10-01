@@ -1,7 +1,6 @@
 /**
- * The puppet's outline (docs/art-spec.md, "Phase H", "Character"): one solid
- * 1 px ink line around the whole posed figure, as MI3 drew its sprites, and
- * none where its parts overlap.
+ * The puppet's outline: one solid 1 px ink line around the whole posed figure,
+ * as MI3 drew its sprites, and none where its parts overlap.
  *
  * The parts are painted with an ink ring of their own, except at their
  * joint ends (scripts/assets/rigpaint.ts), so at rest the ring is already

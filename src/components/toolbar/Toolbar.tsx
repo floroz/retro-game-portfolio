@@ -24,8 +24,7 @@ const UTILITY_RECTS = Object.fromEntries(
  * The controls under the scene: a travel trunk painted on the scenes' own
  * 2x grid (layout.ts, paint.ts). The sentence line runs along its top; one
  * boarding pass per city carries the sections that live there, so the
- * trunk teaches the mapping (docs/expansion-plan.md, "How visitors know
- * where each section is"); brass fittings hold Talk, Sound, GitHub, and
+ * trunk teaches the mapping; brass fittings hold Talk, Sound, GitHub, and
  * LinkedIn.
  *
  * The art is one canvas. Over it sit real buttons and links, one per

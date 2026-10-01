@@ -32,7 +32,7 @@ index.html
 /blob-report/
 /playwright/.cache/
 
-# Asset pipeline: Codex hand-off and Opus review previews (docs/art-spec.md)
+# Asset pipeline: Codex hand-off and Opus review previews
 /assets-src/exchange/
 /assets-src/review/
 

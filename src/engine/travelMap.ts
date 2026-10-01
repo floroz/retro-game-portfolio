@@ -1,7 +1,6 @@
 /**
- * Travel-map route geometry (docs/expansion-plan.md, "Moving between
- * scenes"): a plane flies a red line from where the visitor is to where
- * they're going, in about 1.5 s.
+ * Travel-map route geometry: a plane flies a red line from where the visitor is
+ * to where they're going, in about 1.5 s.
  */
 import type { CountrySceneId, TravelMapData, Vec } from "./types";
 

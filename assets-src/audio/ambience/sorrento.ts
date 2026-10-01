@@ -1,6 +1,5 @@
 /**
- * Sorrento ambience: the kitchen above the Gulf of Naples at sunset
- * (docs/art-spec.md, Audio).
+ * Sorrento ambience: the kitchen above the Gulf of Naples at sunset.
  *
  * - Waves on the rocks below: four sets a loop, each a rising roar, a
  *   break, and the long hiss of the foam running back.

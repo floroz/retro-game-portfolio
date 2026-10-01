@@ -1,8 +1,7 @@
 /**
  * Where everything sits on the controls panel: the travel trunk under the
- * scene (docs/expansion-plan.md, "How visitors know where each section
- * is"). The panel is painted on the scenes' own grid: 640x80 art px, shown
- * at 2x nearest-neighbour under the 1280x640 scene.
+ * scene. The panel is painted on the scenes' own grid: 640x80 art px, shown at
+ * 2x nearest-neighbour under the 1280x640 scene.
  *
  * - The **sentence line** runs along the top, as in SCUMM ("Walk to").
  * - One **boarding pass** per country, in journey order: its stub carries

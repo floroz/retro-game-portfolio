@@ -1,7 +1,6 @@
 /**
- * Cut-out rig transforms (docs/art-spec.md, "Phase H", "Character"; the
- * contract is src/engine/rigTypes.ts). Pure 2D affine math, so the joint
- * chain can be unit tested without a canvas.
+ * Cut-out rig transforms (the contract is src/engine/rigTypes.ts). Pure 2D
+ * affine math, so the joint chain can be unit tested without a canvas.
  *
  * Everything is in atlas px (display px at density 4, depth scale 1.0),
  * with the feet at the origin and y down, as in the contract:

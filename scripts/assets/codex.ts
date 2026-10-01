@@ -1,8 +1,8 @@
 /**
- * What Codex's built-in image tool actually returns (docs/art-spec.md, Gate
- * log, G1 probe findings). The tool has no size parameter, so these are
- * observations, not settings: if a raw candidate arrives at another size, the
- * tool changed and the crop defaults need checking.
+ * What Codex's built-in image tool actually returns (the G1 probe findings).
+ * The tool has no size parameter, so these are observations, not settings: if a
+ * raw candidate arrives at another size, the tool changed and the crop defaults
+ * need checking.
  */
 import type { Rect } from "./lib";
 

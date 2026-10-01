@@ -1,6 +1,6 @@
 /**
- * Scene audio (docs/art-spec.md, "Audio"): one music loop and one ambience
- * loop per scene, crossfaded on scene changes, plus one-shot effects. MP3
+ * Scene audio: one music loop and one ambience loop per scene, crossfaded on
+ * scene changes, plus one-shot effects. MP3
  * encoder padding breaks `<audio loop>`, so tracks are decoded with Web
  * Audio and looped with `loopStart`/`loopEnd`. The existing sound toggle
  * mutes everything. A missing file is skipped quietly, so scenes can name

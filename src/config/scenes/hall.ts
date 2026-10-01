@@ -1,14 +1,13 @@
 /**
- * The Hall: a 1990s airport departure lounge (docs/art-spec.md, scene card
- * `hall`). Built in HB2 from the HD hand-painted layers: `bg.png` is the
- * empty-lounge plate with a stone tile floor and the duty-free fixture removed,
- * with the shop, seats and staffed boarding desk as separate sprites and
- * the take-off plane as a moving prop. Every coordinate is in logical pixels
- * (320x160), top-left origin; the art is 640x320, shown at 2x.
+ * The Hall: a 1990s airport departure lounge. Built in HB2 from the HD
+ * hand-painted layers: `bg.png` is the empty-lounge plate with a stone tile
+ * floor and the duty-free fixture removed, with the shop, seats and staffed
+ * boarding desk as separate sprites and the take-off plane as a moving prop.
+ * Every coordinate is in logical pixels (320x160), top-left origin; the art is
+ * 640x320, shown at 2x.
  *
- * Signposting, kept minimal (docs/expansion-plan.md, "How visitors know where
- * each section is"): the three gates are the exits, each under a dark sign
- * board that carries its gate number and city only (`gate:<country>`). The
+ * Signposting, kept minimal: the three gates are the exits, each under a dark
+ * sign board that carries its gate number and city only (`gate:<country>`). The
  * departures board lists the cities. Four destination souvenirs make the
  * duty-free shelf an optional discovery, each with its own painted close-up.
  * The travel trunk's boarding passes keep portfolio information accessible.

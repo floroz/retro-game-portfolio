@@ -1,5 +1,5 @@
 /**
- * The shared motif, "the boarding call" (docs/art-spec.md, Audio).
+ * The shared motif, "the boarding call".
  *
  * Every track varies this phrase, iMUSE style, so the four places sound like
  * one game. Written in F major, two bars of 4/4, in quarter-note beats:

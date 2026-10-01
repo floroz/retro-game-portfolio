@@ -1,5 +1,5 @@
 /**
- * Hall theme: a 1990s airport departure lounge (docs/art-spec.md, Audio).
+ * Hall theme: a 1990s airport departure lounge.
  *
  * Easy-listening bossa nova, the kind that played under the flight monitors:
  * vibraphone and flute over a Rhodes, fretless bass, and brushes. It

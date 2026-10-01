@@ -1,8 +1,7 @@
 /**
- * Quantize a painted scene's layers to one shared palette (docs/art-spec.md,
- * Phase H; see painted.ts). Every file in a scene folder counts toward the
- * scene's 256 colours, so bg, fg, objects, and props are best quantized
- * together:
+ * Quantize a painted scene's layers to one shared palette (Phase H; see
+ * painted.ts). Every file in a scene folder counts toward the scene's 256
+ * colours, so bg, fg, objects, and props are best quantized together:
  *
  *   npm run assets:quantize -- <a.png> <b.png> ... (--out-dir <dir> | --in-place)
  *     [--colours 256]            the budget for all the files together

@@ -12,7 +12,7 @@ How the game's images are stored, compressed, loaded and tested.
 
 **Skip it** for copy, dialogue, styling or logic work that doesn't touch images.
 
-How art is _made_ (prompts, palettes, approved raws, provenance) is in [the art spec](art-spec.md). This file covers what happens to art after it is committed.
+How art is _made_ lives with its sources: generation prompts in `assets-src/prompts/`, one provenance record per asset in `assets-src/provenance/` (checked by `npm run lint:assets`), and the remaster recipes in `scripts/assets/remaster-*.ts` with their manifests in `assets-src/remaster/`. This file covers what happens to art after it is committed.
 
 ## The rule
 
