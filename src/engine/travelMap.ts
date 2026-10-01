@@ -12,6 +12,8 @@ export const LANDED_MS = 250;
 export type RouteOrigin = CountrySceneId | "hall";
 
 export interface Route {
+  /** Where the plane takes off: the Hall's own spot, or a country's marker. */
+  from: RouteOrigin;
   a: Vec;
   c: Vec;
   b: Vec;
@@ -26,7 +28,7 @@ export function routeFor(
   const a = origin === "hall" ? map.hall : map.markers[origin];
   const b = map.markers[to];
   const custom = map.routes?.[`${origin}-${to}`];
-  if (custom) return { a, c: custom, b };
+  if (custom) return { from: origin, a, c: custom, b };
   // Default: an arc bowing up (north) by a quarter of the distance.
   const mx = (a[0] + b[0]) / 2;
   const my = (a[1] + b[1]) / 2;
@@ -40,7 +42,7 @@ export function routeFor(
     ny = -ny;
   }
   const bow = len * 0.25;
-  return { a, c: [mx + nx * bow, my + ny * bow], b };
+  return { from: origin, a, c: [mx + nx * bow, my + ny * bow], b };
 }
 
 export function pointOnRoute({ a, c, b }: Route, t: number): Vec {

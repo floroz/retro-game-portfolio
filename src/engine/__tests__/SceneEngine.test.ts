@@ -263,6 +263,17 @@ describe("SceneEngine", () => {
     expect(engine.position).toMatchObject(SCENES.hall.entryPoints.fromSorrento);
   });
 
+  test("the first flight takes off from the Hall's marked spot", () => {
+    const { engine } = setup();
+    engine.activate(exit(SCENES.hall, "zurich"));
+    runUntil(engine, () => engine.transition?.kind === "map");
+    const tr = engine.transition;
+    expect(tr?.kind === "map" && tr.route).toMatchObject({
+      from: "hall",
+      a: TRAVEL_MAP_DATA.hall,
+    });
+  });
+
   test("travel map origin is the last country visited", () => {
     const { engine } = setup("london");
     engine.travelTo("hall");

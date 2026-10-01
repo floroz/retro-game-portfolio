@@ -843,6 +843,8 @@ function drawTravelMap(
     }
   }
 
+  if (tr.route.from === "hall") drawHallOrigin(rc, tr.route.a);
+
   const progress = flightProgress(tr.t);
   const routeColor = map.routeColor ?? CORE.red;
   const steps = 240;
@@ -873,6 +875,49 @@ function drawTravelMap(
 
   drawPlane(rc, tr, progress);
   maskText(rc, (r) => drawPlane(r, tr, progress));
+}
+
+/**
+ * The Hall's spot on the map, an airfield symbol (a ring round a cross of
+ * runways) with its name beneath, unlike a city's red pin: the first
+ * flight takes off from somewhere, not from a bare patch of France.
+ */
+const AIRFIELD = [
+  "..###..",
+  ".#...#.",
+  "#..#..#",
+  "#.###.#",
+  "#..#..#",
+  ".#...#.",
+  "..###..",
+];
+
+function drawHallOrigin(rc: RenderContext, [hx, hy]: Vec) {
+  const { ctx, map } = rc;
+  const ink = map.labelColor ?? CORE.black;
+  const half = Math.floor(AIRFIELD.length / 2);
+  const x0 = Math.round(hx) - half;
+  const y0 = Math.round(hy) - half;
+  // A paper disc behind the ink keeps the symbol legible on any terrain.
+  ctx.fillStyle = CORE.paper;
+  AIRFIELD.forEach((row, j) => {
+    const first = row.indexOf("#");
+    const last = row.lastIndexOf("#");
+    ctx.fillRect(x0 + first, y0 + j, last - first + 1, 1);
+  });
+  ctx.fillStyle = ink;
+  AIRFIELD.forEach((row, j) => {
+    for (let i = 0; i < row.length; i++) {
+      if (row[i] === "#") ctx.fillRect(x0 + i, y0 + j, 1, 1);
+    }
+  });
+  const label = map.hallLabel;
+  const lw = measureText(label, "small");
+  drawText(rc.text, label, Math.round(hx - lw / 2), y0 + AIRFIELD.length + 2, {
+    font: "small",
+    color: ink,
+    outline: CORE.paper,
+  });
 }
 
 function drawPlane(
