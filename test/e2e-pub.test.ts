@@ -62,6 +62,31 @@ async function patronPixels(page: Page) {
   });
 }
 
+/** Separate the body from its notes to verify both kinds of motion. */
+async function jukeboxPixels(page: Page) {
+  return page.locator("canvas[data-drawn=london]").evaluate((element) => {
+    const canvas = element as unknown as {
+      width: number;
+      getContext(kind: string): {
+        getImageData(
+          x: number,
+          y: number,
+          w: number,
+          h: number,
+        ): { data: ArrayLike<number> };
+      };
+    };
+    const ctx = canvas.getContext("2d");
+    const d = canvas.width / 320;
+    return [
+      { x: 287, y: 79, w: 33, h: 46 },
+      { x: 284, y: 50, w: 30, h: 23 },
+    ].map(({ x, y, w, h }) =>
+      Array.from(ctx.getImageData(x * d, y * d, w * d, h * d).data),
+    );
+  });
+}
+
 test("pub patrons drink while skills and the airport exit stay reachable", async ({
   page,
 }) => {
@@ -69,18 +94,27 @@ test("pub patrons drink while skills and the airport exit stay reachable", async
   await openPub(page);
   const before = await patronPixels(page);
   const moved = [false, false];
+  const jukeboxBefore = await jukeboxPixels(page);
+  const jukeboxMoved = [false, false];
   // Check several phases so a resting pose or quantized breath cannot alias
   // a complete loop back to its first frame.
-  for (let i = 0; i < 8; i++) {
-    await page.clock.runFor(800);
+  for (let i = 0; i < 16; i++) {
+    await page.clock.runFor(400);
     const pixels = await patronPixels(page);
     for (let guest = 0; guest < moved.length; guest++) {
       moved[guest] ||= pixels[guest].some(
         (value, index) => value !== before[guest][index],
       );
     }
+    const jukeboxNow = await jukeboxPixels(page);
+    for (let area = 0; area < jukeboxMoved.length; area++) {
+      jukeboxMoved[area] ||= jukeboxNow[area].some(
+        (value, index) => value !== jukeboxBefore[area][index],
+      );
+    }
   }
   expect(moved).toEqual([true, true]);
+  expect(jukeboxMoved).toEqual([true, true]);
   await expect(page.locator("[data-e2e=scene]")).toHaveScreenshot(
     "pub-patrons-drinking.png",
     { maxDiffPixelRatio: 0.02 },
@@ -107,8 +141,10 @@ test("pub patrons respect reduced motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await openPub(page);
   const before = await patronPixels(page);
+  const jukeboxBefore = await jukeboxPixels(page);
   await page.clock.runFor(16000);
   expect(await patronPixels(page)).toEqual(before);
+  expect(await jukeboxPixels(page)).toEqual(jukeboxBefore);
   await expect(page.locator("[data-e2e=scene]")).toHaveScreenshot(
     "pub-patrons-reduced-motion.png",
     { maxDiffPixelRatio: 0.02 },

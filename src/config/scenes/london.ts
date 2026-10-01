@@ -198,6 +198,7 @@ export const LONDON_SCENE: SceneData = {
       y: 74,
       interactionPoint: { x: 277, y: 128, facing: "e" },
       baselineY: JUKEBOX_BASELINE,
+      pulse: { everyMs: 5000, durationMs: 650, compression: 0.01, anchorY: 49 },
       look: "All the hits, filed under: one more before we go.",
       use: "Already playing the house playlist. No skips, no subscriptions.",
     },
@@ -260,6 +261,15 @@ export const LONDON_SCENE: SceneData = {
     },
   ],
   effects: [
+    {
+      kind: "music-notes",
+      id: "jukebox-notes",
+      x: 299,
+      y: 73.5,
+      colors: ["#e6c77c", "#a8c0a2"],
+      baselineY: JUKEBOX_BASELINE + 0.1,
+      hideForReducedMotion: true,
+    },
     {
       // Slow far drops and fast near ones, hard-edged, over the glass.
       kind: "rain",

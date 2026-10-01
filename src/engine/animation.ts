@@ -2,7 +2,22 @@
  * Timing for `anim-*` strips (docs/art-spec.md, "Layers, depth, and slots").
  * Pure, so the loops can be tested without a canvas.
  */
-import type { SceneAnimation } from "./types";
+import type { ObjectPulse, SceneAnimation } from "./types";
+
+/** Same 12 fps, 650 ms compression as the approved jukebox preview. */
+export function objectPulseScale(
+  pulse: ObjectPulse,
+  now: number,
+  reducedMotion = false,
+): number {
+  if (reducedMotion || now < pulse.everyMs) return 1;
+  const stepped = (Math.floor((now * 12) / 1000) * 1000) / 12;
+  const local = (stepped - pulse.everyMs) % pulse.everyMs;
+  if (local < 0 || local >= pulse.durationMs) return 1;
+  return (
+    1 - pulse.compression * Math.sin((local / pulse.durationMs) * Math.PI) ** 2
+  );
+}
 
 export interface AnimationFrame {
   frame: number;

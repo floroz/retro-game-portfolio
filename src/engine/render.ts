@@ -26,7 +26,7 @@ import { effectShapes, propFrame, type Shape } from "./effects";
 import { stampOnGrid } from "./raster";
 import { drawGroundShadow, placeShadow } from "./shadows";
 import type { Rig } from "./rig/rig";
-import { animationFrame, idleRise } from "./animation";
+import { animationFrame, idleRise, objectPulseScale } from "./animation";
 import { drawChalk } from "./chalk";
 import { paintOrder, type Paintable } from "./depth";
 import { CANVAS_W, CORE, IRIS_MS, NATIVE_H, NATIVE_W } from "./constants";
@@ -195,7 +195,18 @@ export function renderFrame(rc: RenderContext) {
     const url = (state && thing.states?.[state]) || thing.sprite;
     if (!url || thing.x === undefined || thing.y === undefined) continue;
     const { x, y } = thing;
-    add(thing.baselineY, (r) => drawImageAt(r, url, x, y));
+    const pulse = "pulse" in thing ? thing.pulse : undefined;
+    add(thing.baselineY, (r) => {
+      const scale = pulse
+        ? objectPulseScale(pulse, engine.now, r.reducedMotion)
+        : 1;
+      if (!pulse || scale === 1) return drawImageAt(r, url, x, y);
+      r.ctx.save();
+      r.ctx.translate(0, y + pulse.anchorY);
+      r.ctx.scale(1, scale);
+      drawImageAt(r, url, x, -pulse.anchorY);
+      r.ctx.restore();
+    });
   }
   for (const anim of scene.animations ?? []) {
     add(anim.baselineY, (r) => drawAnimation(r, anim));
@@ -203,7 +214,11 @@ export function renderFrame(rc: RenderContext) {
   for (const effect of scene.effects ?? []) {
     add(effect.baselineY, (r) =>
       withClip(r.ctx, effect.clip, () =>
-        drawShapes(r.ctx, effectShapes(effect, engine.now), GRID),
+        drawShapes(
+          r.ctx,
+          effectShapes(effect, engine.now, r.reducedMotion),
+          GRID,
+        ),
       ),
     );
   }
