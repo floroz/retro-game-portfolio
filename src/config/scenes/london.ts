@@ -107,7 +107,7 @@ export const LONDON_SCENE: SceneData = {
   // remain farther back. london.test.ts checks these proportions.
   depth: { farY: 106, nearY: 158, ...LONDON_HEIGHTS },
   entryPoints: { fromHall: { x: 20, y: 113, facing: "e" } },
-  entryLine: `London, where I learned the trade. ${SKILLS} are on tap.`,
+  entryLine: `London, my next stop after Sorrento. ${SKILLS} are on tap.`,
   // Topmost last: nearer things come after the things behind them.
   objects: [
     {
@@ -124,7 +124,7 @@ export const LONDON_SCENE: SceneData = {
       hotspot: { x: 34, y: 53, w: 11, h: 20 },
       interactionPoint: { x: 24, y: 112, facing: "n" },
       look: "Unused since 1998, and still the best-dressed thing on the street.",
-      use: `Out of order. ${CONTACT} lives in Sorrento these days.`,
+      use: `Out of order. ${CONTACT} details are in the Sorrento scene.`,
     },
     {
       id: "bottles",

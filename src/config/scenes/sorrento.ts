@@ -100,7 +100,7 @@ export const SORRENTO_SCENE: SceneData = {
   },
   entryPoints: { fromHall: { x: 28, y: 114, facing: "e" } },
   entryLine:
-    "Sorrento. My story's on the fridge; my contacts are by the phone.",
+    "Sorrento, my hometown. Story on the fridge; contacts by the phone.",
   // Topmost last: nearer things come after the things behind them.
   objects: [
     {
@@ -216,7 +216,7 @@ export const SORRENTO_SCENE: SceneData = {
       hotspot: { x: 283, y: 82, w: 37, h: 78 },
       interactionPoint: { x: 287, y: 146, facing: "e" },
       baselineY: TREE_BASELINE,
-      look: "Life gave me lemons, so I made limoncello and moved here.",
+      look: "Hometown lemons. A taste of Sorrento, wherever I live.",
       use: "They're for the limoncello. Priorities.",
     },
   ],

@@ -268,7 +268,7 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
     await openAirport(page);
     await page
       .getByRole("button", {
-        name: "Fly to Zurich: Experience, Resume",
+        name: "Fly to Zürich: Experience, Resume",
         exact: true,
       })
       .first()

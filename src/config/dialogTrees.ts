@@ -3,13 +3,14 @@
  * Inspired by classic point-and-click adventures (Monkey Island, Day of the Tentacle)
  */
 
+import { PROFILE } from "./profile";
 import type { DialogNode } from "../types/game";
 
 export const DIALOG_TREE: Record<string, DialogNode> = {
   // Intro - shown first after welcome screen with typewriter effect
   intro: {
     speaker: "daniele",
-    text: "Hey! Welcome to my portfolio. I'm Daniele, a software engineer based in Switzerland.",
+    text: `Hey! Welcome to my portfolio. I'm Daniele, a software engineer based in ${PROFILE.location}.`,
     options: [{ id: "continue", label: "Continue...", nextNode: "intro-2" }],
   },
 
@@ -71,7 +72,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-intro-2": {
     speaker: "daniele",
-    text: "10 years later, I'm in Switzerland bridging complex systems and intuitive UX.",
+    text: PROFILE.journey,
     options: [
       {
         id: "about-more",
@@ -290,7 +291,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "hire-remote": {
     speaker: "daniele",
-    text: "Based in Switzerland, but experienced with remote/hybrid work. Async communication, video calls, good documentation—I know the drill.",
+    text: `Based in ${PROFILE.location}, but experienced with remote/hybrid work. Async communication, video calls, good documentation—I know the drill.`,
     options: [
       {
         id: "back",

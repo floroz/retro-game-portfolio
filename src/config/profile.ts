@@ -7,7 +7,10 @@ export const PROFILE = {
   // Personal
   name: "Daniele Tortora",
   title: "Senior Software Engineer | Frontend & Full-Stack | AI Focused",
-  location: "Switzerland",
+  location: "Zürich, Switzerland",
+
+  journey:
+    "Sorrento is my hometown. From there I moved to London, then to Zürich, where I live now.",
 
   // Contact
   email: "danieletortora.contact@gmail.com",
@@ -19,7 +22,9 @@ export const PROFILE = {
   },
 
   // Bio/About summary
-  bio: `As a software engineer with 10 years of experience, I've built my career on a core belief: that the most powerful systems are defined by their human experience.
+  bio: `Originally from Sorrento, I moved to London and then to Zürich, where I now live.
+
+As a software engineer with 10 years of experience, I've built my career on a core belief: that the most powerful systems are defined by their human experience.
 
 This principle, shaped by my background in psychology, drives me to bridge the divide between complex software architecture and elegant, intuitive user interfaces.
 
