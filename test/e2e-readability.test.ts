@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { NATIVE_W } from "../src/engine/constants";
 import { advanceScene } from "./clock";
 
 const viewports = [
@@ -203,6 +204,25 @@ for (const viewport of viewports) {
           await expect(map).toBeVisible();
           await page.clock.runFor(300);
           await screenshot("travel-map");
+          // The airfield and its label are too small to reliably trip the
+          // whole-scene tolerance. Keep a focused baseline at both sizes.
+          const mapBounds = await map.boundingBox();
+          if (!mapBounds) throw new Error("Travel map has no visible bounds");
+          const scale = mapBounds.width / NATIVE_W;
+          const origin = { x: 110, y: 76 };
+          await expect(page).toHaveScreenshot(
+            `${viewport.name}-travel-origin.png`,
+            {
+              clip: {
+                x: mapBounds.x + (origin.x - 35) * scale,
+                y: mapBounds.y + (origin.y - 6) * scale,
+                width: 70 * scale,
+                height: 24 * scale,
+              },
+              animations: "disabled",
+              maxDiffPixelRatio: 0.01,
+            },
+          );
         }
         await advanceToScene(destination.scene);
         await page
