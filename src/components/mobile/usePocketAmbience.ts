@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { SceneAudio } from "../../engine/audio";
+import { SORRENTO_SCENE } from "../../config/scenes/sorrento";
 
-/** No audio context or download until the visitor explicitly switches sound on. */
+/**
+ * The desktop Sorrento kitchen's music and ambience. No audio context or
+ * download until the visitor explicitly switches sound on.
+ */
 export function usePocketAmbience(active: boolean) {
   const audio = useRef<SceneAudio | null>(null);
   const [enabled, setEnabled] = useState(false);
@@ -9,11 +13,7 @@ export function usePocketAmbience(active: boolean) {
     const next = !enabled;
     if (next && !audio.current) {
       audio.current = new SceneAudio();
-      audio.current.setTracks(undefined, {
-        src: "/audio/ambience/sorrento.mp3",
-        loopStart: 0.5,
-        loopEnd: 36.5,
-      });
+      audio.current.setTracks(SORRENTO_SCENE.music, SORRENTO_SCENE.ambience);
     }
     // Resume inside the user gesture for mobile Safari.
     audio.current?.setEnabled(next && active && !document.hidden);
@@ -24,12 +24,7 @@ export function usePocketAmbience(active: boolean) {
       audio.current?.setEnabled(enabled && active && !document.hidden);
     sync();
     document.addEventListener("visibilitychange", sync);
-    const timer = window.setInterval(() => {
-      if (enabled && active && !document.hidden)
-        audio.current?.play("moka-gurgle");
-    }, 18000);
     return () => {
-      clearInterval(timer);
       document.removeEventListener("visibilitychange", sync);
       audio.current?.setEnabled(false);
     };

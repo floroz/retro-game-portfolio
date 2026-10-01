@@ -43,7 +43,6 @@ export function createPocketScene(root: HTMLElement, images: PocketImages) {
     ambientTime = 0,
     manualTime: number | null = null;
   let active = false,
-    playing = true,
     previous = 0,
     frame = 0,
     disposed = false;
@@ -616,12 +615,7 @@ export function createPocketScene(root: HTMLElement, images: PocketImages) {
   }
 
   function running() {
-    return (
-      active &&
-      !document.hidden &&
-      !motion.matches &&
-      (playing || manualTime !== null)
-    );
+    return active && !document.hidden && !motion.matches;
   }
   function tick(now: number) {
     frame = 0;
@@ -634,10 +628,8 @@ export function createPocketScene(root: HTMLElement, images: PocketImages) {
     }
     const dt = previous ? Math.min(now - previous, 100) / 1000 : 0;
     previous = now;
-    if (playing) {
-      elapsed += dt;
-      ambientTime += dt;
-    }
+    elapsed += dt;
+    ambientTime += dt;
     if (manualTime !== null) {
       manualTime += dt;
       if (manualTime >= 2.8) manualTime = null;
@@ -664,9 +656,8 @@ export function createPocketScene(root: HTMLElement, images: PocketImages) {
   draw();
   canvas.dataset.ready = "true";
   return {
-    setState(next: { active: boolean; playing: boolean }) {
+    setState(next: { active: boolean }) {
       active = next.active;
-      playing = next.playing;
       restart();
     },
     sip() {
