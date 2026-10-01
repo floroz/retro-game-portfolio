@@ -1,10 +1,22 @@
 import { test, expect, type Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 import sharp from "sharp";
+import { encodeWebp } from "../scripts/vite/optimize-images";
 import { advanceScene } from "./clock";
 
 test.use({ viewport: { width: 1440, height: 1000 } });
 // Density-4 animation sampling is expensive in Linux WebKit.
 test.setTimeout(90000);
+
+/** A source image's pixels as the build ships them (optimize-images.ts). */
+async function shippedArt(path: string) {
+  const source = await readFile(path);
+  const shipped = (await encodeWebp(source)) ?? source;
+  return sharp(shipped)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+}
 
 async function openAirport(page: Page) {
   await page.clock.install({ time: new Date("2030-01-01T00:00:00Z") });
@@ -52,17 +64,14 @@ test("scene pixels keep their geometry across repeated frames", async ({
 }) => {
   await openAirport(page);
   // Clear floor landmarks, away from passengers, labels and the character.
-  // Compare against the actual source art so an intended palette change does
-  // not turn this geometry regression into a second screenshot baseline.
+  // Compare against the art the build ships so an intended palette change
+  // does not turn this geometry regression into a second screenshot baseline.
   const points = [
     { x: 40, y: 145 },
     { x: 160, y: 150 },
     { x: 240, y: 150 },
   ];
-  const { data, info } = await sharp("src/assets/remaster/hall/bg.png")
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
+  const { data, info } = await shippedArt("src/assets/remaster/hall/bg.png");
   const density = info.width / 320;
   const expected = points.map(({ x, y }) => {
     const offset = (y * density * info.width + x * density) * 4;
@@ -152,10 +161,7 @@ test("Daniele's ground shadow follows his feet and clears the old floor", async 
     { x: 132, y: 137 },
     { x: 76, y: 153 },
   ];
-  const { data, info } = await sharp("src/assets/remaster/hall/bg.png")
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
+  const { data, info } = await shippedArt("src/assets/remaster/hall/bg.png");
   const density = info.width / 320;
   const floor = points.map(({ x, y }) => {
     const i = (y * density * info.width + x * density) * 4;
