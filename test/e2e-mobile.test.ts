@@ -258,11 +258,6 @@ for (const label of [
     if (label !== "Explore") {
       await sectionLink(page, label).tap();
       await expect(page.locator("[data-e2e=pocket-reading]")).toBeVisible();
-      await page
-        .locator("[data-e2e=pocket-reading] > img")
-        .evaluate((image) =>
-          (image as unknown as { decode: () => Promise<void> }).decode(),
-        );
     }
     await page.evaluate("document.fonts.ready");
     await expect(page).toHaveScreenshot(`pocket-${label.toLowerCase()}.png`, {
