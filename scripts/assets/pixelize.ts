@@ -1,5 +1,5 @@
 /**
- * Raw candidate to native pixel art (docs/art-spec.md, Tooling).
+ * Raw candidate to native pixel art.
  *
  *   npm run assets:pixelize -- <input.png> --out <native.png>
  *     [--scene <id>|core]        allowed colours: the core plus that scene's ramp (default core)

@@ -1,4 +1,4 @@
-# Master palette for the v2 scenes (docs/art-spec.md, Palette).
+# Master palette for the v2 scenes.
 # One "idx hex group" per line. "." is transparent and #ff00ff is the chroma key.
 # Append-only after v1: never renumber or recolour an index. v2 appends 24
 # colours with punctuation indices (never ".", "#", space, quotes, backslash,

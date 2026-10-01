@@ -22,7 +22,7 @@ const entries = (n: number): SlotEntry[] =>
     look: `Job ${i}`,
   }));
 
-describe("slot rows (docs/expansion-plan.md, Extensibility)", () => {
+describe("slot rows", () => {
   test("every job has a country", () => {
     for (const job of PROFILE.workExperience) {
       expect(COUNTRIES, job.company).toContain(job.country);

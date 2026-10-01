@@ -1,7 +1,6 @@
 /**
  * Slot rows: the art supplies one generic sprite, `profile.ts` supplies the
- * entries (docs/expansion-plan.md, Extensibility). Adding a job or a skill
- * group is a data change only.
+ * entries. Adding a job or a skill group is a data change only.
  */
 import { PROFILE } from "../config/profile";
 import { SLOT_COPY } from "../config/slotCopy";

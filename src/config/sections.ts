@@ -1,7 +1,6 @@
 /**
- * Where each section lives in the world (docs/expansion-plan.md, "How
- * visitors know where each section is"). The toolbar, the terminal, gate
- * signs, the travel map, and the router all read this one table.
+ * Where each section lives in the world. The toolbar, the terminal, gate signs,
+ * the travel map, and the router all read this one table.
  */
 import type {
   CountrySceneId,

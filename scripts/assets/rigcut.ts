@@ -1,6 +1,6 @@
 /**
- * Codex parts sheets to the rig's part images and rig.json (docs/art-spec.md,
- * Phase H, "Character"; tasks HB7 and HR1). The cut half of the rig pipeline:
+ * Codex parts sheets to the rig's part images and rig.json. The cut half of the
+ * rig pipeline:
  *
  *   npm run assets:rigcut -- [--out assets-src/character-rig] [--preview <dir>]
  *   npm run assets:rig -- --parts assets-src/character-rig --density 2

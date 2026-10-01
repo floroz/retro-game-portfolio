@@ -1,7 +1,7 @@
 /**
  * Status-line text for hovering, and default "look at" lines. Hovering a
  * primary object names its section; hovering a gate names its country and
- * sections (docs/expansion-plan.md, "How visitors know where each section is").
+ * sections.
  */
 import {
   COUNTRIES,

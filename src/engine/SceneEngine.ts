@@ -4,8 +4,7 @@
  * its own; the host calls `update(dtMs)` every frame and draws the result,
  * so every rule here is unit-testable.
  *
- * Routing (docs/expansion-plan.md, "Moving between scenes" and "Verb
- * shortcuts"):
+ * Routing:
  * - country to country only through the Hall: a country's exits lead to
  *   the Hall, and the Hall's gates lead to the countries;
  * - Hall gates play the travel map; doors back to the Hall use an iris;

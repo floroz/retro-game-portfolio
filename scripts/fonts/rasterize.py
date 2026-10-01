@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Rasterizes the engine's world-text font (docs/art-spec.md, Phase H, "Text"):
+Rasterizes the engine's world-text font:
 a serif bitmap font on the 640x320 art grid, as in The Curse of Monkey
 Island. The source is Libre Caslon Text (SIL OFL 1.1,
 src/assets/fonts/LibreCaslonText-OFL.txt), in assets-src/fonts/.

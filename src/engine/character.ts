@@ -1,7 +1,6 @@
 /**
  * Daniele's sprite sheet (`src/assets/character/daniele.json`, written by
- * `npm run assets:pack`) and the animation rules from docs/art-spec.md,
- * "Character (Daniele)":
+ * `npm run assets:pack`) and its animation rules:
  *
  * - walk frames advance by distance moved, one frame every `stride / 8`
  *   native px (scaled with the sprite), so the feet never slide;
@@ -10,14 +9,13 @@
  * - talk overlays a 16x16 head, a random mouth every 100-140 ms, only idle;
  * - west is east mirrored.
  *
- * Density (docs/art-spec.md, "Phase R: Remaster"): a density-1 sheet has
- * 32x64 cells with the feet on row 61; a density-2 sheet has 64x128 cells
- * with the feet on row 123. Everything in `daniele.json` is in sheet
- * pixels, as `assets:pack` writes it: `origin`, `talkHeadOffset`, `frames`,
- * and `stride`, so a density-2 sheet has twice the stride in pixels for the
- * same logical stride. `parseSheet` turns the stride into logical px, like
- * every distance the engine walks. The sheet states its `density` at 2;
- * without one, it's read from the cell size.
+ * Density (Phase R, the remaster): a density-1 sheet has 32x64 cells with the
+ * feet on row 61; a density-2 sheet has 64x128 cells with the feet on row 123.
+ * Everything in `daniele.json` is in sheet pixels, as `assets:pack` writes it:
+ * `origin`, `talkHeadOffset`, `frames`, and `stride`, so a density-2 sheet has
+ * twice the stride in pixels for the same logical stride. `parseSheet` turns
+ * the stride into logical px, like every distance the engine walks. The sheet
+ * states its `density` at 2; without one, it's read from the cell size.
  */
 import { detectDensity, type Density } from "./density";
 import type { Facing, Rect } from "./types";

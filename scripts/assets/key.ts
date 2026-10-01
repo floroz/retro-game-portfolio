@@ -1,5 +1,5 @@
 /**
- * Background keying for Codex sprite sheets (docs/art-spec.md, F3).
+ * Background keying for Codex sprite sheets.
  *
  * The G1 probe findings showed that Codex never paints exact `#FF00FF`: the
  * "magenta" background is mostly `#FA03FA`, drifts towards `#EB23ED` near the

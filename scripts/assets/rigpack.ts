@@ -1,7 +1,6 @@
 /**
- * The cut-out rig packer behind `npm run assets:rig` (docs/art-spec.md,
- * Phase H, "Character"; task HB7 uses it). Pure functions, so they can be
- * unit tested; rig.ts is the CLI.
+ * The cut-out rig packer behind `npm run assets:rig`. Pure functions, so they
+ * can be unit tested; rig.ts is the CLI.
  *
  * Input: a folder of part PNGs and a source JSON (`RigSource`) that places
  * every part in its facing's drawing: its joint (pivot), its parent, and its

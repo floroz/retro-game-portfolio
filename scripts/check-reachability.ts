@@ -1,6 +1,5 @@
 /**
- * Two-click reachability (docs/expansion-plan.md, "Unchanged, but check
- * after each change"): from every scene, each of About, Skills, Experience,
+ * Two-click reachability: from every scene, each of About, Skills, Experience,
  * Contact, and Resume is reached in two clicks or fewer, and GitHub and
  * LinkedIn open.
  *

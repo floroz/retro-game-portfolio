@@ -1,10 +1,10 @@
 /**
- * Pixel density (docs/art-spec.md, "Phase R: Remaster" and "Phase H: HD
- * hand-painted"). Scene data is in logical px (320x160) at any density. An
- * image at density 1 has one pixel per logical px, as all the art had before
- * the remaster. An image at density 2 has two pixels per logical px in each
- * direction: a 640x320 background, a 64x128 character cell. Phase H's
- * hand-painted art is density 2, drawn nearest-neighbour like all the art.
+ * Pixel density (Phase R, the remaster, and Phase H, HD hand-painted). Scene
+ * data is in logical px (320x160) at any density. An image at density 1 has one
+ * pixel per logical px, as all the art had before the remaster. An image at
+ * density 2 has two pixels per logical px in each direction: a 640x320
+ * background, a 64x128 character cell. Phase H's hand-painted art is density 2,
+ * drawn nearest-neighbour like all the art.
  *
  * The engine works out each image's density from its size, so remastered
  * files can replace the old ones in place, one scene at a time, with no

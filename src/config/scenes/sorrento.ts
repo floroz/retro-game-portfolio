@@ -1,12 +1,11 @@
 /**
  * Sorrento: a kitchen at sunset, looking across the Gulf of Naples to
- * Naples, Vesuvius, and Ischia (docs/art-spec.md, scene card `sorrento`).
- * Built in task HB4 from the hand-painted HD layers (Phase H): the empty
- * plate (bg.png), the door with its open state, the stove, the table, the
- * two chairs, and the potted lemon tree, all painted density 2 (the art is
- * 640x320, shown at 2x nearest-neighbour, one 256-colour palette). Every
- * coordinate is in logical pixels (320x160), top-left origin; the engine
- * scales by the density.
+ * Naples, Vesuvius, and Ischia. Built in task HB4 from the hand-painted HD
+ * layers (Phase H): the empty plate (bg.png), the door with its open state, the
+ * stove, the table, the two chairs, and the potted lemon tree, all painted
+ * density 2 (the art is 640x320, shown at 2x nearest-neighbour, one 256-colour
+ * palette). Every coordinate is in logical pixels (320x160), top-left origin;
+ * the engine scales by the density.
  *
  * Walking depth: the table for two, its two chairs, and the stove stand out
  * on the floor, each with a `baselineY` on its front feet. The walkbox is one

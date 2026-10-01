@@ -1,6 +1,6 @@
 /**
- * Previews for judging pixel art (docs/art-spec.md, Tooling). Everything goes
- * to the gitignored assets-src/review/ unless --out says otherwise.
+ * Previews for judging pixel art. Everything goes to the gitignored
+ * assets-src/review/ unless --out says otherwise.
  *
  *   npm run assets:preview -- <image.png>... [--scale 8] [--region x,y,w,h]
  *       8x nearest-neighbour upscale of each image (or a crop of it).
