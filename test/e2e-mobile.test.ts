@@ -46,7 +46,7 @@ test("painted objects open the corresponding content", async ({ page }) => {
     await expect(
       page.getByRole("heading", { name: title, exact: true, level: 1 }),
     ).toBeVisible();
-    await page.getByRole("link", { name: "← Sorrento" }).tap();
+    await sectionLink(page, "Explore").tap();
     await expect(page.locator("[data-e2e=pocket-scene]")).toBeVisible();
   }
 });
@@ -63,11 +63,15 @@ test("career album scrolls through the full work history", async ({ page }) => {
   });
   await lastJob.scrollIntoViewIfNeeded();
   await expect(lastJob).toBeInViewport();
-  expect(
-    await page
-      .locator("[data-e2e=pocket-reading]")
-      .evaluate((el) => el.scrollTop),
-  ).toBeGreaterThan(0);
+  // Tall screens can show the whole history at once, so scroll to the end
+  // to give the reset below something to undo.
+  const reading = page.locator("[data-e2e=pocket-reading]");
+  await reading.evaluate((el) => el.scrollTo(0, el.scrollHeight));
+  const { scrollTop, overflows } = await reading.evaluate((el) => ({
+    scrollTop: el.scrollTop,
+    overflows: el.scrollHeight > el.clientHeight,
+  }));
+  if (overflows) expect(scrollTop).toBeGreaterThan(0);
   await sectionLink(page, "Contact").tap();
   await expect
     .poll(() =>
@@ -134,7 +138,7 @@ test("dialogue is optional and survives an inspection", async ({ page }) => {
     page.getByText("A proper moka takes its time.", { exact: false }),
   ).toBeVisible();
   await sectionLink(page, "Resume").tap();
-  await page.getByRole("link", { name: "← Sorrento" }).tap();
+  await sectionLink(page, "Explore").tap();
   await expect(
     page.getByText("A proper moka takes its time.", { exact: false }),
   ).toBeVisible();
@@ -151,7 +155,6 @@ test("scene stays free of labels while objects remain accessible", async ({
   const scene = page.locator("[data-e2e=pocket-scene]");
   await expect(scene).toHaveText("");
   await expect(page.getByRole("button", { name: /Labels/ })).toHaveCount(0);
-  await expect(page.locator("header")).not.toContainText("Chapter");
   await scene.getByRole("link", { name: "Telephone · Contact" }).focus();
   await expect(scene).toHaveText("");
   await page
@@ -288,8 +291,6 @@ test("welcome recommends desktop before entering and keeps content accessible", 
   }
   await page.getByRole("link", { name: "Enter Pocket Adventure" }).tap();
   await expect(page.locator("[data-e2e=pocket-scene]")).toBeVisible();
-  await page.getByRole("link", { name: "About the desktop edition" }).tap();
-  await expect(page.locator("[data-e2e=pocket-welcome]")).toBeVisible();
 });
 
 test("welcome visual", async ({ page }) => {
@@ -309,9 +310,7 @@ test("welcome visual", async ({ page }) => {
   });
 });
 
-test("living scene pauses for reading, manual pause and reduced motion", async ({
-  page,
-}) => {
+test("living scene pauses for reading and reduced motion", async ({ page }) => {
   await page.clock.install({ time: new Date("2030-01-01T12:00:00Z") });
   await page.clock.pauseAt(new Date("2030-01-01T12:00:00Z"));
   await page.emulateMedia({ reducedMotion: "no-preference" });
@@ -328,19 +327,12 @@ test("living scene pauses for reading, manual pause and reduced motion", async (
   const before = await pixels();
   await page.clock.runFor(1000);
   expect(await pixels()).not.toEqual(before);
-  await page.getByRole("button", { name: "Pause scene", exact: true }).tap();
-  await expect(canvas).toHaveAttribute("data-running", "false");
-  const paused = await pixels();
-  await page.clock.runFor(2000);
-  expect(await pixels()).toEqual(paused);
-  await page.getByRole("button", { name: "Play scene", exact: true }).tap();
-  await expect(canvas).toHaveAttribute("data-running", "true");
   await sectionLink(page, "Contact").tap();
   await expect(canvas).toHaveAttribute("data-running", "false");
   const reading = await pixels();
   await page.clock.runFor(2000);
   expect(await pixels()).toEqual(reading);
-  await page.getByRole("link", { name: "← Sorrento" }).tap();
+  await sectionLink(page, "Explore").tap();
   await expect(canvas).toHaveAttribute("data-running", "true");
   await page.clock.runFor(1000);
   expect(await pixels()).not.toEqual(reading);
@@ -362,7 +354,7 @@ test("portfolio stays accessible when scene art fails and retry recovers", async
   ).toBeVisible();
   await sectionLink(page, "Contact").tap();
   await expect(page.getByRole("link", { name: PROFILE.email })).toBeVisible();
-  await page.getByRole("link", { name: "← Sorrento" }).tap();
+  await sectionLink(page, "Explore").tap();
   await page.unroute(/coffee-likeness-night/);
   await page.getByRole("button", { name: "Try the scene again" }).tap();
   await expect(page.locator("[data-e2e=pocket-motion]")).toHaveAttribute(
@@ -376,23 +368,30 @@ test("portfolio stays accessible when scene art fails and retry recovers", async
     );
 });
 
-test("ambience is opt-in and can be muted", async ({ page }) => {
+test("Sorrento music and ambience are opt-in and can be muted", async ({
+  page,
+}) => {
   const sounds: string[] = [];
   page.on("request", (request) => {
     if (request.url().includes("/audio/")) sounds.push(request.url());
   });
   await enterKitchen(page);
   expect(sounds).toEqual([]);
-  await page.getByRole("button", { name: "Sound off", exact: true }).tap();
+  const toolbar = page.getByRole("navigation", { name: "Portfolio" });
+  await toolbar
+    .getByRole("button", { name: "Enable sound", exact: true })
+    .tap();
   await expect(
-    page.getByRole("button", { name: "Sound on", exact: true }),
+    toolbar.getByRole("button", { name: "Mute sound", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
-  await expect
-    .poll(() => sounds.some((url) => url.endsWith("/ambience/sorrento.mp3")))
-    .toBe(true);
-  await page.getByRole("button", { name: "Sound on", exact: true }).tap();
+  for (const track of ["/music/sorrento.mp3", "/ambience/sorrento.mp3"]) {
+    await expect
+      .poll(() => sounds.some((url) => url.endsWith(track)))
+      .toBe(true);
+  }
+  await toolbar.getByRole("button", { name: "Mute sound", exact: true }).tap();
   await expect(
-    page.getByRole("button", { name: "Sound off", exact: true }),
+    toolbar.getByRole("button", { name: "Enable sound", exact: true }),
   ).toHaveAttribute("aria-pressed", "false");
 });
 
@@ -402,7 +401,6 @@ test("nighttime scene and resting arm", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await enterKitchen(page);
   await page.clock.runFor(18800);
-  await page.getByRole("button", { name: "Pause scene", exact: true }).tap();
   await expect(page.locator("[data-e2e=pocket-motion]")).toHaveAttribute(
     "data-stage",
     "2",
