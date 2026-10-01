@@ -2,7 +2,7 @@
  * Zurich: a timber chalet study overlooking Lake Zurich and the Alps.
  * The warm plaster, exposed beams and wool rug share an empty-room plate;
  * the approved moonlit exterior remains unchanged. The desk, chair, filing
- * cabinet, door and plant remain separate sprites, with a moving cuckoo prop.
+ * cabinet, door and sleeping cow remain separate sprites, with a moving cuckoo prop.
  * Every coordinate is in logical pixels (320x160),
  * top-left origin; the art is 640x320 and the engine scales positions by its
  * density.
@@ -11,9 +11,9 @@
  * cabinet stand out on the floor, each with a `baselineY` on its front feet.
  * The walkbox is one polygon with two keyhole slits from its back edge, so
  * their footprints are holes and Daniele walks round them, behind (feet above
- * the baseline, drawn under the object) or in front. The plant in the front
- * left corner is an object with a baseline at the bottom of the walkbox, so
- * he always passes behind it, and the walkbox stays clear of its pot.
+ * the baseline, drawn under the object) or in front. The sleeping cow in the
+ * front left corner sits at the bottom of the walkbox, so he passes behind
+ * her and walks around her tucked hooves.
  *
  * Effects are the engine's: twinkling stars over the painted ones, glints on
  * the lake, and the CRT's blinking cursor. The lamp's light is painted, so it
@@ -32,7 +32,7 @@ import zurichObjCabinet from "../../assets/scenes/zurich/obj-cabinet.png";
 import zurichObjCabinetOpen from "../../assets/scenes/zurich/obj-cabinet@open.png";
 import zurichObjDoor from "../../assets/scenes/zurich/obj-door.png";
 import zurichObjDoorOpen from "../../assets/scenes/zurich/obj-door@open.png";
-import zurichObjPlant from "../../assets/scenes/zurich/obj-plant.png";
+import zurichAnimCow from "../../assets/scenes/zurich/anim-sleeping-cow.png";
 import zurichAnimCuckoo from "../../assets/scenes/zurich/anim-cuckoo.png";
 
 const EXPERIENCE = SECTIONS.experience.label;
@@ -43,8 +43,8 @@ const LATEST_JOB = PROFILE.workExperience[0];
 const DESK_BASELINE = 127;
 const CHAIR_BASELINE = 134;
 const CABINET_BASELINE = 119;
-/** The plant's pot sits on the front edge of the floor. */
-const PLANT_BASELINE = 158;
+/** The cow's tucked hooves rest on the front edge of the floor. */
+const COW_BASELINE = 158;
 
 /** Moonlight on the water, and the sky, inside the window panes. */
 const LAKE = { x: 117, y: 64, w: 75, h: 8 };
@@ -64,8 +64,8 @@ export const ZURICH_SCENE: SceneData = {
   },
   floor: "wood",
   characterShadow: { width: 0.4, depth: 0.085 },
-  // The floor from the baseboard (y 101) to the front edge, less the plant's
-  // pot corner (x 46 and y 127 clear its leaves and rim). Two keyhole slits
+  // The floor from the baseboard (y 101) to the front edge, less the cow's
+  // resting place (x 84 and y 139 clear her tucked legs). Two keyhole slits
   // (x 170 and x 262) cut out the footprints of the desk and chair
   // (x 136-203, y 119-134) and the cabinet (x 238-276, y 113-119).
   walkbox: [
@@ -92,9 +92,9 @@ export const ZURICH_SCENE: SceneData = {
     [262, 101],
     [316, 101],
     [316, 158],
-    [46, 158],
-    [46, 127],
-    [4, 127],
+    [84, 158],
+    [84, 139],
+    [4, 139],
   ],
   // The Phase H world scale: Daniele is 58 px tall at the baseboard and 72
   // at the front edge, a depth scale of 0.8 to 1.0 of the 72 px puppet.
@@ -129,16 +129,12 @@ export const ZURICH_SCENE: SceneData = {
       use: "It's Swiss. It winds itself, out of a sense of duty.",
     },
     {
-      id: "plant",
-      name: "rubber plant",
-      sprite: zurichObjPlant,
-      x: 0,
-      y: 87,
-      interactionPoint: { x: 52, y: 142, facing: "w" },
-      baselineY: PLANT_BASELINE,
-      groundShadows: [{ x: 22, y: 70, width: 35, depth: 6 }],
-      look: "The only thing here with better uptime than production.",
-      use: "Watered every sprint. It has never missed a retro.",
+      id: "sleeping-cow",
+      name: "sleeping Swiss cow",
+      hotspot: { x: 2, y: 124, w: 80, h: 34 },
+      interactionPoint: { x: 90, y: 145, facing: "w" },
+      look: "A Swiss cow on her fondue break. Even the cowbell's on silent.",
+      use: "Let her sleep. She's already outstanding in her field.",
     },
     {
       id: "desk",
@@ -199,7 +195,45 @@ export const ZURICH_SCENE: SceneData = {
       use: "It all fits on one page. Well, two.",
     },
   ],
+  animations: [
+    {
+      id: "sleeping-cow",
+      strip: zurichAnimCow,
+      frames: 1,
+      frameMs: 4200,
+      x: 2,
+      y: 118,
+      baselineY: COW_BASELINE,
+      freezeForReducedMotion: true,
+      idle: { splitY: 32, rise: 0.7, periodMs: 4200, phaseMs: 0 },
+      groundShadows: [{ x: 40, y: 38.5, width: 75, depth: 5 }],
+    },
+  ],
   effects: [
+    {
+      kind: "pendulum",
+      id: "clock-pendulum",
+      x: 223.5,
+      y: 36.5,
+      length: 6,
+      radius: 1.65,
+      angle: 0.38,
+      periodMs: 1800,
+      color: "#b47a32",
+      edge: "#492913",
+      highlight: "#e8b967",
+    },
+    {
+      kind: "sleep",
+      id: "cow-zzz",
+      x: 65,
+      y: 126,
+      rise: 16,
+      drift: 8,
+      periodMs: 3600,
+      color: "#e8d6a6",
+      baselineY: COW_BASELINE,
+    },
     {
       // Over the painted stars in the panes, which they twinkle in turn.
       kind: "stars",

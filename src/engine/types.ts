@@ -334,8 +334,36 @@ export interface FlutterEffect extends EffectBase {
   sound?: EffectName;
 }
 
+/** A clock bob swings around its fixed wall-mounted pivot. */
+export interface PendulumEffect extends EffectBase {
+  kind: "pendulum";
+  x: number;
+  y: number;
+  length: number;
+  radius: number;
+  /** Maximum angle from vertical, in radians. */
+  angle: number;
+  periodMs: number;
+  color: string;
+  edge: string;
+  highlight: string;
+}
+
+/** Three small Zs drift upwards from a sleeping character. */
+export interface SleepEffect extends EffectBase {
+  kind: "sleep";
+  x: number;
+  y: number;
+  rise: number;
+  drift: number;
+  periodMs: number;
+  color: string;
+}
+
 export type SceneEffect =
   | MusicNotesEffect
+  | PendulumEffect
+  | SleepEffect
   | RainEffect
   | SteamEffect
   | StarsEffect
