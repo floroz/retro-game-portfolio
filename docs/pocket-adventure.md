@@ -24,9 +24,7 @@ Reading uses live HTML from `profile.ts` and `sectionInspection`, not baked text
 
 Art direction requested on 2026-10-01: Daniele sits at the table, drinking espresso and looking out over the bay. His face, hair, beard and clothing come from the current approved desktop front and side portrait sheets. The initial close composition below was superseded by the wider room study: the room, objects and view should attract the eye most. These historical studies led to the approved production scene described above.
 
-![Coffee by the window composition study](../assets-src/concepts/pocket-adventure/coffee-by-the-window.webp)
-
-Concept preview saved at `assets-src/concepts/pocket-adventure/coffee-by-the-window.webp` (768-pixel-wide; the full-size original was not kept). Generated with the built-in imagegen tool on 2026-10-01 using `assets-src/approved/portrait-rig/front.png`, `assets-src/approved/portrait-rig/side.png`, and `src/assets/mobile/sorrento-empty.webp` as references. This first generated pose was superseded by the wider framing, dedicated arm artwork and likeness correction below.
+The first concept, no longer kept in the repository, was generated with the built-in imagegen tool on 2026-10-01 using `assets-src/approved/portrait-rig/front.png`, `assets-src/approved/portrait-rig/side.png`, and `src/assets/mobile/sorrento-empty.webp` as references. This first generated pose was superseded by the wider framing, dedicated arm artwork and likeness correction below.
 
 ### Wider room and daylight cycle
 
