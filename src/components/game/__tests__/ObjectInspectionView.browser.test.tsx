@@ -385,7 +385,21 @@ describe.each([680, 900, 1280])("all inspection cards at %ipx", (width) => {
 });
 
 test("global accessibility transitions do not change how text is fitted", async () => {
-  const item = sectionInspection("about");
+  // Fix the test's paper geometry so new art cannot remove the shrinking
+  // scenario this regression test exercises.
+  const item: InspectionReading = {
+    ...sectionInspection("about"),
+    subtitle: "A postcard from home",
+    paperInsets: { top: 20, right: 10, bottom: 20, left: 52 },
+    pages: [
+      {
+        title: "A longer reading page",
+        paragraphs: [
+          "This reading page has enough words to require a smaller font inside the illustrated paper. Its layout must remain identical when reduced-motion styles add a short global transition. Every word should stay readable, with page breaks determined by the available space rather than an intermediate animated font size.",
+        ],
+      },
+    ],
+  };
   // Where the text must shrink depends on the font the browser has (Georgia
   // or its fallback), so narrow the card until it has to shrink here. The
   // card keeps its 2:1 art, so its width sets its size; stay above the

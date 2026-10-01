@@ -52,6 +52,7 @@ export function ObjectInspectionView({ inspection, onClose }: Props) {
         tabIndex={-1}
         data-e2e="object-inspection"
         data-ready={ready}
+        data-travel-art={Boolean(inspection.paperInsets)}
         onKeyDown={(event) => {
           if (event.key === "Escape") {
             event.preventDefault();
@@ -92,11 +93,18 @@ export function ObjectInspectionView({ inspection, onClose }: Props) {
           <div
             className={styles.copy}
             style={
-              inspection.paperTop
+              inspection.paperInsets
                 ? ({
-                    "--paper-top": `${inspection.paperTop}%`,
+                    "--paper-top": `${inspection.paperInsets.top}%`,
+                    "--paper-right": `${inspection.paperInsets.right}%`,
+                    "--paper-bottom": `${inspection.paperInsets.bottom}%`,
+                    "--paper-left": `${inspection.paperInsets.left}%`,
                   } as CSSProperties)
-                : undefined
+                : inspection.paperTop !== undefined
+                  ? ({
+                      "--paper-top": `${inspection.paperTop}%`,
+                    } as CSSProperties)
+                  : undefined
             }
             ref={copy}
             tabIndex={0}

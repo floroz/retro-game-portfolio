@@ -1,0 +1,15 @@
+{
+  "id": "remaster-inspection-experience",
+  "output": "src/assets/remaster/inspections/experience.webp",
+  "task": "location-section-artwork",
+  "source": "codex",
+  "prompt": "assets-src/prompts/location-inspections/experience.md",
+  "candidate": "01",
+  "references": [
+    "assets-src/references/location-inspections/cartoon-concepts.png"
+  ],
+  "approvedRaw": "assets-src/approved/location-inspections/experience.png",
+  "density": 4,
+  "date": "2026-10-01",
+  "cleanup": "Built-in imagegen. Full-resolution generated source retained; scripts/assets/remaster-ui.ts exports a lossless 1280x640 WebP. Build compression uses the existing encoder. All reading text is live HTML."
+}
