@@ -56,7 +56,7 @@ Edit `src/config/dialogTrees.ts` to reflect the updated information. Key nodes t
 
 ### Step 3: Verify No Hardcoded Content
 
-Check the actual consumers of each changed field, especially `src/components/mobile/RetroContent.tsx`, `src/config/terminalScreenContent.ts`, `src/config/commands.ts`, and `scripts/generate-html.ts`. Keep personal details in `PROFILE` and dialogue in `DIALOG_TREE` rather than duplicating them in components.
+Check the actual consumers of each changed field, especially `src/components/mobile/RetroContent.tsx`, `src/config/inspections.ts`, `src/components/desktop/Windows98About.tsx`, and `scripts/generate-html.ts`. Keep personal details in `PROFILE` and dialogue in `DIALOG_TREE` rather than duplicating them in components.
 
 ### Step 4: Format and Lint
 
@@ -89,6 +89,6 @@ currently employed at Snyk in Zürich, Switzerland."
 
 - [ ] Updated `src/config/profile.ts` with new information
 - [ ] Updated relevant nodes in `src/config/dialogTrees.ts`
-- [ ] Verified affected desktop, mobile, terminal, and SEO views
+- [ ] Verified affected desktop, mobile, and SEO views
 - [ ] Ran `npm run format`
 - [ ] Tested the site with `npm run dev`

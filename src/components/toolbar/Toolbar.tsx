@@ -84,7 +84,7 @@ function Trunk() {
   const currentScene = useGameStore((s) => s.currentScene);
   const soundEnabled = useGameStore((s) => s.soundEnabled);
   const setHoveredObject = useGameStore((s) => s.setHoveredObject);
-  const openContent = useGameStore((s) => s.openTerminalScreen);
+  const openContent = useGameStore((s) => s.openContent);
   const openDialog = useGameStore((s) => s.openDialog);
   const toggleSound = useGameStore((s) => s.toggleSound);
 
@@ -129,11 +129,9 @@ function Trunk() {
   });
 
   const openSection = (section: SectionId) => {
-    const { terminalScreenAction, terminalOpen, gameWindowActive } =
-      useGameStore.getState();
+    const { contentSection, gameWindowActive } = useGameStore.getState();
     // Ignore clicks while content is open, or while another window has focus.
-    if (terminalScreenAction) return;
-    if (terminalOpen && !gameWindowActive) return;
+    if (contentSection || !gameWindowActive) return;
     openContent(section);
   };
 
