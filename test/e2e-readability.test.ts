@@ -112,7 +112,7 @@ for (const viewport of viewports) {
           await advanceScene(page, 500);
           if (await inspection.isVisible()) break;
         }
-        await expect(inspection).toBeVisible();
+        await expect(inspection).toHaveAttribute("data-ready", "true");
         await expect(inspection.getByRole("heading", { level: 2 })).toHaveText(
           title,
         );

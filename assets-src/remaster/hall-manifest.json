@@ -57,7 +57,7 @@
     {
       "output": "src/assets/remaster/hall/anim-passenger-family.png",
       "source": "assets-src/approved/passengers/family.webp",
-      "note": "Same frame count, timing, padded cells and foot alignment as passengers.ts, at twice the export resolution. Soft alpha and full colour."
+      "note": "Same frame count, timing, padded cells and foot alignment as passengers.ts, at twice the export resolution. Soft alpha and full colour. Mother's legs rebuilt as passing poses in frames 1 and 3 by scripts/assets/stride.ts at scale 2."
     },
     {
       "output": "src/assets/remaster/hall/anim-passenger-reader.png",
