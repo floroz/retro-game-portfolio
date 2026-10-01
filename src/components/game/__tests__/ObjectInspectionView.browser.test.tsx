@@ -385,22 +385,45 @@ describe.each([680, 900, 1280])("all inspection cards at %ipx", (width) => {
   });
 });
 
-test("shrinks before splitting even when global accessibility styles add transitions", async () => {
+test("global accessibility transitions do not change how text is fitted", async () => {
   const item = sectionInspection("about");
-  const { container } = await render(
-    <div style={{ position: "relative", width: 992, height: 620 }}>
-      <style>{"* { transition-duration: 0.01ms !important; }"}</style>
-      <ObjectInspectionView inspection={item} onClose={vi.fn()} />
-    </div>,
-  );
-  await expect
-    .element(page.getByRole("dialog"))
-    .toHaveAttribute("data-ready", "true");
-  await expect
-    .element(page.getByText(item.pages![0].paragraphs[0]))
-    .toBeVisible();
-  const text = container.querySelector<HTMLElement>(
-    '[data-e2e="inspection-page"]',
-  )!;
-  expect(parseFloat(getComputedStyle(text).fontSize)).toBeLessThan(20);
+  // Where the text must shrink depends on the font the browser has (Georgia
+  // or its fallback), so narrow the card until it has to shrink here. The
+  // card keeps its 2:1 art, so its width sets its size; stay above the
+  // 720px container breakpoint where the layout changes.
+  const fit = async (width: number, transitions: boolean) => {
+    const screen = await render(
+      <div style={{ position: "relative", width, height: 620 }}>
+        {transitions && (
+          <style>{"* { transition-duration: 0.01ms !important; }"}</style>
+        )}
+        <ObjectInspectionView inspection={item} onClose={vi.fn()} />
+      </div>,
+    );
+    await expect
+      .element(page.getByRole("dialog"))
+      .toHaveAttribute("data-ready", "true");
+    const text = screen.container.querySelector<HTMLElement>(
+      '[data-e2e="inspection-page"]',
+    )!;
+    const result = {
+      fontSize: parseFloat(getComputedStyle(text).fontSize),
+      pages:
+        screen.container
+          .querySelector('[aria-label^="Page "]')
+          ?.getAttribute("aria-label") ?? "Page 1 of 1",
+    };
+    await screen.unmount();
+    return result;
+  };
+  let width = 992;
+  let plain = await fit(width, false);
+  while (plain.fontSize >= 20 && width > 760) {
+    width -= 24;
+    plain = await fit(width, false);
+  }
+  expect(plain.fontSize, "the card never needed to shrink").toBeLessThan(20);
+  // A transition would leave the probe at its previous size while each
+  // smaller size is measured, so the fit would split pages instead.
+  expect(await fit(width, true)).toEqual(plain);
 });
