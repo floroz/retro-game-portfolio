@@ -40,42 +40,12 @@
   }
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: max(10px, env(safe-area-inset-top)) 16px 10px;
-  flex-shrink: 0;
-  border-bottom: 2px solid #745336;
-  background: #30231c;
-}
-
 .eyebrow {
   font:
     11px / 1.5 "IBM Plex Mono",
     monospace;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-}
-
-.name {
-  font:
-    23px / 1.1 "Libre Caslon Text",
-    Georgia,
-    serif;
-  margin-top: 3px;
-}
-
-.back {
-  display: grid;
-  place-items: center;
-  min-height: 44px;
-  color: inherit;
-  font-size: 14px;
-  flex-shrink: 0;
-  text-align: right;
-  text-underline-offset: 4px;
 }
 
 .world {
@@ -95,15 +65,15 @@
   position: relative;
   display: grid;
   place-items: center;
-  flex: 1;
-  min-height: 330px;
-  container-type: size;
+  flex: 1 0 auto;
   background: #1e1915;
 }
 
+// Phones give the painting the full width; wider screens fit it to the
+// height instead so it never needs scrolling.
 .scene {
   position: relative;
-  width: min(100cqw, 100cqh * 2 / 3);
+  width: 100%;
   aspect-ratio: 2 / 3;
 
   > img {
@@ -111,6 +81,18 @@
     width: 100%;
     height: auto;
     image-rendering: auto;
+  }
+}
+
+@media (width >= 600px) {
+  .stage {
+    flex: 1;
+    min-height: 330px;
+    container-type: size;
+  }
+
+  .scene {
+    width: min(100cqw, 100cqh * 2 / 3);
   }
 }
 
@@ -130,39 +112,9 @@
   z-index: 1;
 }
 
-.sceneCaption {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-  padding: 0 8px;
-  border-top: 1px solid #795737;
-  font-size: 12px;
-  color: #dfc59d;
-
-  > span {
-    flex: 1 0 100%;
-    padding-top: 6px;
-  }
-
-  button {
-    flex: 1;
-    min-width: 60px;
-    min-height: 44px;
-    border: 0;
-    background: none;
-    color: inherit;
-    font: inherit;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    cursor: pointer;
-  }
-}
-
 .navigation {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr)) 52px;
   gap: 1px;
   flex-shrink: 0;
   padding: 1px 1px max(1px, env(safe-area-inset-bottom));
@@ -192,6 +144,23 @@
       color: #312017;
       background: #e4c28a;
     }
+  }
+}
+
+.sound {
+  grid-column: 4;
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid #946e46;
+  color: #dfc59d;
+  background: #2f241d;
+  cursor: pointer;
+
+  &[aria-pressed="true"] {
+    color: #f9e5b5;
   }
 }
 
