@@ -246,14 +246,35 @@ export function animateMotherStride(
 
   for (const [frame, pass] of Object.entries(PASSES)) {
     const ox = Number(frame) * cellWidth;
-    // Whatever is still opaque is the boy, the trolley or her upper body.
+    // Preserve the boy in front of her back leg, but not the near-transparent
+    // resampling fringe left at the trousers' old position. Treating any alpha
+    // as occupied punches that old outline through the moved leg.
     const occupied = new Uint8Array(data.length / 4);
     for (let i = 0; i < occupied.length; i++) {
-      occupied[i] = data[i * 4 + 3] ? 1 : 0;
+      occupied[i] = data[i * 4 + 3] > 128 ? 1 : 0;
     }
     const paint = (leg: Pixel[], shear: number, length: number) => {
       const rows = new Map<number, Pixel[]>();
       for (const p of leg) rows.set(p.y, [...(rows.get(p.y) ?? []), p]);
+      // The child's trainer hides a few pixels inside the trouser cuff. Once
+      // that leg moves, the hidden fabric is exposed. Reconstruct small gaps
+      // near the ankle on the leg layer; leave the child in the foreground.
+      for (const [y, row] of rows) {
+        if (y < at(90) || y > ankleY) continue;
+        row.sort((a, b) => a.x - b.x);
+        const solid: Pixel[] = [];
+        for (const p of row) {
+          const previous = solid[solid.length - 1];
+          if (previous && p.x - previous.x <= at(4)) {
+            for (let x = previous.x + 1; x < p.x; x++) {
+              const nearest = x - previous.x <= p.x - x ? previous : p;
+              solid.push({ x, y, rgba: nearest.rgba });
+            }
+          }
+          solid.push(p);
+        }
+        rows.set(y, solid);
+      }
       const last = Math.max(...rows.keys()) - hipY;
       // Walk the destination rows and pick one source row for each, so a
       // shortened leg drops whole rows rather than overlapping them.
