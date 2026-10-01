@@ -40,7 +40,11 @@ describe("London (HB3)", () => {
   test("keeps weather and traffic separate from the seated patrons", () => {
     expect(london.foreground).toBeUndefined();
     expect(london.animations).toHaveLength(4);
-    expect(london.effects?.map((e) => e.kind).sort()).toEqual(["rain", "rain"]);
+    expect(london.effects?.map((e) => e.kind).sort()).toEqual([
+      "music-notes",
+      "rain",
+      "rain",
+    ]);
     expect(london.props?.map((p) => p.id)).toEqual(["bus"]);
   });
 

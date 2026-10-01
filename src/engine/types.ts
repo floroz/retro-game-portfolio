@@ -120,6 +120,16 @@ export interface ObjectInspection {
   paperTop?: number;
 }
 
+/** A brief compression around a fixed foot line, with long rests between. */
+export interface ObjectPulse {
+  everyMs: number;
+  durationMs: number;
+  /** Fraction of the sprite height, e.g. 0.01 for a one-percent pulse. */
+  compression: number;
+  /** Fixed foot line relative to the sprite's top, in logical px. */
+  anchorY: number;
+}
+
 /**
  * An interactive thing in the scene. With a `sprite`, it's drawn at `x`,`y`.
  * Without one, it's painted into `bg.png` and needs an explicit `hotspot`.
@@ -150,6 +160,7 @@ export interface SceneObject {
    */
   baselineY?: number;
   groundShadows?: GroundShadow[];
+  pulse?: ObjectPulse;
   /** Opens this section's content. Leave it out for flavour objects. */
   action?: SectionId;
   inspection?: ObjectInspection;
@@ -215,6 +226,15 @@ interface EffectBase {
   id: string;
   clip?: Rect;
   baselineY?: number;
+  hideForReducedMotion?: boolean;
+}
+
+/** Two small pixel notes drifting up from a music source. */
+export interface MusicNotesEffect extends EffectBase {
+  kind: "music-notes";
+  x: number;
+  y: number;
+  colors: [string, string];
 }
 
 /** Slanted streaks falling through `area`: London's rain on the window. */
@@ -315,6 +335,7 @@ export interface FlutterEffect extends EffectBase {
 }
 
 export type SceneEffect =
+  | MusicNotesEffect
   | RainEffect
   | SteamEffect
   | StarsEffect

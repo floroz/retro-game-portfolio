@@ -11,6 +11,7 @@ import type {
   GlintsEffect,
   LampsEffect,
   MovingProp,
+  MusicNotesEffect,
   RainEffect,
   SceneEffect,
   SteamEffect,
@@ -228,9 +229,58 @@ function flutter(e: FlutterEffect, now: number): Shape[] {
   return out;
 }
 
+// The approved preview's glyph, sampled on the density-2 artwork grid.
+const MUSIC_NOTE = [
+  "0001100",
+  "0001110",
+  "0001011",
+  "0001000",
+  "0001000",
+  "0111000",
+  "1111000",
+  "0110000",
+];
+
+function musicNotes(effect: MusicNotesEffect, now: number): Shape[] {
+  const seconds = Math.floor((now * 12) / 1000) / 12;
+  const out: Shape[] = [];
+  for (let i = 0; i < 2; i++) {
+    const p = (seconds / 3.6 + i / 2) % 1;
+    const x = effect.x - 11 * p + Math.sin(p * Math.PI * 2 + i) * 1.5;
+    const y = effect.y - 20 * p;
+    const alpha = Math.min(1, p * 7, (1 - p) * 4) * 0.92;
+    if (alpha <= 0) continue;
+    // Shadow first, then the entire glyph, so adjoining pixels stay crisp.
+    for (const shadow of [true, false]) {
+      MUSIC_NOTE.forEach((row, dy) => {
+        for (let dx = 0; dx < row.length; dx++) {
+          if (row[dx] !== "1") continue;
+          out.push({
+            kind: "rect",
+            x: x + dx / 2,
+            y: y + (dy + (shadow ? 1 : 0)) / 2,
+            w: shadow ? 1 : 0.5,
+            h: shadow ? 1 : 0.5,
+            color: shadow ? "#2b1c18" : effect.colors[i],
+            alpha,
+          });
+        }
+      });
+    }
+  }
+  return out;
+}
+
 /** The shapes an effect draws at engine time `now` (ms). */
-export function effectShapes(effect: SceneEffect, now: number): Shape[] {
+export function effectShapes(
+  effect: SceneEffect,
+  now: number,
+  reducedMotion = false,
+): Shape[] {
+  if (reducedMotion && effect.hideForReducedMotion) return [];
   switch (effect.kind) {
+    case "music-notes":
+      return musicNotes(effect, now);
     case "rain":
       return rain(effect, now);
     case "steam":
