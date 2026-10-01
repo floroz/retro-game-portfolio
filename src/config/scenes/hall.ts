@@ -122,9 +122,9 @@ export const HALL_SCENE: SceneData = {
   depth: HALL_DEPTH,
   entryPoints: {
     start: { x: 128, y: 134, facing: "s" },
-    fromLondon: { x: 189, y: 93, facing: "s" },
-    fromZurich: { x: 234, y: 93, facing: "s" },
-    fromSorrento: { x: 284, y: 93, facing: "s" },
+    fromSorrento: { x: 189, y: 93, facing: "s" },
+    fromLondon: { x: 234, y: 93, facing: "s" },
+    fromZurich: { x: 284, y: 93, facing: "s" },
   },
   entryLine: "Welcome aboard! Pick a gate, or rummage through the trunk below.",
   // Topmost last: nearer things come after the things behind them.
@@ -319,12 +319,12 @@ export const HALL_SCENE: SceneData = {
       id: "passenger-businessman",
       sprite: businessman,
       frames: 4,
-      frameMs: 180,
+      frameMs: 150,
       path: [
         { at: 0, x: 322, y: 80 },
         { at: 1, x: -38, y: 80 },
       ],
-      durationMs: 23000,
+      durationMs: 19167,
       everyMs: 37000,
       delayMs: 1500,
       faceTravel: true,
@@ -336,12 +336,12 @@ export const HALL_SCENE: SceneData = {
       id: "passenger-family",
       sprite: family,
       frames: 4,
-      frameMs: 220,
+      frameMs: 183,
       path: [
         { at: 0, x: -64, y: 92 },
         { at: 1, x: 322, y: 92 },
       ],
-      durationMs: 31000,
+      durationMs: 25833,
       everyMs: 49000,
       delayMs: 8500,
       faceTravel: true,
@@ -372,11 +372,11 @@ export const HALL_SCENE: SceneData = {
   ],
   labels: [
     // Gate signs: "GATE 1" and the city, centred on each dark board and set
-    // to fit inside it (London's face is x 171-206, Zurich's 210-258,
-    // Sorrento's 262-305).
+    // to fit inside it (Sorrento's face is x 171-206, London's 210-258,
+    // Zürich's 262-305).
     {
-      id: "gate-london",
-      source: "gate:london",
+      id: "gate-sorrento",
+      source: "gate:sorrento",
       maxWidth: 32,
       x: 189,
       y: 17,
@@ -384,8 +384,8 @@ export const HALL_SCENE: SceneData = {
       font: "small",
     },
     {
-      id: "gate-zurich",
-      source: "gate:zurich",
+      id: "gate-london",
+      source: "gate:london",
       maxWidth: 44,
       x: 234,
       y: 17,
@@ -393,8 +393,8 @@ export const HALL_SCENE: SceneData = {
       font: "small",
     },
     {
-      id: "gate-sorrento",
-      source: "gate:sorrento",
+      id: "gate-zurich",
+      source: "gate:zurich",
       maxWidth: 40,
       x: 284,
       y: 17,
@@ -424,34 +424,34 @@ export const HALL_SCENE: SceneData = {
   ],
   exits: [
     {
-      id: "gate-london",
-      to: "london",
+      id: "gate-sorrento",
+      to: "sorrento",
       entry: "fromHall",
       // The door and its header slot; the sign board above is the extra
       // hotspot (x 170-208, y 12-36).
       hotspot: { x: 176, y: 36, w: 26, h: 51 },
       extraHotspots: [{ x: 170, y: 12, w: 38, h: 24 }],
       interactionPoint: { x: 189, y: 93, facing: "n" },
-      look: `Gate ${COUNTRIES.london.gate}: ${COUNTRIES.london.name}, where I learned the trade.`,
+      look: `Gate ${COUNTRIES.sorrento.gate}: ${COUNTRIES.sorrento.name}, my hometown, where the journey began.`,
     },
     {
-      id: "gate-zurich",
-      to: "zurich",
+      id: "gate-london",
+      to: "london",
       entry: "fromHall",
       // The full door stays clear of the desk between Gates 2 and 3.
       hotspot: { x: 222, y: 36, w: 22, h: 51 },
       extraHotspots: [{ x: 209, y: 12, w: 50, h: 24 }],
       interactionPoint: { x: 234, y: 93, facing: "n" },
-      look: `Gate ${COUNTRIES.zurich.gate}: ${COUNTRIES.zurich.name}, where the career grew.`,
+      look: `Gate ${COUNTRIES.london.gate}: ${COUNTRIES.london.name}, where I moved from Sorrento and learned the trade.`,
     },
     {
-      id: "gate-sorrento",
-      to: "sorrento",
+      id: "gate-zurich",
+      to: "zurich",
       entry: "fromHall",
       hotspot: { x: 274, y: 36, w: 23, h: 51 },
       extraHotspots: [{ x: 261, y: 12, w: 46, h: 24 }],
       interactionPoint: { x: 284, y: 93, facing: "n" },
-      look: `Gate ${COUNTRIES.sorrento.gate}: ${COUNTRIES.sorrento.name}, for now and next.`,
+      look: `Gate ${COUNTRIES.zurich.gate}: ${COUNTRIES.zurich.name}, my current home after London.`,
     },
   ],
 };

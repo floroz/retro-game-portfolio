@@ -36,11 +36,11 @@ describe("Toolbar: the travel trunk", () => {
   test("every section is a labelled button naming its city", async () => {
     await render(<Panel />);
     for (const [name, city] of [
-      ["Experience", "Zurich"],
+      ["Experience", "Zürich"],
       ["Skills", "London"],
       ["About", "Sorrento"],
       ["Contact", "Sorrento"],
-      ["Resume", "Zurich"],
+      ["Resume", "Zürich"],
     ]) {
       await expect
         .element(page.getByRole("button", { name: `${name}, in ${city}` }))
@@ -50,7 +50,7 @@ describe("Toolbar: the travel trunk", () => {
 
   test("sections are grouped on their city's ticket", async () => {
     await render(<Panel />);
-    const zurich = page.getByRole("group", { name: "Zurich" });
+    const zurich = page.getByRole("group", { name: "Zürich" });
     await expect
       .element(zurich.getByRole("button", { name: /Experience/ }))
       .toBeVisible();
@@ -97,11 +97,11 @@ describe("Toolbar: the travel trunk", () => {
     useGameStore.setState({ currentScene: "zurich" });
     await render(<Panel />);
     await expect
-      .element(page.getByRole("group", { name: "Zurich (you are here)" }))
+      .element(page.getByRole("group", { name: "Zürich (you are here)" }))
       .toBeInTheDocument();
     await expect
       .element(
-        page.getByRole("button", { name: "Resume, in Zurich (you are here)" }),
+        page.getByRole("button", { name: "Resume, in Zürich (you are here)" }),
       )
       .toBeVisible();
     await expect
@@ -140,17 +140,17 @@ describe("Toolbar: the travel trunk", () => {
   test("Tab walks every control in order, and focus fills the sentence line", async () => {
     const { container } = await render(<Panel />);
     const expected = [
-      "Skills, in London",
-      "Experience, in Zurich",
-      "Resume, in Zurich",
       "About, in Sorrento",
       "Contact, in Sorrento",
+      "Skills, in London",
+      "Experience, in Zürich",
+      "Resume, in Zürich",
       "Talk to Daniele",
       "Sound",
       "Visit GitHub profile",
       "Visit LinkedIn profile",
     ];
-    sectionButton(container, "skills").focus();
+    sectionButton(container, "about").focus();
     for (const [i, name] of expected.entries()) {
       if (i > 0) await userEvent.keyboard("{Tab}");
       expect(document.activeElement?.getAttribute("aria-label")).toBe(name);

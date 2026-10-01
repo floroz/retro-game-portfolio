@@ -1,5 +1,5 @@
 /**
- * Zurich: a timber chalet study overlooking Lake Zurich and the Alps.
+ * Zürich: a timber chalet study overlooking Lake Zürich and the Alps.
  * The warm plaster, exposed beams and wool rug share an empty-room plate;
  * the approved moonlit exterior remains unchanged. The desk, chair, filing
  * cabinet, door and sleeping cow remain separate sprites, with a moving cuckoo prop.
@@ -52,7 +52,7 @@ const SKY = { x: 116, y: 18, w: 77, h: 22 };
 
 export const ZURICH_SCENE: SceneData = {
   id: "zurich",
-  name: "Zurich",
+  name: "Zürich",
   background: zurichBg,
   // Loop points from assets-src/provenance/music-zurich.json and
   // ambience-zurich.json.
@@ -100,7 +100,7 @@ export const ZURICH_SCENE: SceneData = {
   // at the front edge, a depth scale of 0.8 to 1.0 of the 72 px puppet.
   depth: { farY: 101, nearY: 158, ...HD_WORLD_SCALE },
   entryPoints: { fromHall: { x: 298, y: 112, facing: "w" } },
-  entryLine: `Zurich. Warm chalet, ${EXPERIENCE} on the CRT, ${RESUME} in the cabinet.`,
+  entryLine: `Zürich, home now. ${EXPERIENCE} on the CRT, ${RESUME} in the cabinet.`,
   // Topmost last: nearer things come after the things behind them.
   objects: [
     {
@@ -117,7 +117,7 @@ export const ZURICH_SCENE: SceneData = {
       name: "window",
       hotspot: { x: 106, y: 12, w: 95, h: 66 },
       interactionPoint: { x: 150, y: 110, facing: "n" },
-      look: "Lake Zurich by moonlight, and the Alps showing off.",
+      look: "Lake Zürich by moonlight, and the Alps showing off.",
       use: "The Alps are strictly look, don't touch.",
     },
     {
@@ -154,7 +154,7 @@ export const ZURICH_SCENE: SceneData = {
       name: "desk lamp",
       hotspot: { x: 178, y: 81, w: 14, h: 19 },
       interactionPoint: { x: 188, y: 131, facing: "n" },
-      look: "In Zurich, even the lamps look like they manage a portfolio.",
+      look: "In Zürich, even the lamps look like they manage a portfolio.",
       use: "Click. Click. Yes, it works.",
     },
     {
@@ -254,7 +254,7 @@ export const ZURICH_SCENE: SceneData = {
       clip: SKY,
     },
     {
-      // Moonlight dashes on Lake Zurich.
+      // Moonlight dashes on Lake Zürich.
       kind: "glints",
       id: "lake",
       area: LAKE,
@@ -341,7 +341,7 @@ export const ZURICH_SCENE: SceneData = {
       y: 31,
       hotspot: { x: 281, y: 31, w: 37, h: 70 },
       interactionPoint: { x: 300, y: 106, facing: "n" },
-      look: "Back to the airport. In Zurich, even the doors leave on time.",
+      look: "Back to the airport. In Zürich, even the doors leave on time.",
     },
   ],
 };
