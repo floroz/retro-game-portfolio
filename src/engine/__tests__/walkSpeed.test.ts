@@ -126,7 +126,8 @@ describe("walking pace follows depth", () => {
       const frontY = 157;
       const rows = [
         { y: backY, x0: 90, x1: 165 },
-        { y: frontY, x0: 60, x1: 135 },
+        // Zurich's cow occupies the front-left corner; measure on clear floor.
+        { y: frontY, x0: 90, x1: 165 },
       ];
       // Sanity: both rows are inside the walkbox's y range.
       expect(Math.min(...walkbox.map((p) => p[1]))).toBeLessThanOrEqual(backY);
