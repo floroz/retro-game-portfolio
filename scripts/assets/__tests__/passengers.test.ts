@@ -11,6 +11,29 @@ const sheets = [
 
 describe("shipped family walk artwork", () => {
   test.each(sheets)(
+    "passing poses have solid trouser legs without transparent slits ($path)",
+    async ({ path, scale }) => {
+      const image = await readImage(path);
+      for (const frame of [1, 3]) {
+        for (let y = 90 * scale; y < 97 * scale; y++) {
+          // Below the child's hand, each trouser leg is a continuous run.
+          // Stop before the trolley wheel. A third run is a tear inside a
+          // leg, not the gap between the legs.
+          let runs = 0;
+          let opaque = false;
+          for (let x = 39 * scale; x < 70 * scale; x++) {
+            const i = (y * image.width + frame * 124 * scale + x) * 4;
+            const next = image.data[i + 3] > 128;
+            if (next && !opaque) runs++;
+            opaque = next;
+          }
+          expect(runs, `frame ${frame}, row ${y}`).toBe(2);
+        }
+      }
+    },
+  );
+
+  test.each(sheets)(
     "the mother's feet come together between contact poses ($path)",
     async ({ path, scale }) => {
       const image = await readImage(path);
