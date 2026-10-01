@@ -8,17 +8,17 @@ The approved seated scene now runs in the mobile application on `floroz/pocket-a
 - Postcards open About; telephone opens Contact; album opens Experience; folder opens Résumé; backpack/laptop opens Skills. The seated character offers optional conversation, and “Coffee?” requests a sip.
 - The approved day/night likeness paintings, resting pose paintings, raised arm sources, ferry and wooden boat are full-quality sources under `src/assets/mobile/`. The existing build encoder produces WebP. No new likeness or arm artwork was generated for integration.
 - `PocketScene`, `pocketRenderer` and `pocketTimeline` preserve the approved 1024 × 1536 composition and movement. A full cycle takes 30 seconds (15 seconds between day/night), with two one-second mouth holds in each of four stages. Sunrise illuminates the room from offscreen east. The moon follows its own arc, with a moving reflection. Vessels alternate with gaps and receive lighting, wake and reflection changes.
-- All motion pauses while reading or hidden, and reduced motion keeps the scene still. Pause, sound and labels are accessible buttons. Geometry and labels stay usable at 320 px and landscape layouts.
+- All motion pauses while reading or hidden, and reduced motion keeps the scene still. Pause and sound are accessible buttons. The scene has no hotspot captions or time-of-day badge; invisible, accessible hotspots remain tappable. Portfolio sections stay visible in the bottom toolbar at 320 px and in landscape layouts.
 - Optional audio starts muted and is unlocked only by the sound button: the existing Sorrento sea ambience loop plus a moka gurgle every 18 seconds. Reading, hiding the tab, pausing the scene or leaving mobile silences it.
 - Mobile owns its image preload and retry state. Content remains available if an image fails. Budget tests cover the encoded bytes, and timeline tests cover sip count, hold duration and alternating vessels.
 
-The first mobile chapter replaces the Game Boy with a portrait Sorrento kitchen. The desktop world is unchanged. London, Zurich and the airport are future mobile chapters, not inert controls in this release.
+The mobile experience replaces the Game Boy with a portrait Sorrento kitchen. It has one location and no chapter numbering. London, Zurich and the airport are unimplemented ideas for future mobile locations. The desktop world is unchanged.
 
 First-time visitors see an illustrated invitation explaining that the full game is on desktop and recommending a computer for the complete experience. They can enter the kitchen or go straight to experience, résumé or contact. Direct section links bypass the invitation. The kitchen's Desktop edition link returns to it.
 
 The portrait painting stays at its native 2:3 aspect ratio. Hotspots are percentages of that exact painting; the image is never cropped independently of the controls. The surrounding stage absorbs extra space. Experience, résumé and contact remain directly accessible even while reading or talking. About and skills have both objects and navigation links.
 
-Reading uses live HTML from `profile.ts` and `sectionInspection`, not baked text. The career album presents all roles in a scrollable timeline. Hash routes (`#pocket-experience`, `#pocket-contact`, and so on) support browser Back/Forward, reload and direct linking. Reading receives keyboard focus, Escape returns to the room, and the opener receives focus on return. Conversations and label settings survive an inspection but reset on reload.
+Reading uses live HTML from `profile.ts` and `sectionInspection`, not baked text. The career album presents all roles in a scrollable timeline. Hash routes (`#pocket-experience`, `#pocket-contact`, and so on) support browser Back/Forward, reload and direct linking. Reading receives keyboard focus, Escape returns to the room, and the opener receives focus on return. Conversations survive an inspection but reset on reload. Mobile navigation and headings use “Resume” because the Pocket Display font does not contain the “é” glyph.
 
 ## Next composition: coffee by the window
 
