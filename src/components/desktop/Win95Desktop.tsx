@@ -424,9 +424,7 @@ export function Win95Desktop({
           <div
             className={styles.windowLayer}
             inert={minimizedWindows.has("game")}
-            style={{
-              visibility: minimizedWindows.has("game") ? "hidden" : "visible",
-            }}
+            hidden={minimizedWindows.has("game")}
           >
             <Win95LoadingWidget
               progress={artLoaded}
@@ -450,9 +448,7 @@ export function Win95Desktop({
             <div
               className={styles.windowLayer}
               inert={minimizedWindows.has("game")}
-              style={{
-                visibility: minimizedWindows.has("game") ? "hidden" : "visible",
-              }}
+              hidden={minimizedWindows.has("game")}
             >
               <Win95GameWindow
                 onClose={() => handleCloseWindow("game")}
@@ -475,11 +471,7 @@ export function Win95Desktop({
           <div
             className={styles.windowLayer}
             inert={minimizedWindows.has("terminal")}
-            style={{
-              visibility: minimizedWindows.has("terminal")
-                ? "hidden"
-                : "visible",
-            }}
+            hidden={minimizedWindows.has("terminal")}
           >
             <Win95TerminalWindow
               history={history}
@@ -508,11 +500,7 @@ export function Win95Desktop({
           <div
             className={styles.windowLayer}
             inert={minimizedWindows.has("recycleBin")}
-            style={{
-              visibility: minimizedWindows.has("recycleBin")
-                ? "hidden"
-                : "visible",
-            }}
+            hidden={minimizedWindows.has("recycleBin")}
           >
             <Win95RecycleBin
               onClose={() => handleCloseWindow("recycleBin")}
@@ -531,9 +519,7 @@ export function Win95Desktop({
           <div
             className={styles.windowLayer}
             inert={minimizedWindows.has("about")}
-            style={{
-              visibility: minimizedWindows.has("about") ? "hidden" : "visible",
-            }}
+            hidden={minimizedWindows.has("about")}
           >
             <Windows98About
               onClose={() => handleCloseWindow("about")}
