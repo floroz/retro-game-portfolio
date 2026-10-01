@@ -1,0 +1,51 @@
+@use "../../styles/functions" as *;
+
+/* Dev-only (?debug=scene). Not part of the period look. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+}
+
+.tag {
+  font-family: monospace;
+  font-size: 3.5px;
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 0.6px;
+}
+
+.hud {
+  position: absolute;
+  inset-block-start: to-rem(8px);
+  inset-inline-start: to-rem(8px);
+  padding: to-rem(6px) to-rem(10px);
+  background: rgb(0 0 0 / 75%);
+  color: #fff;
+  font-family: monospace;
+  font-size: to-rem(16px);
+  cursor: default;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: to-rem(4px);
+  margin-block-start: to-rem(4px);
+
+  button {
+    font: inherit;
+    font-size: to-rem(14px);
+    cursor: pointer;
+  }
+}
+
+.bottom {
+  inset-block: auto to-rem(8px);
+}
+
+.warning {
+  color: #ff8080;
+}

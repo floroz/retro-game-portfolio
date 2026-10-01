@@ -1,0 +1,61 @@
+{
+  "id": "ambience-sorrento",
+  "output": "public/audio/ambience/sorrento.mp3",
+  "task": "A2",
+  "source": "opus",
+  "date": "2026-09-29",
+  "recipe": "assets-src/audio/ambience/sorrento.ts",
+  "description": "Sorrento ambience: waves breaking on the rocks below in four sets a loop, gulls crying over the water, and a scooter passing on the coast road.",
+  "loop": {
+    "loopStart": 0.5,
+    "loopEnd": 36.5,
+    "loopStartFrame": 24000,
+    "loopEndFrame": 1752000,
+    "sampleRate": 48000,
+    "usage": "Decode with Web Audio and loop an AudioBufferSourceNode between loopStart and loopEnd (seconds). Start at 0."
+  },
+  "loudness": {
+    "integratedLufs": -28,
+    "lraLu": 7.7,
+    "truePeakDbtp": -12.9,
+    "samplePeakDbfs": -12.91,
+    "gainDb": -6.2,
+    "target": "-28 LUFS"
+  },
+  "seam": {
+    "wav": {
+      "windowFrames": 12000,
+      "identical": true,
+      "differenceDb": null,
+      "maxAbsDifference": 0,
+      "signalDbfs": -28.31,
+      "wrapStepRatio": 0.128,
+      "bestLag": 0
+    },
+    "mp3": {
+      "windowFrames": 12000,
+      "identical": false,
+      "differenceDb": -26.39,
+      "maxAbsDifference": 0.0108,
+      "signalDbfs": -28.75,
+      "wrapStepRatio": 0.258,
+      "bestLag": 0
+    },
+    "mp3WithDecoderOffset": {
+      "windowFrames": 10895,
+      "identical": false,
+      "differenceDb": -26.84,
+      "maxAbsDifference": 0.0103,
+      "signalDbfs": -28.57,
+      "wrapStepRatio": 0.473,
+      "bestLag": 0
+    }
+  },
+  "render": {
+    "synth": "scripts/assets/sfx.ts (seeded, deterministic)",
+    "seed": 44,
+    "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "sampleRate": 48000,
+    "channels": 2
+  }
+}

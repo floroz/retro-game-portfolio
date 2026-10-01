@@ -3,13 +3,14 @@
  * Inspired by classic point-and-click adventures (Monkey Island, Day of the Tentacle)
  */
 
+import { PROFILE } from "./profile";
 import type { DialogNode } from "../types/game";
 
 export const DIALOG_TREE: Record<string, DialogNode> = {
   // Intro - shown first after welcome screen with typewriter effect
   intro: {
     speaker: "daniele",
-    text: "Hey! Welcome to my portfolio. I'm Daniele, a software engineer based in Switzerland.",
+    text: `Hey! Welcome to my portfolio. I'm Daniele, a software engineer based in ${PROFILE.location}.`,
     options: [{ id: "continue", label: "Continue...", nextNode: "intro-2" }],
   },
 
@@ -71,7 +72,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-intro-2": {
     speaker: "daniele",
-    text: "10 years later, I'm in Switzerland bridging complex systems and intuitive UX.",
+    text: PROFILE.journey,
     options: [
       {
         id: "about-more",
@@ -160,7 +161,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Work branch
   "work-intro": {
     speaker: "daniele",
-    text: "I'm a Full Stack Engineer at Snyk, building Frontend platforms and AI-powered security features.",
+    text: "I'm a Senior Full Stack Engineer at Snyk, building Frontend platforms and AI-powered security features.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-intro-2" },
     ],
@@ -278,7 +279,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "hire-contact": {
     speaker: "daniele",
-    text: "Email: danieletortora.contact@gmail.com. Also on LinkedIn and GitHub—links in the toolbar. Or type 'contact' in the terminal!",
+    text: "Email: danieletortora.contact@gmail.com. Also on LinkedIn and GitHub—links in the toolbar. Or press Contact in the toolbar!",
     options: [
       {
         id: "back",
@@ -290,7 +291,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "hire-remote": {
     speaker: "daniele",
-    text: "Based in Switzerland, but experienced with remote/hybrid work. Async communication, video calls, good documentation—I know the drill.",
+    text: `Based in ${PROFILE.location}, but experienced with remote/hybrid work. Async communication, video calls, good documentation—I know the drill.`,
     options: [
       {
         id: "back",
@@ -303,14 +304,14 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Goodbye
   bye: {
     speaker: "daniele",
-    text: "No worries! Feel free to explore, open the terminal (try 'help'), or look for Easter eggs. Come back anytime!",
+    text: "No worries! Feel free to explore, fly to a gate or two, or look for Easter eggs. Come back anytime!",
     options: [{ id: "close", label: "[Close dialog]", nextNode: "__close__" }],
   },
 
   // Easter eggs
   "easter-egg-click": {
     speaker: "daniele",
-    text: "Still clicking? You'd make a great QA engineer. Press T to open the terminal—there might be hidden commands...",
+    text: "Still clicking? You'd make a great QA engineer. Try looking at everything—there might be a few surprises...",
     options: [{ id: "back", label: "Good tip!", nextNode: "welcome" }],
   },
 };

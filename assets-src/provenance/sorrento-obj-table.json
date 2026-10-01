@@ -1,0 +1,18 @@
+{
+  "id": "sorrento-obj-table",
+  "output": "src/assets/scenes/sorrento/obj-table.png",
+  "task": "HB4",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/layers-sorrento.md",
+  "candidate": "01",
+  "references": [
+    "assets-src/refs/hd/sorrento-chosen.png",
+    "assets-src/refs/hd/scale-sheet.png"
+  ],
+  "approvedRaw": "assets-src/approved/sorrento-table@hd.webp",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "HB4: candidate 01 of sorrento-table@hd, prepared with assets:prepare --painted --no-quantize (alpha key, Lanczos, hard alpha at 128), then quantized with the rest of the scene to one shared 256-colour palette (assets:quantize, no dither), 104x62 art px (52x31 logical) at logical 159,107, legs on logical y 138 (the baseline). The cups and the bowl are part of the sprite. Dark shading within 0.105 OKLab of the sweater was lightened in L only.",
+  "approvedBy": "orchestrator",
+  "date": "2026-09-29"
+}

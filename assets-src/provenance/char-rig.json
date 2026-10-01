@@ -1,0 +1,21 @@
+{
+  "id": "char-rig",
+  "output": "src/assets/character/daniele-rig.png",
+  "task": "Portrait-faithful character replacement",
+  "source": "codex",
+  "prompt": "assets-src/prompts/character/portrait-rig.md",
+  "candidate": "Approved front face and side sheet, with complete front/back turnaround correcting the requested stance and assembly",
+  "references": [
+    "src/assets/daniele-static.png",
+    "assets-src/approved/portrait-rig/front.png",
+    "assets-src/approved/portrait-rig/side.png",
+    "assets-src/approved/portrait-rig/back.png",
+    "assets-src/approved/portrait-rig/torsos.png",
+    "assets-src/approved/portrait-rig/turnaround.png"
+  ],
+  "approvedRaw": "assets-src/approved/portrait-rig/front.png",
+  "density": 4,
+  "cleanup": "Generated with built-in image generation. Preserves the original portrait face, smile, navy knit sweater, white collar, dark jeans and brown shoes. Following user feedback, front/back are cut from a complete anatomically coherent turnaround with a naturally separated stance, instead of assembling independently scaled limbs. Overlapping polygon cutting guides preserve shoulder/elbow/knee continuity; masks exclude adjacent hands and trouser edges. Front and side retain aligned rest, three talk shapes and blink heads. Side parts are sliced from its sheet. npm run assets:rigcut rebuilds the sources; npm run assets:rig -- --parts assets-src/character-rig --density 4 packs 38 frames at 288 art pixels tall / 72 logical pixels. The scene canvas preserves density-4 character detail while existing background art keeps its original pixel grid. The portrait's own painted edges are retained without a forced black silhouette. Front design approved by Daniele on 2026-09-30; assembly revised in response to his feedback.",
+  "approvedBy": "daniele",
+  "date": "2026-09-30"
+}

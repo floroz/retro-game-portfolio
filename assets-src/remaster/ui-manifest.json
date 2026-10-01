@@ -1,0 +1,75 @@
+{
+  "recipe": "scripts/assets/remaster-ui.ts",
+  "assets": [
+    {
+      "output": "src/assets/remaster/inspections/about.webp",
+      "source": "assets-src/approved/location-inspections/about.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Location cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
+    },
+    {
+      "output": "src/assets/remaster/inspections/contact.webp",
+      "source": "assets-src/approved/location-inspections/contact.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Location cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
+    },
+    {
+      "output": "src/assets/remaster/inspections/experience.webp",
+      "source": "assets-src/approved/location-inspections/experience.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Location cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
+    },
+    {
+      "output": "src/assets/remaster/inspections/resume.webp",
+      "source": "assets-src/approved/location-inspections/resume.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Location cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
+    },
+    {
+      "output": "src/assets/remaster/inspections/skills.webp",
+      "source": "assets-src/approved/location-inspections/skills.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Location cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
+    },
+    {
+      "output": "src/assets/remaster/inspections/souvenir-cheese.webp",
+      "source": "assets-src/approved/duty-free-inspections/cheese.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Airport duty-free cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/souvenirs.ts."
+    },
+    {
+      "output": "src/assets/remaster/inspections/souvenir-knife.webp",
+      "source": "assets-src/approved/duty-free-inspections/knife.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Airport duty-free cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/souvenirs.ts."
+    },
+    {
+      "output": "src/assets/remaster/inspections/souvenir-limoncello.webp",
+      "source": "assets-src/approved/duty-free-inspections/limoncello.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Airport duty-free cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/souvenirs.ts."
+    },
+    {
+      "output": "src/assets/remaster/inspections/souvenir-telephone.webp",
+      "source": "assets-src/approved/duty-free-inspections/telephone.png",
+      "width": 1280,
+      "height": 640,
+      "treatment": "Airport duty-free cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/souvenirs.ts."
+    },
+    {
+      "output": "src/assets/remaster/title/boarding-pass.webp",
+      "source": "assets-src/approved/boarding-pass.png",
+      "width": 1918,
+      "height": 820,
+      "treatment": "Original resolution and pixels preserved; lossless encoding only."
+    }
+  ]
+}

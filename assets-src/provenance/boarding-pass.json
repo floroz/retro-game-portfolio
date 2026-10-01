@@ -1,0 +1,13 @@
+{
+  "id": "boarding-pass",
+  "output": "src/assets/title/boarding-pass.png",
+  "task": "journey-order",
+  "source": "codex",
+  "prompt": "assets-src/prompts/boarding-pass.md",
+  "candidate": "02",
+  "references": [],
+  "approvedRaw": "assets-src/approved/boarding-pass.png",
+  "cleanup": "Built-in image_gen edit, 1918x820 RGBA PNG. Reordered the city illustrations and labels to Sorrento, London, Zürich. Preserved transparent ticket silhouette, identity text, blank control stub and barcode. Full-quality PNG retained in approved and title sources; remaster encoded as lossless WebP. Visually checked before integration.",
+  "approvedBy": "codex-autonomous-qa",
+  "date": "2026-10-01"
+}

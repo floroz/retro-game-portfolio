@@ -22,7 +22,7 @@ This skill guides running E2E tests and updating visual regression snapshots for
 | Run specific browser           | `npm run test:e2e:docker -- --project=chromium`                             |
 | Run specific test              | `npm run test:e2e:docker -- -g "test name"`                                 |
 
-The Docker script and Playwright web server set `VITE_TYPEWRITER_SPEED=0` so typewriter text appears immediately during tests. CI runs `npm run test:e2e` inside the Playwright container; the local Docker wrapper provides the same Linux environment.
+CI runs `npm run test:e2e` inside the Playwright container; the local Docker wrapper provides the same Linux environment.
 
 ## Workflow: After Modifying a Feature
 
@@ -80,6 +80,8 @@ test("new feature test", async ({ page }) => {
   });
 });
 ```
+
+To compare canvas pixels with an image, compare with the art the build ships, not its PNG source. The build encodes painted art as lossy WebP (`scripts/vite/optimize-images.ts`), which moves colours by a few levels. Use the `shippedArt` helper in `test/e2e-airport.test.ts`. The image pipeline is described in `docs/encoded-images.md`.
 
 ### Step 2: Generate Initial Snapshots
 
@@ -139,6 +141,10 @@ Small pixel differences (< 1%) may occur due to timing. Solutions:
 1. Add `await page.waitForTimeout(300)` before screenshot
 2. Use `reducedMotion: "reduce"` (already configured)
 3. Ensure animations complete before capturing
+
+### Canvas Pixels Differ From the Source Image by a Few Levels
+
+The test compares against a PNG source, but the build ships lossy WebP. Compare against `shippedArt(path)` instead of reading the PNG with sharp.
 
 ### Docker Command Fails
 

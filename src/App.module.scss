@@ -28,3 +28,13 @@
   pointer-events: none;
   z-index: 1;
 }
+
+/* Wraps the game canvas so it can stay mounted under the content screen */
+.gameLayer {
+  inline-size: 100%;
+  block-size: 100%;
+
+  &[hidden] {
+    display: none;
+  }
+}

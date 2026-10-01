@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "assets-src/provenance/schema.json",
+  "title": "Asset provenance record",
+  "description": "One record per final asset, named <id>.json, recording where it came from. npm run lint:assets enforces it.",
+  "type": "object",
+  "required": ["id", "output", "task", "source", "date"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*(?:@[a-z0-9]+(?:-[a-z0-9]+)*)?$",
+      "description": "Asset id, e.g. zurich-bg or zurich-obj-door@open"
+    },
+    "output": {
+      "type": "string",
+      "description": "Repo-relative path of the shipped file"
+    },
+    "task": {
+      "type": "string",
+      "description": "Task id from the execution map"
+    },
+    "source": { "enum": ["codex", "opus"] },
+    "prompt": {
+      "type": "string",
+      "description": "Codex only: the prompt file"
+    },
+    "candidate": {
+      "type": "string",
+      "description": "Codex only: the chosen candidate number, e.g. 03"
+    },
+    "references": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Codex only: reference images passed with the prompt"
+    },
+    "approvedRaw": {
+      "type": "string",
+      "description": "Codex only: assets-src/approved/<id>.webp"
+    },
+    "derivedFrom": {
+      "type": "string",
+      "description": "Opus only: the asset id this was drawn from, if any"
+    },
+    "palette": { "type": "string", "pattern": "^v\\d+$" },
+    "density": {
+      "enum": [1, 2, 4],
+      "description": "Density: 1 for the 320x160 art, 2 for 640x320 art (the Phase R pixel-art remaster, or Phase H painted art with style painted), 4 for the smooth HD path (1280x640 scenes, the cut-out rig; no palette, soft alpha). Absent means 1"
+    },
+    "style": {
+      "enum": ["pixel", "painted"],
+      "description": "Density 2 only. pixel (the default when absent): Phase R pixel art on the master palette, 64x128 character cells. painted: Phase H at MI3 pixel density, painted full colour with no master palette, at most 256 colours per scene folder with no dither, hard alpha, even sprite sides, and the cut-out rig at density 2"
+    },
+    "cleanup": { "type": "string" },
+    "approvedBy": { "type": "string" },
+    "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "style": { "const": "painted" } },
+        "required": ["style"]
+      },
+      "then": {
+        "properties": { "density": { "const": 2 } },
+        "required": ["density"],
+        "not": { "required": ["palette"] }
+      }
+    },
+    {
+      "if": { "properties": { "source": { "const": "codex" } } },
+      "then": {
+        "required": ["prompt", "candidate", "references", "approvedRaw"]
+      }
+    },
+    {
+      "if": { "properties": { "source": { "const": "opus" } } },
+      "then": {
+        "not": {
+          "anyOf": [
+            { "required": ["prompt"] },
+            { "required": ["candidate"] },
+            { "required": ["approvedRaw"] }
+          ]
+        }
+      }
+    }
+  ]
+}

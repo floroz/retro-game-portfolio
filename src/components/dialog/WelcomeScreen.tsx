@@ -1,117 +1,159 @@
-import { useEffect, useCallback } from "react";
-import { DialogPortrait } from "./DialogPortrait";
-import { useIsMobile } from "../../hooks/useIsMobile";
-import { SoundToggleButton } from "../shared/SoundToggleButton";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useGameStore } from "../../store/gameStore";
+import {
+  CANVAS_CARD_H,
+  CANVAS_CARD_W,
+  PASS,
+  SOUND_FITTING,
+  cardPct,
+  paintCard,
+} from "./titleCard";
+import boardingPass from "../../assets/remaster/title/boarding-pass.webp";
+import { PROFILE } from "../../config/profile";
 import styles from "./WelcomeScreen.module.scss";
 
 interface WelcomeScreenProps {
   onDismiss: () => void;
-  contained?: boolean; // When true, renders inside Win95 Game Window instead of full viewport
+  /**
+   * False while the scene's art is still loading. A start requested until
+   * then waits, and the card says so (default true).
+   */
+  ready?: boolean;
 }
 
 /**
- * Welcome intro featuring large portrait
- * Can render full-screen or contained within Win95 Game Window
- * Displays once per session, dismisses only on SPACE key or clicking the prompt
+ * The longest a requested start waits for the art, in ms. A stalled
+ * download must never lock the visitor out of the content.
  */
-export function WelcomeScreen({
-  onDismiss,
-  contained = false,
-}: WelcomeScreenProps) {
-  const isMobile = useIsMobile();
+const WAIT_LIMIT_MS = 12000;
 
-  // Handle dismiss - only triggered by space key or clicking prompt
-  const handleDismiss = useCallback(() => {
-    // Optional: Haptic feedback on mobile
-    if (isMobile && "vibrate" in navigator) {
-      navigator.vibrate(50);
-    }
+/** Illustrated boarding pass with real keyboard, pointer and sound controls. */
+export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const soundEnabled = useGameStore((s) => s.soundEnabled);
+  const toggleSound = useGameStore((s) => s.toggleSound);
+  const [soundHover, setSoundHover] = useState(false);
+  const [soundFocus, setSoundFocus] = useState(false);
+  const soundLit = soundHover || soundFocus;
+  const [queued, setQueued] = useState(false);
+  const waiting = queued && !ready;
 
-    onDismiss();
-  }, [isMobile, onDismiss]);
+  // The visitor asked to start: now if the art is in, else once it is.
+  const start = useCallback(() => {
+    if (ready) onDismiss();
+    else setQueued(true);
+  }, [ready, onDismiss]);
 
-  // Handle prompt click
-  const handlePromptClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      handleDismiss();
-    },
-    [handleDismiss],
-  );
-
-  // Handle touch events on mobile
-  const handleTouch = useCallback(
-    (e: React.TouchEvent) => {
-      e.preventDefault();
-      handleDismiss();
-    },
-    [handleDismiss],
-  );
+  const dismissRef = useRef(onDismiss);
+  useEffect(() => {
+    dismissRef.current = onDismiss;
+  }, [onDismiss]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Only dismiss on SPACE key
-      if (e.key === " " || e.code === "Space") {
-        e.preventDefault();
-        handleDismiss();
-      }
-    };
+    if (queued && ready) dismissRef.current();
+  }, [queued, ready]);
 
-    window.addEventListener("keydown", handleKeyDown);
+  useEffect(() => {
+    if (!waiting) return;
+    const timer = setTimeout(() => dismissRef.current(), WAIT_LIMIT_MS);
+    return () => clearTimeout(timer);
+  }, [waiting]);
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+  useEffect(() => {
+    const ctx = canvasRef.current?.getContext("2d");
+    if (ctx) {
+      paintCard(ctx, {
+        soundEnabled,
+        soundLit,
+      });
+    }
+  }, [soundEnabled, soundLit]);
+
+  // Space starts the game, whatever has focus except a button the visitor
+  // tabbed to, which handles its own Space (the pass starts, the fitting
+  // toggles the sound). A click blurs the fitting for that reason.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== " " && e.code !== "Space") return;
+      if (e.target instanceof HTMLButtonElement) return;
+      e.preventDefault();
+      if (!e.repeat) start();
     };
-  }, [handleDismiss]);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [start]);
 
   return (
     <div
-      className={contained ? styles.screenContained : styles.screen}
+      className={styles.screen}
       data-e2e="welcome-screen"
       role="dialog"
       aria-modal="true"
-      aria-label={
-        isMobile
-          ? "Welcome screen - tap to start"
-          : "Welcome screen - press space to start"
-      }
-      onTouchEnd={isMobile ? handleTouch : undefined}
+      aria-label="Welcome screen - press space to start"
+      aria-busy={waiting}
     >
-      {/* CRT scanline overlay */}
-      <div className={styles.scanlines} aria-hidden="true" />
+      <canvas
+        ref={canvasRef}
+        className={styles.art}
+        width={CANVAS_CARD_W}
+        height={CANVAS_CARD_H}
+        aria-hidden="true"
+      />
 
-      {/* Sound toggle in corner */}
-      <div className={styles.soundToggleWrapper}>
-        <SoundToggleButton />
-      </div>
+      <img
+        className={styles.ticket}
+        style={cardPct(PASS)}
+        src={boardingPass}
+        alt=""
+        aria-hidden="true"
+        data-e2e="welcome-screen-artwork"
+        draggable={false}
+      />
 
-      {/* Content container */}
-      <div className={styles.content}>
-        {/* Large portrait with frame */}
-        <div className={styles.portraitWrapper}>
-          <DialogPortrait size="large" />
-        </div>
+      <h1 className={styles.text} data-e2e="welcome-screen-name">
+        {PROFILE.name}
+      </h1>
+      <p className={styles.text} data-e2e="welcome-screen-title">
+        {PROFILE.title.split(" | ")[0]}
+      </p>
 
-        {/* Name and title */}
-        <h1 className={styles.name} data-e2e="welcome-screen-name">
-          DANIELE TORTORA
-        </h1>
-        <p className={styles.title} data-e2e="welcome-screen-title">
-          Senior Software Engineer
-        </p>
+      <button
+        type="button"
+        className={styles.pass}
+        style={cardPct(PASS)}
+        data-e2e="welcome-screen-prompt"
+        aria-label="Press space or click to start"
+        onClick={start}
+      >
+        <span className={styles.prompt}>
+          <span className={styles.promptLabel}>
+            {waiting ? "HOLD ON" : "PRESS"}
+          </span>
+          <span className={styles.key}>SPACE</span>
+          <span className={styles.promptHint} role="status">
+            {waiting ? "Loading…" : "to start"}
+          </span>
+        </span>
+      </button>
 
-        {/* Press space to start prompt - clickable */}
-        <button
-          className={styles.prompt}
-          data-e2e="welcome-screen-prompt"
-          onClick={handlePromptClick}
-          aria-label={
-            isMobile ? "Tap to start" : "Press space or click to start"
-          }
-        >
-          {isMobile ? "[ Tap to begin ]" : "[ Press SPACE to start ]"}
-        </button>
-      </div>
+      <button
+        type="button"
+        className={styles.fitting}
+        style={cardPct(SOUND_FITTING)}
+        data-e2e="welcome-screen-sound"
+        aria-pressed={soundEnabled}
+        aria-label="Sound"
+        onClick={(e) => {
+          toggleSound();
+          // A click (detail > 0, unlike Enter or Space) hands the keyboard
+          // back, so the next Space starts the game.
+          if (e.detail > 0) e.currentTarget.blur();
+        }}
+        onMouseEnter={() => setSoundHover(true)}
+        onMouseLeave={() => setSoundHover(false)}
+        onFocus={() => setSoundFocus(true)}
+        onBlur={() => setSoundFocus(false)}
+      />
     </div>
   );
 }

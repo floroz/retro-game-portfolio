@@ -7,7 +7,10 @@ export const PROFILE = {
   // Personal
   name: "Daniele Tortora",
   title: "Senior Software Engineer | Frontend & Full-Stack | AI Focused",
-  location: "Switzerland",
+  location: "Zürich, Switzerland",
+
+  journey:
+    "Sorrento is my hometown. From there I moved to London, then to Zürich, where I live now.",
 
   // Contact
   email: "danieletortora.contact@gmail.com",
@@ -19,7 +22,9 @@ export const PROFILE = {
   },
 
   // Bio/About summary
-  bio: `As a software engineer with 10 years of experience, I've built my career on a core belief: that the most powerful systems are defined by their human experience.
+  bio: `Originally from Sorrento, I moved to London and then to Zürich, where I now live.
+
+As a software engineer with 10 years of experience, I've built my career on a core belief: that the most powerful systems are defined by their human experience.
 
 This principle, shaped by my background in psychology, drives me to bridge the divide between complex software architecture and elegant, intuitive user interfaces.
 
@@ -92,6 +97,17 @@ When I'm not coding, you can find me:
     ],
   },
 
+  // Display names for the skill groups above (the London taps and chalkboard)
+  skillGroupLabels: {
+    frontend: "Frontend",
+    backend: "Backend",
+    ai: "AI & Tools",
+    cloud: "Cloud & DevOps",
+    data: "Data",
+    testing: "Testing",
+    leadership: "Leadership",
+  },
+
   // Experience summary
   experienceSummary: `Senior Software Engineer with 10 years building production applications across the full stack.
 
@@ -147,37 +163,44 @@ Core expertise: React, Vue, TypeScript, Node.js, Go, Kubernetes, AI integration`
   resumeUrl:
     "https://danieletortora.netlify.app/pdf/Daniele_Tortora_Fullstack_Resume.pdf",
 
-  // Work experience (for SEO/noscript fallback)
+  // Work experience, newest first. `country` decides which scene shows the
+  // job's memento: "london", "switzerland", or "italy" (see src/config/sections.ts).
   workExperience: [
     {
       company: "Snyk",
-      role: "Full Stack Engineer",
+      role: "Senior Full Stack Engineer",
       period: "May 2024 - Present",
+      country: "switzerland",
     },
     {
       company: "Frontiers",
       role: "Frontend Tech Lead",
       period: "Feb 2023 - May 2024",
+      country: "switzerland",
     },
     {
       company: "Meta (Facebook)",
       role: "Frontend Engineer",
       period: "Jun 2022 - Feb 2023",
+      country: "switzerland",
     },
     {
       company: "Tundra",
       role: "Senior Frontend Engineer",
       period: "Nov 2021 - Jun 2022",
+      country: "switzerland",
     },
     {
       company: "Tray.ai",
       role: "Senior Frontend Engineer",
       period: "Jan 2021 - Oct 2021",
+      country: "london",
     },
     {
       company: "Past Frontend Roles",
       role: "Frontend Engineer / Software Engineer",
       period: "Sep 2016 - Dec 2020",
+      country: "london",
     },
   ],
 

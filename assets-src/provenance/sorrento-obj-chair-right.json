@@ -1,0 +1,18 @@
+{
+  "id": "sorrento-obj-chair-right",
+  "output": "src/assets/scenes/sorrento/obj-chair-right.png",
+  "task": "HB4",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/layers-sorrento.md",
+  "candidate": "01",
+  "references": [
+    "assets-src/refs/hd/sorrento-chosen.png",
+    "assets-src/refs/hd/scale-sheet.png"
+  ],
+  "approvedRaw": "assets-src/approved/sorrento-chair-left@hd.webp",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "HB4: sorrento-chair-right@hd is no longer generated (orchestrator pick, 2026-09-29): this is candidate 01 of sorrento-chair-left@hd mirrored horizontally before assets:prepare, so its seat faces the table from the right. Otherwise as obj-chair-left.png; 44x80 art px at logical 203,97, baseline logical y 137.",
+  "approvedBy": "orchestrator",
+  "date": "2026-09-29"
+}

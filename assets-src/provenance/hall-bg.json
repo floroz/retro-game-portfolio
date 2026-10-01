@@ -1,0 +1,15 @@
+{
+  "id": "hall-bg",
+  "output": "src/assets/scenes/hall/bg.png",
+  "task": "airport-floor-shadows",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/hall-floor-shadows.md",
+  "candidate": "01",
+  "references": ["assets-src/refs/hd/hall-before-stone.png"],
+  "approvedRaw": "assets-src/approved/hall-stone-floor.png",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "Built-in image generation replaced the triangle carpet with stone terrazzo tiles and removed the duty-free fixture. scripts/assets/airport-floor.ts prepares a 640x320 plate, restores the original sign and gate architecture pixels, and maps to the existing Hall palette. The duty-free shop is now obj-duty-free.png; characters and furniture receive separate runtime ground shadows.",
+  "approvedBy": "codex",
+  "date": "2026-09-30"
+}

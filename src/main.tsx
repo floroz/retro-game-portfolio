@@ -1,22 +1,21 @@
-import { StrictMode } from "react";
+import { lazy, StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { MotionConfig } from "framer-motion";
 import "./index.scss";
 import App from "./App.tsx";
-import { OGImage } from "./components/seo/OGImage";
 
-// Check for OG image generation mode via URL parameter
-const isOGImageMode =
-  new URLSearchParams(window.location.search).get("og-image") === "true";
+const RemasterPreview = lazy(
+  () => import("./components/remaster/RemasterPreview"),
+);
+const showStudy =
+  new URLSearchParams(window.location.search).get("remaster") === "hall";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {isOGImageMode ? (
-      <OGImage />
-    ) : (
-      <MotionConfig reducedMotion="user">
-        <App />
-      </MotionConfig>
-    )}
+    <MotionConfig reducedMotion="user">
+      <Suspense fallback={<p>Loading airport study…</p>}>
+        {showStudy ? <RemasterPreview /> : <App />}
+      </Suspense>
+    </MotionConfig>
   </StrictMode>,
 );

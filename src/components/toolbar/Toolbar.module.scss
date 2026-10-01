@@ -1,50 +1,91 @@
 @use "../../styles/functions" as *;
 @use "../../styles/mixins" as *;
-@use "../../styles/variables" as vars;
 
-/* SCUMM-style toolbar - 40/40/20 grid */
-.toolbar {
-  display: grid;
-  grid-template-columns: 40% 40% 20%;
-  height: 100%;
-  padding: to-rem(12px) to-rem(16px);
-  background: linear-gradient(
-    180deg,
-    vars.$color-toolbar-bg-top 0%,
-    vars.$color-toolbar-bg-bottom 100%
-  );
-  border-block-start: to-rem(4px) solid vars.$color-toolbar-border;
+/* The travel trunk: one canvas of art at 2x the 640x80 panel grid, with a
+   real control over each painted one (Toolbar.tsx) */
+.panel {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
+  background: #2a1812;
 }
 
-/* Action buttons section (40%) */
-.actions {
-  @include flex-center;
+.art {
+  image-rendering: auto;
 
-  justify-content: flex-start;
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
 }
 
-/* Status text section (40% - center) */
-.status {
-  @include flex-center;
-
-  padding: 0 to-rem(16px);
+/* The canvas paints the sentence line; this copy is for screen readers
+   and tests */
+.sentence {
+  @include visually-hidden;
 }
 
-.statusText {
-  @include truncate;
+%control {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 
-  font-family: "Press Start 2P", "Courier New", monospace;
-  font-size: to-rem(14px);
-  color: var(--color-accent);
-  text-transform: uppercase;
-  text-shadow: to-rem(2px) to-rem(2px) 0 #000;
-  text-align: center;
+  &:focus {
+    outline: none;
+  }
+
+  /* A brass keyboard ring on the art's own 2 px grid */
+  &:focus-visible {
+    outline: to-rem(2px) solid #f7de8a;
+    box-shadow: 0 0 0 to-rem(4px) #1c120e;
+  }
 }
 
-/* Icon buttons section (20%) */
-.icons {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-sm);
+/* A section row on a boarding pass */
+.row {
+  @extend %control;
+}
+
+/* A round brass fitting */
+.fitting {
+  @extend %control;
+
+  border-radius: 50%;
+}
+
+/* The lid while Daniele talks: the choices' page (Dialogue.tsx) */
+.dialogue {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
+  background: #2a1812;
+}
+
+/* A choice on the page. The canvas lights the line under it, so the ring
+   the other controls use would only clutter the text. */
+// The choices' group spans the panel so it has a box (tests and assistive
+// tech see it as visible); only its rows take clicks.
+.choices {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+.choice {
+  @extend %control;
+
+  color: transparent;
+  font-size: to-rem(1px);
+  overflow: hidden;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
 }

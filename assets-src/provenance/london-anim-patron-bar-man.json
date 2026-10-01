@@ -1,0 +1,15 @@
+{
+  "id": "london-anim-patron-bar-man",
+  "output": "src/assets/scenes/london/anim-patron-bar-man.png",
+  "task": "pub-patrons",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/london-patrons.md",
+  "candidate": "01",
+  "references": [],
+  "approvedRaw": "assets-src/approved/pub-patrons/bar-man.webp",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "Built-in image generation; prepared with scripts/assets/pub-patrons.ts. 4 foot-aligned cells, 48x112 art px each; hard alpha and the existing London palette.",
+  "approvedBy": "codex",
+  "date": "2026-09-30"
+}

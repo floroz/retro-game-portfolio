@@ -1,4 +1,4 @@
-// Windows 95 game window styling
+// Windows 98 game window styling
 // Note: Most window styling is handled by Win95Window component
 // This file contains game-specific content styling
 
@@ -21,46 +21,4 @@
 
   // The game canvas will center itself
   // The dialog will overlay with position: absolute
-}
-
-// Legacy styles kept for reference but moved to Win95Window component
-.window {
-  // This is now handled by Win95Window wrapper
-}
-
-.active {
-  // This is now handled by Win95Window wrapper
-}
-
-.titleBar {
-  // This is now handled by Win95Window wrapper
-}
-
-.titleText {
-  // This is now handled by Win95Window wrapper
-}
-
-.systemButtons {
-  // This is now handled by Win95Window wrapper
-}
-
-.minimizeButton,
-.closeButton {
-  // This is now handled by Win95Window wrapper
-}
-
-.minimizeButton {
-  span {
-    // This is now handled by Win95Window wrapper
-  }
-}
-
-.closeButton {
-  span {
-    // This is now handled by Win95Window wrapper
-  }
-}
-
-.content {
-  // This is now handled by Win95Window wrapper
 }

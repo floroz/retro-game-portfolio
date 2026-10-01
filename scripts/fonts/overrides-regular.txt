@@ -1,0 +1,102 @@
+// Hand-drawn glyphs for serif-regular (scripts/fonts/rasterize.py). Same
+// format as the atlas: glyph <code point> <advance> <left> <rows above
+// baseline>, then rows: "#" ink, "+" the edge tone, "." nothing. Advance is
+// the ink width plus 1. The edge tone is added by the script, so draw ink only.
+
+glyph 002E 3 0 2 .
+##
+##
+
+glyph 002C 3 0 2 ,
+##
+##
+.#
+#.
+
+glyph 003A 3 0 7 :
+##
+##
+..
+..
+..
+##
+##
+
+glyph 003B 3 0 7 ;
+##
+##
+..
+..
+..
+##
+##
+.#
+#.
+
+glyph 0021 3 0 12 !
+##
+##
+##
+##
+##
+##
+##
+##
+..
+..
+##
+##
+
+glyph 003F 7 0 12 ?
+.####.
+##..##
+##..##
+....##
+...##.
+..##..
+..##..
+......
+......
+......
+..##..
+..##..
+
+glyph 0027 3 0 12 '
+##
+##
+##
+
+glyph 2019 3 0 12 ’
+##
+##
+.#
+#.
+
+glyph 2018 3 0 12 ‘
+.#
+##
+##
+
+glyph 0022 6 0 12 "
+##.##
+##.##
+##.##
+
+glyph 201C 6 0 12 “
+.#..#
+##.##
+##.##
+
+glyph 201D 6 0 12 ”
+##.##
+##.##
+.#..#
+#..#.
+
+glyph 2026 9 0 2 …
+##.##.##
+##.##.##
+
+glyph 002D 5 0 5 -
+####
+####

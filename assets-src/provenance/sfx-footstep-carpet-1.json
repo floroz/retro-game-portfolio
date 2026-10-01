@@ -1,0 +1,24 @@
+{
+  "id": "sfx-footstep-carpet-1",
+  "output": "public/audio/sfx/footstep-carpet-1.mp3",
+  "task": "A2",
+  "source": "opus",
+  "date": "2026-09-29",
+  "recipe": "assets-src/audio/sfx/footstep-carpet-1.ts",
+  "description": "Footstep on the Hall's patterned carpet, variant 1 of 3: heel then toe.",
+  "loudness": {
+    "integratedLufs": -24.6,
+    "lraLu": 0,
+    "truePeakDbtp": -2.9,
+    "samplePeakDbfs": -2.92,
+    "gainDb": -0.38,
+    "target": "-3 dBFS sample peak"
+  },
+  "render": {
+    "synth": "scripts/assets/sfx.ts (seeded, deterministic)",
+    "seed": 101,
+    "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "sampleRate": 48000,
+    "channels": 1
+  }
+}

@@ -1,70 +1,81 @@
-// Windows 95 loading widget styling
 .window {
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
   background: #c0c0c0;
   border: 2px solid;
-  border-color: #fff #000 #000 #fff;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border-color: #dfdfdf #000 #000 #dfdfdf;
+  box-shadow:
+    inset 1px 1px #fff,
+    inset -1px -1px #808080;
   display: flex;
   flex-direction: column;
+  font-family: Tahoma, "MS Sans Serif", Arial, sans-serif;
+  color: #000;
+  font-size: 11px;
 }
 
-// Title bar styling
 .titleBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 2px 4px;
-  background: linear-gradient(to right, #000080, #1084d0);
-  color: #fff;
-  font-family: "MS Sans Serif", Arial, sans-serif;
-  font-size: 11px;
+  min-height: 22px;
+  box-sizing: border-box;
+  padding: 2px;
+  background: linear-gradient(to right, #808080, #b5b5b5);
+  color: #dfdfdf;
   font-weight: bold;
   user-select: none;
-  cursor: move;
+  cursor: default;
+}
+
+.active .titleBar {
+  background: linear-gradient(to right, #000080, #1084d0);
+  color: #fff;
 }
 
 .titleText {
-  display: flex;
-  align-items: center;
-  gap: 4px;
   padding-left: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.systemButtons {
-  display: flex;
-  gap: 2px;
-}
-
-.closeButton {
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.closeButton,
+.cancelButton {
   background: #c0c0c0;
-  border: 2px solid;
+  border: 1px solid;
   border-color: #fff #000 #000 #fff;
-  font-family: "MS Sans Serif", Arial, sans-serif;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 0;
+  box-shadow:
+    inset -1px -1px #808080,
+    inset 1px 1px #dfdfdf;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: default;
   color: #000;
 
   &:active {
-    border-color: #000 #fff #fff #000;
-    transform: translateY(1px);
+    border-color: #808080 #fff #fff #808080;
+    box-shadow: inset 1px 1px #000;
   }
 
-  &:focus {
+  &:focus-visible {
     outline: 1px dotted #000;
     outline-offset: -4px;
   }
+}
+
+.closeButton {
+  box-sizing: border-box;
+  width: 18px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0;
 
   span {
     line-height: 1;
@@ -72,50 +83,74 @@
   }
 }
 
-// Content area
 .content {
   flex: 1;
-  padding: 16px;
+  padding: 14px 18px 12px;
   display: flex;
   flex-direction: column;
+  gap: 10px;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
   gap: 12px;
 }
 
-.loadingText {
-  font-family: "MS Sans Serif", Arial, sans-serif;
-  font-size: 12px;
-  color: #000;
-}
-
-// Progress bar container
-.progressBarContainer {
-  flex: 1;
+.applicationIcon {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
+  width: 34px;
+  height: 29px;
+  padding: 3px;
+  background: #fff;
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  box-shadow:
+    inset 0 5px #000080,
+    1px 1px #808080;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.productName {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.systemName {
+  margin-top: 3px;
+  color: #444;
+}
+
+.loadingText {
+  line-height: 15px;
 }
 
 .progressBar {
+  box-sizing: border-box;
   width: 100%;
-  height: 20px;
-  background: #fff;
-  border: 2px solid;
+  height: 18px;
+  background: #c0c0c0;
+  border: 1px solid;
   border-color: #808080 #fff #fff #808080;
+  box-shadow: inset 1px 1px #000;
   display: flex;
-  gap: 1px;
+  gap: 2px;
   padding: 2px;
 }
 
 .progressSegment {
   flex: 1;
   background: transparent;
-  transition: background-color 0.1s ease-out;
 
   &.filled {
     background: #000080;
   }
 }
 
-// Button container
 .buttonContainer {
   display: flex;
   justify-content: flex-end;
@@ -124,21 +159,4 @@
 .cancelButton {
   width: 75px;
   height: 23px;
-  background: #c0c0c0;
-  border: 2px solid;
-  border-color: #fff #000 #000 #fff;
-  font-family: "MS Sans Serif", Arial, sans-serif;
-  font-size: 11px;
-  cursor: pointer;
-  color: #000;
-
-  &:active {
-    border-color: #000 #fff #fff #000;
-    transform: translateY(1px);
-  }
-
-  &:focus {
-    outline: 1px dotted #000;
-    outline-offset: -4px;
-  }
 }

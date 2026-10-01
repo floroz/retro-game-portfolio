@@ -1,0 +1,24 @@
+{
+  "id": "sfx-dart-thunk",
+  "output": "public/audio/sfx/dart-thunk.mp3",
+  "task": "A2",
+  "source": "opus",
+  "date": "2026-09-29",
+  "recipe": "assets-src/audio/sfx/dart-thunk.ts",
+  "description": "Dart thunk: a short whoosh, a dull thunk into the sisal board, and the shaft's wobble.",
+  "loudness": {
+    "integratedLufs": -21.4,
+    "lraLu": 0,
+    "truePeakDbtp": -3.3,
+    "samplePeakDbfs": -3.39,
+    "gainDb": 0.53,
+    "target": "-3 dBFS sample peak"
+  },
+  "render": {
+    "synth": "scripts/assets/sfx.ts (seeded, deterministic)",
+    "seed": 17,
+    "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "sampleRate": 48000,
+    "channels": 1
+  }
+}
