@@ -138,6 +138,8 @@ test("pub patrons drink while skills and the airport exit stay reachable", async
 });
 
 test("pub patrons respect reduced motion", async ({ page }) => {
+  // The arrival and observation render 46 seconds of the simulated clock.
+  test.setTimeout(60000);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await openPub(page);
   const before = await patronPixels(page);

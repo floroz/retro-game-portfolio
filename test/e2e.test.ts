@@ -197,7 +197,9 @@ test.describe("Visual Regression Tests", () => {
         .click();
 
       const inspection = page.locator("[data-e2e=object-inspection]");
-      await expect(inspection).toBeVisible({ timeout: 30000 });
+      await expect(inspection).toHaveAttribute("data-ready", "true", {
+        timeout: 30000,
+      });
       await expect(inspection.getByRole("heading", { level: 2 })).toHaveText(
         section === "about" ? "About Daniele" : new RegExp(`^${section}$`, "i"),
       );
@@ -226,7 +228,6 @@ test.describe("Visual Regression Tests", () => {
   }
 
   test("illustrated skills inspection pagination", async ({ page }) => {
-    const pageCount = Object.keys(PROFILE.skills).length;
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     await waitForGameWindowReady(page);
@@ -234,23 +235,28 @@ test.describe("Visual Regression Tests", () => {
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: /^Skills, in / }).click();
     const inspection = page.locator("[data-e2e=object-inspection]");
-    await expect(inspection).toBeVisible({ timeout: 30000 });
-    await expect(
-      inspection.getByLabel(`Page 1 of ${pageCount}`, { exact: true }),
-    ).toBeVisible();
+    await expect(inspection).toHaveAttribute("data-ready", "true", {
+      timeout: 30000,
+    });
+    // Pages are measured to fit the card, so a long skill group can continue
+    // onto a second page under the same heading. Read the total it settled on.
+    const label = await inspection
+      .getByLabel(/^Page 1 of \d+$/)
+      .getAttribute("aria-label");
+    const pageCount = Number(label?.match(/of (\d+)$/)?.[1]);
+    expect(pageCount).toBeGreaterThanOrEqual(
+      Object.keys(PROFILE.skills).length,
+    );
     await expect(
       inspection.getByRole("button", { name: "Previous page" }),
     ).toBeDisabled();
-    const firstGroup = await inspection
-      .getByRole("heading", { level: 3 })
-      .textContent();
+    const pageText = inspection.locator("[data-e2e=inspection-page]");
+    const firstPage = await pageText.textContent();
     await page.keyboard.press("ArrowRight");
     await expect(
       inspection.getByLabel(`Page 2 of ${pageCount}`, { exact: true }),
     ).toBeVisible();
-    await expect(inspection.getByRole("heading", { level: 3 })).not.toHaveText(
-      firstGroup!,
-    );
+    await expect(pageText).not.toHaveText(firstPage!);
     for (let i = 2; i <= pageCount; i++)
       await page.keyboard.press("ArrowRight");
     await expect(
