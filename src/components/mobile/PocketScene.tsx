@@ -9,11 +9,10 @@ import styles from "./PocketScene.module.scss";
 
 interface Props {
   active: boolean;
-  playing: boolean;
   sipRequest: number;
 }
 
-export function PocketScene({ active, playing, sipRequest }: Props) {
+export function PocketScene({ active, sipRequest }: Props) {
   const root = useRef<HTMLDivElement>(null);
   const controller = useRef<ReturnType<typeof createPocketScene> | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
@@ -39,8 +38,8 @@ export function PocketScene({ active, playing, sipRequest }: Props) {
     };
   }, [attempt]);
   useEffect(() => {
-    controller.current?.setState({ active, playing });
-  }, [active, playing, status]);
+    controller.current?.setState({ active });
+  }, [active, status]);
   useEffect(() => {
     if (sipRequest > 0) controller.current?.sip();
   }, [sipRequest]);

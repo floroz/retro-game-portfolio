@@ -24,6 +24,32 @@ function currentRoute(): SectionId | "home" | "welcome" {
   );
 }
 
+/** A pixel speaker, crossed out while muted. */
+function SoundIcon({ muted }: { muted: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      width="22"
+      height="22"
+      aria-hidden="true"
+      shapeRendering="crispEdges"
+    >
+      <path fill="currentColor" d="M1 5h3l4-4h1v14H8l-4-4H1z" />
+      {muted ? (
+        <path
+          fill="currentColor"
+          d="M10 5h2v2h-2zM14 5h2v2h-2zM12 7h2v2h-2zM10 9h2v2h-2zM14 9h2v2h-2z"
+        />
+      ) : (
+        <path
+          fill="currentColor"
+          d="M11 6h1v4h-1zM13 4h1v8h-1zM15 2h1v12h-1z"
+        />
+      )}
+    </svg>
+  );
+}
+
 /** A small adventure that never puts the portfolio behind a game mechanic. */
 export function PocketAdventure() {
   const route = useSyncExternalStore(
@@ -32,9 +58,8 @@ export function PocketAdventure() {
     () => "welcome" as const,
   );
   const section = route === "home" || route === "welcome" ? null : route;
-  const [playing, setPlaying] = useState(true);
   const [sipRequest, setSipRequest] = useState(0);
-  const ambience = usePocketAmbience(route === "home" && playing);
+  const ambience = usePocketAmbience(route === "home");
   const [conversation, setConversation] = useState<
     keyof typeof POCKET_CONVERSATION | null
   >(null);
@@ -63,28 +88,6 @@ export function PocketAdventure() {
 
   return (
     <main className={styles.adventure} data-e2e="pocket-adventure">
-      <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>Pocket Adventure</p>
-          <p className={styles.name}>The Sorrento kitchen</p>
-        </div>
-        {section ? (
-          <a className={styles.back} href="#pocket-home">
-            ← Sorrento
-          </a>
-        ) : (
-          <a
-            className={styles.back}
-            href="#pocket-welcome"
-            aria-label="About the desktop edition"
-          >
-            Desktop
-            <br />
-            edition ↗
-          </a>
-        )}
-      </header>
-
       <div className={styles.world} hidden={section !== null}>
         <div className={styles.stage}>
           <div
@@ -93,11 +96,7 @@ export function PocketAdventure() {
             role="group"
             aria-label="Daniele's kitchen overlooking Ischia. Tap the painted objects to explore the portfolio."
           >
-            <PocketScene
-              active={section === null}
-              playing={playing}
-              sipRequest={sipRequest}
-            />
+            <PocketScene active={section === null} sipRequest={sipRequest} />
             {POCKET_HOTSPOTS.map((hotspot) => (
               <a
                 key={hotspot.section}
@@ -152,23 +151,6 @@ export function PocketAdventure() {
             </div>
           )}
         </div>
-        <div className={styles.sceneCaption}>
-          <span>Make yourself at home.</span>
-          <button
-            type="button"
-            aria-pressed={!playing}
-            onClick={() => setPlaying(!playing)}
-          >
-            {playing ? "Pause scene" : "Play scene"}
-          </button>
-          <button
-            type="button"
-            aria-pressed={ambience.enabled}
-            onClick={ambience.toggle}
-          >
-            Sound {ambience.enabled ? "on" : "off"}
-          </button>
-        </div>
       </div>
 
       {section && (
@@ -205,6 +187,16 @@ export function PocketAdventure() {
         >
           Explore
         </a>
+        <button
+          type="button"
+          className={styles.sound}
+          aria-label={ambience.enabled ? "Mute sound" : "Enable sound"}
+          aria-pressed={ambience.enabled}
+          title={ambience.enabled ? "Mute sound" : "Enable sound"}
+          onClick={ambience.toggle}
+        >
+          <SoundIcon muted={!ambience.enabled} />
+        </button>
       </nav>
     </main>
   );
