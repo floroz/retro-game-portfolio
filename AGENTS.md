@@ -53,15 +53,45 @@ Vite prints the local URL, usually `http://localhost:5173`.
 
 For detailed content changes, see `.agents/skills/update-portfolio-content/SKILL.md`.
 
-## Add or change art
+## Art and asset loading
 
-Commit images under `src/assets/` as PNG, WebP or JPEG sources. Don't compress them by hand: `vite build` re-encodes each one as WebP (`scripts/vite/optimize-images.ts`). Painted art goes lossy at q90. Pixel art, meaning 256 colours or fewer, stays lossless, and transparency is always exact. The dev server serves the sources unchanged.
+The game loads every image before it needs one, like a real game, so no scene, title card or inspection paints in half-loaded. Two pieces make that work. The build ships small files, and the page loads them in the order the visitor meets them, behind the Windows 98 launch dialog.
 
-- **Scene art needs no wiring.** Backgrounds, sprites, object states, animation strips, props and slots listed in a scene config are preloaded automatically, as are new scenes added to `SCENES`. `preload.test.ts` fails if canvas art is missing from the load order.
-- **Art drawn as a plain `<img>` must be listed by hand** in `src/engine/preload.ts`. That covers the boarding pass and the inspection and souvenir cards; add any new title, overlay or card art there. Otherwise it downloads only when it first appears, and paints in progressively.
-- **Keep within the size budgets.** `assetBudget.test.ts` measures each preloaded image with the build's own encoder. The title card plus the first scene must stay under 1 MB, since the launch dialog waits for them; any single image must stay under 512 KB. If a budget fails, shrink or split the art instead of raising the limit.
-- **Images outside `src/assets/` are not optimised.** That includes anything in `public/` or referenced from SCSS `url()`, and any other format.
-- **Compare canvas pixels with the shipped art.** An E2E check that compares the canvas with an image's pixels must use the art the build ships. Lossy WebP moves colours by a few levels, so a raw PNG comparison fails. Use `shippedArt` in `test/e2e-airport.test.ts`.
+### How it works
+
+1. **Sources live in `src/assets/`** as PNG, WebP or JPEG. The repository keeps them full quality, and the asset scripts (`npm run assets:*`) and `npm run lint:assets` work on them. Don't compress them by hand.
+2. **`vite build` re-encodes each image as WebP** (`scripts/vite/optimize-images.ts`):
+   - Painted art goes lossy at q90.
+   - Pixel art, meaning 256 colours or fewer, stays lossless so hard edges don't blur.
+   - Transparency is always lossless, so the alpha boxes behind hotspots can't move.
+   - A file under 4 KB, or one WebP can't shrink, ships as it is.
+   - Encodes are cached in `node_modules/.vite/` by source and encoder settings, so only changed art is re-encoded.
+   - The dev server serves the sources unchanged.
+3. **`src/engine/preload.ts` loads the art in tiers.** Each tier starts once the one before it has finished, so art the visitor sees next never shares bandwidth with art they can't reach yet:
+   1. the title card's boarding pass (high priority);
+   2. Daniele and the first scene, `START_SCENE` (high priority);
+   3. the other scenes and the travel map;
+   4. the inspection and souvenir cards, warmed into the HTTP cache only.
+4. **Each stage waits for its art, with a fallback.**
+   - The launch dialog's bar (`Win95LoadingWidget.tsx`) follows tiers 1 and 2. It never finishes in under 1.5 s.
+   - The title card's Start then waits for all scene art. It shows "HOLD ON" until then.
+   - Both give up after 12 s, so a stalled download never locks anyone out of the content.
+   - In a scene, the renderer holds its last frame until every image the scene draws has loaded.
+   - `ImageStore` decodes each image before it counts as loaded, so a first frame never stalls on a decode.
+5. **Size budgets keep it that way.** `src/engine/__tests__/assetBudget.test.ts` measures each preloaded image with the build's own encoder, through a `?shipped-size` import. Tiers 1 and 2 together must stay under 1 MB, and any single image under 512 KB.
+
+### Gotchas
+
+- **Plain `<img>` art must be listed by hand.** Canvas art listed in a scene config is preloaded automatically, as is any new scene in `SCENES`. That covers backgrounds, sprites, object states, animation strips, props and slots, and `preload.test.ts` fails if any is missing. Art drawn as a plain `<img>` is different: the boarding pass, the inspection cards, and any new title, overlay or card art go into `preload.ts` by hand. Nothing tests for that, and missing art only downloads when it first appears, painting in progressively.
+- **Image size sets density.** The engine reads each image's density from its pixel size (`src/engine/density.ts`), so don't resize art to make a file smaller. For example, a background must stay 320×160 logical px: 1280×640 at density 4. Shrink bytes through the encoder, or by simplifying the art.
+- **Remastered scene art mirrors the v1 path.** Scene configs import the v1 file under `src/assets/scenes/`, and `remasterArtwork` (`src/engine/artwork.ts`) swaps in the file at the same path under `src/assets/remaster/`. New canvas art therefore needs both files, with matching names; a remaster file without a v1 twin is never drawn. Plain `<img>` art, such as the title and inspection cards, imports its file under `remaster/` directly.
+- **Transparent padding changes hotspots.** An object without an explicit hotspot gets one from its sprite's alpha bounding box.
+- **Some images aren't optimised.** Anything in `public/`, images referenced from SCSS `url()`, and formats other than PNG, WebP and JPEG ship exactly as they are.
+- **Dev doesn't show compression.** To judge the shipped look or byte sizes, run `npm run build` and `npm run preview`.
+- **Fix art over budget; don't raise the limit.** Shrink, simplify or split the art. The launch budget is what the 1.5 s launch dialog can cover on an ordinary connection.
+- **Compare canvas pixels with the shipped art.** An E2E check that compares the canvas with an image must use the art the build ships, not the PNG source. Lossy WebP moves colours by a few levels. Use `shippedArt` in `test/e2e-airport.test.ts`.
+- **Changing encoder settings changes snapshots.** Editing the quality or palette rule in `optimize-images.ts` changes every lossy image, so the visual baselines need regenerating in Docker. The cache key includes those settings, so no manual cache clearing is needed.
+- **Mobile doesn't use the tiers.** The desktop preload doesn't run on the Game Boy view, which imports no art from `src/assets/` today. If it starts to, it needs a preload of its own.
 
 ## Verify changes
 
