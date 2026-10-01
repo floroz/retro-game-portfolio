@@ -30,15 +30,24 @@ const SECTIONS = Object.keys({
 export interface PreloadTier {
   urls: string[];
   priority: "high" | "low";
+  /**
+   * Art the canvas draws goes in the image store. The rest (the inspection
+   * cards, plain `<img>`s) only needs to be in the browser's cache.
+   */
+  canvas: boolean;
 }
 
 /** Every image the game shows, each in the first tier that needs it. */
 export function preloadTiers(): PreloadTier[] {
   const seen = new Set<string>();
-  const tier = (urls: string[], priority: PreloadTier["priority"]) => {
+  const tier = (
+    urls: string[],
+    priority: PreloadTier["priority"],
+    canvas = true,
+  ): PreloadTier => {
     const fresh = [...new Set(urls)].filter((url) => !seen.has(url));
     fresh.forEach((url) => seen.add(url));
-    return { urls: fresh, priority };
+    return { urls: fresh, priority, canvas };
   };
   return [
     tier([boardingPass], "high"),
@@ -64,6 +73,7 @@ export function preloadTiers(): PreloadTier[] {
         ...Object.values(SOUVENIRS).map((souvenir) => souvenir.art),
       ],
       "low",
+      false,
     ),
   ];
 }
@@ -73,6 +83,16 @@ const TIERS = preloadTiers();
 /** What the launch dialog waits for: the title card and the Hall. */
 const LAUNCH_IMAGES = TIERS.slice(0, 2).flatMap((tier) => tier.urls);
 
+/** Fetches an image into the browser's cache, then lets it go. */
+function warm(url: string, priority: PreloadTier["priority"]): Promise<void> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.fetchPriority = priority;
+    img.onload = img.onerror = () => resolve();
+    img.src = url;
+  });
+}
+
 let started = false;
 
 /** Starts loading every tier in turn. Safe to call more than once. */
@@ -80,8 +100,14 @@ export function startPreload(): void {
   if (started) return;
   started = true;
   void TIERS.reduce<Promise<void>>(
-    (previous, { urls, priority }) =>
-      previous.then(() => images.loadAll(urls, priority)),
+    (previous, { urls, priority, canvas }) =>
+      previous.then(() =>
+        canvas
+          ? images.loadAll(urls, priority)
+          : Promise.all(urls.map((url) => warm(url, priority))).then(
+              () => undefined,
+            ),
+      ),
     Promise.resolve(),
   );
 }

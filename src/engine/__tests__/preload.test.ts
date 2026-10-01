@@ -26,7 +26,10 @@ describe("preload order", () => {
     );
   });
 
-  test("ends with the inspection cards", () => {
-    expect(tiers.at(-1)?.urls.every((url) => /\.webp/.test(url))).toBe(true);
+  test("ends with the inspection cards, which the canvas never draws", () => {
+    const last = tiers.at(-1)!;
+    expect(last.canvas).toBe(false);
+    expect(last.urls.every((url) => /\.webp/.test(url))).toBe(true);
+    expect(tiers.slice(0, -1).every((tier) => tier.canvas)).toBe(true);
   });
 });

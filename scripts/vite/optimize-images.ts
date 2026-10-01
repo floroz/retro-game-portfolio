@@ -70,12 +70,15 @@ export function optimizeImages(): Plugin {
       if (query !== "" && query !== "url") return null;
       let pending = encoded.get(file);
       if (!pending) {
-        pending = readFile(file).then(encodeWebp);
+        // Vite inlines a file this small as it is; there's nothing to save.
+        pending = readFile(file).then((source) =>
+          source.length < inlineLimit ? null : encodeWebp(source),
+        );
         encoded.set(file, pending);
       }
       const webp = await pending;
       if (!webp) return null;
-      // Small images inline as data URLs, as Vite does with the originals.
+      // A WebP this small inlines as a data URL, as Vite would inline it.
       if (webp.length < inlineLimit) {
         const url = `data:image/webp;base64,${webp.toString("base64")}`;
         return `export default ${JSON.stringify(url)};`;
