@@ -81,7 +81,7 @@ test("new feature test", async ({ page }) => {
 });
 ```
 
-To compare canvas pixels with an image, compare with the art the build ships, not its PNG source. The build encodes painted art as lossy WebP (`scripts/vite/optimize-images.ts`), which moves colours by a few levels. Use the `shippedArt` helper in `test/e2e-airport.test.ts`.
+To compare canvas pixels with an image, compare with the art the build ships, not its PNG source. The build encodes painted art as lossy WebP (`scripts/vite/optimize-images.ts`), which moves colours by a few levels. Use the `shippedArt` helper in `test/e2e-airport.test.ts`. The image pipeline is described in `docs/encoded-images.md`.
 
 ### Step 2: Generate Initial Snapshots
 
