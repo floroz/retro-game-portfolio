@@ -35,13 +35,13 @@ The full desktop experience emulates a Windows 98 environment:
 
 ## Mobile Experience
 
-<div align="center">
+On mobile and portrait tablets, **Pocket Adventure** begins with an illustrated invitation recommending desktop for the full game. Enter the painted Sorrento kitchen or go straight to **Experience, Résumé or Contact**. In the kitchen, tap the postcards, telephone, career album, document folder, or backpack and laptop to discover the portfolio, or use the always-visible navigation.
 
-<img src="public/mobile-view-og.png" alt="Game Boy emulator showing the portfolio on mobile" width="360" />
+The approved portrait of Daniele sits at the table, sipping coffee twice in each stage of a 30-second day, sunset, night and dawn cycle. Sun and moon move across the window; a ferry and wooden boat take turns crossing the sea, the moka steams, and the trees move in the breeze. Conversations are optional, object labels can be hidden, and scene motion can be paused. Sea ambience and occasional moka sounds are opt-in. Reduced motion starts with a still scene. Reading views use full-width, scrollable text from the same profile as desktop. Browser Back, direct section links, keyboard navigation, and reduced motion are supported. There is no boot delay or forced device rotation.
 
-</div>
+The first mobile chapter is Sorrento; travel to the desktop's other locations is a future expansion. See [the mobile design and artwork notes](docs/pocket-adventure.md).
 
-On mobile devices, the portfolio transforms into a **Game Boy emulator**. The same content — about, skills, experience, contact — is presented through a retro handheld console interface, complete with a D-pad and action buttons. It's a fully responsive experience that embraces the retro theme rather than fighting the smaller screen.
+---
 
 ## Built With
 
@@ -77,8 +77,7 @@ Then open the URL shown in the terminal (typically `http://localhost:5173`).
 
 The regular game now uses the approved remaster treatment in all four locations,
 the travel map, dialogue, toolbar, title ticket and object inspections. Navigation,
-hotspots, character proportions, timing and portfolio content are unchanged. The
-The desktop uses a Windows 98 shell with silver bevels, gradient title bars, and a working Start menu. The Game Boy mobile presentation retains its original styling.
+hotspots, character proportions, timing and portfolio content are unchanged. The desktop uses a Windows 98 shell with silver bevels, gradient title bars, and a working Start menu. Mobile has its own Pocket Adventure chapter.
 
 The source archive supplies 53 scene/map/shared exports at density 4 (1280×640
 backgrounds), nine full-colour inspections, and the original-resolution title ticket.

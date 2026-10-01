@@ -117,7 +117,7 @@ When a budget fails, shrink, simplify or split the art. Don't raise the limit.
 - **Exact-pixel tests against PNG sources fail.** Lossy WebP moves colours by 2–3 levels. Compare with `shippedArt(path)`.
 - **Encoder changes touch every screenshot.** Any setting change re-encodes all lossy art, so the visual baselines must be regenerated in Docker.
 - **Image URLs differ between dev and build.** Dev and tests use `/src/assets/...`. A build uses a hashed `assets/*.webp` file or a `data:` URL. Compare imported URLs with each other, never with literal paths.
-- **The Game Boy view preloads nothing.** It imports no art from `src/assets/` today. If it starts to, it needs a preload of its own.
+- **Mobile uses its own preload.** `src/components/mobile/pocketAssets.ts` loads the approved portrait scene from `src/assets/mobile/`, decodes all animation sources before starting, then warms the inspection artwork. It does not start desktop preloading. Its budget test limits each image to 512 KB, welcome art to 1 MB, and the complete scene to 3 MB. A failed scene load offers a retry and never blocks the portfolio navigation.
 
 ## Verify
 
