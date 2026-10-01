@@ -168,7 +168,7 @@ Core expertise: React, Vue, TypeScript, Node.js, Go, Kubernetes, AI integration`
   workExperience: [
     {
       company: "Snyk",
-      role: "Full Stack Engineer",
+      role: "Senior Full Stack Engineer",
       period: "May 2024 - Present",
       country: "switzerland",
     },

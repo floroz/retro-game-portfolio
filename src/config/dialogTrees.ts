@@ -161,7 +161,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Work branch
   "work-intro": {
     speaker: "daniele",
-    text: "I'm a Full Stack Engineer at Snyk, building Frontend platforms and AI-powered security features.",
+    text: "I'm a Senior Full Stack Engineer at Snyk, building Frontend platforms and AI-powered security features.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-intro-2" },
     ],
