@@ -17,10 +17,10 @@ function subscribe(callback: () => void) {
   return () => window.removeEventListener("hashchange", callback);
 }
 
-function currentRoute(): SectionId | "home" | "welcome" {
+function currentRoute(): SectionId | "home" {
   return (
     POCKET_SECTIONS.find(({ id }) => window.location.hash === `#pocket-${id}`)
-      ?.id ?? (window.location.hash === "#pocket-home" ? "home" : "welcome")
+      ?.id ?? "home"
   );
 }
 
@@ -55,11 +55,14 @@ export function PocketAdventure() {
   const route = useSyncExternalStore(
     subscribe,
     currentRoute,
-    () => "welcome" as const,
+    () => "home" as const,
   );
-  const section = route === "home" || route === "welcome" ? null : route;
+  // Every page load greets the visitor, even on a direct section link; once
+  // dismissed it stays dismissed.
+  const [welcomed, setWelcomed] = useState(false);
+  const section = route === "home" ? null : route;
   const [sipRequest, setSipRequest] = useState(0);
-  const ambience = usePocketAmbience(route === "home");
+  const ambience = usePocketAmbience(welcomed && route === "home");
   const [conversation, setConversation] = useState<
     keyof typeof POCKET_CONVERSATION | null
   >(null);
@@ -78,10 +81,10 @@ export function PocketAdventure() {
     previousSection.current = section;
   }, [section]);
 
-  if (route === "welcome") {
+  if (!welcomed) {
     return (
       <main className={`${styles.adventure} ${styles.welcomeMode}`}>
-        <PocketWelcome />
+        <PocketWelcome onContinue={() => setWelcomed(true)} />
       </main>
     );
   }

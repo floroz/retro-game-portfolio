@@ -121,10 +121,18 @@ test("browser Back, Forward, reload and direct section links work", async ({
   await expect(page.locator("[data-e2e=pocket-scene]")).toBeVisible();
   await page.goForward();
   await page.reload();
+  await expect(page.locator("[data-e2e=pocket-welcome]")).toBeVisible();
+  await page
+    .getByRole("navigation", { name: "Quick portfolio access" })
+    .getByRole("link", { name: "Experience", exact: true })
+    .tap();
   await expect(
     page.getByRole("heading", { name: "Experience", exact: true, level: 1 }),
   ).toBeVisible();
   await page.goto("/#pocket-skills");
+  await page.reload();
+  await page.getByRole("link", { name: "Enter Pocket Adventure" }).tap();
+  await page.evaluate('window.location.hash = "pocket-skills"');
   await expect(
     page.getByRole("heading", { name: "Frontend", exact: true }),
   ).toBeVisible();
@@ -281,11 +289,15 @@ test("welcome recommends desktop before entering and keeps content accessible", 
       .getByRole("link", { name: label, exact: true })
       .tap();
     await expect(page.locator("[data-e2e=pocket-reading]")).toBeVisible();
-    await page.goBack();
+    await expect(page.locator("[data-e2e=pocket-welcome]")).toHaveCount(0);
+    await page.reload();
     await expect(page.locator("[data-e2e=pocket-welcome]")).toBeVisible();
   }
   await page.getByRole("link", { name: "Enter Pocket Adventure" }).tap();
   await expect(page.locator("[data-e2e=pocket-scene]")).toBeVisible();
+  await expect(page.locator("[data-e2e=pocket-welcome]")).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator("[data-e2e=pocket-welcome]")).toBeVisible();
 });
 
 test("welcome visual", async ({ page }) => {
@@ -344,6 +356,7 @@ test("portfolio stays accessible when scene art fails and retry recovers", async
 }) => {
   await page.route(/coffee-likeness-night/, (route) => route.abort());
   await page.goto("/#pocket-home");
+  await page.getByRole("link", { name: "Enter Pocket Adventure" }).tap();
   await expect(
     page.getByRole("button", { name: "Try the scene again" }),
   ).toBeVisible();
