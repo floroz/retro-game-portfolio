@@ -87,7 +87,7 @@ describe("world text", () => {
     });
   });
 
-  test("the Zurich cabinet card fits its word", () => {
+  test("the Zürich cabinet card fits its word", () => {
     const card = SCENES.zurich.labels?.find((l) => l.id === "cabinet");
     expect(card?.maxWidth).toBeDefined();
     const text = resolveLabel(card?.source ?? "text:")[0];
@@ -97,7 +97,7 @@ describe("world text", () => {
     );
   });
 
-  test("the Zurich CRT word sits inside its screen with a px to spare", () => {
+  test("the Zürich CRT word sits inside its screen with a px to spare", () => {
     const crt = SCENES.zurich.labels?.find((l) => l.id === "crt");
     const text = resolveLabel(crt?.source ?? "text:")[0];
     const fit = fitText(text, crt?.maxWidth ?? 0, crt?.font ?? "regular");
@@ -259,14 +259,14 @@ describe("grid-fitted stems", () => {
 
 describe("labels", () => {
   test("gate signs show the gate number and the city only", () => {
-    expect(resolveLabel("gate:zurich")).toEqual(["Gate 2", "Zurich"]);
+    expect(resolveLabel("gate:zurich")).toEqual(["Gate 3", "Zürich"]);
   });
 
   test("the departures board lists the cities only", () => {
     expect(resolveLabel("departures")).toEqual([
-      "London",
-      "Zurich",
       "Sorrento",
+      "London",
+      "Zürich",
     ]);
   });
 
@@ -302,7 +302,7 @@ describe("hover text", () => {
   test("gates say where they fly and what's there", () => {
     const gate = SCENES.hall.exits.find((e) => e.to === "zurich");
     expect(gate && hoverText({ kind: "exit", exit: gate })).toBe(
-      "Fly to Zurich: Experience, Resume",
+      "Fly to Zürich: Experience, Resume",
     );
   });
 });
