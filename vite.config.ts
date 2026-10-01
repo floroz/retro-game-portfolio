@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { optimizeImages } from "./scripts/vite/optimize-images";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -9,6 +10,7 @@ export default defineConfig({
         plugins: [["babel-plugin-react-compiler"]],
       },
     }),
+    optimizeImages(),
   ],
   css: {
     modules: {

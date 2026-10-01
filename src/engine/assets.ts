@@ -1,6 +1,6 @@
 /**
  * Image loading for the canvas renderer. Everything is preloaded up front
- * (the art is small), so scene changes and the travel map never flash an
+ * (preload.ts), so scene changes and the travel map never flash an
  * unloaded image. The store also works out each image's density
  * (density.ts) and reports sizes in logical px.
  */
@@ -232,25 +232,37 @@ export class ImageStore {
     });
   }
 
-  load(url: string): Promise<void> {
+  /**
+   * Fetches and decodes the image. `priority` is a hint for the browser,
+   * so the art the visitor sees first isn't queued behind the rest.
+   */
+  load(url: string, priority: "high" | "low" | "auto" = "auto"): Promise<void> {
     if (this.entries.has(url)) return Promise.resolve();
     const existing = this.pending.get(url);
     if (existing) return existing;
     const promise = new Promise<void>((resolve) => {
       const img = new Image();
-      img.onload = () => {
-        let bbox: Rect | null = null;
-        try {
-          bbox = alphaBox(img);
-        } catch {
-          bbox = null;
-        }
-        this.entries.set(url, { img, bbox });
-        this.pending.delete(url);
-        this.info = this.makeInfo();
-        this.listeners.forEach((l) => l());
-        resolve();
-      };
+      img.fetchPriority = priority;
+      // Decoded before it counts as loaded, so its first frame doesn't
+      // stall on a decode.
+      const decoded = () =>
+        typeof img.decode === "function"
+          ? img.decode().catch(() => undefined)
+          : Promise.resolve();
+      img.onload = () =>
+        void decoded().then(() => {
+          let bbox: Rect | null = null;
+          try {
+            bbox = alphaBox(img);
+          } catch {
+            bbox = null;
+          }
+          this.entries.set(url, { img, bbox });
+          this.pending.delete(url);
+          this.info = this.makeInfo();
+          this.listeners.forEach((l) => l());
+          resolve();
+        });
       img.onerror = () => {
         this.pending.delete(url);
         this.failed.add(url);
@@ -275,8 +287,18 @@ export class ImageStore {
     return urls.every((u) => this.entries.has(u) || this.failed.has(u));
   }
 
-  loadAll(urls: string[]): Promise<void> {
-    return Promise.all(urls.map((u) => this.load(u))).then(() => undefined);
+  /** How many of `urls` have loaded or failed. */
+  settled(urls: readonly string[]): number {
+    return urls.filter((u) => this.entries.has(u) || this.failed.has(u)).length;
+  }
+
+  loadAll(
+    urls: readonly string[],
+    priority?: "high" | "low" | "auto",
+  ): Promise<void> {
+    return Promise.all(urls.map((u) => this.load(u, priority))).then(
+      () => undefined,
+    );
   }
 
   /** Notified whenever an image finishes loading. Returns an unsubscribe. */

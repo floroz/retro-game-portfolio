@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Windows98Icon } from "./Windows98Icon";
-import gameIcon from "../../assets/retro-daniele.png";
+import gameIcon from "../../assets/retro-daniele-icon.png";
 import promptIcon from "../../assets/prompt.png";
 import styles from "./Windows98StartMenu.module.scss";
 
