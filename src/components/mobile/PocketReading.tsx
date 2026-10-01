@@ -8,11 +8,6 @@ export function PocketReading({ section }: { section: SectionId }) {
   const inspection = sectionInspection(section);
   return (
     <>
-      <img
-        className={styles.readingArt}
-        src={inspection.art}
-        alt={inspection.artAlt}
-      />
       <div className={styles.paper}>
         <p className={styles.eyebrow}>{inspection.subtitle}</p>
         <h1>{section === "resume" ? "Resume" : inspection.title}</h1>

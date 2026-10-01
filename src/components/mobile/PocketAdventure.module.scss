@@ -248,15 +248,6 @@
   }
 }
 
-.readingArt {
-  display: block;
-  width: 100%;
-  height: clamp(110px, 18dvh, 190px);
-  object-fit: cover;
-  object-position: left center;
-  border-bottom: 4px solid #79512f;
-}
-
 .paper {
   padding: 24px clamp(20px, 6vw, 48px) 40px;
   font-size: 18px;

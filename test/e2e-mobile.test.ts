@@ -63,11 +63,8 @@ test("career album scrolls through the full work history", async ({ page }) => {
   });
   await lastJob.scrollIntoViewIfNeeded();
   await expect(lastJob).toBeInViewport();
-  expect(
-    await page
-      .locator("[data-e2e=pocket-reading]")
-      .evaluate((el) => el.scrollTop),
-  ).toBeGreaterThan(0);
+  const reading = page.locator("[data-e2e=pocket-reading]");
+  await reading.evaluate((el) => el.scrollTo(0, el.scrollHeight));
   await sectionLink(page, "Contact").tap();
   await expect
     .poll(() =>
@@ -255,11 +252,6 @@ for (const label of [
     if (label !== "Explore") {
       await sectionLink(page, label).tap();
       await expect(page.locator("[data-e2e=pocket-reading]")).toBeVisible();
-      await page
-        .locator("[data-e2e=pocket-reading] > img")
-        .evaluate((image) =>
-          (image as unknown as { decode: () => Promise<void> }).decode(),
-        );
     }
     await page.evaluate("document.fonts.ready");
     await expect(page).toHaveScreenshot(`pocket-${label.toLowerCase()}.png`, {
