@@ -211,12 +211,12 @@ describe("Toolbar: dialogue choices", () => {
   test("keys are left alone while typing in a field", async () => {
     const { container } = await render(
       <>
-        <input aria-label="terminal" />
+        <input aria-label="notes" />
         <Panel />
       </>,
     );
     await talkAt("intro-2");
-    await userEvent.click(page.getByRole("textbox", { name: "terminal" }));
+    await userEvent.click(page.getByRole("textbox", { name: "notes" }));
     await userEvent.keyboard("4{Escape}");
     expect(useGameStore.getState().dialogOpen).toBe(true);
     expect(useGameStore.getState().dialogNode).toBe("intro-2");

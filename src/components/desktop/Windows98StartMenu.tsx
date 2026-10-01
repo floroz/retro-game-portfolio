@@ -1,13 +1,11 @@
 import { useEffect, useRef } from "react";
 import { Windows98Icon } from "./Windows98Icon";
 import gameIcon from "../../assets/retro-daniele-icon.png";
-import promptIcon from "../../assets/prompt.png";
 import styles from "./Windows98StartMenu.module.scss";
 
 interface Windows98StartMenuProps {
   onClose: () => void;
   onGame: () => void;
-  onTerminal: () => void;
   onResume: () => void;
   onContact: () => void;
   onExperience: () => void;
@@ -29,7 +27,6 @@ export function Windows98StartMenu(props: Windows98StartMenuProps) {
       action: props.onGame,
       primary: true,
     },
-    { label: "MS-DOS Prompt", image: promptIcon, action: props.onTerminal },
     {
       label: "My Resume",
       kind: "document",

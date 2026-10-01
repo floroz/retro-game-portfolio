@@ -75,22 +75,20 @@ describe("Toolbar: the travel trunk", () => {
     ] as SectionId[]) {
       await userEvent.click(sectionButton(container, section));
       expect(useGameStore.getState()).toMatchObject({
-        terminalScreenAction: section,
+        contentSection: section,
         inspection: null,
         currentScene: "sorrento",
-        sceneRequest: null,
         dialogOpen: false,
       });
-      useGameStore.getState().closeTerminalScreen();
+      useGameStore.getState().closeContent();
     }
   });
 
   test("a click is ignored while content is open", async () => {
-    useGameStore.setState({ terminalScreenAction: "skills" });
+    useGameStore.setState({ contentSection: "skills" });
     const { container } = await render(<Panel />);
     await userEvent.click(sectionButton(container, "about"));
-    expect(useGameStore.getState().sceneRequest).toBeNull();
-    expect(useGameStore.getState().terminalScreenAction).toBe("skills");
+    expect(useGameStore.getState().contentSection).toBe("skills");
   });
 
   test("the current city's ticket and sections say you are here", async () => {
@@ -163,9 +161,8 @@ describe("Toolbar: the travel trunk", () => {
     sectionButton(container, "contact").focus();
     await userEvent.keyboard("{Enter}");
     expect(useGameStore.getState()).toMatchObject({
-      terminalScreenAction: "contact",
+      contentSection: "contact",
       currentScene: "hall",
-      sceneRequest: null,
     });
   });
 
