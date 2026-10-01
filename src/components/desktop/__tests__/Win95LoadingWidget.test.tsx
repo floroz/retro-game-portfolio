@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 import { Win95LoadingWidget } from "../Win95LoadingWidget";
 
-function setup() {
+function setup(progress?: number) {
   vi.useFakeTimers();
   const props = {
     onCancel: vi.fn(),
@@ -10,6 +10,7 @@ function setup() {
     onFocus: vi.fn(),
     isActive: true,
     zIndex: 100,
+    progress,
   };
   return { ...render(<Win95LoadingWidget {...props} />), props };
 }
@@ -52,5 +53,26 @@ describe("Windows 98 launch dialog", () => {
     act(() => vi.advanceTimersByTime(600));
     expect(latest).toHaveBeenCalledOnce();
     expect(props.onComplete).not.toHaveBeenCalled();
+  });
+
+  test("holds the launch until the art has loaded", () => {
+    const { props, rerender } = setup(0.5);
+    const progress = screen.getByRole("progressbar");
+    act(() => vi.advanceTimersByTime(1600));
+    expect(Number(progress.getAttribute("aria-valuenow"))).toBe(11);
+    expect(props.onComplete).not.toHaveBeenCalled();
+    rerender(<Win95LoadingWidget {...props} progress={1} />);
+    expect(progress.getAttribute("aria-valuenow")).toBe(
+      progress.getAttribute("aria-valuemax"),
+    );
+    expect(props.onComplete).toHaveBeenCalledOnce();
+  });
+
+  test("launches anyway when the art never finishes", () => {
+    const { props } = setup(0);
+    act(() => vi.advanceTimersByTime(11000));
+    expect(props.onComplete).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(1000));
+    expect(props.onComplete).toHaveBeenCalledOnce();
   });
 });
