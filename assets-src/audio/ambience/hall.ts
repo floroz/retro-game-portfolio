@@ -1,5 +1,5 @@
 /**
- * Hall ambience: a 1990s departure lounge (docs/art-spec.md, Audio).
+ * Hall ambience: a 1990s departure lounge.
  *
  * - The terminal hum: air handling (dark noise, drifting slowly) and the
  *   100 Hz buzz of the fluorescent lights.

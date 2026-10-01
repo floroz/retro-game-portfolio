@@ -1,6 +1,6 @@
 /**
- * Timing for `anim-*` strips (docs/art-spec.md, "Layers, depth, and slots").
- * Pure, so the loops can be tested without a canvas.
+ * Timing for `anim-*` strips. Pure, so the loops can be tested without a
+ * canvas.
  */
 import type { ObjectPulse, SceneAnimation } from "./types";
 

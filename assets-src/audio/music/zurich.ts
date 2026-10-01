@@ -1,5 +1,5 @@
 /**
- * Zurich theme: an alpine evening over the lake (docs/art-spec.md, Audio).
+ * Zurich theme: an alpine evening over the lake.
  *
  * Unmistakably Swiss, and still night-gentle. A slow alphorn call opens it,
  * quoting the first phrase of the traditional Ranz des Vaches (the herdsmen's

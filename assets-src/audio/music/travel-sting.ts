@@ -1,5 +1,5 @@
 /**
- * Travel sting: the plane crossing the map (docs/art-spec.md, Audio).
+ * Travel sting: the plane crossing the map.
  *
  * Two seconds of the shared motif (motif.ts): its first bar, A C F E C,
  * which then lands on F instead of falling back to A, so the trip arrives.

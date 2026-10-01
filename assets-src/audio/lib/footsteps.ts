@@ -1,5 +1,5 @@
 /**
- * Footsteps on the three floors (docs/art-spec.md, Audio: Sound effects):
+ * Footsteps on the three floors:
  * the Hall's patterned carpet, the pub's and the office's wooden boards, and
  * the Sorrento kitchen's majolica tiles. Each step is a heel strike and a
  * lighter toe strike; the three variants of a surface differ in seed, timing,

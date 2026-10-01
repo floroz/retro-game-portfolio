@@ -2,8 +2,7 @@
  * Text for engine-drawn labels, resolved from config so renaming a section
  * or a country never touches an image.
  *
- * In-world text is minimal (docs/expansion-plan.md, "How visitors know where
- * each section is"): a gate sign is its number and city, the departures
+ * In-world text is minimal: a gate sign is its number and city, the departures
  * board lists cities, and a primary object carries one word. The status line
  * and the toolbar say which sections are where.
  */

@@ -1,6 +1,5 @@
 /**
- * London theme: a late-70s punk band that slides into ska (docs/art-spec.md,
- * Audio).
+ * London theme: a late-70s punk band that slides into ska.
  *
  * An original arrangement of the public-domain tune "London Bridge Is Falling
  * Down", played the way a 1977–79 London band would wreck a nursery rhyme:

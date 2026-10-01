@@ -1,5 +1,5 @@
 /**
- * Native image to an 8x reference PNG for Codex (docs/art-spec.md, Tooling).
+ * Native image to an 8x reference PNG for Codex.
  *
  *   npm run assets:refs -- <native.png> [--name <id>] [--scale 8] [--density 1|2]
  *

@@ -1,5 +1,5 @@
 /**
- * PNG <-> palette-index text grid (docs/art-spec.md, Grid format).
+ * PNG <-> palette-index text grid.
  *
  *   npm run assets:grid -- export <image.png> [--region x,y,w,h | --frame N --cell 32x64]
  *                          [--density 1|2] [--asset <id>] [--out <grid.txt>]

@@ -1,6 +1,6 @@
 /**
- * Logical scene size (docs/art-spec.md, "Resolution and coordinates"). All
- * scene data is in these px, whatever the density of the art (density.ts).
+ * Logical scene size. All scene data is in these px, whatever the density of
+ * the art (density.ts).
  */
 export const NATIVE_W = 320;
 export const NATIVE_H = 160;
@@ -24,9 +24,8 @@ export const VIEWPORT = {
 } as const;
 
 /**
- * The Phase H world scale (docs/art-spec.md, "Phase H: HD hand-painted",
- * the scale sheet): Daniele stands 72 logical px tall at the front of the
- * walkbox and 58 at the back. HD scenes spread it into `depth`:
+ * The Phase H world scale: Daniele stands 72 logical px tall at the front of
+ * the walkbox and 58 at the back. HD scenes spread it into `depth`:
  * `depth: { farY: 108, nearY: 156, ...HD_WORLD_SCALE }`.
  */
 export const HD_WORLD_SCALE = { farHeight: 58, nearHeight: 72 } as const;
@@ -57,8 +56,7 @@ export const WALK_SPEED = 350 / PIXEL_SCALE;
 export const VERTICAL_SPEED = 0.7;
 
 /**
- * Longest a shortcut walk may take, in seconds (docs/expansion-plan.md,
- * "Verb shortcuts"). Longer walks speed up to fit.
+ * Longest a shortcut walk may take, in seconds. Longer walks speed up to fit.
  */
 export const MAX_TRAVEL_TIME = 1.5;
 

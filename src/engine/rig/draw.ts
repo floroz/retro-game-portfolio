@@ -1,6 +1,6 @@
 /**
- * Draws the cut-out rig (docs/art-spec.md, "Phase H"), as MI3 drew its
- * sprites: on the art's own pixel grid, with hard edges.
+ * Draws the cut-out rig, as MI3 drew its sprites: on the art's own pixel grid,
+ * with hard edges.
  *
  * The parts are posed (transform.ts) and rasterized onto a scratch canvas
  * at the rig's resolution (2 or 4 px per logical px), with

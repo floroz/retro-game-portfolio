@@ -1,6 +1,6 @@
 /**
  * Flat-colour placeholders that pass the validator, so the engine lane isn't
- * blocked on art (docs/art-spec.md, F1 step 5).
+ * blocked on art.
  *
  *   npm run assets:placeholders
  *

@@ -9,7 +9,7 @@
  * erases it from the text layer (`maskText`), so Daniele walking past the
  * CRT still hides its marquee, and the iris closes over speech.
  *
- * Layers, back to front (docs/art-spec.md, "Layers, depth, and slots"):
+ * Layers, back to front:
  * 1. `bg`
  * 2. everything without a `baselineY`: wall objects, doors, loops, slots, labels
  * 3. everything with a `baselineY`, plus Daniele, sorted by floor line

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "assets-src/provenance/schema.json",
   "title": "Asset provenance record",
-  "description": "One record per final asset, named <id>.json (docs/art-spec.md, Provenance record). npm run lint:assets enforces it.",
+  "description": "One record per final asset, named <id>.json, recording where it came from. npm run lint:assets enforces it.",
   "type": "object",
   "required": ["id", "output", "task", "source", "date"],
   "properties": {

@@ -1,6 +1,5 @@
 /**
- * Sound effects and ambience loops synthesised from code → WAV → MP3
- * (docs/art-spec.md, Audio).
+ * Sound effects and ambience loops synthesised from code → WAV → MP3.
  *
  *   npm run assets:sfx -- [recipe...] [--preview]
  *
@@ -52,7 +51,7 @@ import {
   type SeamReport,
 } from "./music";
 
-/** Levels from docs/art-spec.md, Audio: Levels. */
+/** Loudness levels for ambience loops and sound effects. */
 export const AMBIENCE_LUFS = -28;
 export const SFX_PEAK_DBFS = -3;
 /** Default crossfade for ambience loops. */

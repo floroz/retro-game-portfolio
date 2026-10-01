@@ -1,9 +1,8 @@
 /**
- * Dev-only rig preview (docs/art-spec.md, "Phase H", "Character"): plays
- * the pose clips (poses.ts) on the placeholder rig (placeholder.ts), or on
- * the packed `daniele-rig.json` once HB7 ships it, so the motion can be
- * tuned without walking round a scene. Under `npm run dev`, open
- * `/src/engine/rig/dev/preview.html`.
+ * Dev-only rig preview: plays the pose clips (poses.ts) on the placeholder rig
+ * (placeholder.ts), or on the packed `daniele-rig.json` once HB7 ships it, so
+ * the motion can be tuned without walking round a scene. Under `npm run dev`,
+ * open `/src/engine/rig/dev/preview.html`.
  *
  * The floor scrolls under a walking Daniele at the engine's walking speed:
  * a planted foot should stay still against its ticks. The readout gives

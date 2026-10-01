@@ -1,5 +1,5 @@
 /**
- * Zurich ambience: the office at night (docs/art-spec.md, Audio).
+ * Zurich ambience: the office at night.
  *
  * - The wall clock: tick, tock, once a second, in the quiet room.
  * - A quiet night: a low room tone, and the wind off the lake gusting

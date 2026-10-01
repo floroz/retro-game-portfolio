@@ -1,6 +1,5 @@
 /**
- * Pixelize every candidate for one asset and build a numbered review sheet
- * (docs/art-spec.md, How an asset gets made, step 4).
+ * Pixelize every candidate for one asset and build a numbered review sheet.
  *
  *   npm run assets:review -- <asset-id>
  *     [--exchange <dir>]       defaults to ../rgp-codex/assets-src/exchange if it

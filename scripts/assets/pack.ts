@@ -1,5 +1,5 @@
 /**
- * Character frames to daniele.png + daniele.json (docs/art-spec.md, B7).
+ * Character frames to daniele.png + daniele.json.
  *
  *   npm run assets:pack -- --frames <dir> --stride <px> [--head-offset 8,4]
  *     [--density 1|2] [--out-dir src/assets/character]
