@@ -67,7 +67,7 @@
     {
       "output": "src/assets/remaster/title/boarding-pass.webp",
       "source": "assets-src/approved/boarding-pass.png",
-      "width": 1919,
+      "width": 1918,
       "height": 820,
       "treatment": "Original resolution and pixels preserved; lossless encoding only."
     }

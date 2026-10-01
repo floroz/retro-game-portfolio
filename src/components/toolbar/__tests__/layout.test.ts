@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { COUNTRY_ORDER, SECTIONS } from "../../../config/sections";
+import { SECTIONS } from "../../../config/sections";
 import type { Rect, SectionId } from "../../../engine/types";
 import {
   CHOICES_PAGE,
@@ -35,8 +35,12 @@ describe("controls panel layout", () => {
     }
   });
 
-  test("the tickets run in journey order: London, Zurich, Sorrento", () => {
-    expect(PANEL_LAYOUT.tickets.map((t) => t.country)).toEqual(COUNTRY_ORDER);
+  test("the tickets run in journey order: Sorrento, London, Zürich", () => {
+    expect(PANEL_LAYOUT.tickets.map((t) => t.country)).toEqual([
+      "sorrento",
+      "london",
+      "zurich",
+    ]);
   });
 
   test("Talk, Sound, GitHub, and LinkedIn each have a fitting", () => {
@@ -79,7 +83,7 @@ describe("controls panel layout", () => {
 describe("sentence line", () => {
   test("a section names itself and its city", () => {
     expect(controlSentence("skills")).toBe("Skills, in London");
-    expect(controlSentence("resume")).toBe("Resume, in Zurich");
+    expect(controlSentence("resume")).toBe("Resume, in Zürich");
     expect(controlSentence("contact")).toBe("Contact, in Sorrento");
   });
 
@@ -101,7 +105,7 @@ describe("sentence line", () => {
       sentenceText({ ...base, hoveredObject: "Look at desk", skippable: true }),
     ).toBe("Click to skip");
     expect(sentenceText({ ...base, skippable: true, flyingTo: "zurich" })).toBe(
-      "Off to Zurich: Experience, Resume",
+      "Off to Zürich: Experience, Resume",
     );
   });
 });

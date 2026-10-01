@@ -1,13 +1,13 @@
 {
   "id": "boarding-pass",
   "output": "src/assets/title/boarding-pass.png",
-  "task": "v2-readability",
+  "task": "journey-order",
   "source": "codex",
   "prompt": "assets-src/prompts/boarding-pass.md",
-  "candidate": "01",
+  "candidate": "02",
   "references": [],
   "approvedRaw": "assets-src/approved/boarding-pass.png",
-  "cleanup": "Built-in image_gen output, 1919x820 RGBA PNG, preserved without image editing. Transparent standalone ticket with perforation at approximately 75% width; blank right stub center accepts the live Space control. Static identity text and destination labels were visually checked for accuracy and contrast. Full resolution is retained so title typography remains readable at desktop sizes; this is title-screen artwork rather than a scene sprite and is outside the scene palette/density pipeline.",
+  "cleanup": "Built-in image_gen edit, 1918x820 RGBA PNG. Reordered the city illustrations and labels to Sorrento, London, Zürich. Preserved transparent ticket silhouette, identity text, blank control stub and barcode. Full-quality PNG retained in approved and title sources; remaster encoded as lossless WebP. Visually checked before integration.",
   "approvedBy": "codex-autonomous-qa",
-  "date": "2026-09-30"
+  "date": "2026-10-01"
 }

@@ -43,22 +43,22 @@ interface CountryInfo {
 }
 
 export const COUNTRIES: Record<CountrySceneId, CountryInfo> = {
-  london: { name: "London", country: "England", jobCountry: "london", gate: 1 },
+  london: { name: "London", country: "England", jobCountry: "london", gate: 2 },
   zurich: {
-    name: "Zurich",
+    name: "Zürich",
     country: "Switzerland",
     jobCountry: "switzerland",
-    gate: 2,
+    gate: 3,
   },
   sorrento: {
     name: "Sorrento",
     country: "Italy",
     jobCountry: "italy",
-    gate: 3,
+    gate: 1,
   },
 };
 
-export const COUNTRY_ORDER: CountrySceneId[] = ["london", "zurich", "sorrento"];
+export const COUNTRY_ORDER: CountrySceneId[] = ["sorrento", "london", "zurich"];
 
 export function isCountryScene(id: SceneId): id is CountrySceneId {
   return id !== "hall";
