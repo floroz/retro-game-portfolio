@@ -1,0 +1,12 @@
+# About — approved likeness correction
+
+Use case: identity-preserve / precise-object-edit.
+Image 1 is the EDIT TARGET: the pixel-art Full Throttle-inspired Sorrento suitcase illustration.
+Image 2 is the authoritative CHARACTER LIKENESS REFERENCE: the original smooth illustration of the same man.
+Make ONE targeted correction to image 1: restore the man's original facial likeness from image 2, translated into image 1's existing 1990s LucasArts raster drawing language. The previous adaptation exaggerated his anatomy and the owner said he no longer looks like himself. Identity preservation is the highest priority.
+
+Preserve image 2's exact relative facial proportions: compact softly oval head with rounded cheeks, original forehead height and hairline, close short curly brown hair, original thick curved eyebrows, original eye shape and spacing, modest rounded nose of original length and width, original natural friendly smile width, close brown beard following the jaw with original moustache and chin. Restore original ear size and placement and original youthful age impression. Study image 2 closely and retain its distinctive face instead of substituting a generic LucasArts hero. REMOVE image 1's long pointy nose, long angular face, jutting jaw, exaggerated giant toothy grin and sharp heavy brow. Match original head tilt and upward side glance where feasible without changing the body. Keep the original reference's warm approachable expression.
+
+Draw this faithful face with the SAME low-resolution pixel scale as image 1: stepped dark contours, economical pixel clusters, 2-3 hard-edged skin shades, small restrained highlights. No smooth pasted-in vector face, no glossy shading. The period feeling must come from pixels, ink and palette while preserving this person's anatomy. Full Throttle and Sam & Max Hit the Road are the rendering inspiration, not permission to redesign the person.
+
+Keep ALL other elements of image 1 unchanged: body pose, navy sweater and blue trousers, hands, brown shoes, turquoise suitcase and every prop, giant lemon, handheld console, protruding hiking boots and clothes, lemon tree, Sorrento coastal background and boats, flowers, arch, terrace, large blank cream spiral notebook at right. Keep exact 2:1 framing, composition, palette, stronger shadows and raster treatment. Entire notebook reading surface stays blank. No labels, text, added objects, or added people. Return one complete corrected scene.

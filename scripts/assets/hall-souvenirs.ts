@@ -66,11 +66,4 @@ for (const [name, width, height] of [
     height,
     true,
   );
-  await prepare(
-    `${raw}/hall-souvenir-${name}-inspection.png`,
-    `src/assets/inspections/souvenir-${name}.png`,
-    640,
-    320,
-    false,
-  );
 }

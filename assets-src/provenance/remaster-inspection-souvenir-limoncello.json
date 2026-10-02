@@ -1,13 +1,13 @@
 {
   "id": "remaster-inspection-souvenir-limoncello",
   "output": "src/assets/remaster/inspections/souvenir-limoncello.webp",
-  "task": "duty-free-souvenir-artwork",
+  "task": "classic-adventure-inspections",
   "source": "codex",
-  "prompt": "assets-src/prompts/duty-free-inspections/limoncello.md",
-  "candidate": "01",
-  "references": ["assets-src/approved/location-inspections/contact.png"],
+  "prompt": "assets-src/prompts/classic-inspections/souvenir-limoncello.md",
+  "candidate": "02",
+  "references": ["assets-src/approved/location-inspections/about.png"],
   "approvedRaw": "assets-src/approved/duty-free-inspections/limoncello.png",
   "density": 4,
-  "date": "2026-10-01",
-  "cleanup": "Built-in imagegen. Full-resolution generated source retained; scripts/assets/remaster-ui.ts exports a lossless 1280x640 WebP. Build compression uses the existing encoder. All reading text is live HTML."
+  "date": "2026-10-02",
+  "cleanup": "Built-in imagegen style transfer from the previous illustration using the approved likeness-preserving About scene. Full-resolution source retained. Nearest-neighbour 1280x640 lossless WebP export via scripts/assets/remaster-ui.ts; existing build encoder handles delivery. Reading copy remains live HTML. Superseded generation references were removed from the working tree; available in Git revision bb9d3ae: assets-src/references/classic-inspections/souvenir-limoncello.webp."
 }

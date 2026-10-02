@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
 import type { InspectionReading } from "../../../config/inspections";
-import aboutArt from "../../../assets/inspections/about.png";
+import aboutArt from "../../../assets/remaster/inspections/about.webp";
 import { ObjectInspectionView } from "../ObjectInspectionView";
 import { Toolbar } from "../../toolbar/Toolbar";
 import { useGameStore } from "../../../store/gameStore";

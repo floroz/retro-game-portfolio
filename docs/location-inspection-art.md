@@ -1,26 +1,34 @@
 # Location inspection artwork
 
-The five portfolio cards share a bright cartoon adventure style and a 2:1
-composition. Their text, links and pagination remain HTML from the shared profile.
+The five portfolio cards share the inked, raster-drawn adventure direction of
+_Sam & Max Hit the Road_ and _Full Throttle_, with a 2:1 composition. Strong dark
+contours, hard shadow shapes, stepped edges and eccentric supporting characters
+replace the earlier glossy cartoon rendering. Daniele's approved About portrait
+preserves his original facial proportions; it is the style reference for the set.
+Their text, links and pagination remain HTML from the shared profile.
 
-| Section    | Location    | Illustration                                                                                   |
-| ---------- | ----------- | ---------------------------------------------------------------------------------------------- |
-| About      | Sorrento    | Daniele tries to close a suitcase containing a giant lemon, handheld console and hiking boots. |
-| Contact    | Sorrento    | A rotary phone connects to tin cans on a tiled terrace above the Bay of Naples.                |
-| Skills     | London      | A closed red telephone booth has its own umbrella and raincloud beside Westminster.            |
-| Experience | Switzerland | A Swiss train carries luggage and a lounging cow up an Alpine viaduct.                         |
-| Resume     | Switzerland | A ticket machine buries a station clerk in an endless paper ticket.                            |
+| Section    | Location    | Illustration                                                                                             |
+| ---------- | ----------- | -------------------------------------------------------------------------------------------------------- |
+| About      | Sorrento    | Daniele tries to close a suitcase containing a giant lemon, handheld console and hiking boots.           |
+| Contact    | Sorrento    | A rotary phone connects to tin cans on a tiled terrace above the Bay of Naples.                          |
+| Skills     | London      | A crooked red telephone booth battles its own rainstorm under an inside-out umbrella beside Westminster. |
+| Experience | Switzerland | A Swiss train carries luggage and a lounging cow up an Alpine viaduct.                                   |
+| Resume     | Switzerland | A ticket machine buries an exhausted, lanky station clerk in an endless paper ticket.                    |
 
 ## Sources and export
 
 The built-in imagegen tool produced the full-resolution PNG sources in
-`assets-src/approved/location-inspections/`. The exact prompts are in
-`assets-src/prompts/location-inspections/`, their concept references in
-`assets-src/references/location-inspections/`, and individual provenance records
-are named `assets-src/provenance/remaster-inspection-*.json`.
+`assets-src/approved/location-inspections/`. The current prompts are in
+`assets-src/prompts/classic-inspections/`, and individual provenance records
+are named `assets-src/provenance/remaster-inspection-*.json`. Superseded
+illustrations, concept sheets and generation references are kept in Git history,
+not as duplicate images in the current tree. Provenance notes identify their
+historical revision when needed. The approved About master is the current style
+reference for the other eight cards.
 
 Run `npx tsx scripts/assets/remaster-ui.ts` to export the approved sources as
-lossless 1280×640 WebP files under `src/assets/remaster/inspections/`. The existing
+lossless 1280×640 WebP files under `src/assets/remaster/inspections/`, using
+nearest-neighbour resizing to preserve the stepped contours. The existing
 build encoder handles delivery compression; the 512 KB per-image budget remains
 unchanged. `src/config/inspections.ts` imports the art, which is already included
 in desktop tier-four preload and the mobile cache warmer.
