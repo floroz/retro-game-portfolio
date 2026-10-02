@@ -1,20 +1,21 @@
 # Pocket Adventure
 
-## Approved scene: production integration
+## The shipped scene
 
-The approved seated scene now runs in the mobile application on `floroz/pocket-adventure`, based on `V2.1`, in its own managed worktree. The earlier standing character implementation and scene image have been replaced. Historical design studies and their prompts below remain as provenance.
+The approved seated scene is the mobile experience on `main` (PRs #99 to #103, with V2.1). It replaced the earlier standing-character study. The design studies and prompts below are kept as provenance.
 
-- The welcome invitation explicitly recommends desktop for the full experience and offers immediate Experience, Résumé and Contact links.
-- Postcards open About; telephone opens Contact; album opens Experience; folder opens Résumé; backpack/laptop opens Skills. The seated character offers optional conversation, and “Coffee?” requests a sip.
+- The welcome invitation explicitly recommends desktop for the full experience and offers immediate Experience, Resume and Contact links.
+- Postcards open About; telephone opens Contact; album opens Experience; folder opens Resume; backpack/laptop opens Skills. The seated character offers optional conversation, and “Coffee?” requests a sip.
 - The approved day/night likeness paintings, resting pose paintings, raised arm sources, ferry and wooden boat are full-quality sources under `src/assets/mobile/`. The existing build encoder produces WebP. No new likeness or arm artwork was generated for integration.
 - `PocketScene`, `pocketRenderer` and `pocketTimeline` preserve the approved 1024 × 1536 composition and movement. A full cycle takes 30 seconds (15 seconds between day/night), with two one-second mouth holds in each of four stages. Sunrise illuminates the room from offscreen east. The moon follows its own arc, with a moving reflection. Vessels alternate with gaps and receive lighting, wake and reflection changes.
-- All motion pauses while reading or hidden, and reduced motion keeps the scene still. Pause and sound are accessible buttons. The scene has no hotspot captions or time-of-day badge; invisible, accessible hotspots remain tappable. Portfolio sections stay visible in the bottom toolbar at 320 px and in landscape layouts.
-- Optional audio starts muted and is unlocked only by the sound button: the existing Sorrento sea ambience loop plus a moka gurgle every 18 seconds. Reading, hiding the tab, pausing the scene or leaving mobile silences it.
+- The scene fills the screen: there is no header or caption bar. On phones the 2:3 painting is full width and scrolls if the screen is too short; at 600 px and wider it fits the height.
+- All motion pauses while reading or hidden, and reduced motion keeps the scene still. There is no manual pause. The scene has no hotspot captions or time-of-day badge; invisible, accessible hotspots remain tappable. Portfolio sections and "Explore" (back to the scene) stay visible in the bottom navigation at 320 px and in landscape layouts.
+- Optional audio starts muted. A speaker button in the navigation (`aria-pressed`, "Enable sound" / "Mute sound") turns on the desktop Sorrento scene's music and ambience; nothing downloads before that. Reading, hiding the tab or leaving mobile silences it.
 - Mobile owns its image preload and retry state. Content remains available if an image fails. Budget tests cover the encoded bytes, and timeline tests cover sip count, hold duration and alternating vessels.
 
 The mobile experience replaces the Game Boy with a portrait Sorrento kitchen. It has one location and no chapter numbering. London, Zurich and the airport are unimplemented ideas for future mobile locations. The desktop world is unchanged.
 
-Every page load opens with an illustrated invitation explaining that the full game is on desktop and recommending a computer for the complete experience. They can enter the kitchen or go straight to experience, résumé or contact. A refresh, including on a direct section link, shows it again; once dismissed there is no way back to it until the next load.
+Every page load opens with an illustrated invitation explaining that the full game is on desktop and recommending a computer for the complete experience. They can enter the kitchen or go straight to experience, resume or contact. A refresh, including on a direct section link, shows it again; once dismissed there is no way back to it until the next load.
 
 The portrait painting stays at its native 2:3 aspect ratio. Hotspots are percentages of that exact painting; the image is never cropped independently of the controls. The surrounding stage absorbs extra space. Experience, résumé and contact remain directly accessible even while reading or talking. About and skills have both objects and navigation links.
 
