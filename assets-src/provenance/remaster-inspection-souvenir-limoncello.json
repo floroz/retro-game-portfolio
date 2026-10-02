@@ -5,12 +5,9 @@
   "source": "codex",
   "prompt": "assets-src/prompts/classic-inspections/souvenir-limoncello.md",
   "candidate": "02",
-  "references": [
-    "assets-src/references/classic-inspections/souvenir-limoncello.webp",
-    "assets-src/approved/location-inspections/about.png"
-  ],
+  "references": ["assets-src/approved/location-inspections/about.png"],
   "approvedRaw": "assets-src/approved/duty-free-inspections/limoncello.png",
   "density": 4,
   "date": "2026-10-02",
-  "cleanup": "Built-in imagegen style transfer from the previous illustration using the approved likeness-preserving About scene. Full-resolution source retained. Nearest-neighbour 1280x640 lossless WebP export via scripts/assets/remaster-ui.ts; existing build encoder handles delivery. Reading copy remains live HTML."
+  "cleanup": "Built-in imagegen style transfer from the previous illustration using the approved likeness-preserving About scene. Full-resolution source retained. Nearest-neighbour 1280x640 lossless WebP export via scripts/assets/remaster-ui.ts; existing build encoder handles delivery. Reading copy remains live HTML. Superseded generation references were removed from the working tree; available in Git revision bb9d3ae: assets-src/references/classic-inspections/souvenir-limoncello.webp."
 }

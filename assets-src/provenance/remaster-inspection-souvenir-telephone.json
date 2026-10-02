@@ -5,12 +5,9 @@
   "source": "codex",
   "prompt": "assets-src/prompts/classic-inspections/souvenir-telephone.md",
   "candidate": "03",
-  "references": [
-    "assets-src/references/classic-inspections/souvenir-telephone.webp",
-    "assets-src/approved/location-inspections/about.png"
-  ],
+  "references": ["assets-src/approved/location-inspections/about.png"],
   "approvedRaw": "assets-src/approved/duty-free-inspections/telephone.png",
   "density": 4,
   "date": "2026-10-02",
-  "cleanup": "Built-in imagegen style transfer using the approved likeness-preserving About scene. Revised with eccentric Swiss character design and stronger London storm gags after user feedback. Full-resolution source retained. Nearest-neighbour 1280x640 lossless WebP export via scripts/assets/remaster-ui.ts; existing build encoder handles delivery. Reading copy remains live HTML."
+  "cleanup": "Built-in imagegen style transfer using the approved likeness-preserving About scene. Revised with eccentric Swiss character design and stronger London storm gags after user feedback. Full-resolution source retained. Nearest-neighbour 1280x640 lossless WebP export via scripts/assets/remaster-ui.ts; existing build encoder handles delivery. Reading copy remains live HTML. Superseded generation references were removed from the working tree; available in Git revision bb9d3ae: assets-src/references/classic-inspections/souvenir-telephone.webp."
 }

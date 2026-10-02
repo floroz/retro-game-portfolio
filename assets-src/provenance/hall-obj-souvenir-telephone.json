@@ -9,7 +9,7 @@
   "date": "2026-09-30",
   "id": "hall-obj-souvenir-telephone",
   "output": "src/assets/scenes/hall/obj-souvenir-telephone.png",
-  "references": ["assets-src/approved/hall-souvenir-limoncello-inspection.png"],
+  "references": [],
   "approvedRaw": "assets-src/approved/hall-souvenir-telephone-sprite.png",
-  "cleanup": "Built-in imagegen artwork, prepared with scripts/assets/hall-souvenirs.ts. Hard alpha, density 2, shared existing Hall palette. Limoncello reuses the approved design proof; the other souvenirs follow its composition. Copy is rendered live from src/config/souvenirs.ts."
+  "cleanup": "Built-in imagegen artwork, prepared with scripts/assets/hall-souvenirs.ts. Hard alpha, density 2, shared existing Hall palette. Limoncello reuses the approved design proof; the other souvenirs follow its composition. Copy is rendered live from src/config/souvenirs.ts. Superseded generation references were removed from the working tree; available in Git revision bb9d3ae: assets-src/approved/hall-souvenir-limoncello-inspection.png."
 }

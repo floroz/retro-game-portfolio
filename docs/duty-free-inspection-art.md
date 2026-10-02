@@ -19,9 +19,9 @@ All titles, descriptions and controls remain live HTML.
 Full-resolution generated PNGs live in `assets-src/approved/duty-free-inspections/`.
 The current prompts are in `assets-src/prompts/classic-inspections/`, and each
 `assets-src/provenance/remaster-inspection-souvenir-*.json` record identifies the
-approved About illustration used as its style reference. The previous glossy
-illustrations remain in `assets-src/references/classic-inspections/` as concept
-references; older prompts document the previous direction.
+approved About illustration used as its style reference. Superseded illustrations
+and concept references are retained in Git history only; provenance notes record
+the historical revision instead of requiring obsolete image files.
 
 Run `npx tsx scripts/assets/remaster-ui.ts` to export lossless 1280×640 WebP source
 files under `src/assets/remaster/inspections/`, using nearest-neighbour resizing

@@ -70,13 +70,4 @@ for (const [index, name] of names.entries()) {
   await writePng(join(sceneDir, name), prepared.images[index]);
 }
 
-for (const name of ["experience", "resume"]) {
-  const art = await pixels(
-    sharp(join(rawDir, `${name}.png`)).resize(640, 320, { fit: "fill" }),
-  );
-  const result = quantizeJointly([art], { colours: 256 });
-  await writePng(`src/assets/inspections/${name}.png`, result.images[0]);
-}
-console.log(
-  `Prepared ${names.length} chalet layers and two inspection backdrops.`,
-);
+console.log(`Prepared ${names.length} chalet layers.`);

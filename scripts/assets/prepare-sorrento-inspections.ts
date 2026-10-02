@@ -31,46 +31,6 @@ for (const rect of [
 }
 await writePng("src/assets/scenes/sorrento/bg.png", original);
 
-for (const name of ["about", "contact"]) {
-  const data = await sharp(
-    `assets-src/approved/sorrento-inspection-${name}.png`,
-  )
-    .resize(640, 320, { fit: "fill", kernel: "lanczos3" })
-    .ensureAlpha()
-    .raw()
-    .toBuffer();
-  await writePng(
-    `src/assets/inspections/${name}.png`,
-    finishPainted({
-      width: 640,
-      height: 320,
-      data: new Uint8ClampedArray(data),
-    }).image,
-  );
-  writeFileSync(
-    `assets-src/provenance/inspection-${name}.json`,
-    JSON.stringify(
-      {
-        id: `inspection-${name}`,
-        output: `src/assets/inspections/${name}.png`,
-        task: "sorrento-story-inspections",
-        source: "codex",
-        prompt: "assets-src/prompts/hd/sorrento-inspections.md",
-        candidate: "01",
-        references: [],
-        approvedRaw: `assets-src/approved/sorrento-inspection-${name}.png`,
-        density: 2,
-        style: "painted",
-        date: "2026-09-30",
-        cleanup:
-          "Built-in imagegen. Prepared with scripts/assets/prepare-sorrento-inspections.ts at 640x320 and 256 colours, hard alpha, no dithering. The illustrated ivory page is blank for live accessible text.",
-      },
-      null,
-      2,
-    ) + "\n",
-  );
-}
-
 const provenancePath = "assets-src/provenance/sorrento-bg.json";
 const provenance: Record<string, unknown> = JSON.parse(
   readFileSync(provenancePath, "utf8"),
