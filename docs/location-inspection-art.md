@@ -19,9 +19,12 @@ Their text, links and pagination remain HTML from the shared profile.
 
 The built-in imagegen tool produced the full-resolution PNG sources in
 `assets-src/approved/location-inspections/`. The current prompts are in
-`assets-src/prompts/classic-inspections/`, their previous-art references in
-`assets-src/references/classic-inspections/`, and individual provenance records
-are named `assets-src/provenance/remaster-inspection-*.json`.
+`assets-src/prompts/classic-inspections/`, and individual provenance records
+are named `assets-src/provenance/remaster-inspection-*.json`. Superseded
+illustrations, concept sheets and generation references are kept in Git history,
+not as duplicate images in the current tree. Provenance notes identify their
+historical revision when needed. The approved About master is the current style
+reference for the other eight cards.
 
 Run `npx tsx scripts/assets/remaster-ui.ts` to export the approved sources as
 lossless 1280×640 WebP files under `src/assets/remaster/inspections/`, using

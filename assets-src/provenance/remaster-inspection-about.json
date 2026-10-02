@@ -5,13 +5,10 @@
   "source": "codex",
   "prompt": "assets-src/prompts/classic-inspections/about.md",
   "candidate": "04",
-  "references": [
-    "assets-src/references/classic-inspections/about-before-likeness-fix.png",
-    "assets-src/references/classic-inspections/about.webp"
-  ],
+  "references": [],
   "approvedRaw": "assets-src/approved/location-inspections/about.png",
   "density": 4,
   "date": "2026-10-02",
-  "cleanup": "Built-in imagegen. Full Throttle-inspired style study corrected against the original About facial likeness, explicitly approved by the user. Full-resolution source retained; nearest-neighbour 1280x640 lossless WebP export via scripts/assets/remaster-ui.ts. Existing build encoding and live HTML reading copy preserved.",
+  "cleanup": "Built-in imagegen. Full Throttle-inspired style study corrected against the original About facial likeness, explicitly approved by the user. Full-resolution source retained; nearest-neighbour 1280x640 lossless WebP export via scripts/assets/remaster-ui.ts. Existing build encoding and live HTML reading copy preserved. Superseded generation references were removed from the working tree; available in Git revision bb9d3ae: assets-src/references/classic-inspections/about-before-likeness-fix.png, assets-src/references/classic-inspections/about.webp.",
   "approvedBy": "Daniele: likeness-corrected preview approved in chat"
 }
