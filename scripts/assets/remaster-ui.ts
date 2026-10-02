@@ -1,7 +1,8 @@
-/** Export the approved inspection originals without the V2 palette reduction.
+/** Export the approved classic-adventure inspection originals.
  * The title ticket already has its original resolution; encode the same pixels
  * losslessly to reduce its download. Portfolio and souvenir cards use the
- * approved location and airport duty-free artwork.
+ * approved location and airport duty-free artwork. Nearest-neighbour resizing
+ * retains their deliberately stepped ink contours without adding soft fringes.
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import sharp from "sharp";
@@ -31,7 +32,7 @@ for (const [name, raw] of inspections) {
   const source = `assets-src/approved/${raw}`;
   const output = `${root}/inspections/${name}.webp`;
   await sharp(source)
-    .resize(1280, 640, { fit: "fill", kernel: "lanczos3" })
+    .resize(1280, 640, { fit: "fill", kernel: "nearest" })
     .webp({ lossless: true, effort: 6 })
     .toFile(output);
   entries.push({
@@ -40,8 +41,8 @@ for (const [name, raw] of inspections) {
     width: 1280,
     height: 640,
     treatment: raw.startsWith("location-inspections/")
-      ? "Location cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
-      : "Airport duty-free cartoon artwork at 2:1; full colours, lossless source export. Text-safe insets live in src/config/souvenirs.ts.",
+      ? "Classic adventure location artwork at 2:1; nearest-neighbour resize, full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
+      : "Classic adventure airport duty-free artwork at 2:1; nearest-neighbour resize, full colours, lossless source export. Text-safe insets live in src/config/souvenirs.ts.",
   });
 }
 const source = "assets-src/approved/boarding-pass.png";

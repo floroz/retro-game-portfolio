@@ -1,15 +1,16 @@
 {
   "id": "remaster-inspection-resume",
   "output": "src/assets/remaster/inspections/resume.webp",
-  "task": "location-section-artwork",
+  "task": "classic-adventure-inspections",
   "source": "codex",
-  "prompt": "assets-src/prompts/location-inspections/resume.md",
-  "candidate": "01",
+  "prompt": "assets-src/prompts/classic-inspections/resume.md",
+  "candidate": "03",
   "references": [
-    "assets-src/references/location-inspections/cartoon-concepts.png"
+    "assets-src/references/classic-inspections/resume.webp",
+    "assets-src/approved/location-inspections/about.png"
   ],
   "approvedRaw": "assets-src/approved/location-inspections/resume.png",
   "density": 4,
-  "date": "2026-10-01",
-  "cleanup": "Built-in imagegen. Full-resolution generated source retained; scripts/assets/remaster-ui.ts exports a lossless 1280x640 WebP. Build compression uses the existing encoder. All reading text is live HTML."
+  "date": "2026-10-02",
+  "cleanup": "Built-in imagegen style transfer using the approved likeness-preserving About scene. Revised with eccentric Swiss character design and stronger London storm gags after user feedback. Full-resolution source retained. Nearest-neighbour 1280x640 lossless WebP export via scripts/assets/remaster-ui.ts; existing build encoder handles delivery. Reading copy remains live HTML."
 }
