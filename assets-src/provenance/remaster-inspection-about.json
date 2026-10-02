@@ -1,16 +1,17 @@
 {
   "id": "remaster-inspection-about",
   "output": "src/assets/remaster/inspections/about.webp",
-  "task": "location-section-artwork",
+  "task": "classic-adventure-inspections",
   "source": "codex",
-  "prompt": "assets-src/prompts/location-inspections/about.md",
-  "candidate": "01",
+  "prompt": "assets-src/prompts/classic-inspections/about.md",
+  "candidate": "04",
   "references": [
-    "assets-src/references/location-inspections/cartoon-concepts.png",
-    "src/assets/daniele-static.png"
+    "assets-src/references/classic-inspections/about-before-likeness-fix.png",
+    "assets-src/references/classic-inspections/about.webp"
   ],
   "approvedRaw": "assets-src/approved/location-inspections/about.png",
   "density": 4,
-  "date": "2026-10-01",
-  "cleanup": "Built-in imagegen. Full-resolution generated source retained; scripts/assets/remaster-ui.ts exports a lossless 1280x640 WebP. Build compression uses the existing encoder. All reading text is live HTML."
+  "date": "2026-10-02",
+  "cleanup": "Built-in imagegen. Full Throttle-inspired style study corrected against the original About facial likeness, explicitly approved by the user. Full-resolution source retained; nearest-neighbour 1280x640 lossless WebP export via scripts/assets/remaster-ui.ts. Existing build encoding and live HTML reading copy preserved.",
+  "approvedBy": "Daniele: likeness-corrected preview approved in chat"
 }
