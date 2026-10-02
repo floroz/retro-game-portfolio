@@ -113,4 +113,21 @@ These work under `npm run dev`:
 - `?debug=scene` overlays walkboxes, hotspots, depth lines and exits, and shift-click copies coordinates.
 - `/?remaster=hall` compares the original pixel-art hall with the remaster side by side.
 
+### Versions
+
+Each released version is tagged:
+
+| Tag    | What it is                                                                                                                      |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `v1`   | The original: one painted scene with five hotspots, a Windows 95 desktop with an MS-DOS terminal, and a Game Boy view on mobile |
+| `v2.1` | The remastered adventure: the airport and three rooms, illustrated close-ups, the Windows 98 desktop and the Pocket Adventure   |
+
+To run an older version, check out its tag (in a separate worktree, if you want to keep your current checkout) and install that version's dependencies:
+
+```bash
+git worktree add ../retro-game-portfolio-v1 v1
+```
+
+Then run `npm ci` and `npm run dev` inside the new folder. Use the Node.js version in that checkout's `.node-version`. To browse a version on GitHub, open `https://github.com/floroz/retro-game-portfolio/tree/v1`.
+
 Contributors and coding agents should start with [`AGENTS.md`](AGENTS.md).
