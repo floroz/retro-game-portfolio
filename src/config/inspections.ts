@@ -26,7 +26,7 @@ export function sectionInspection(section: SectionId): InspectionReading {
         art: aboutArt,
         artAlt:
           "Daniele tries to close a suitcase full of lemons, hiking boots and a handheld console on a Sorrento terrace",
-        paperInsets: { top: 16, right: 8, bottom: 18, left: 55 },
+        paperInsets: { top: 16, right: 8, bottom: 18, left: 57 },
         paragraphs: [],
         pages: PROFILE.bio.split("\n\n").map((paragraph) => ({
           title: PROFILE.name,
@@ -39,8 +39,8 @@ export function sectionInspection(section: SectionId): InspectionReading {
         subtitle: "London calling. Skills answering.",
         art: skillsArt,
         artAlt:
-          "A closed red London phone booth shelters under an umbrella beside Big Ben and a blank noticeboard",
-        paperInsets: { top: 22, right: 8, bottom: 22, left: 56 },
+          "A crooked red London phone booth stands in its own rainstorm beneath an inside-out umbrella, beside Big Ben and a blank noticeboard",
+        paperInsets: { top: 22, right: 8, bottom: 26, left: 57 },
         paragraphs: [],
         pages: Object.entries(PROFILE.skills).map(([group, skills]) => ({
           title: PROFILE.skillGroupLabels[group as keyof typeof PROFILE.skills],
@@ -53,8 +53,8 @@ export function sectionInspection(section: SectionId): InspectionReading {
         subtitle: "All aboard the Swiss career express",
         art: experienceArt,
         artAlt:
-          "A red Swiss train carries suitcases and a lounging cow up an Alpine viaduct beside a timetable board",
-        paperInsets: { top: 20, right: 8, bottom: 28, left: 54 },
+          "A lanky driver takes a red Swiss train full of suitcases and a bored cow up an Alpine viaduct beside a timetable board",
+        paperInsets: { top: 20, right: 8, bottom: 30, left: 54 },
         paragraphs: [],
         pages: [
           ...PROFILE.experienceSummary.split("\n\n").map((paragraph) => ({
@@ -74,7 +74,7 @@ export function sectionInspection(section: SectionId): InspectionReading {
         art: contactArt,
         artAlt:
           "A red telephone connects to tin cans on a tiled Sorrento terrace, with lemons and the Bay of Naples behind it",
-        paperInsets: { top: 14, right: 8, bottom: 20, left: 55 },
+        paperInsets: { top: 14, right: 8, bottom: 24, left: 57 },
         paragraphs: [],
         pages: [
           {
@@ -98,7 +98,7 @@ export function sectionInspection(section: SectionId): InspectionReading {
         subtitle: "One small document. Swiss-sized paper trail.",
         art: resumeArt,
         artAlt:
-          "A Swiss ticket machine buries a surprised station clerk in an endlessly unrolling paper ticket",
+          "A Swiss ticket machine buries an exhausted, lanky station clerk in an endlessly unrolling paper ticket",
         paperInsets: { top: 16, right: 8, bottom: 18, left: 48 },
         paragraphs: [],
         pages: [

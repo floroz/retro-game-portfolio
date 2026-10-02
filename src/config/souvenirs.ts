@@ -49,7 +49,7 @@ export const SOUVENIRS = {
     ],
     art: telephone,
     artAlt:
-      "A closed miniature London phone booth shelters under its own umbrella and raincloud in a gift box at an airport souvenir stand.",
-    paperInsets: { top: 23, right: 8, bottom: 24, left: 56 },
+      "A miniature London phone booth has an inside-out umbrella and an angry raincloud flooding its gift box at an airport souvenir stand.",
+    paperInsets: { top: 23, right: 8, bottom: 26, left: 58 },
   },
 } satisfies Record<string, ObjectInspection>;

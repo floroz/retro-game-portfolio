@@ -18,6 +18,14 @@ How art is _made_ lives with its sources: generation prompts in `assets-src/prom
 
 Commit full-quality sources and let the build compress them. The game loads every image before it needs one, like a real game, so nothing paints in half-loaded.
 
+Keep only the current artwork and the source images needed to reproduce it.
+When replacing artwork, remove superseded exports, source images, concept sheets
+and generation-only references from the working tree; Git preserves their
+history. Update imports, preparation scripts and provenance records together.
+Record historical references in provenance notes rather than keeping obsolete
+image files just to satisfy a reference path. Current visual-test baselines and
+images used by documentation serve separate purposes and remain where needed.
+
 ## Task checklists
 
 **Add or replace canvas art**, meaning a scene background, sprite, object state, animation strip, prop or slot:

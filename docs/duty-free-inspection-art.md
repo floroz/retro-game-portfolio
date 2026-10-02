@@ -1,26 +1,31 @@
 # Duty-free souvenir artwork
 
-The airport's four optional souvenir close-ups use the same bright cartoon
-adventure direction as the portfolio inspections. Each illustration combines an
+The airport's four optional souvenir close-ups use the same inked, raster-drawn
+_Sam & Max Hit the Road_ / _Full Throttle_ direction as the portfolio inspections:
+hard shadows, stepped contours, matte colours and exaggerated comic shapes.
+Each illustration combines an
 airport terminal and parked jet with a visual joke about the souvenir's origin.
 All titles, descriptions and controls remain live HTML.
 
-| Souvenir                | Origin      | Illustration                                                                            |
-| ----------------------- | ----------- | --------------------------------------------------------------------------------------- |
-| Limoncello              | Sorrento    | An enormous lemon drains through a tiny funnel into a bottle on a majolica stand.       |
-| Swiss Army knife        | Switzerland | A pocketknife unfolds an umbrella and an espresso holder alongside its familiar tools.  |
-| Swiss cheese            | Switzerland | A cheese wheel doubles as rolling luggage, with a wedge in its own travel pouch.        |
-| Telephone-box miniature | London      | A closed miniature booth brings its own raincloud, umbrella and puddle into a gift box. |
+| Souvenir                | Origin      | Illustration                                                                                              |
+| ----------------------- | ----------- | --------------------------------------------------------------------------------------------------------- |
+| Limoncello              | Sorrento    | An enormous lemon drains through a tiny funnel into a bottle on a majolica stand.                         |
+| Swiss Army knife        | Switzerland | A pocketknife unfolds an umbrella and an espresso holder alongside its familiar tools.                    |
+| Swiss cheese            | Switzerland | A cheese wheel doubles as rolling luggage, with a wedge in its own travel pouch.                          |
+| Telephone-box miniature | London      | An angry personal raincloud and inside-out umbrella leave a closed miniature booth flooding its gift box. |
 
 ## Sources and export
 
 Full-resolution generated PNGs live in `assets-src/approved/duty-free-inspections/`.
-The exact prompts are in `assets-src/prompts/duty-free-inspections/`, and each
+The current prompts are in `assets-src/prompts/classic-inspections/`, and each
 `assets-src/provenance/remaster-inspection-souvenir-*.json` record identifies the
-portfolio illustration used as its style reference.
+approved About illustration used as its style reference. Superseded illustrations
+and concept references are retained in Git history only; provenance notes record
+the historical revision instead of requiring obsolete image files.
 
 Run `npx tsx scripts/assets/remaster-ui.ts` to export lossless 1280×640 WebP source
-files under `src/assets/remaster/inspections/`. The existing build encoder handles
+files under `src/assets/remaster/inspections/`, using nearest-neighbour resizing
+to preserve the stepped contours. The existing build encoder handles
 delivery compression. The single-image 512 KB budget is unchanged. These files
 replace the existing souvenir imports and remain in desktop preload tier four.
 
