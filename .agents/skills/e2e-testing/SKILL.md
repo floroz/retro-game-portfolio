@@ -104,19 +104,12 @@ The desktop test file is organized into two describe blocks:
 
 ### Browser Coverage
 
-Desktop tests run on three browsers (configured in `playwright.config.ts`):
-
-- Chromium (Chrome)
-- Firefox
-- WebKit (Safari)
-
-Snapshots are generated per-browser with suffixes like:
+Only Chromium runs: desktop tests on the `chromium` project and mobile tests on `mobile-chrome`. Snapshots are generated per project with suffixes like:
 
 - `01-welcome-screen-chromium-linux.png`
-- `01-welcome-screen-firefox-linux.png`
-- `01-welcome-screen-webkit-linux.png`
+- `pocket-about-mobile-chrome-linux.png`
 
-Mobile tests run on mobile Chrome, mobile Safari, and tablet projects.
+Firefox, WebKit, mobile Safari and tablet projects are still defined in `playwright.config.ts` but disabled. To bring one back, add its name to `enabledProjects`, generate its baselines with `npm run test:e2e:docker:update -- --project=<name>`, review them, and commit the new `*-linux.png` files.
 
 ## Docker Configuration
 
