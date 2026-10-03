@@ -85,7 +85,7 @@ export function Scene() {
     );
     let raf = 0;
     const frame = (t: number) => {
-      engine.update(t - last);
+      engine.update(t - last, { reducedMotion: motionPreference.matches });
       last = t;
       renderFrame({
         ctx,

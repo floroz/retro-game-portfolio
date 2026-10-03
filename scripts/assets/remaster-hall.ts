@@ -80,6 +80,16 @@ async function sprite(
 }
 
 await sprite("obj-duty-free", `${raw}/hall-duty-free-empty.png`, 320, 284);
+await save(
+  "obj-flight-board",
+  await sharp(`${raw}/hall-flight-board.webp`)
+    .trim({ background: clear, threshold: 100 })
+    .resize(304, 96, { fit: "fill" })
+    .png()
+    .toBuffer(),
+  `${raw}/hall-flight-board.webp`,
+  "User-approved classic twin split-flap housing, 76x24 logical px; data cells and column labels are live canvas lettering. Density-2 export is reproduced by scripts/assets/flight-board.ts.",
+);
 await sprite("obj-boarding-desk", `${raw}/hall-boarding-desk.png`, 112, 160, 4);
 await sprite("anim-plane", `${raw}/hall-plane@hd.webp`, 104, 32);
 

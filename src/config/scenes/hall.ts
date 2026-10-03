@@ -8,8 +8,9 @@
  *
  * Signposting, kept minimal: the three gates are the exits, each under a dark
  * sign board that carries its gate number and city only (`gate:<country>`). The
- * departures board lists the cities. Four destination souvenirs make the
- * duty-free shelf an optional discovery, each with its own painted close-up.
+ * arrivals/departures board shows ambient flights, gates and times. Four
+ * destination souvenirs make the duty-free shelf an optional discovery, each
+ * with its own painted close-up.
  * The travel trunk's boarding passes keep portfolio information accessible.
  *
  * Walking depth: the row of seats and the boarding desk stand out
@@ -29,6 +30,8 @@
 import { COUNTRIES } from "../sections";
 import { SOUVENIRS } from "../souvenirs";
 import type { SceneData } from "../../engine/types";
+import { HALL_FLIGHT_BOARD } from "./flight-board";
+import flightBoard from "../../assets/scenes/hall/obj-flight-board.png";
 import hallBg from "../../assets/scenes/hall/bg.png";
 import dutyFree from "../../assets/scenes/hall/obj-duty-free.png";
 import limoncello from "../../assets/scenes/hall/obj-souvenir-limoncello.png";
@@ -131,10 +134,13 @@ export const HALL_SCENE: SceneData = {
   objects: [
     {
       id: "board",
-      name: "departures board",
-      hotspot: { x: 22, y: 3, w: 41, h: 24 },
-      look: "Three flights, all on time. Clearly a work of fiction.",
-      use: "The flaps only ever flip to DELAYED.",
+      name: "arrivals and departures board",
+      sprite: flightBoard,
+      x: 3,
+      y: 2,
+      hotspot: { x: 3, y: 2, w: 76, h: 24 },
+      look: "Six flights, all on time. Clearly a work of fiction.",
+      use: "Six flights. My three gates still get the better views.",
     },
     {
       id: "monitors",
@@ -292,26 +298,7 @@ export const HALL_SCENE: SceneData = {
       idle: { splitY: 24, rise: 0.5, periodMs: 4200, phaseMs: 700 },
     },
   ],
-  // The take-off plane is a moving prop (below); the board flutters in data.
-  effects: [
-    {
-      // The board's three rows of flaps flutter now and then; the engine
-      // letters the cities on top.
-      id: "board-flutter",
-      kind: "flutter",
-      rows: [
-        { x: 23, y: 6, w: 38, h: 6 },
-        { x: 23, y: 12, w: 38, h: 6 },
-        { x: 23, y: 19, w: 38, h: 6 },
-      ],
-      everyMs: 12000,
-      durationMs: 1600,
-      staggerMs: 200,
-      edge: "#8a97b5",
-      face: "#161c30",
-      sound: "split-flap",
-    },
-  ],
+  splitFlapBoard: HALL_FLIGHT_BOARD,
   props: [
     // Crossing lanes are in front of the bench. Entire sprites start and
     // finish offscreen, with quiet gaps between passes; no teleport in view.
@@ -399,17 +386,6 @@ export const HALL_SCENE: SceneData = {
       x: 284,
       y: 17,
       align: "center",
-      font: "small",
-    },
-    {
-      id: "departures",
-      source: "departures",
-      // The painted split-flap rules crossed the letters. A clean inset
-      // preserves the frame while keeping every destination readable.
-      background: { area: { x: 24, y: 5, w: 37, h: 20 }, color: "#080d17" },
-      maxWidth: 36,
-      x: 24,
-      y: 6,
       font: "small",
     },
     {
