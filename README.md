@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="docs/images/readme-hall.webp" alt="The airport hall of the adventure: a duty-free shop with souvenirs, gates to Sorrento, London and Zürich, red seats with waiting passengers, a gate attendant, and Daniele standing in the middle above a travel-trunk toolbar with a boarding pass for each city" width="720" />
+<img src="docs/images/readme-sorrento.webp" alt="The desktop Sorrento scene: Daniele stands in a tiled kitchen with a view of the Gulf of Naples at sunset, a postcard-covered fridge, a telephone and a coffee pot, above the travel-trunk toolbar with boarding passes for Sorrento, London and Zürich" width="720" />
 
 ### [danieletortora.com](https://www.danieletortora.com)
 
