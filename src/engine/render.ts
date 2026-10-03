@@ -28,6 +28,7 @@ import { drawGroundShadow, placeShadow } from "./shadows";
 import type { Rig } from "./rig/rig";
 import { animationFrame, idleRise, objectPulseScale } from "./animation";
 import { drawChalk } from "./chalk";
+import { drawGateBoard } from "./gateBoard";
 import { drawSplitFlapBoard } from "./splitFlap";
 import { paintOrder, type Paintable } from "./depth";
 import { CANVAS_W, CORE, IRIS_MS, NATIVE_H, NATIVE_W } from "./constants";
@@ -595,6 +596,10 @@ function drawLabel(layer: TextLayer, label: SceneLabel, now: number) {
   }
   if (label.chalk) {
     drawChalk(layer, label);
+    return;
+  }
+  if (label.gateBoard) {
+    drawGateBoard(layer, label.gateBoard.area, resolveLabel(label.source));
     return;
   }
   const font = label.font ?? "regular";

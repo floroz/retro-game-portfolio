@@ -34,8 +34,7 @@ export function resolveLabel(source: LabelSource): string[] {
     case "gate":
       if (arg in COUNTRIES) {
         const c = arg as CountrySceneId;
-        // Two lines on today's tall signs; the HD Hall's small signs will
-        // read "GATE 1 · LONDON" on one.
+        // Separate the gate header and destination while sharing country data.
         return [`Gate ${COUNTRIES[c].gate}`, COUNTRIES[c].name];
       }
       break;

@@ -80,6 +80,22 @@ async function sprite(
 }
 
 await sprite("obj-duty-free", `${raw}/hall-duty-free-empty.png`, 320, 284);
+for (const [country, width] of Object.entries({
+  sorrento: 39,
+  london: 51,
+  zurich: 48,
+})) {
+  await save(
+    `obj-gate-${country}`,
+    await sharp(`${raw}/hall-gate-board.webp`)
+      .trim({ background: clear, threshold: 100 })
+      .resize(width * 4, 96, { fit: "fill" })
+      .png()
+      .toBuffer(),
+    `${raw}/hall-gate-board.webp`,
+    `Matching painted gate housing, ${width}x24 logical px; gate and city lettering stay live. Density-2 exports are reproduced by scripts/assets/gate-boards.ts.`,
+  );
+}
 await save(
   "obj-flight-board",
   await sharp(`${raw}/hall-flight-board.webp`)
