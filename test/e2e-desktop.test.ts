@@ -160,7 +160,20 @@ test("launch dialog can be canceled and restarted from Quick Launch", async ({
   await expect(
     loading.getByRole("button", { name: "Cancel", exact: true }),
   ).toBeInViewport();
+  // Asset decoding changes the filled segment count. Pin halfway progress for
+  // this chrome snapshot; cancel and restart still exercise real progress.
+  const snapshotProgress = await page.addStyleTag({
+    content: `
+      [data-e2e="win95-loading-widget"] [role="progressbar"] > div {
+        background: transparent !important;
+      }
+      [data-e2e="win95-loading-widget"] [role="progressbar"] > div:nth-child(-n + 11) {
+        background: #000080 !important;
+      }
+    `,
+  });
   await expect(loading).toHaveScreenshot("launch-dialog.png");
+  await snapshotProgress.evaluate((style) => style.remove());
   await loading.getByRole("button", { name: "Cancel", exact: true }).click();
   await page.clock.runFor(2000);
   await expect(loading).toBeHidden();
