@@ -5,6 +5,26 @@
   "recipe": "scripts/assets/remaster-hall.ts",
   "assets": [
     {
+      "output": "src/assets/remaster/hall/obj-gate-sorrento.png",
+      "source": "assets-src/approved/hall-gate-board.webp",
+      "note": "Matching painted gate housing, 39x24 logical px; gate and city lettering stay live. Density-2 exports are reproduced by scripts/assets/gate-boards.ts."
+    },
+    {
+      "output": "src/assets/remaster/hall/obj-gate-london.png",
+      "source": "assets-src/approved/hall-gate-board.webp",
+      "note": "Matching painted gate housing, 51x24 logical px; gate and city lettering stay live. Density-2 exports are reproduced by scripts/assets/gate-boards.ts."
+    },
+    {
+      "output": "src/assets/remaster/hall/obj-gate-zurich.png",
+      "source": "assets-src/approved/hall-gate-board.webp",
+      "note": "Matching painted gate housing, 48x24 logical px; gate and city lettering stay live. Density-2 exports are reproduced by scripts/assets/gate-boards.ts."
+    },
+    {
+      "output": "src/assets/remaster/hall/obj-flight-board.png",
+      "source": "assets-src/approved/hall-flight-board.webp",
+      "note": "User-approved classic twin split-flap housing, 76x24 logical px; data cells and column labels are live canvas lettering. Density-2 export is reproduced by scripts/assets/flight-board.ts."
+    },
+    {
       "output": "src/assets/remaster/hall/bg.png",
       "source": "assets-src/approved/hall-stone-floor.png + assets-src/approved/hall-plate@hd.webp",
       "note": "Density 4, full colour; same floor/architecture masks as airport-floor.ts; sign interiors retained for live text."

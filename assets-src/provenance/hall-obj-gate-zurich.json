@@ -1,0 +1,14 @@
+{
+  "id": "hall-obj-gate-zurich",
+  "output": "src/assets/scenes/hall/obj-gate-zurich.png",
+  "task": "airport-split-flap-board",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/gate-board.md",
+  "candidate": "01",
+  "references": ["assets-src/approved/hall-flight-board.webp"],
+  "approvedRaw": "assets-src/approved/hall-gate-board.webp",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "Built-in imagegen produced a blank single housing matching the existing flight board. scripts/assets/gate-boards.ts trims and registers a 48x24 logical footprint, exports full-colour density 4, and derives density 2 with hard alpha and the existing Hall palette. Country config supplies all live lettering.",
+  "date": "2026-10-03"
+}

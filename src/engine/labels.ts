@@ -2,12 +2,12 @@
  * Text for engine-drawn labels, resolved from config so renaming a section
  * or a country never touches an image.
  *
- * In-world text is minimal: a gate sign is its number and city, the departures
- * board lists cities, and a primary object carries one word. The status line
- * and the toolbar say which sections are where.
+ * In-world labels are minimal: a gate sign is its number and city, and a
+ * primary object carries one word. The status line and the toolbar say which
+ * sections are where. The animated flight timetable has its own renderer.
  */
 import { PROFILE } from "../config/profile";
-import { COUNTRIES, COUNTRY_ORDER, SECTIONS } from "../config/sections";
+import { COUNTRIES, SECTIONS } from "../config/sections";
 import type { CountrySceneId, LabelSource, Rect, SceneId } from "./types";
 
 type SkillGroup = keyof typeof PROFILE.skills;
@@ -34,13 +34,10 @@ export function resolveLabel(source: LabelSource): string[] {
     case "gate":
       if (arg in COUNTRIES) {
         const c = arg as CountrySceneId;
-        // Two lines on today's tall signs; the HD Hall's small signs will
-        // read "GATE 1 · LONDON" on one.
+        // Separate the gate header and destination while sharing country data.
         return [`Gate ${COUNTRIES[c].gate}`, COUNTRIES[c].name];
       }
       break;
-    case "departures":
-      return COUNTRY_ORDER.map((c) => COUNTRIES[c].name);
     case "skills":
       if (arg === "groups") {
         return (Object.keys(PROFILE.skills) as SkillGroup[]).map(

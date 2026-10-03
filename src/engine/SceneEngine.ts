@@ -14,6 +14,7 @@
 import { SECTIONS, isCountryScene } from "../config/sections";
 import { cycleStarted } from "./animation";
 import { effectCycleStarted, propPassStarted } from "./effects";
+import { splitFlapCycleStarted } from "./splitFlap";
 import {
   CharacterAnimator,
   facingFor,
@@ -556,7 +557,7 @@ export class SceneEngine {
 
   // --- Frame update ----------------------------------------------------------
 
-  update(dtMs: number) {
+  update(dtMs: number, options: { reducedMotion?: boolean } = {}) {
     const dt = Math.min(100, Math.max(0, dtMs));
     const before = this.clock;
     this.clock += dt;
@@ -605,7 +606,7 @@ export class SceneEngine {
     });
     const footstep = this.rigActive ? rigStep : sheetStep;
     if (footstep) this.host.sound?.(`footstep-${this.current.floor ?? "wood"}`);
-    this.animationSounds(before, this.clock);
+    this.animationSounds(before, this.clock, options.reducedMotion);
 
     const skippable = this.skipFn !== null || this.transition?.kind === "map";
     if (skippable !== this.wasSkippable) {
@@ -622,8 +623,12 @@ export class SceneEngine {
   // --- Internals -------------------------------------------------------------
 
   /** The cuckoo calls, the board flips: sounds of cycles that just started. */
-  private animationSounds(from: number, to: number) {
+  private animationSounds(from: number, to: number, reducedMotion = false) {
     if (this.transition?.kind === "map") return;
+    const board = this.current.splitFlapBoard;
+    if (board && !reducedMotion && splitFlapCycleStarted(board, from, to)) {
+      this.host.sound?.("split-flap");
+    }
     for (const anim of this.current.animations ?? []) {
       if (anim.sound && cycleStarted(anim, from, to)) {
         this.host.sound?.(anim.sound);
