@@ -150,34 +150,61 @@ export function ObjectInspectionView({ inspection, onClose }: Props) {
           </div>
         </div>
         <nav className={styles.controls} aria-label="Inspection navigation">
-          <button type="button" onClick={onClose}>
-            Back to the scene <span aria-hidden="true">↩</span>
+          <button
+            type="button"
+            className={styles.returnButton}
+            onClick={onClose}
+          >
+            <PageArrow previous />
+            <span>Back to the scene</span>
           </button>
           {pages.length > 1 && (
             <div className={styles.pages}>
               <button
                 type="button"
+                className={styles.pageButton}
                 onClick={() => turnPage(currentPage - 1)}
                 disabled={currentPage === 0}
                 aria-label="Previous page"
               >
-                ←
+                <PageArrow previous />
               </button>
-              <span aria-label={`Page ${currentPage + 1} of ${pages.length}`}>
+              <span
+                className={styles.pageCounter}
+                aria-label={`Page ${currentPage + 1} of ${pages.length}`}
+              >
                 {currentPage + 1} / {pages.length}
               </span>
               <button
                 type="button"
+                className={styles.pageButton}
                 onClick={() => turnPage(currentPage + 1)}
                 disabled={currentPage === pages.length - 1}
                 aria-label="Next page"
               >
-                →
+                <PageArrow />
               </button>
             </div>
           )}
         </nav>
       </div>
     </div>
+  );
+}
+
+/** Solid adventure arrows, independent of the platform's Unicode glyphs. */
+function PageArrow({ previous = false }: { previous?: boolean }) {
+  return (
+    <svg
+      className={styles.arrow}
+      viewBox="0 0 24 20"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        d="M2 6h11V1l9 9-9 9v-5H2z"
+        transform={previous ? "translate(24 0) scale(-1 1)" : undefined}
+      />
+    </svg>
   );
 }
