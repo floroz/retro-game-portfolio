@@ -530,6 +530,26 @@ export interface SceneExit {
   baselineY?: number;
 }
 
+export interface FlightRow {
+  city: string;
+  gate: string;
+  time: string;
+}
+
+/** Painted housing is an object sprite; all timetable lettering stays live. */
+export interface SplitFlapBoard {
+  panels: {
+    area: Rect;
+    originLabel: "FROM" | "TO";
+    rows: { initial: FlightRow; alternate: FlightRow }[];
+  }[];
+  /** Flattened row indices, allowing the two panels to take turns. */
+  updateOrder: number[];
+  everyMs: number;
+  foldMs: number;
+  staggerMs: number;
+}
+
 export interface SceneData {
   id: SceneId;
   /** Display name: "London", "Zurich", "Sorrento", "the airport". */
@@ -564,6 +584,7 @@ export interface SceneData {
   props?: MovingProp[];
   slots?: SlotRow[];
   labels?: SceneLabel[];
+  splitFlapBoard?: SplitFlapBoard;
   exits: SceneExit[];
 }
 

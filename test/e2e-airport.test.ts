@@ -59,6 +59,84 @@ async function seatedPixels(page: Page) {
   });
 }
 
+/** Each timetable row, excluding the static frame and column headings. */
+async function flightBoardPixels(page: Page) {
+  return page.locator("canvas[data-drawn=hall]").evaluate((element) => {
+    const canvas = element as unknown as {
+      width: number;
+      getContext(kind: string): {
+        getImageData(
+          x: number,
+          y: number,
+          w: number,
+          h: number,
+        ): { data: ArrayLike<number> };
+      };
+    };
+    const ctx = canvas.getContext("2d")!;
+    const d = canvas.width / 320;
+    return [5.5, 42.5].flatMap((x) =>
+      [0, 1, 2].map((row) =>
+        Array.from(
+          ctx.getImageData(
+            x * d,
+            (12.2 + (row * 11.5) / 3) * d,
+            33.5 * d,
+            (11.5 / 3) * d,
+          ).data,
+        ),
+      ),
+    );
+  });
+}
+
+test("airport board flips one row every five seconds", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await openAirport(page);
+  await expect(
+    page.getByRole("button", {
+      name: "Look at arrivals and departures board",
+      exact: true,
+    }),
+  ).toBeVisible();
+  const before = await flightBoardPixels(page);
+  let after = before;
+  for (let t = 0; t < 6000; t += 200) {
+    await advanceScene(page, 200);
+    after = await flightBoardPixels(page);
+    if (after[0].some((v, i) => v !== before[0][i])) break;
+  }
+  expect(after[0]).not.toEqual(before[0]);
+  expect(after.slice(1)).toEqual(before.slice(1));
+  await advanceScene(page, 1500);
+  const settled = await flightBoardPixels(page);
+  expect(settled[0]).not.toEqual(before[0]);
+  expect(settled.slice(1)).toEqual(before.slice(1));
+  await advanceScene(page, 2000);
+  expect(await flightBoardPixels(page)).toEqual(settled);
+  // Cross the next five-second boundary: departure row two takes its turn.
+  let next = settled;
+  for (let t = 0; t < 4000; t += 200) {
+    await advanceScene(page, 200);
+    next = await flightBoardPixels(page);
+    if (next[4].some((v, i) => v !== settled[4][i])) break;
+  }
+  expect(next[4]).not.toEqual(settled[4]);
+  expect(next.filter((_, i) => i !== 4)).toEqual(
+    settled.filter((_, i) => i !== 4),
+  );
+});
+
+test("airport board holds the complete timetable still with reduced motion", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openAirport(page);
+  const before = await flightBoardPixels(page);
+  await advanceScene(page, 16000);
+  expect(await flightBoardPixels(page)).toEqual(before);
+});
+
 test("scene pixels keep their geometry across repeated frames", async ({
   page,
 }) => {
