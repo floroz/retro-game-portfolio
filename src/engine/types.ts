@@ -451,7 +451,6 @@ export interface SlotRow {
  * - `section:<id>`: the section name, "RESUME"
  * - `scene:<id>`: the scene name, "LONDON"
  * - `gate:<country>`: "GATE 1" and the city, nothing more
- * - `departures`: one departures-board row per gate: the city only
  * - `skills:groups`: one line per skill group, from the profile
  * - `text:<literal>`: fixed text, for signs that never change
  */
@@ -459,7 +458,6 @@ export type LabelSource =
   | `section:${SectionId}`
   | `scene:${SceneId}`
   | `gate:${CountrySceneId}`
-  | "departures"
   | "skills:groups"
   | `text:${string}`;
 
@@ -500,6 +498,10 @@ export interface SceneLabel {
    * a list appears in the world.
    */
   chalk?: { area: Rect; seed?: number };
+  /** Gate title on a painted ochre header, destination on the dark inset.
+   * Uses the two lines from `gate:<country>`; positional text settings are ignored.
+   */
+  gateBoard?: { area: Rect };
   baselineY?: number;
 }
 
@@ -528,6 +530,26 @@ export interface SceneExit {
   interactionPoint: StandPoint;
   look?: string;
   baselineY?: number;
+}
+
+export interface FlightRow {
+  city: string;
+  gate: string;
+  time: string;
+}
+
+/** Painted housing is an object sprite; all timetable lettering stays live. */
+export interface SplitFlapBoard {
+  panels: {
+    area: Rect;
+    originLabel: "FROM" | "TO";
+    rows: { initial: FlightRow; alternate: FlightRow }[];
+  }[];
+  /** Flattened row indices, allowing the two panels to take turns. */
+  updateOrder: number[];
+  everyMs: number;
+  foldMs: number;
+  staggerMs: number;
 }
 
 export interface SceneData {
@@ -564,6 +586,7 @@ export interface SceneData {
   props?: MovingProp[];
   slots?: SlotRow[];
   labels?: SceneLabel[];
+  splitFlapBoard?: SplitFlapBoard;
   exits: SceneExit[];
 }
 

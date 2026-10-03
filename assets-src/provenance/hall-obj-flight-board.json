@@ -1,0 +1,15 @@
+{
+  "id": "hall-obj-flight-board",
+  "output": "src/assets/scenes/hall/obj-flight-board.png",
+  "task": "airport-split-flap-board",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/flight-board.md",
+  "candidate": "01",
+  "references": [],
+  "approvedRaw": "assets-src/approved/hall-flight-board.webp",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "Built-in imagegen extracted the user-approved classic twin board as transparent hardware with empty data surfaces. scripts/assets/flight-board.ts trims and registers a 76x24 logical footprint, exports full-colour density 4, then derives density 2 with hard alpha and the existing Hall palette. Original concept remains historical context outside the repository.",
+  "approvedBy": "user",
+  "date": "2026-10-03"
+}
