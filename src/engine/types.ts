@@ -498,6 +498,10 @@ export interface SceneLabel {
    * a list appears in the world.
    */
   chalk?: { area: Rect; seed?: number };
+  /** Gate title on a painted ochre header, destination on the dark inset.
+   * Uses the two lines from `gate:<country>`; positional text settings are ignored.
+   */
+  gateBoard?: { area: Rect };
   baselineY?: number;
 }
 

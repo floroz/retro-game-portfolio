@@ -32,6 +32,9 @@ import { SOUVENIRS } from "../souvenirs";
 import type { SceneData } from "../../engine/types";
 import { HALL_FLIGHT_BOARD } from "./flight-board";
 import flightBoard from "../../assets/scenes/hall/obj-flight-board.png";
+import sorrentoGate from "../../assets/scenes/hall/obj-gate-sorrento.png";
+import londonGate from "../../assets/scenes/hall/obj-gate-london.png";
+import zurichGate from "../../assets/scenes/hall/obj-gate-zurich.png";
 import hallBg from "../../assets/scenes/hall/bg.png";
 import dutyFree from "../../assets/scenes/hall/obj-duty-free.png";
 import limoncello from "../../assets/scenes/hall/obj-souvenir-limoncello.png";
@@ -72,6 +75,13 @@ const HALL_DEPTH = {
 /** Front feet of the free-standing objects: the depth-sort lines. */
 const SEATS_BASELINE = 123;
 const BOARDING_DESK_BASELINE = 116;
+
+/** The gate housings cover the old painted frames and stay fully clickable. */
+const GATE_BOARD_AREAS = {
+  sorrento: { x: 169, y: 12, w: 39, h: 24 },
+  london: { x: 209, y: 12, w: 51, h: 24 },
+  zurich: { x: 260.5, y: 12, w: 48, h: 24 },
+};
 
 /**
  * The window glass the plane shows through: the right-hand pane, then the
@@ -358,35 +368,27 @@ export const HALL_SCENE: SceneData = {
     },
   ],
   labels: [
-    // Gate signs: "GATE 1" and the city, centred on each dark board and set
-    // to fit inside it (Sorrento's face is x 171-206, London's 210-258,
-    // Zürich's 262-305).
+    // Matching painted housings, with live gate headers and larger city names.
     {
       id: "gate-sorrento",
       source: "gate:sorrento",
-      maxWidth: 32,
       x: 189,
       y: 17,
-      align: "center",
-      font: "small",
+      gateBoard: { area: GATE_BOARD_AREAS.sorrento },
     },
     {
       id: "gate-london",
       source: "gate:london",
-      maxWidth: 44,
       x: 234,
       y: 17,
-      align: "center",
-      font: "small",
+      gateBoard: { area: GATE_BOARD_AREAS.london },
     },
     {
       id: "gate-zurich",
       source: "gate:zurich",
-      maxWidth: 40,
       x: 284,
       y: 17,
-      align: "center",
-      font: "small",
+      gateBoard: { area: GATE_BOARD_AREAS.zurich },
     },
     {
       id: "duty-free",
@@ -403,10 +405,13 @@ export const HALL_SCENE: SceneData = {
       id: "gate-sorrento",
       to: "sorrento",
       entry: "fromHall",
+      sprite: sorrentoGate,
+      x: GATE_BOARD_AREAS.sorrento.x,
+      y: GATE_BOARD_AREAS.sorrento.y,
       // The door and its header slot; the sign board above is the extra
-      // hotspot (x 170-208, y 12-36).
+      // hotspot, sharing the housing's registered rectangle.
       hotspot: { x: 176, y: 36, w: 26, h: 51 },
-      extraHotspots: [{ x: 170, y: 12, w: 38, h: 24 }],
+      extraHotspots: [GATE_BOARD_AREAS.sorrento],
       interactionPoint: { x: 189, y: 93, facing: "n" },
       look: `Gate ${COUNTRIES.sorrento.gate}: ${COUNTRIES.sorrento.name}, my hometown, where the journey began.`,
     },
@@ -414,9 +419,12 @@ export const HALL_SCENE: SceneData = {
       id: "gate-london",
       to: "london",
       entry: "fromHall",
+      sprite: londonGate,
+      x: GATE_BOARD_AREAS.london.x,
+      y: GATE_BOARD_AREAS.london.y,
       // The full door stays clear of the desk between Gates 2 and 3.
       hotspot: { x: 222, y: 36, w: 22, h: 51 },
-      extraHotspots: [{ x: 209, y: 12, w: 50, h: 24 }],
+      extraHotspots: [GATE_BOARD_AREAS.london],
       interactionPoint: { x: 234, y: 93, facing: "n" },
       look: `Gate ${COUNTRIES.london.gate}: ${COUNTRIES.london.name}, where I moved from Sorrento and learned the trade.`,
     },
@@ -424,8 +432,11 @@ export const HALL_SCENE: SceneData = {
       id: "gate-zurich",
       to: "zurich",
       entry: "fromHall",
+      sprite: zurichGate,
+      x: GATE_BOARD_AREAS.zurich.x,
+      y: GATE_BOARD_AREAS.zurich.y,
       hotspot: { x: 274, y: 36, w: 23, h: 51 },
-      extraHotspots: [{ x: 261, y: 12, w: 46, h: 24 }],
+      extraHotspots: [GATE_BOARD_AREAS.zurich],
       interactionPoint: { x: 284, y: 93, facing: "n" },
       look: `Gate ${COUNTRIES.zurich.gate}: ${COUNTRIES.zurich.name}, my current home after London.`,
     },
