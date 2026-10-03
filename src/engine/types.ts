@@ -451,7 +451,6 @@ export interface SlotRow {
  * - `section:<id>`: the section name, "RESUME"
  * - `scene:<id>`: the scene name, "LONDON"
  * - `gate:<country>`: "GATE 1" and the city, nothing more
- * - `departures`: one departures-board row per gate: the city only
  * - `skills:groups`: one line per skill group, from the profile
  * - `text:<literal>`: fixed text, for signs that never change
  */
@@ -459,7 +458,6 @@ export type LabelSource =
   | `section:${SectionId}`
   | `scene:${SceneId}`
   | `gate:${CountrySceneId}`
-  | "departures"
   | "skills:groups"
   | `text:${string}`;
 

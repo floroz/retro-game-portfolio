@@ -262,14 +262,6 @@ describe("labels", () => {
     expect(resolveLabel("gate:zurich")).toEqual(["Gate 3", "Zürich"]);
   });
 
-  test("the departures board lists the cities only", () => {
-    expect(resolveLabel("departures")).toEqual([
-      "Sorrento",
-      "London",
-      "Zürich",
-    ]);
-  });
-
   test("fixed text passes through", () => {
     expect(resolveLabel("text:Duty free")).toEqual(["Duty free"]);
     expect(resolveLabel("section:resume")).toEqual(["Resume"]);
