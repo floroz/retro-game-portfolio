@@ -13,7 +13,7 @@ export function useSceneAudio({ enabled = true }: { enabled?: boolean } = {}) {
     const apply = (state: ReturnType<typeof useGameStore.getState>) => {
       const scene = SCENES[state.currentScene];
       sceneAudio.setTracks(scene.music, scene.ambience);
-      sceneAudio.setEnabled(state.soundEnabled);
+      sceneAudio.setEnabled(state.soundEnabled && state.welcomeShown);
     };
     apply(useGameStore.getState());
     // Subscribing (rather than an effect on soundEnabled) keeps the resume
@@ -21,6 +21,7 @@ export function useSceneAudio({ enabled = true }: { enabled?: boolean } = {}) {
     const unsubscribe = useGameStore.subscribe((state, prev) => {
       if (
         state.soundEnabled !== prev.soundEnabled ||
+        state.welcomeShown !== prev.welcomeShown ||
         state.currentScene !== prev.currentScene
       ) {
         apply(state);

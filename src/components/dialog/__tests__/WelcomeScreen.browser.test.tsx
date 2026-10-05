@@ -1,9 +1,11 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
 import { WelcomeScreen } from "../WelcomeScreen";
 import { useGameStore } from "../../../store/gameStore";
 import { offGridPixels } from "../../../test/helpers/canvas";
+import { sceneAudio } from "../../../engine/runtime";
+import { useSceneAudio } from "../../../hooks/useSceneAudio";
 
 const initial = useGameStore.getState();
 
@@ -15,6 +17,7 @@ function Card({
   onDismiss: () => void;
   ready?: boolean;
 }) {
+  useSceneAudio();
   return (
     <div style={{ width: 1280, height: 800, position: "relative" }}>
       <WelcomeScreen onDismiss={onDismiss} ready={ready} />
@@ -23,12 +26,41 @@ function Card({
 }
 
 beforeEach(async () => {
+  vi.spyOn(sceneAudio, "unlock").mockImplementation(() => {});
+  vi.spyOn(sceneAudio, "setEnabled").mockImplementation(() => {});
   useGameStore.setState({ ...initial }, true);
   // Wide enough for the card to be on screen, so a click can land.
   await page.viewport(1300, 900);
 });
 
+afterEach(() => vi.restoreAllMocks());
+
 describe("WelcomeScreen: the title card", () => {
+  test("selects sound on arrival but stays silent until Start", async () => {
+    await render(
+      <Card onDismiss={() => useGameStore.getState().dismissWelcome()} />,
+    );
+    await expect.element(page.getByText("Starts with sound")).toBeVisible();
+    expect(sceneAudio.unlock).not.toHaveBeenCalled();
+    expect(sceneAudio.setEnabled).not.toHaveBeenCalledWith(true);
+    await userEvent.keyboard(" ");
+    expect(sceneAudio.unlock).toHaveBeenCalledTimes(1);
+    expect(sceneAudio.setEnabled).toHaveBeenLastCalledWith(true);
+    useGameStore.getState().toggleSound();
+    expect(sceneAudio.setEnabled).toHaveBeenLastCalledWith(false);
+  });
+
+  test("muting before Start keeps the adventure silent", async () => {
+    await render(
+      <Card onDismiss={() => useGameStore.getState().dismissWelcome()} />,
+    );
+    await page.getByRole("button", { name: "Sound" }).click();
+    await expect.element(page.getByText("Starts silently")).toBeVisible();
+    await userEvent.keyboard(" ");
+    expect(sceneAudio.unlock).not.toHaveBeenCalled();
+    expect(sceneAudio.setEnabled).not.toHaveBeenCalledWith(true);
+  });
+
   test("names Daniele and his title for screen readers", async () => {
     await render(<Card onDismiss={vi.fn()} />);
     await expect
@@ -86,10 +118,10 @@ describe("WelcomeScreen: the title card", () => {
     const onDismiss = vi.fn();
     await render(<Card onDismiss={onDismiss} />);
     const sound = page.getByRole("button", { name: "Sound" });
-    await expect.element(sound).toHaveAttribute("aria-pressed", "false");
-    await sound.click();
-    expect(useGameStore.getState().soundEnabled).toBe(true);
     await expect.element(sound).toHaveAttribute("aria-pressed", "true");
+    await sound.click();
+    expect(useGameStore.getState().soundEnabled).toBe(false);
+    await expect.element(sound).toHaveAttribute("aria-pressed", "false");
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
@@ -100,7 +132,7 @@ describe("WelcomeScreen: the title card", () => {
     await userEvent.tab();
     expect(document.activeElement?.getAttribute("aria-label")).toBe("Sound");
     await userEvent.keyboard(" ");
-    expect(useGameStore.getState().soundEnabled).toBe(true);
+    expect(useGameStore.getState().soundEnabled).toBe(false);
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
@@ -109,7 +141,7 @@ describe("WelcomeScreen: the title card", () => {
     await render(<Card onDismiss={onDismiss} />);
     await page.getByRole("button", { name: "Sound" }).click();
     await userEvent.keyboard(" ");
-    expect(useGameStore.getState().soundEnabled).toBe(true);
+    expect(useGameStore.getState().soundEnabled).toBe(false);
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
@@ -120,21 +152,40 @@ describe("WelcomeScreen: the title card", () => {
     await userEvent.keyboard(" ");
     const card = screen.container.querySelector("[data-e2e=welcome-screen]");
     expect(onDismiss).not.toHaveBeenCalled();
+    expect(sceneAudio.unlock).toHaveBeenCalled();
+    expect(sceneAudio.setEnabled).not.toHaveBeenCalledWith(true);
     // The card says so, for screen readers as well as on the stub.
     expect(card?.getAttribute("aria-busy")).toBe("true");
     await screen.rerender(<Card onDismiss={onDismiss} ready />);
     await vi.waitFor(() => expect(onDismiss).toHaveBeenCalledTimes(1));
   });
 
-  test("a click before the art has loaded waits for it too", async () => {
-    const onDismiss = vi.fn();
+  test("a queued click unlocks audio silently, then starts playback when ready", async () => {
+    const onDismiss = vi.fn(() => useGameStore.getState().dismissWelcome());
     const screen = await render(<Card onDismiss={onDismiss} ready={false} />);
     await page
       .getByRole("button", { name: "Press space or click to start" })
       .click();
+    expect(sceneAudio.unlock).toHaveBeenCalledTimes(1);
+    expect(sceneAudio.setEnabled).not.toHaveBeenCalledWith(true);
     expect(onDismiss).not.toHaveBeenCalled();
     await screen.rerender(<Card onDismiss={onDismiss} ready />);
     await vi.waitFor(() => expect(onDismiss).toHaveBeenCalledTimes(1));
+    expect(sceneAudio.setEnabled).toHaveBeenLastCalledWith(true);
+  });
+
+  test("sound can be muted and reselected while a start is queued", async () => {
+    const onDismiss = vi.fn(() => useGameStore.getState().dismissWelcome());
+    const screen = await render(<Card onDismiss={onDismiss} ready={false} />);
+    await userEvent.keyboard(" ");
+    const sound = page.getByRole("button", { name: "Sound" });
+    await sound.click();
+    await sound.click();
+    expect(sceneAudio.unlock).toHaveBeenCalledTimes(2);
+    expect(sceneAudio.setEnabled).not.toHaveBeenCalledWith(true);
+    await screen.rerender(<Card onDismiss={onDismiss} ready />);
+    await vi.waitFor(() => expect(onDismiss).toHaveBeenCalledTimes(1));
+    expect(sceneAudio.setEnabled).toHaveBeenLastCalledWith(true);
   });
 
   test("the full-resolution ticket loads above the smoothly lettered backdrop", async () => {

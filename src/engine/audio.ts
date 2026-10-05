@@ -94,6 +94,7 @@ export class SceneAudio {
     ambience: undefined,
   };
   private enabled = false;
+  private suspendTimer: number | undefined;
   private readonly createContext: () => AudioContext;
   private readonly load: (url: string) => Promise<ArrayBuffer | null>;
 
@@ -117,19 +118,29 @@ export class SceneAudio {
           .catch(() => null));
   }
 
+  /** Unlock during Start, even if loading delays playback. Stays silent. */
+  unlock() {
+    window.clearTimeout(this.suspendTimer);
+    this.suspendTimer = undefined;
+    const ctx = this.context();
+    if (ctx) void ctx.resume().catch(() => undefined);
+  }
+
   /** Follows the sound toggle. Call it from the click that turns sound on. */
   setEnabled(on: boolean) {
+    window.clearTimeout(this.suspendTimer);
+    this.suspendTimer = undefined;
     this.enabled = on;
     if (on) {
+      this.unlock();
       const ctx = this.context();
       if (!ctx || !this.master) return;
-      void ctx.resume();
       this.master.gain.setTargetAtTime(1, ctx.currentTime, 0.05);
       this.sync();
     } else if (this.ctx && this.master) {
       const ctx = this.ctx;
       this.master.gain.setTargetAtTime(0, ctx.currentTime, 0.05);
-      window.setTimeout(() => {
+      this.suspendTimer = window.setTimeout(() => {
         if (!this.enabled) void ctx.suspend();
       }, 300);
     }

@@ -176,10 +176,10 @@ describe("Toolbar: the travel trunk", () => {
   test("Sound is a toggle button", async () => {
     await render(<Panel />);
     const sound = page.getByRole("button", { name: "Sound" });
-    await expect.element(sound).toHaveAttribute("aria-pressed", "false");
-    await sound.click();
-    expect(useGameStore.getState().soundEnabled).toBe(true);
     await expect.element(sound).toHaveAttribute("aria-pressed", "true");
+    await sound.click();
+    expect(useGameStore.getState().soundEnabled).toBe(false);
+    await expect.element(sound).toHaveAttribute("aria-pressed", "false");
   });
 
   test("GitHub and LinkedIn open the profiles in a new tab", async () => {

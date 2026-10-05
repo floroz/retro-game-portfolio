@@ -1,6 +1,11 @@
 import { test, expect, type Page } from "@playwright/test";
 import { PROFILE } from "../src/config/profile";
 
+interface AudioWindow {
+  AudioContext: new () => { readonly state: string };
+  portfolioAudioContexts: { readonly state: string }[];
+}
+
 // Ensure desktop viewport for all tests
 test.use({
   viewport: { width: 1280, height: 720 },
@@ -47,6 +52,72 @@ async function closeGameWindow(page: Page) {
 }
 
 test.describe("Portfolio E2E Tests", () => {
+  test("desktop stays silent until Start, then plays and can be muted", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      const audioWindow = globalThis as unknown as AudioWindow;
+      const contexts: { readonly state: string }[] = [];
+      audioWindow.portfolioAudioContexts = contexts;
+      const OriginalContext = audioWindow.AudioContext;
+      audioWindow.AudioContext = class extends OriginalContext {
+        constructor() {
+          super();
+          contexts.push(this);
+        }
+      };
+    });
+    const audioRequests: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().includes("/audio/")) audioRequests.push(request.url());
+    });
+    await page.goto("/");
+    await waitForGameWindowReady(page);
+    const welcome = page.locator("[data-e2e=welcome-screen]");
+    await expect(welcome.getByText("Starts with sound")).toBeVisible();
+    expect(audioRequests).toEqual([]);
+    const contextState = () =>
+      page.evaluate(
+        () =>
+          (globalThis as unknown as AudioWindow).portfolioAudioContexts[0]
+            ?.state,
+      );
+    expect(await contextState()).toBeUndefined();
+    await welcome
+      .getByRole("button", { name: "Press space or click to start" })
+      .click();
+    await expect(welcome).toBeHidden();
+    await expect
+      .poll(() => audioRequests.some((url) => url.includes("/audio/music/")))
+      .toBe(true);
+    await expect.poll(contextState).toBe("running");
+    await page.getByRole("button", { name: "Mute sound", exact: true }).click();
+    await expect.poll(contextState).toBe("suspended");
+    await page
+      .getByRole("button", { name: "Enable sound", exact: true })
+      .click();
+    await expect.poll(contextState).toBe("running");
+  });
+
+  test("muting the boarding pass keeps a keyboard start silent", async ({
+    page,
+  }) => {
+    const audioRequests: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().includes("/audio/")) audioRequests.push(request.url());
+    });
+    await page.goto("/");
+    await waitForGameWindowReady(page);
+    const welcome = page.locator("[data-e2e=welcome-screen]");
+    await welcome.getByRole("button", { name: "Sound", exact: true }).click();
+    await expect(welcome.getByText("Starts silently")).toBeVisible();
+    await dismissWelcomeAndWaitForDialog(page);
+    expect(audioRequests).toEqual([]);
+    await expect(
+      page.getByRole("button", { name: "Enable sound", exact: true }),
+    ).toBeVisible();
+  });
+
   test("should load the homepage", async ({ page }) => {
     await page.goto("/");
 

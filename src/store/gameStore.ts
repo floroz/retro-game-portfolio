@@ -74,7 +74,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   dialogNode: "",
   dialogReady: false,
   visitedNodes: new Set<string>(),
-  soundEnabled: false,
+  soundEnabled: true,
 
   // World actions
   // The pointer is over nothing in the new scene yet.

@@ -103,6 +103,10 @@
   font-size: to-rem(20px);
 }
 
+.soundHint {
+  font-size: to-rem(16px);
+}
+
 .pass:hover .key,
 .pass:focus-visible .key {
   color: #fff5d8;

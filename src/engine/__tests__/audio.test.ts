@@ -64,6 +64,31 @@ function setup(missing: string[] = []) {
 const flush = () => new Promise((r) => setTimeout(r, 0));
 
 describe("scene audio", () => {
+  test("unlocks during Start without downloading or playing until enabled", async () => {
+    const { audio, ctx, sources, gains, load } = setup();
+    audio.setTracks("/audio/music/hall.mp3", "/audio/ambience/hall.mp3");
+    audio.unlock();
+    expect(ctx.resume).toHaveBeenCalledTimes(1);
+    expect(gains[0].gain.value).toBe(0);
+    audio.play("ui-blip");
+    await flush();
+    expect(load).not.toHaveBeenCalled();
+    expect(sources).toHaveLength(0);
+    audio.setEnabled(true);
+    await flush();
+    expect(sources).toHaveLength(2);
+  });
+
+  test("a pending mute cannot suspend a newly unlocked launch", () => {
+    vi.useFakeTimers();
+    const { audio, ctx } = setup();
+    audio.setEnabled(true);
+    audio.setEnabled(false);
+    audio.unlock();
+    vi.advanceTimersByTime(300);
+    expect(ctx.suspend).not.toHaveBeenCalled();
+  });
+
   test("stays silent and loads nothing until sound is turned on", async () => {
     const { audio, load } = setup();
     audio.setTracks("/audio/music/hall.mp3", "/audio/ambience/hall.mp3");
