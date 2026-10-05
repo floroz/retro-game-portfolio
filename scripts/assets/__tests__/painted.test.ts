@@ -212,6 +212,7 @@ describe("quantization", () => {
 });
 
 describe("painted prepare", () => {
+  // Full-size resizing and quantization compete for CPU on shared CI runners.
   test("takes a raw composite to 640x320, opaque, at most 256 colours", async () => {
     const raw = gradient(1774, 887);
     const { image, painted } = await preparePainted(raw, { kind: "scene" });
@@ -220,9 +221,12 @@ describe("painted prepare", () => {
       PAINTED_SCENE_SIZE.h,
     ]);
     expect(painted.colours).toBeLessThanOrEqual(256);
-    for (let i = 3; i < image.data.length; i += 4)
-      expect(image.data[i]).toBe(255);
-  });
+    // Scan every pixel without constructing 204,800 separate assertions.
+    const nonOpaqueAlphaIndex = image.data.findIndex(
+      (value, index) => index % 4 === 3 && value !== 255,
+    );
+    expect(nonOpaqueAlphaIndex).toBe(-1);
+  }, 15000);
 
   test("keys a magenta sprite to hard alpha with no fringe", async () => {
     const raw = createImage(400, 600, KEY);
