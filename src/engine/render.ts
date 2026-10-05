@@ -37,7 +37,7 @@ import {
   drawText,
   fitText,
   lineHeight,
-  measureText,
+  textMeasure,
   wrapText,
   type TextLayer,
 } from "./font";
@@ -583,6 +583,7 @@ function drawCaptions(layer: TextLayer, row: SlotRow, items: SlotItem[]) {
  * word still too wide shrinks to fit.
  */
 function drawLabel(layer: TextLayer, label: SceneLabel, now: number) {
+  const measureText = textMeasure(layer);
   if (label.background) {
     const { area, color } = label.background;
     const { ctx, scale } = layer;
@@ -604,7 +605,7 @@ function drawLabel(layer: TextLayer, label: SceneLabel, now: number) {
   }
   const font = label.font ?? "regular";
   const lines = resolveLabel(label.source).flatMap((l) =>
-    label.maxWidth ? wrapText(l, label.maxWidth, font) : [l],
+    label.maxWidth ? wrapText(l, label.maxWidth, font, measureText) : [l],
   );
   const style = {
     font,
@@ -630,7 +631,7 @@ function drawLabel(layer: TextLayer, label: SceneLabel, now: number) {
     "",
   );
   const fit = label.maxWidth
-    ? fitText(widest, label.maxWidth, font)
+    ? fitText(widest, label.maxWidth, font, measureText)
     : { font, tracking: undefined };
   lines.forEach((line, i) => {
     const w = measureText(line, fit.font, fit.tracking);
@@ -739,6 +740,7 @@ const SPEECH = { color: "#fff8e5" } as const;
 
 /** Daniele's lines: centred over his head, kept on screen, SCUMM style. */
 function drawSpeech(rc: RenderContext) {
+  const measureText = textMeasure(rc.text);
   const speech = rc.engine.speech;
   if (!speech) return;
   const { engine, sheet } = rc;
@@ -840,6 +842,7 @@ function drawTravelMap(
   rc: RenderContext,
   tr: Extract<Transition, { kind: "map" }>,
 ) {
+  const measureText = textMeasure(rc.text);
   const { ctx, map, images } = rc;
   ctx.fillStyle = CORE.paper;
   ctx.fillRect(0, 0, NATIVE_W, NATIVE_H);
@@ -905,6 +908,7 @@ const AIRFIELD = [
 ];
 
 function drawHallOrigin(rc: RenderContext, [hx, hy]: Vec) {
+  const measureText = textMeasure(rc.text);
   const { ctx, map } = rc;
   const ink = map.labelColor ?? CORE.black;
   const half = Math.floor(AIRFIELD.length / 2);

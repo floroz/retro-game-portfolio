@@ -1,6 +1,6 @@
 /** The trunk backdrop and live sound fitting. The ticket is a separate artwork. */
-import { paintLettering } from "../../engine/lettering";
-import { drawText, measureText, type FontId } from "../../engine/font";
+import { measureLettering, paintLettering } from "../../engine/lettering";
+import { drawText, type FontId } from "../../engine/font";
 import type { Rect } from "../../engine/types";
 import {
   ART,
@@ -77,11 +77,11 @@ function words(
       ...ink,
     },
   );
-  return measureText(s, font) * LOGICAL * mult;
+  return measureLettering(s, font) * LOGICAL * mult;
 }
 
 const widthOf = (s: string, font: FontId, mult = 1) =>
-  measureText(s, font) * LOGICAL * mult;
+  measureLettering(s, font) * LOGICAL * mult;
 
 const BRACKET = { inset: 8, arm: 34, thick: 8 };
 

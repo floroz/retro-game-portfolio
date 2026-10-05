@@ -13,7 +13,7 @@ import { COUNTRIES, SECTIONS } from "../../config/sections";
 import {
   capHeight,
   drawText,
-  measureText,
+  textMeasure,
   type FontId,
   type TextLayer,
 } from "../../engine/font";
@@ -377,7 +377,7 @@ function paintTicketText(
 
 function paintSentence(layer: TextLayer, view: PanelView) {
   const { sentence } = PANEL_LAYOUT;
-  const w = measureText(view.sentence, "regular") * LOGICAL;
+  const w = textMeasure(layer)(view.sentence, "regular") * LOGICAL;
   const x = Math.round(sentence.x + (sentence.w - w) / 2);
   const y = sentence.y + Math.round((sentence.h - cap("regular")) / 2);
   text(
@@ -499,7 +499,7 @@ export function paintChoices(
 
   if (view.labels.length === 0) {
     const nudge = "Click to skip";
-    const w = measureText(nudge, "regular") * LOGICAL;
+    const w = textMeasure(layer)(nudge, "regular") * LOGICAL;
     const x = Math.round(CHOICES_PAGE.x + (CHOICES_PAGE.w - w) / 2);
     const y =
       CHOICES_PAGE.y + Math.round((CHOICES_PAGE.h - cap("regular")) / 2);
@@ -531,7 +531,7 @@ export function paintChoices(
     CHOICES_PAGE.x +
       CHOICES_PAGE.w -
       12 -
-      measureText("ESC LEAVES", "tiny") * LOGICAL,
+      textMeasure(layer)("ESC LEAVES", "tiny") * LOGICAL,
     CHOICES_PAGE.y + CHOICES_PAGE.h - 8 - cap("tiny"),
     "tiny",
     HINT,

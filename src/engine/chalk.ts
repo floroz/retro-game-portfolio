@@ -15,6 +15,7 @@ import {
   fitText,
   lineHeight,
   measureText,
+  textMeasure,
   type FontId,
   type TextLayer,
 } from "./font";
@@ -47,12 +48,16 @@ export interface ChalkLayout {
  * the area. If the rows don't fit the height, the later ones are dropped
  * rather than shrinking the type.
  */
-export function chalkLayout(lines: string[], area: Rect): ChalkLayout {
+export function chalkLayout(
+  lines: string[],
+  area: Rect,
+  measure = measureText,
+): ChalkLayout {
   const widest = lines.reduce(
-    (a, l) => (measureText(l, "small") > measureText(a, "small") ? l : a),
+    (a, l) => (measure(l, "small") > measure(a, "small") ? l : a),
     "",
   );
-  const { font, tracking } = fitText(widest, area.w, "small");
+  const { font, tracking } = fitText(widest, area.w, "small", measure);
   const line = lineHeight(font);
   const cap = capHeight(font);
 
@@ -76,7 +81,7 @@ export function chalkLayout(lines: string[], area: Rect): ChalkLayout {
     tracking,
     rows: shown.map((text, i) => ({
       text,
-      x: area.x + (area.w - measureText(text, font, tracking)) / 2,
+      x: area.x + (area.w - measure(text, font, tracking)) / 2,
       y: (top + i * pitch) / 2,
     })),
   };
@@ -89,6 +94,7 @@ export function drawChalk(layer: TextLayer, label: SceneLabel) {
   const { font, tracking, rows } = chalkLayout(
     resolveLabel(label.source),
     chalk.area,
+    textMeasure(layer),
   );
   rows.forEach((row) => {
     drawText(layer, row.text, row.x, row.y, {

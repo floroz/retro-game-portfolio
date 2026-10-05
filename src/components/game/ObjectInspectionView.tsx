@@ -1,3 +1,4 @@
+import "../../styles/adventure-font.scss";
 import { useEffect, useId, useRef, type CSSProperties } from "react";
 import type { InspectionReading } from "../../config/inspections";
 import { useInspectionPagination } from "./useInspectionPagination";

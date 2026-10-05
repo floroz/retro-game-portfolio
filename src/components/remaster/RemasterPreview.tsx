@@ -5,6 +5,7 @@ import { renderFrame } from "../../engine/render";
 import { DIALOG_TREE } from "../../config/dialogTrees";
 import { paintChoices, paintPanel } from "../toolbar/paint";
 import { createStudy, type Study } from "./study";
+import { loadAdventureFont } from "../../engine/lettering";
 import { paintLettering } from "./lettering";
 import styles from "./RemasterPreview.module.scss";
 
@@ -44,9 +45,10 @@ export default function RemasterPreview() {
       toolbar.height = 160;
       return { scene, text, toolbar };
     });
-    void Promise.all(
-      pair.map((study) => study.images.loadAll(study.urls)),
-    ).then(() => {
+    void Promise.all([
+      ...pair.map((study) => study.images.loadAll(study.urls)),
+      loadAdventureFont(),
+    ]).then(() => {
       if (!active) return;
       if (
         pair.some((study) => study.urls.some((url) => !study.images.get(url)))

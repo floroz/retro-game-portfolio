@@ -1,3 +1,4 @@
+import { useAdventureFont } from "../../hooks/useAdventureFont";
 import { useEffect, useRef, useState } from "react";
 import { paintLettering } from "../../engine/lettering";
 import styles from "./Toolbar.module.scss";
@@ -74,6 +75,7 @@ export function Toolbar() {
 }
 
 function Trunk() {
+  const fontSettled = useAdventureFont();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hovered, setHovered] = useState<ControlId | null>(null);
   const [pressed, setPressed] = useState<ControlId | null>(null);
@@ -103,7 +105,7 @@ function Trunk() {
     };
     const ctx = canvasRef.current?.getContext("2d");
     if (ctx) paintPanel(ctx, view, paintLettering);
-  }, [here, hovered, pressed, sentence, soundEnabled]);
+  }, [here, hovered, pressed, sentence, soundEnabled, fontSettled]);
 
   /** Hover and focus both light the control and fill the sentence line. */
   const pointAt = (id: ControlId) => ({

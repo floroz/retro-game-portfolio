@@ -1,3 +1,4 @@
+import { letteringFont } from "./lettering";
 import type { TextLayer } from "./font";
 import type { Rect } from "./types";
 
@@ -10,9 +11,7 @@ export function drawGateBoard(layer: TextLayer, area: Rect, lines: string[]) {
   ctx.textBaseline = "alphabetic";
   const line = (text: string, baseline: number, cap: number, color: string) => {
     ctx.save();
-    ctx.font = "600 10px Arial, sans-serif";
-    const ascent = ctx.measureText("H").actualBoundingBoxAscent || 7;
-    ctx.font = `600 ${(10 * cap) / ascent}px Arial, sans-serif`;
+    letteringFont(ctx, cap);
     const width = ctx.measureText(text).width;
     ctx.translate(area.x + area.w / 2, area.y + baseline);
     // Keep the cap height consistent, condensing long names within their frame.
