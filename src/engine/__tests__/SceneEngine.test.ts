@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 import { CHARACTER_SHEET } from "../assets";
-import { SceneEngine, type EngineHost } from "../SceneEngine";
+import { SceneEngine, interactablesFor, type EngineHost } from "../SceneEngine";
 import { speechMs } from "../constants";
 import { SCENES, TRAVEL_MAP_DATA } from "../scenes";
 import type { SceneData, SectionId } from "../types";
@@ -54,6 +54,26 @@ const exit = (scene: SceneData, to: string) => {
 };
 
 describe("SceneEngine", () => {
+  test("clicking the open Zurich threshold returns to the airport", () => {
+    const { engine } = setup("zurich");
+    const hits = interactablesFor(SCENES.zurich, () => undefined);
+    // The passage itself, where a visitor naturally clicks to leave.
+    const hit = [...hits]
+      .reverse()
+      .find(
+        ({ rect }) =>
+          287 >= rect.x &&
+          287 < rect.x + rect.w &&
+          90 >= rect.y &&
+          90 < rect.y + rect.h,
+      );
+    expect(hit?.target.kind).toBe("exit");
+    if (!hit) throw new Error("The open threshold has no exit target");
+    engine.activate(hit.target);
+    runUntil(engine, () => engine.scene.id === "hall");
+    expect(engine.scene.id).toBe("hall");
+  });
+
   test("a souvenir opens its own inspection after walking, without opening a section", () => {
     const { engine, host } = setup();
     const souvenir = SCENES.hall.objects.find((item) => item.inspection)!;

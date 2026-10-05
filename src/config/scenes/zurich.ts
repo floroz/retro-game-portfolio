@@ -14,7 +14,6 @@ import album from "../../assets/scenes/zurich/obj-album.png";
 import satchel from "../../assets/scenes/zurich/obj-satchel.png";
 import satchelOpen from "../../assets/scenes/zurich/obj-satchel@open.png";
 import door from "../../assets/scenes/zurich/obj-door.png";
-import fence from "../../assets/scenes/zurich/obj-fence.png";
 import cow from "../../assets/scenes/zurich/anim-garden-cow.png";
 import boat from "../../assets/scenes/zurich/anim-boat.png";
 import cuckoo from "../../assets/scenes/zurich/anim-cuckoo.png";
@@ -99,21 +98,10 @@ export const ZURICH_SCENE: SceneData = {
     {
       id: "garden-cow",
       name: "curious Swiss cow",
-      hotspot: { x: 271, y: 49, w: 32, h: 28 },
+      hotspot: { x: 269, y: 59, w: 24, h: 18 },
       interactionPoint: { x: 281, y: 102, facing: "n" },
       look: "She's here for quality control. The fondue has her full attention.",
-      use: "No, you can't come in. We discussed this at the fence.",
-    },
-    {
-      id: "garden-fence",
-      name: "garden fence",
-      sprite: fence,
-      x: 267,
-      y: 77,
-      baselineY: 95,
-      interactionPoint: { x: 287, y: 103, facing: "n" },
-      look: "The boundary between home office and dairy operations.",
-      use: "Still cow-proof. Mostly.",
+      use: "She's booked the grass suite. Excellent views, unlimited salad.",
     },
     {
       id: "fondue-bar",
@@ -183,9 +171,9 @@ export const ZURICH_SCENE: SceneData = {
       frameMs: 180,
       everyMs: 8300,
       phaseMs: 2300,
-      x: 271,
-      y: 49,
-      baselineY: 94,
+      x: 269,
+      y: 59,
+      baselineY: 77,
       clip: { x: 267, y: 20, w: 38, h: 75 },
       freezeForReducedMotion: true,
     },
@@ -272,8 +260,12 @@ export const ZURICH_SCENE: SceneData = {
       x: 302,
       y: 10,
       baselineY: 96,
-      hotspot: { x: 303, y: 21, w: 17, h: 77 },
-      interactionPoint: { x: 305, y: 106, facing: "n" },
+      hotspot: { x: 267, y: 78, w: 36, h: 20 },
+      extraHotspots: [
+        { x: 293, y: 20, w: 10, h: 58 },
+        { x: 303, y: 21, w: 17, h: 77 },
+      ],
+      interactionPoint: { x: 287, y: 106, facing: "n" },
       look: "Back to the airport. The cow has not cleared passport control.",
     },
   ],

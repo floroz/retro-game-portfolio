@@ -86,7 +86,6 @@ for (const [name, rect, w, h] of furniture)
   });
 const props: [string, [number, number, number, number], number, number][] = [
   ["obj-door", [120, 0, 230, 650], 20, 87],
-  ["obj-fence", [510, 310, 500, 280], 38, 21],
   ["obj-fondue", [1050, 140, 480, 460], 29, 27],
   ["anim-boat", [20, 695, 600, 280], 13, 6],
   ["anim-cuckoo", [700, 700, 345, 280], 5, 5],
@@ -104,16 +103,16 @@ const cowPoses = await Promise.all(
     crop(
       `${raw}/cow.png`,
       [frame * cowCell, 0, cowCell, cowMeta.height!],
-      32,
-      40,
+      24,
+      18,
     ),
   ),
 );
 const cowOrder = [0, 0, 1, 0, 2, 0];
 const cowStrip = await sharp({
   create: {
-    width: 64 * cowOrder.length,
-    height: 80,
+    width: 48 * cowOrder.length,
+    height: 36,
     channels: 4,
     background: clear,
   },
@@ -122,7 +121,7 @@ const cowStrip = await sharp({
     await Promise.all(
       cowOrder.map(async (pose, frame) => ({
         input: await png(cowPoses[pose]),
-        left: frame * 64,
+        left: frame * 48,
         top: 0,
       })),
     ),
@@ -146,18 +145,9 @@ const inspections = await Promise.all(
     ),
   })),
 );
-// Actual interface colours are reserved. Everything else is derived jointly,
-// so adjacent sprites and both close-ups never use independently chosen ramps.
-const fixed: Rgb[] = [
-  [42, 20, 13],
-  [56, 36, 19],
-  [48, 32, 21],
-  [184, 134, 42],
-  [247, 222, 138],
-  [244, 236, 216],
-  [95, 49, 99],
-  [68, 86, 122],
-];
+// Reuse the approved joint room/inspection palette so a new sprite cannot
+// recolour the background and every other object.
+const fixed: Rgb[] = JSON.parse(await readFile(`${raw}/palette.json`, "utf8"));
 const prepared = quantizeJointly(
   [...layers, ...inspections].map((layer) => layer.image),
   { colours: 256, fixed },

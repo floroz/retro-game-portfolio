@@ -406,5 +406,15 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
       if (reducedMotion === "reduce") expect(after[i]).toEqual(before[i]);
       else expect(after[i]).not.toEqual(before[i]);
     }
+    // Click the passage itself, not the narrow wooden door leaf. This used
+    // to select the fence and leave the visitor stranded at the entrance.
+    const bounds = await canvas.boundingBox();
+    if (!bounds) throw new Error("Missing Zurich canvas bounds");
+    await page.mouse.click(
+      bounds.x + (bounds.width * 287) / 320,
+      bounds.y + (bounds.height * 90) / 160,
+    );
+    await advanceScene(page, 6000);
+    await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
   });
 }

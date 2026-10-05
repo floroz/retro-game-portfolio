@@ -232,12 +232,6 @@
       "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
     },
     {
-      "output": "src/assets/remaster/zurich/obj-fence.png",
-      "original": "src/assets/scenes/zurich/obj-fence.png",
-      "source": "assets-src/approved/swiss-room/props.png",
-      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
-    },
-    {
       "output": "src/assets/remaster/zurich/obj-fondue.png",
       "original": "src/assets/scenes/zurich/obj-fondue.png",
       "source": "assets-src/approved/swiss-room/props.png",

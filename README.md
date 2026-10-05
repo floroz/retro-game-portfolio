@@ -24,12 +24,12 @@ A painted Daniele is your guide through the three countries he has lived in. Eac
 
 The game opens with a boarding pass. Press Space and you arrive in an airport.
 
-| Place                  | What's there                                                      | Sections           |
-| ---------------------- | ----------------------------------------------------------------- | ------------------ |
-| **The airport hall**   | Three gates, a duty-free shop and a few waiting passengers        | The way to all     |
-| **A Sorrento kitchen** | A view of the Gulf of Naples, a postcard and a telephone          | About, Contact     |
-| **A London pub**       | A rainy evening, a chalkboard of skills and a jukebox             | Skills             |
-| **A Zürich chalet**    | A sunny fondue room, a travel album and a cow at the garden fence | Experience, Resume |
+| Place                  | What's there                                                  | Sections           |
+| ---------------------- | ------------------------------------------------------------- | ------------------ |
+| **The airport hall**   | Three gates, a duty-free shop and a few waiting passengers    | The way to all     |
+| **A Sorrento kitchen** | A view of the Gulf of Naples, a postcard and a telephone      | About, Contact     |
+| **A London pub**       | A rainy evening, a chalkboard of skills and a jukebox         | Skills             |
+| **A Zürich chalet**    | A sunny fondue room, a travel album and a cow resting outside | Experience, Resume |
 
 - **Travel.** Walk through a gate and you fly there over a sepia map of Europe, _Fate of Atlantis_ style. Click to skip the flight.
 - **The travel trunk.** The toolbar is a painted trunk with a SCUMM-style sentence line. It holds one boarding pass per city, listing the sections that live there. Click a section and it opens right away, wherever you are.
