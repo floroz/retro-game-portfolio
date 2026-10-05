@@ -124,12 +124,14 @@ test("Start shortcuts reach portfolio content and tray sound is reversible", asy
   page,
 }) => {
   await openDesktop(page);
+  const mute = page.getByRole("button", { name: "Mute sound", exact: true });
+  await expect(mute).toHaveAttribute("aria-pressed", "true");
+  await mute.click();
   const sound = page.getByRole("button", { name: "Enable sound", exact: true });
+  await expect(sound).toHaveAttribute("aria-pressed", "false");
   await sound.click();
-  await expect(
-    page.getByRole("button", { name: "Mute sound", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
-  await page.getByRole("button", { name: "Mute sound", exact: true }).click();
+  await expect(mute).toHaveAttribute("aria-pressed", "true");
+  await mute.click();
   await expect(sound).toHaveAttribute("aria-pressed", "false");
   for (const [name, section] of [
     ["Contact", "Contact"],

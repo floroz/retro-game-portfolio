@@ -23,6 +23,9 @@ A painted Daniele is your guide through the three countries he has lived in. Eac
 ## The adventure
 
 The game opens with a boarding pass. Press Space and you arrive in an airport.
+Desktop sound is selected by default and starts with the adventure; switch it
+off on the boarding pass for a silent visit, or mute it later in the toolbar or
+taskbar. The welcome screen stays silent.
 
 | Place                  | What's there                                                  | Sections           |
 | ---------------------- | ------------------------------------------------------------- | ------------------ |

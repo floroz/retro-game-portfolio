@@ -13,7 +13,7 @@ describe("gameStore", () => {
       dialogNode: "", // Reset dialog node
       visitedNodes: new Set(),
       gameWindowActive: true,
-      soundEnabled: false,
+      soundEnabled: true,
       currentScene: "hall",
     });
   });
@@ -255,19 +255,20 @@ describe("gameStore", () => {
   });
 
   describe("Sound state", () => {
-    test("should initialize with sound disabled", () => {
+    test("should select sound before the adventure starts", () => {
       const state = useGameStore.getState();
-      expect(state.soundEnabled).toBe(false);
+      expect(state.soundEnabled).toBe(true);
+      expect(state.welcomeShown).toBe(false);
     });
 
     test("should toggle sound", () => {
       const store = useGameStore.getState();
 
       store.toggleSound();
-      expect(useGameStore.getState().soundEnabled).toBe(true);
+      expect(useGameStore.getState().soundEnabled).toBe(false);
 
       store.toggleSound();
-      expect(useGameStore.getState().soundEnabled).toBe(false);
+      expect(useGameStore.getState().soundEnabled).toBe(true);
     });
   });
 });

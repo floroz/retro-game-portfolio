@@ -1,5 +1,5 @@
 import { useAdventureFont } from "../../hooks/useAdventureFont";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useGameStore } from "../../store/gameStore";
 import {
   CANVAS_CARD_H,
@@ -11,6 +11,7 @@ import {
 } from "./titleCard";
 import boardingPass from "../../assets/remaster/title/boarding-pass.webp";
 import { PROFILE } from "../../config/profile";
+import { sceneAudio } from "../../engine/runtime";
 import styles from "./WelcomeScreen.module.scss";
 
 interface WelcomeScreenProps {
@@ -32,6 +33,7 @@ const WAIT_LIMIT_MS = 12000;
 export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
   const fontSettled = useAdventureFont();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const soundHintId = useId();
   const soundEnabled = useGameStore((s) => s.soundEnabled);
   const toggleSound = useGameStore((s) => s.toggleSound);
   const [soundHover, setSoundHover] = useState(false);
@@ -42,6 +44,7 @@ export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
 
   // The visitor asked to start: now if the art is in, else once it is.
   const start = useCallback(() => {
+    if (useGameStore.getState().soundEnabled) sceneAudio.unlock();
     if (ready) onDismiss();
     else setQueued(true);
   }, [ready, onDismiss]);
@@ -125,6 +128,7 @@ export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
         style={cardPct(PASS)}
         data-e2e="welcome-screen-prompt"
         aria-label="Press space or click to start"
+        aria-describedby={soundHintId}
         onClick={start}
       >
         <span className={styles.prompt}>
@@ -134,6 +138,9 @@ export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
           <span className={styles.key}>SPACE</span>
           <span className={styles.promptHint} role="status">
             {waiting ? "Loading…" : "to start"}
+          </span>
+          <span id={soundHintId} className={styles.soundHint}>
+            {soundEnabled ? "Starts with sound" : "Starts silently"}
           </span>
         </span>
       </button>
@@ -147,6 +154,8 @@ export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
         aria-label="Sound"
         onClick={(e) => {
           toggleSound();
+          if (queued && useGameStore.getState().soundEnabled)
+            sceneAudio.unlock();
           // A click (detail > 0, unlike Enter or Space) hands the keyboard
           // back, so the next Space starts the game.
           if (e.detail > 0) e.currentTarget.blur();
