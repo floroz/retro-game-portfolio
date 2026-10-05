@@ -64,3 +64,6 @@ await writeFile(
   `${JSON.stringify({ recipe: "scripts/assets/remaster-ui.ts", assets: entries }, null, 2)}\n`,
 );
 console.log(`Prepared ${entries.length} UI images from approved source art.`);
+
+// Preserve the shared chalet palette for the two Swiss reading surfaces.
+await import("./swiss-room");

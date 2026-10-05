@@ -24,16 +24,16 @@ A painted Daniele is your guide through the three countries he has lived in. Eac
 
 The game opens with a boarding pass. Press Space and you arrive in an airport.
 
-| Place                  | What's there                                               | Sections           |
-| ---------------------- | ---------------------------------------------------------- | ------------------ |
-| **The airport hall**   | Three gates, a duty-free shop and a few waiting passengers | The way to all     |
-| **A Sorrento kitchen** | A view of the Gulf of Naples, a postcard and a telephone   | About, Contact     |
-| **A London pub**       | A rainy evening, a chalkboard of skills and a jukebox      | Skills             |
-| **A Zürich chalet**    | An Alpine room with a cuckoo clock and a cow asleep        | Experience, Resume |
+| Place                  | What's there                                                      | Sections           |
+| ---------------------- | ----------------------------------------------------------------- | ------------------ |
+| **The airport hall**   | Three gates, a duty-free shop and a few waiting passengers        | The way to all     |
+| **A Sorrento kitchen** | A view of the Gulf of Naples, a postcard and a telephone          | About, Contact     |
+| **A London pub**       | A rainy evening, a chalkboard of skills and a jukebox             | Skills             |
+| **A Zürich chalet**    | A sunny fondue room, a travel album and a cow at the garden fence | Experience, Resume |
 
 - **Travel.** Walk through a gate and you fly there over a sepia map of Europe, _Fate of Atlantis_ style. Click to skip the flight.
 - **The travel trunk.** The toolbar is a painted trunk with a SCUMM-style sentence line. It holds one boarding pass per city, listing the sections that live there. Click a section and it opens right away, wherever you are.
-- **Close-ups.** Clicking an object opens a cartoon close-up: a suitcase that won't shut, a telephone wired to tin cans, a London phone booth, a Swiss train and a runaway ticket. The text on them is live HTML, paged, keyboard-friendly, and closes back to the same spot in the room.
+- **Close-ups.** Clicking an object opens a cartoon close-up: a suitcase that won't shut, a telephone wired to tin cans, a London phone booth, a Swiss travel album and a document satchel. The text on them is live HTML, paged, keyboard-friendly, and closes back to the same spot in the room.
 - **Conversations.** Talk to Daniele and choose your lines, _Curse of Monkey Island_ style. Use the mouse, the arrow keys or the number keys.
 - **Duty free.** The shop sells four souvenirs: limoncello, a Swiss Army knife, a cheese and a phone booth with its own raincloud. Each has its own close-up. None of them are useful.
 - **A living world.** Passengers wander through the hall, regulars drink in the pub, a ferry crosses the bay, and each room has its own music and ambience. With reduced motion on, the scenes keep still.

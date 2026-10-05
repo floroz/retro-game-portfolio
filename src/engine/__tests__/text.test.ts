@@ -87,29 +87,6 @@ describe("world text", () => {
     });
   });
 
-  test("the Zürich cabinet card fits its word", () => {
-    const card = SCENES.zurich.labels?.find((l) => l.id === "cabinet");
-    expect(card?.maxWidth).toBeDefined();
-    const text = resolveLabel(card?.source ?? "text:")[0];
-    const fit = fitText(text, card?.maxWidth ?? 0, card?.font ?? "regular");
-    expect(measureText(text, fit.font, fit.tracking)).toBeLessThanOrEqual(
-      card?.maxWidth ?? 0,
-    );
-  });
-
-  test("the Zürich CRT word sits inside its screen with a px to spare", () => {
-    const crt = SCENES.zurich.labels?.find((l) => l.id === "crt");
-    const text = resolveLabel(crt?.source ?? "text:")[0];
-    const fit = fitText(text, crt?.maxWidth ?? 0, crt?.font ?? "regular");
-    const w = measureText(text, fit.font, fit.tracking);
-    // The screen is x 151-167, y 82-92.5 logical px; margins are half a px.
-    expect(crt?.marquee).toBeUndefined();
-    expect(crt?.x ?? 0).toBeGreaterThanOrEqual(151.5);
-    expect((crt?.x ?? 0) + w).toBeLessThanOrEqual(166.5);
-    expect(crt?.y ?? 0).toBeGreaterThanOrEqual(82.5);
-    expect((crt?.y ?? 0) + capHeight(fit.font)).toBeLessThanOrEqual(92);
-  });
-
   test("draws section icons inline, as one glyph each", () => {
     expect(measureText("{skills}")).toBe(measureText("{resume}"));
     expect(measureText("{skills} Skills")).toBeGreaterThan(

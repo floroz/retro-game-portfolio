@@ -117,7 +117,7 @@ async function bufferImage(input: Buffer) {
 }
 
 // London is still the original approved empty pub, now with its raw paint detail.
-for (const scene of ["london", "zurich", "sorrento"] as const) {
+for (const scene of ["london", "sorrento"] as const) {
   for (const name of (await readdir(`src/assets/scenes/${scene}`))
     .filter((file) => file.endsWith(".png"))
     .sort()) {
@@ -150,32 +150,6 @@ await save(
   london,
   `${raw}/london-plate@hd.webp`,
   "Original approved plate, full colour at density 4; unchanged composition.",
-);
-
-// The chalet refresh explicitly retained the original window. Restore that
-// same region from the HD plate, using the identical frame/sill masks.
-const zurich = "src/assets/scenes/zurich/bg.png";
-const windowPlate = await png(`${raw}/zurich-plate@hd.webp`, 1280, 640);
-const chalet = await png(`${raw}/chalet/background.png`, 1280, 640);
-const windowLayers = await Promise.all(
-  [
-    { left: 440, top: 50, width: 352, height: 248 },
-    { left: 424, top: 296, width: 384, height: 20 },
-  ].map(async (rect) => ({
-    input: await sharp(windowPlate).extract(rect).png().toBuffer(),
-    left: rect.left,
-    top: rect.top,
-  })),
-);
-await save(
-  "zurich/bg.png",
-  await preserveGrade(
-    await sharp(chalet).composite(windowLayers).png().toBuffer(),
-    zurich,
-  ),
-  zurich,
-  `${raw}/chalet/background.png + ${raw}/zurich-plate@hd.webp`,
-  "Latest chalet painting with the same original window/sill masks as chalet.ts. The HD window restores detail; smooth correction retains approved lighting and moonlit colours.",
 );
 
 // Preserve the two later story-object patches, never the stale empty fridge.
@@ -370,3 +344,6 @@ await writeFile(
 console.log(
   `Prepared ${manifest.length} world assets; every output verified at exactly twice the shipped width and height.`,
 );
+
+// Zürich owns its joint palette, registrations and inspection exports.
+await import("./swiss-room");

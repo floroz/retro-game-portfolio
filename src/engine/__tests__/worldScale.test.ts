@@ -125,10 +125,10 @@ describe("world scale", () => {
       host: { openSection: vi.fn(), sceneChanged: vi.fn() },
       start: "zurich",
     });
-    // fromHall is at y 112, on a floor from y 101 to 158:
-    // 58 + 14 * 11/57 = 60.7 px tall.
-    expect(engine.position.y).toBe(112);
-    expect(engine.scale * CHARACTER_SHEET.figureHeight).toBeCloseTo(60.7, 1);
+    // fromHall is at y 106, on a floor from y 97 to 158:
+    // 58 + 14 * 9/61 = 60.1 px tall.
+    expect(engine.position.y).toBe(106);
+    expect(engine.scale * CHARACTER_SHEET.figureHeight).toBeCloseTo(60.1, 1);
   });
 
   test("the dev overlay warns about half a world scale", () => {

@@ -12,8 +12,8 @@ Their text, links and pagination remain HTML from the shared profile.
 | About      | Sorrento    | Daniele tries to close a suitcase containing a giant lemon, handheld console and hiking boots.           |
 | Contact    | Sorrento    | A rotary phone connects to tin cans on a tiled terrace above the Bay of Naples.                          |
 | Skills     | London      | A crooked red telephone booth battles its own rainstorm under an inside-out umbrella beside Westminster. |
-| Experience | Switzerland | A Swiss train carries luggage and a lounging cow up an Alpine viaduct.                                   |
-| Resume     | Switzerland | A ticket machine buries an exhausted, lanky station clerk in an endless paper ticket.                    |
+| Experience | Switzerland | A burgundy travel album holds mementos from Sorrento, London and Zürich beside its reading page.         |
+| Resume     | Switzerland | A leather satchel supports an upright cream document folio with a brass clip.                            |
 
 ## Sources and export
 
@@ -50,3 +50,5 @@ and confirm Escape restores the original scene and focus. Component browser
 tests additionally cover all cards at 680px, 900px and 1280px.
 
 Regenerate and verify visual baselines only with the Docker E2E commands.
+
+The daytime Zürich album and folio use the room’s shared 256-colour palette and density-2 painted pixel grid, enlarged to 1280×640 without smoothing. Their source art remains in `assets-src/approved/location-inspections/`. The dedicated `scripts/assets/swiss-room.ts` recipe owns these two exports; both general remaster scripts invoke it last. See `assets-src/prompts/swiss-room.md` for the current layer and art direction.

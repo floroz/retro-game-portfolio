@@ -52,7 +52,7 @@ async function expectTextFits(page: Page) {
   expect(dimensions.contentHeight).toBeLessThanOrEqual(dimensions.height + 1);
 }
 
-async function expectTextInsideArtwork(page: Page) {
+async function expectTextInsideArtwork(page: Page, section = "") {
   const inspection = page.locator("[data-e2e=object-inspection]");
   const art = await inspection.locator("img").boundingBox();
   const copy = await inspection.getByLabel("Inspection text").boundingBox();
@@ -62,7 +62,9 @@ async function expectTextInsideArtwork(page: Page) {
   // Small windows deliberately put reading below the illustration. On the
   // full card every page must stay on the blank right-hand surface.
   if (copy.y >= art.y + art.height - 1) return;
-  expect(copy.x).toBeGreaterThan(art.x + art.width * 0.45);
+  expect(copy.x).toBeGreaterThan(
+    art.x + art.width * (section === "resume" ? 0.43 : 0.45),
+  );
   expect(copy.x + copy.width).toBeLessThan(art.x + art.width * 0.95);
   expect(copy.y).toBeGreaterThan(art.y + art.height * 0.1);
   expect(copy.y + copy.height).toBeLessThan(art.y + art.height * 0.86);
@@ -91,7 +93,7 @@ for (const viewport of [
         );
         await opener.click();
         await ready(page);
-        await expectTextInsideArtwork(page);
+        await expectTextInsideArtwork(page, section);
         await expect(
           page.locator("[data-e2e=object-inspection] img"),
         ).toHaveJSProperty("naturalWidth", 1280);

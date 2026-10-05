@@ -46,54 +46,6 @@
       "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
     },
     {
-      "output": "src/assets/remaster/zurich/anim-cuckoo.png",
-      "original": "src/assets/scenes/zurich/anim-cuckoo.png",
-      "source": "assets-src/approved/zurich-cuckoo@hd.webp",
-      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
-    },
-    {
-      "output": "src/assets/remaster/zurich/obj-cabinet.png",
-      "original": "src/assets/scenes/zurich/obj-cabinet.png",
-      "source": "assets-src/approved/zurich-cabinet@hd.webp",
-      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
-    },
-    {
-      "output": "src/assets/remaster/zurich/obj-cabinet@open.png",
-      "original": "src/assets/scenes/zurich/obj-cabinet@open.png",
-      "source": "assets-src/approved/zurich-cabinet-open@hd.webp",
-      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
-    },
-    {
-      "output": "src/assets/remaster/zurich/obj-chair.png",
-      "original": "src/assets/scenes/zurich/obj-chair.png",
-      "source": "assets-src/approved/chalet/chair.png",
-      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
-    },
-    {
-      "output": "src/assets/remaster/zurich/obj-desk.png",
-      "original": "src/assets/scenes/zurich/obj-desk.png",
-      "source": "assets-src/approved/chalet/desk.png",
-      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
-    },
-    {
-      "output": "src/assets/remaster/zurich/obj-door.png",
-      "original": "src/assets/scenes/zurich/obj-door.png",
-      "source": "assets-src/approved/zurich-door@hd.webp",
-      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
-    },
-    {
-      "output": "src/assets/remaster/zurich/obj-door@open.png",
-      "original": "src/assets/scenes/zurich/obj-door@open.png",
-      "source": "assets-src/approved/zurich-door-open@hd.webp",
-      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
-    },
-    {
-      "output": "src/assets/remaster/zurich/obj-plant.png",
-      "original": "src/assets/scenes/zurich/obj-plant.png",
-      "source": "assets-src/approved/zurich-plant@hd.webp",
-      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
-    },
-    {
       "output": "src/assets/remaster/sorrento/anim-ferry.png",
       "original": "src/assets/scenes/sorrento/anim-ferry.png",
       "source": "assets-src/approved/sorrento-ferry@hd.webp",
@@ -146,12 +98,6 @@
       "original": "src/assets/scenes/london/bg.png",
       "source": "assets-src/approved/london-plate@hd.webp",
       "note": "Original approved plate, full colour at density 4; unchanged composition."
-    },
-    {
-      "output": "src/assets/remaster/zurich/bg.png",
-      "original": "src/assets/scenes/zurich/bg.png",
-      "source": "assets-src/approved/chalet/background.png + assets-src/approved/zurich-plate@hd.webp",
-      "note": "Latest chalet painting with the same original window/sill masks as chalet.ts. The HD window restores detail; smooth correction retains approved lighting and moonlit colours."
     },
     {
       "output": "src/assets/remaster/sorrento/bg.png",
@@ -236,6 +182,84 @@
       "original": "src/assets/shared/map-plane.png",
       "source": "assets-src/approved/map-plane@hd.webp",
       "note": "Eight 68x68 heading cells from the raw source; same E, SE, S, SW, W, NW, N, NE order, centred registration and top-left lighting convention."
+    },
+    {
+      "output": "src/assets/remaster/zurich/bg.png",
+      "original": "src/assets/scenes/zurich/bg.png",
+      "source": "assets-src/approved/swiss-room/background.png",
+      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-fondue-bar.png",
+      "original": "src/assets/scenes/zurich/obj-fondue-bar.png",
+      "source": "assets-src/approved/swiss-room/furniture.png",
+      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-table.png",
+      "original": "src/assets/scenes/zurich/obj-table.png",
+      "source": "assets-src/approved/swiss-room/furniture.png",
+      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-stool.png",
+      "original": "src/assets/scenes/zurich/obj-stool.png",
+      "source": "assets-src/approved/swiss-room/furniture.png",
+      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-album.png",
+      "original": "src/assets/scenes/zurich/obj-album.png",
+      "source": "assets-src/approved/swiss-room/furniture.png",
+      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-satchel.png",
+      "original": "src/assets/scenes/zurich/obj-satchel.png",
+      "source": "assets-src/approved/swiss-room/furniture.png",
+      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-satchel@open.png",
+      "original": "src/assets/scenes/zurich/obj-satchel@open.png",
+      "source": "assets-src/approved/swiss-room/furniture.png",
+      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-door.png",
+      "original": "src/assets/scenes/zurich/obj-door.png",
+      "source": "assets-src/approved/swiss-room/props.png",
+      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-fence.png",
+      "original": "src/assets/scenes/zurich/obj-fence.png",
+      "source": "assets-src/approved/swiss-room/props.png",
+      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
+    },
+    {
+      "output": "src/assets/remaster/zurich/obj-fondue.png",
+      "original": "src/assets/scenes/zurich/obj-fondue.png",
+      "source": "assets-src/approved/swiss-room/props.png",
+      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
+    },
+    {
+      "output": "src/assets/remaster/zurich/anim-boat.png",
+      "original": "src/assets/scenes/zurich/anim-boat.png",
+      "source": "assets-src/approved/swiss-room/props.png",
+      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
+    },
+    {
+      "output": "src/assets/remaster/zurich/anim-cuckoo.png",
+      "original": "src/assets/scenes/zurich/anim-cuckoo.png",
+      "source": "assets-src/approved/swiss-room/props.png",
+      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
+    },
+    {
+      "output": "src/assets/remaster/zurich/anim-garden-cow.png",
+      "original": "src/assets/scenes/zurich/anim-garden-cow.png",
+      "source": "assets-src/approved/swiss-room/cow.png",
+      "note": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts."
     }
   ]
 }

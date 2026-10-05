@@ -27,7 +27,9 @@ async function openAirport(page: Page) {
   // Finish loading art, then freeze before the scene mounts. Freezing after
   // entering the lounge let real loading time change the passengers' phase.
   await page.waitForLoadState("networkidle");
-  await page.clock.pauseAt(new Date("2030-01-01T00:01:00Z"));
+  await page.clock.pauseAt(
+    new Date((await page.evaluate(() => Date.now())) + 1000),
+  );
   await page.keyboard.press("Space");
   await page.clock.runFor(1000);
   await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();
@@ -357,10 +359,10 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
       if (await canvas.isVisible()) break;
     }
     await expect(canvas).toBeVisible();
-    await advanceScene(page, 2000);
+    await advanceScene(page, 12000);
     await expect(
       page.getByRole("button", {
-        name: "Look at sleeping Swiss cow",
+        name: "Look at curious Swiss cow",
         exact: true,
       }),
     ).toBeVisible();
@@ -368,7 +370,7 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
       page.getByRole("button", { name: "Look at rubber plant", exact: true }),
     ).toHaveCount(0);
 
-    // Read only the three ambient regions, excluding stars, speech and Daniele.
+    // Read the pendulum, fondue steam and lake, excluding speech and Daniele.
     const pixels = () =>
       canvas.evaluate((element) => {
         const scene = element as unknown as {
@@ -384,9 +386,9 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
         };
         const d = scene.width / 320;
         return [
-          { x: 219, y: 36, w: 9, h: 10 },
-          { x: 5, y: 125, w: 35, h: 20 },
-          { x: 65, y: 108, w: 14, h: 16 },
+          { x: 234, y: 35, w: 10, h: 10 },
+          { x: 26, y: 55, w: 9, h: 15 },
+          { x: 140, y: 55, w: 58, h: 11 },
         ].map(({ x, y, w, h }) =>
           Array.from(
             scene.getContext("2d").getImageData(x * d, y * d, w * d, h * d)
@@ -394,6 +396,9 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
           ),
         );
       });
+    if (reducedMotion === "reduce") {
+      await expect(canvas).toHaveScreenshot("zurich-daytime-chalet.png");
+    }
     const before = await pixels();
     await page.clock.runFor(700);
     const after = await pixels();

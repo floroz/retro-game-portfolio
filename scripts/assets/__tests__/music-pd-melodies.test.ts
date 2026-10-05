@@ -3,16 +3,9 @@ import { describe, expect, test } from "vitest";
 import london from "../../../assets-src/audio/music/london";
 import merseybeat from "../../../assets-src/audio/music/london-merseybeat";
 import zurich from "../../../assets-src/audio/music/zurich";
-import { GM, checkTrack, noteToMidi, type Note } from "../music";
+import { GM, checkTrack, type Note } from "../music";
 
-/**
- * The public-domain tunes quoted by the London and Zurich themes, checked
- * against transcriptions written out separately here, so a typo in a track
- * file can't pass for the tune. Nothing in either track is taken from a
- * copyrighted song: the two borrowed melodies are the traditional nursery tune
- * "London Bridge Is Falling Down" and the opening of the Ranz des Vaches as
- * engraved in Rousseau's Dictionnaire de musique (1767/1768).
- */
+// London quotes a traditional tune; Zürich uses an original yodel and Ländler.
 
 const part = (track: typeof london, name: string) => {
   const p = track.parts.find((x) => x.name === name);
@@ -66,9 +59,9 @@ const expected = (firstBar: number) => {
 const summary = (notes: Note[]) =>
   notes.map(({ pitch, start, beats }) => ({ pitch, start, beats }));
 
-describe("both tracks", () => {
-  test("pass the track checks and keep to 60–90 s", () => {
-    for (const track of [london, merseybeat, zurich]) {
+describe("music tracks", () => {
+  test("London tracks pass the checks and keep to 60–90 s", () => {
+    for (const track of [london, merseybeat]) {
       expect(checkTrack(track)).toEqual([]);
       const seconds = (track.bars * (track.meter?.[0] ?? 4) * 60) / track.bpm;
       expect(seconds).toBeGreaterThanOrEqual(60);
@@ -222,76 +215,31 @@ describe("London (punk/ska cut): London Bridge Is Falling Down", () => {
   });
 });
 
-describe("Zurich: the Ranz des Vaches", () => {
-  // Rousseau's plate (Planche N, "Air Suisse appellé le Ranz des Vaches",
-  // Adagio, 3/8, A major): [pitch in A major as engraved, length in written
-  // eighths]. Sixteenth-note triplets are a third of an eighth each, and the
-  // two opening sixteenths of bar 4 are a half of an eighth each.
-  const PLATE: [number, number][] = [
-    [74, 1], // bar 1: D5 F#5 G#5
-    [78, 1],
-    [80, 1],
-    [81, 2], // bar 2: A5, then B5 A5 G#5
-    [83, 1 / 3],
-    [81, 1 / 3],
-    [80, 1 / 3],
-    [81, 2], // bar 3: the same
-    [83, 1 / 3],
-    [81, 1 / 3],
-    [80, 1 / 3],
-    [81, 0.5], // bar 4: A5 F#5 (sixteenths), D5 (quarter)
-    [78, 0.5],
-    [74, 2],
-    [69, 3], // bar 5: A4, dotted quarter
-  ];
-  /** The call sounds in G, a tone below the plate, and two octaves down. */
-  const SHIFT = -26;
-  const EIGHTH = 1.5;
-
-  const call = () => {
-    const horn = part(zurich, "Alphorn (call)").notes;
-    return inBars(horn, 1, 9, 3);
-  };
-
-  test("the alphorn plays the plate's pitches and proportions", () => {
-    const played = call();
-    expect(played).toHaveLength(PLATE.length);
-    let start = 0;
-    PLATE.forEach(([pitch, eighths], i) => {
-      expect(played[i].pitch).toBe(pitch + SHIFT);
-      expect(played[i].start).toBeCloseTo(start * EIGHTH, 9);
-      if (i < PLATE.length - 1)
-        expect(played[i].beats).toBeCloseTo(eighths * EIGHTH, 9);
-      start += eighths;
-    });
-    // The last note (A4, bar 5) is the plate's dotted quarter, held longer.
-    expect(played[played.length - 1].beats).toBeGreaterThanOrEqual(3 * EIGHTH);
-  });
-
-  test("the call is in the alphorn's low register, on French Horn", () => {
-    const horn = part(zurich, "Alphorn (call)");
-    expect(horn.program).toBe(GM["French Horn"]);
-    for (const n of horn.notes) {
-      expect(n.pitch).toBeGreaterThanOrEqual(noteToMidi("G2"));
-      expect(n.pitch).toBeLessThanOrEqual(noteToMidi("A3"));
+describe("Zurich: yodel-first chalet loop", () => {
+  test("starts with the yodel and loops 24 bars without the alphorn introduction", () => {
+    expect(checkTrack(zurich)).toEqual([]);
+    expect((zurich.bars * 3 * 60) / zurich.bpm).toBe(45);
+    expect(part(zurich, "Clarinet (tune and chest voice)").notes[0].start).toBe(
+      0,
+    );
+    expect(part(zurich, "Ocarina (head voice)").notes[0].start).toBeLessThan(1);
+    expect(zurich.parts.some((p) => p.name.includes("Alphorn"))).toBe(false);
+    for (const p of zurich.parts) {
+      for (const n of p.notes) {
+        expect(n.start).toBeGreaterThanOrEqual(0);
+        expect(n.start + n.beats).toBeLessThanOrEqual(72);
+      }
     }
-  });
-
-  test("the loop ends on the alphorn's low tonic", () => {
-    const horn = part(zurich, "Alphorn (call)").notes;
-    const last = horn[horn.length - 1];
-    expect(last.pitch).toBe(noteToMidi("G2"));
-    expect(last.start + last.beats).toBeGreaterThan(39 * 3 + 2);
   });
 
   test("the yodel flips between a low clarinet and a high ocarina across sixths and octaves", () => {
     const chest = inBars(
       part(zurich, "Clarinet (tune and chest voice)").notes,
-      25,
-      33,
+      1,
+      9,
       3,
     );
-    const head = inBars(part(zurich, "Ocarina (head voice)").notes, 25, 33, 3)
+    const head = inBars(part(zurich, "Ocarina (head voice)").notes, 1, 9, 3)
       // Leave out the 32nd-note grace notes and slides.
       .filter((n) => n.beats >= 0.2);
     expect(chest.length).toBeGreaterThan(10);
@@ -333,6 +281,6 @@ describe("Zurich: the Ranz des Vaches", () => {
     expect(cowbells.every((n) => n.pitch === 56)).toBe(true);
     const bass = part(zurich, "Double bass").notes;
     expect(bass.every((n) => n.start % 3 === 0)).toBe(true);
-    expect(bass).toHaveLength(28);
+    expect(bass).toHaveLength(24);
   });
 });
