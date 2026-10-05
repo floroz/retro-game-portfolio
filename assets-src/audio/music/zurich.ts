@@ -1,5 +1,9 @@
 /**
- * Zurich theme: an alpine evening over the lake.
+ * Daytime export: yodel first, then A and B, 24 bars / 45 seconds.
+ * The original phrase definitions below retain their bar coordinates; the
+ * export at the end reorders them before MIDI rendering.
+ *
+ * Original arrangement notes: an alpine evening over the lake.
  *
  * Unmistakably Swiss, and still night-gentle. A slow alphorn call opens it,
  * quoting the first phrase of the traditional Ranz des Vaches (the herdsmen's
@@ -37,7 +41,7 @@ import {
 } from "../../../scripts/assets/music";
 
 const BAR = 3;
-const BARS = 40;
+const BARS = 24;
 const at = (bar: number, beat = 0) => (bar - 1) * BAR + beat;
 const opts = (bar: number, velocity: number) => ({
   at: at(bar),
@@ -459,9 +463,9 @@ ring(
 const track: MusicTrack = {
   id: "zurich",
   task: "A3",
-  title: "Ranz des Vaches at Night (Zurich theme)",
+  title: "Fondue with a View (Zurich theme)",
   description:
-    "Zurich theme: a slow alphorn call quoting the traditional Ranz des Vaches, then a moderate 3/4 Ländler on accordion and clarinet with an oom-pah-pah afterbeat, an instrumental yodel (clarinet chest voice against an ocarina head voice), and sparse cowbells and herd bells. The loop ends on the alphorn.",
+    "Daytime Zurich: the instrumental clarinet/ocarina yodel starts immediately, followed by accordion and clarinet Ländler strains. A 45-second loop with sparse cowbells; no slow alphorn introduction.",
   bpm: 96,
   meter: [3, 4],
   bars: BARS,
@@ -490,37 +494,18 @@ const track: MusicTrack = {
   sections: [
     {
       bar: 1,
-      name: "Call",
-      description:
-        "Alphorn alone quoting the Ranz des Vaches, a distant echo, faint cowbells",
+      name: "Yodel",
+      description: "The clarinet and ocarina hook, immediately on arrival",
     },
     {
       bar: 9,
       name: "A",
-      description:
-        "Ländler tune on accordion, clarinet a third below; double bass on beat 1, accordion afterbeat",
+      description: "Accordion Ländler with clarinet harmony",
     },
     {
       bar: 17,
       name: "B",
-      description: "Trio in C, clarinet on the tune",
-    },
-    {
-      bar: 25,
-      name: "Yodel",
-      description:
-        "Clarinet (chest voice) against ocarina (head voice): sixths and octaves, grace notes, slides",
-    },
-    {
-      bar: 33,
-      name: "A'",
-      description: "The tune's first phrase again, softer",
-    },
-    {
-      bar: 37,
-      name: "Call",
-      description:
-        "Soft accordion hold on G; the alphorn recalls the end of its call and rests on its low G",
+      description: "Clarinet trio, resolving back into the yodel",
     },
   ],
   parts: [
@@ -608,4 +593,29 @@ const track: MusicTrack = {
   ],
 };
 
-export default track;
+// The original phrase coordinates above remain useful for editing the music.
+// Reorder whole bars before rendering: old 25–32 -> 1–8, old 9–24 -> 9–24.
+// This changes every loop, not just the first playback offset.
+const daytimeTrack: MusicTrack = {
+  ...track,
+  melodySources: (track.melodySources ?? [])
+    .filter((source) => source.id === "zurich-landler")
+    .map((source) => ({
+      ...source,
+      tune: "Original yodel (bars 1–8) and Ländler (bars 9–24)",
+    })),
+  parts: track.parts
+    .map((part) => ({
+      ...part,
+      notes: part.notes
+        .filter((n) => n.start >= at(9) && n.start < at(33))
+        .map((n) => ({
+          ...n,
+          start: n.start >= at(25) ? n.start - at(25) : n.start,
+          beats: Math.min(n.beats, at(33) - n.start),
+        }))
+        .sort((a, b) => a.start - b.start),
+    }))
+    .filter((part) => part.notes.length > 0),
+};
+export default daytimeTrack;

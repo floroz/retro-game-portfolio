@@ -177,7 +177,7 @@ for (const viewport of viewports) {
         },
         {
           scene: "zurich",
-          object: "crt",
+          object: "career-album",
           section: "experience",
           title: "Experience",
         },

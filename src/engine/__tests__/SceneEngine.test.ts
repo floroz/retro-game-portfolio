@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 import { CHARACTER_SHEET } from "../assets";
-import { SceneEngine, type EngineHost } from "../SceneEngine";
+import { SceneEngine, interactablesFor, type EngineHost } from "../SceneEngine";
 import { speechMs } from "../constants";
 import { SCENES, TRAVEL_MAP_DATA } from "../scenes";
 import type { SceneData, SectionId } from "../types";
@@ -54,6 +54,26 @@ const exit = (scene: SceneData, to: string) => {
 };
 
 describe("SceneEngine", () => {
+  test("clicking the open Zurich threshold returns to the airport", () => {
+    const { engine } = setup("zurich");
+    const hits = interactablesFor(SCENES.zurich, () => undefined);
+    // The passage itself, where a visitor naturally clicks to leave.
+    const hit = [...hits]
+      .reverse()
+      .find(
+        ({ rect }) =>
+          287 >= rect.x &&
+          287 < rect.x + rect.w &&
+          90 >= rect.y &&
+          90 < rect.y + rect.h,
+      );
+    expect(hit?.target.kind).toBe("exit");
+    if (!hit) throw new Error("The open threshold has no exit target");
+    engine.activate(hit.target);
+    runUntil(engine, () => engine.scene.id === "hall");
+    expect(engine.scene.id).toBe("hall");
+  });
+
   test("a souvenir opens its own inspection after walking, without opening a section", () => {
     const { engine, host } = setup();
     const souvenir = SCENES.hall.objects.find((item) => item.inspection)!;
@@ -122,11 +142,11 @@ describe("SceneEngine", () => {
 
   test("using a primary object walks there and opens its section", () => {
     const { engine, host } = setup("zurich");
-    engine.activate(object(SCENES.zurich, "cabinet"));
+    engine.activate(object(SCENES.zurich, "satchel"));
     runUntil(engine, () => host.openSection.mock.calls.length > 0);
     expect(host.openSection).toHaveBeenCalledWith("resume");
     const ip = SCENES.zurich.objects.find(
-      (o) => o.id === "cabinet",
+      (o) => o.id === "satchel",
     )?.interactionPoint;
     expect(engine.position).toMatchObject({
       x: ip?.x,
@@ -136,15 +156,15 @@ describe("SceneEngine", () => {
   });
 
   test("an object with an open state opens while its content shows", () => {
-    const cabinet = SCENES.zurich.objects.find((o) => o.id === "cabinet");
-    if (!cabinet) throw new Error("no cabinet");
+    const satchel = SCENES.zurich.objects.find((o) => o.id === "satchel");
+    if (!satchel) throw new Error("no satchel");
     const scenes = {
       ...SCENES,
       zurich: {
         ...SCENES.zurich,
         objects: [
-          { ...cabinet, states: { open: "cabinet-open.png" } },
-          ...SCENES.zurich.objects.filter((o) => o !== cabinet),
+          { ...satchel, states: { open: "satchel-open.png" } },
+          ...SCENES.zurich.objects.filter((o) => o !== satchel),
         ],
       },
     };
@@ -158,9 +178,9 @@ describe("SceneEngine", () => {
     });
     engine.goToSection("resume");
     runUntil(engine, () => host.openSection.mock.calls.length > 0);
-    expect(engine.stateOf("cabinet")).toBe("open");
+    expect(engine.stateOf("satchel")).toBe("open");
     engine.contentClosed();
-    expect(engine.stateOf("cabinet")).toBeUndefined();
+    expect(engine.stateOf("satchel")).toBeUndefined();
   });
 
   test("a Hall gate plays the travel map, then enters the country", () => {

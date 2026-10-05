@@ -50,11 +50,11 @@ export function sectionInspection(section: SectionId): InspectionReading {
     case "experience":
       return {
         title: "Experience",
-        subtitle: "All aboard the Swiss career express",
+        subtitle: "A few places. Quite a few chapters.",
         art: experienceArt,
         artAlt:
-          "A lanky driver takes a red Swiss train full of suitcases and a bored cow up an Alpine viaduct beside a timetable board",
-        paperInsets: { top: 20, right: 8, bottom: 30, left: 54 },
+          "An open burgundy travel album on a chalet table, with mementos from Sorrento, London and Zürich beside a cream reading page",
+        paperInsets: { top: 23, right: 8, bottom: 24, left: 54 },
         paragraphs: [],
         pages: [
           ...PROFILE.experienceSummary.split("\n\n").map((paragraph) => ({
@@ -95,11 +95,11 @@ export function sectionInspection(section: SectionId): InspectionReading {
     case "resume":
       return {
         title: "Resume",
-        subtitle: "One small document. Swiss-sized paper trail.",
+        subtitle: "The journey, neatly packed.",
         art: resumeArt,
         artAlt:
-          "A Swiss ticket machine buries an exhausted, lanky station clerk in an endlessly unrolling paper ticket",
-        paperInsets: { top: 16, right: 8, bottom: 18, left: 48 },
+          "An open leather satchel beside an upright cream resume folio held by a brass clip on a sunny chalet table",
+        paperInsets: { top: 22, right: 9, bottom: 24, left: 44 },
         paragraphs: [],
         pages: [
           {

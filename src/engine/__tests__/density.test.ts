@@ -43,7 +43,7 @@ describe("density rules", () => {
   const sizes = new Map<string, Size>();
   const sizeOf = (url: string) => sizes.get(url);
   const zurich = SCENES.zurich;
-  const desk = zurich.objects.find((o) => o.id === "desk")?.sprite ?? "";
+  const table = zurich.objects.find((o) => o.id === "table")?.sprite ?? "";
   const tap = slotSpriteUrl("slot-tap") ?? "";
 
   test("every scene image has a rule", () => {
@@ -60,23 +60,23 @@ describe("density rules", () => {
   });
 
   test("a scene's sprites follow its background", () => {
-    expect(desk).not.toBe("");
-    expect(rules.get(desk)).toEqual({ like: zurich.background });
+    expect(table).not.toBe("");
+    expect(rules.get(table)).toEqual({ like: zurich.background });
     sizes.set(zurich.background, { w: 320, h: 160 });
-    expect(resolveDensity(desk, rules, sizeOf)).toBe(1);
+    expect(resolveDensity(table, rules, sizeOf)).toBe(1);
     sizes.set(zurich.background, { w: 640, h: 320 });
-    expect(resolveDensity(desk, rules, sizeOf)).toBe(2);
+    expect(resolveDensity(table, rules, sizeOf)).toBe(2);
   });
 
   test("display-resolution artwork preserves the logical sprite footprint", () => {
     sizes.set(zurich.background, { w: 1280, h: 640 });
-    const density = resolveDensity(desk, rules, sizeOf);
+    const density = resolveDensity(table, rules, sizeOf);
     expect(density).toBe(4);
-    expect(logicalBox({ x: 0, y: 0, w: 272, h: 192 }, density)).toEqual({
+    expect(logicalBox({ x: 0, y: 0, w: 360, h: 160 }, density)).toEqual({
       x: 0,
       y: 0,
-      w: 68,
-      h: 48,
+      w: 90,
+      h: 40,
     });
     expect(snap(10.3, density)).toBe(10.25);
   });
@@ -101,7 +101,7 @@ describe("density rules", () => {
   test("an image with no rule, or not loaded yet, is density 1", () => {
     const empty = new Map<string, DensityRule>();
     expect(resolveDensity("nope.png", empty, () => BG)).toBe(1);
-    expect(resolveDensity(desk, rules, () => undefined)).toBe(1);
+    expect(resolveDensity(table, rules, () => undefined)).toBe(1);
   });
 });
 

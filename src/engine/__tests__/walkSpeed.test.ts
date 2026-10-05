@@ -126,7 +126,7 @@ describe("walking pace follows depth", () => {
       const frontY = 157;
       const rows = [
         { y: backY, x0: 90, x1: 165 },
-        // Zurich's cow occupies the front-left corner; measure on clear floor.
+        // Zurich's fondue bar occupies the left corner; measure on clear floor.
         { y: frontY, x0: 90, x1: 165 },
       ];
       // Sanity: both rows are inside the walkbox's y range.
@@ -216,7 +216,7 @@ describe("walking keeps the feet on the floor", () => {
       ["across at the back of the Hall", "hall", [90, 93], [165, 93]],
       ["across at the front of the Hall", "hall", [20, 157], [200, 157]],
       ["up the Hall to the gates", "hall", [100, 157], [100, 96]],
-      ["diagonally through Zurich", "zurich", [10, 105], [160, 157]],
+      ["diagonally through Zurich", "zurich", [90, 105], [160, 157]],
     ] as const)("%s: a foot lands per half stride", (_n, id, from, to) => {
       const { engine, host } = setup(id, withRig);
       goTo(engine, from[0], from[1]);

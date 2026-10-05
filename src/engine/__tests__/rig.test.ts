@@ -426,6 +426,7 @@ describe("the engine with a rig", () => {
   const hd: SceneData = {
     ...SCENES.zurich,
     depth: { farY: 101, nearY: 158, ...HD_WORLD_SCALE },
+    entryPoints: { fromHall: { x: 287, y: 112, facing: "w" } },
   };
   const make = (rigFor: (s: SceneData) => boolean) =>
     new SceneEngine({

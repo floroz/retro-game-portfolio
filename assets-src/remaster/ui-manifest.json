@@ -20,14 +20,14 @@
       "source": "assets-src/approved/location-inspections/experience.png",
       "width": 1280,
       "height": 640,
-      "treatment": "Classic adventure location artwork at 2:1; nearest-neighbour resize, full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
+      "treatment": "Shared chalet 256-colour palette at density 2, nearest-neighbour density-4 export. Recipe: scripts/assets/swiss-room.ts. Text-safe insets live in src/config/inspections.ts."
     },
     {
       "output": "src/assets/remaster/inspections/resume.webp",
       "source": "assets-src/approved/location-inspections/resume.png",
       "width": 1280,
       "height": 640,
-      "treatment": "Classic adventure location artwork at 2:1; nearest-neighbour resize, full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
+      "treatment": "Shared chalet 256-colour palette at density 2, nearest-neighbour density-4 export. Recipe: scripts/assets/swiss-room.ts. Text-safe insets live in src/config/inspections.ts."
     },
     {
       "output": "src/assets/remaster/inspections/skills.webp",

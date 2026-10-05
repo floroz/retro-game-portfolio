@@ -1,0 +1,14 @@
+{
+  "id": "zurich-obj-fondue-bar",
+  "output": "src/assets/scenes/zurich/obj-fondue-bar.png",
+  "task": "daytime-swiss-room",
+  "source": "codex",
+  "prompt": "assets-src/prompts/swiss-room.md",
+  "candidate": "01",
+  "references": ["assets-src/approved/swiss-room/concept.png"],
+  "approvedRaw": "assets-src/approved/swiss-room/furniture.png",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "Daytime fondue chalet. Joint 256-colour palette, hard alpha at density 2; nearest-neighbour density-4 twin. Reproduce with scripts/assets/swiss-room.ts.",
+  "date": "2026-10-05"
+}
