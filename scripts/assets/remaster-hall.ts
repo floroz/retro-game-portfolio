@@ -1,7 +1,8 @@
-/** Re-export the Hall study from preserved originals. Never overwrites shipped art.
+/** Re-export the Hall art from preserved originals, including Lost & Found.
  * Run: npx tsx scripts/assets/remaster-hall.ts
  */
 import sharp from "sharp";
+import { prepareLostAndFound } from "./lost-and-found";
 import { mkdir, writeFile } from "node:fs/promises";
 import { readImage, rgbToOklab, type Image as PixelImage } from "./lib";
 import { oklabToRgb } from "./hd";
@@ -79,7 +80,6 @@ async function sprite(
   );
 }
 
-await sprite("obj-duty-free", `${raw}/hall-duty-free-empty.png`, 320, 284);
 for (const [country, width] of Object.entries({
   sorrento: 39,
   london: 51,
@@ -135,24 +135,6 @@ await save(
   `${raw}/hall-seats@hd.webp`,
   "Original approved blue source with the documented red upholstery correction reapplied; same 91x27 logical footprint.",
 );
-
-for (const [name, w, h] of [
-  ["knife", 56, 64],
-  ["cheese", 64, 48],
-  ["telephone", 32, 64],
-  ["limoncello", 28, 56],
-] as const) {
-  await sprite(
-    `obj-souvenir-${name}`,
-    `${raw}/hall-souvenir-${name}-sprite.png`,
-    w,
-    h,
-    0,
-    true,
-  );
-}
-manifest[manifest.length - 1].note =
-  "Only a 14x28 source survives. Resampled for this proof; no recovered detail. Candidate for targeted refinement.";
 
 for (const spec of [
   { name: "businessman", frames: 4, w: 144, h: 216 },
@@ -228,6 +210,7 @@ await writeFile(
     2,
   ) + "\n",
 );
+await prepareLostAndFound();
 console.log(
-  `Prepared ${manifest.length} Hall proof assets; shipped assets untouched.`,
+  `Prepared ${manifest.length} Hall assets and applied Lost & Found.`,
 );

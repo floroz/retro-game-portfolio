@@ -25,6 +25,24 @@ export interface AnimationFrame {
   y: number;
 }
 
+function stripDuration(anim: SceneAnimation): number {
+  return (
+    anim.frameDurationsMs?.reduce((sum, ms) => sum + ms, 0) ??
+    anim.frames * anim.frameMs
+  );
+}
+
+function stripFrame(anim: SceneAnimation, time: number): number {
+  if (!anim.frameDurationsMs)
+    return Math.floor(time / anim.frameMs) % anim.frames;
+  let remaining = time % stripDuration(anim);
+  for (const [frame, duration] of anim.frameDurationsMs.entries()) {
+    if (remaining < duration) return frame;
+    remaining -= duration;
+  }
+  return 0;
+}
+
 /** The seated upper body breathes while the lap and feet stay planted. */
 export function idleRise(anim: SceneAnimation, now: number): number {
   const idle = anim.idle;
@@ -58,7 +76,7 @@ export function animationFrame(
     if (t > anim.motion.durationMs) return null;
     const p = t / anim.motion.durationMs;
     return {
-      frame: Math.floor(t / anim.frameMs) % anim.frames,
+      frame: stripFrame(anim, t),
       x: anim.x + anim.motion.dx * p,
       y: anim.y + anim.motion.dy * p,
     };
@@ -66,10 +84,10 @@ export function animationFrame(
   let frame: number;
   if (anim.everyMs) {
     const t = now % anim.everyMs;
-    const cycle = anim.frames * anim.frameMs;
-    frame = t < cycle ? Math.floor(t / anim.frameMs) : 0;
+    const cycle = stripDuration(anim);
+    frame = t < cycle ? stripFrame(anim, t) : 0;
   } else {
-    frame = Math.floor(now / anim.frameMs) % anim.frames;
+    frame = stripFrame(anim, now);
   }
   return { frame, x: anim.x, y: anim.y };
 }
@@ -81,7 +99,7 @@ export function animationFrame(
  */
 function animationPeriod(anim: SceneAnimation): number {
   if (anim.motion) return Math.max(anim.everyMs ?? anim.motion.durationMs, 1);
-  return Math.max(anim.everyMs ?? anim.frames * anim.frameMs, 1);
+  return Math.max(anim.everyMs ?? stripDuration(anim), 1);
 }
 
 /**

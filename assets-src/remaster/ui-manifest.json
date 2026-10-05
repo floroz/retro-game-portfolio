@@ -37,34 +37,6 @@
       "treatment": "Classic adventure location artwork at 2:1; nearest-neighbour resize, full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
     },
     {
-      "output": "src/assets/remaster/inspections/souvenir-cheese.webp",
-      "source": "assets-src/approved/duty-free-inspections/cheese.png",
-      "width": 1280,
-      "height": 640,
-      "treatment": "Classic adventure airport duty-free artwork at 2:1; nearest-neighbour resize, full colours, lossless source export. Text-safe insets live in src/config/souvenirs.ts."
-    },
-    {
-      "output": "src/assets/remaster/inspections/souvenir-knife.webp",
-      "source": "assets-src/approved/duty-free-inspections/knife.png",
-      "width": 1280,
-      "height": 640,
-      "treatment": "Classic adventure airport duty-free artwork at 2:1; nearest-neighbour resize, full colours, lossless source export. Text-safe insets live in src/config/souvenirs.ts."
-    },
-    {
-      "output": "src/assets/remaster/inspections/souvenir-limoncello.webp",
-      "source": "assets-src/approved/duty-free-inspections/limoncello.png",
-      "width": 1280,
-      "height": 640,
-      "treatment": "Classic adventure airport duty-free artwork at 2:1; nearest-neighbour resize, full colours, lossless source export. Text-safe insets live in src/config/souvenirs.ts."
-    },
-    {
-      "output": "src/assets/remaster/inspections/souvenir-telephone.webp",
-      "source": "assets-src/approved/duty-free-inspections/telephone.png",
-      "width": 1280,
-      "height": 640,
-      "treatment": "Classic adventure airport duty-free artwork at 2:1; nearest-neighbour resize, full colours, lossless source export. Text-safe insets live in src/config/souvenirs.ts."
-    },
-    {
       "output": "src/assets/remaster/title/boarding-pass.webp",
       "source": "assets-src/approved/boarding-pass.png",
       "width": 1918,

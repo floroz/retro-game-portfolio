@@ -1,7 +1,7 @@
 /** Export the approved classic-adventure inspection originals.
  * The title ticket already has its original resolution; encode the same pixels
- * losslessly to reduce its download. Portfolio and souvenir cards use the
- * approved location and airport duty-free artwork. Nearest-neighbour resizing
+ * losslessly to reduce its download. Portfolio cards use the
+ * approved location artwork. Nearest-neighbour resizing
  * retains their deliberately stepped ink contours without adding soft fringes.
  */
 import { mkdir, writeFile } from "node:fs/promises";
@@ -12,10 +12,6 @@ const inspections = [
   ...["about", "contact", "experience", "resume", "skills"].map((name) => [
     name,
     `location-inspections/${name}.png`,
-  ]),
-  ...["cheese", "knife", "limoncello", "telephone"].map((name) => [
-    `souvenir-${name}`,
-    `duty-free-inspections/${name}.png`,
   ]),
 ];
 
@@ -40,9 +36,8 @@ for (const [name, raw] of inspections) {
     source,
     width: 1280,
     height: 640,
-    treatment: raw.startsWith("location-inspections/")
-      ? "Classic adventure location artwork at 2:1; nearest-neighbour resize, full colours, lossless source export. Text-safe insets live in src/config/inspections.ts."
-      : "Classic adventure airport duty-free artwork at 2:1; nearest-neighbour resize, full colours, lossless source export. Text-safe insets live in src/config/souvenirs.ts.",
+    treatment:
+      "Classic adventure location artwork at 2:1; nearest-neighbour resize, full colours, lossless source export. Text-safe insets live in src/config/inspections.ts.",
   });
 }
 const source = "assets-src/approved/boarding-pass.png";

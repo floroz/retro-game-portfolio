@@ -5,11 +5,14 @@
   "source": "codex",
   "prompt": "assets-src/prompts/hd/hall-floor-shadows.md",
   "candidate": "01",
-  "references": ["assets-src/refs/hd/hall-before-stone.png"],
+  "references": [
+    "assets-src/refs/hd/hall-before-stone.png",
+    "assets-src/approved/lost-and-found/hall-without-desk.png"
+  ],
   "approvedRaw": "assets-src/approved/hall-stone-floor.png",
   "density": 2,
   "style": "painted",
-  "cleanup": "Built-in image generation replaced the triangle carpet with stone terrazzo tiles and removed the duty-free fixture. scripts/assets/airport-floor.ts prepares a 640x320 plate, restores the original sign and gate architecture pixels, and maps to the existing Hall palette. The duty-free shop is now obj-duty-free.png; characters and furniture receive separate runtime ground shadows.",
+  "cleanup": "Built-in image generation replaced the triangle carpet with stone terrazzo tiles and removed the duty-free fixture. scripts/assets/airport-floor.ts prepares a 640x320 plate, restores the original sign and gate architecture pixels, and maps to the existing Hall palette. The separate shop has been replaced by obj-lost-and-found.png; characters and furniture receive separate runtime ground shadows. The retired luggage desk is removed by scripts/assets/lost-and-found.ts with a registered patch from assets-src/approved/lost-and-found/hall-without-desk.png; all other geometry stays unchanged.",
   "approvedBy": "codex",
   "date": "2026-09-30"
 }

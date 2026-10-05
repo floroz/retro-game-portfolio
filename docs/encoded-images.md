@@ -35,7 +35,7 @@ images used by documentation serve separate purposes and remain where needed.
 3. Import the v1 path in the scene config (`src/config/scenes/<scene>.ts`). Preloading needs nothing else.
 4. Run `npm run test:unit`. This runs `preload.test.ts` and `assetBudget.test.ts`.
 
-**Add plain `<img>` art**, meaning a title card, overlay, inspection or souvenir card:
+**Add plain `<img>` art**, meaning a title card, overlay or inspection card:
 
 1. Import the file under `src/assets/remaster/` directly.
 2. Add it to a tier in `preloadTiers()` in `src/engine/preload.ts`. No test catches a missing entry.
@@ -91,7 +91,7 @@ images used by documentation serve separate purposes and remain where needed.
 | 1    | Title card boarding pass                                 | high     | `ImageStore`                      |
 | 2    | Daniele (sheet and rig), the first scene (`START_SCENE`) | high     | `ImageStore`                      |
 | 3    | Every other scene, the travel map                        | low      | `ImageStore`                      |
-| 4    | Inspection and souvenir cards                            | low      | HTTP cache only (`canvas: false`) |
+| 4    | Portfolio inspection cards                               | low      | HTTP cache only (`canvas: false`) |
 
 Each stage waits for its art, with a fallback:
 

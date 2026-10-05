@@ -26,7 +26,7 @@ The game opens with a boarding pass. Press Space and you arrive in an airport.
 
 | Place                  | What's there                                                  | Sections           |
 | ---------------------- | ------------------------------------------------------------- | ------------------ |
-| **The airport hall**   | Three gates, a duty-free shop and a few waiting passengers    | The way to all     |
+| **The airport hall**   | Three gates, a staffed Lost & Found and waiting passengers    | The way to all     |
 | **A Sorrento kitchen** | A view of the Gulf of Naples, a postcard and a telephone      | About, Contact     |
 | **A London pub**       | A rainy evening, a chalkboard of skills and a jukebox         | Skills             |
 | **A Zürich chalet**    | A sunny fondue room, a travel album and a cow resting outside | Experience, Resume |
@@ -35,7 +35,7 @@ The game opens with a boarding pass. Press Space and you arrive in an airport.
 - **The travel trunk.** The toolbar is a painted trunk with a SCUMM-style sentence line. It holds one boarding pass per city, listing the sections that live there. Click a section and it opens right away, wherever you are.
 - **Close-ups.** Clicking an object opens a cartoon close-up: a suitcase that won't shut, a telephone wired to tin cans, a London phone booth, a Swiss travel album and a document satchel. The text on them is live HTML, paged, keyboard-friendly, and closes back to the same spot in the room.
 - **Conversations.** Talk to Daniele and choose your lines, _Curse of Monkey Island_ style. Use the mouse, the arrow keys or the number keys.
-- **Duty free.** The shop sells four souvenirs: limoncello, a Swiss Army knife, a cheese and a phone booth with its own raincloud. Each has its own close-up. None of them are useful.
+- **Lost & Found.** A clerk checks forms and stamps them with weary precision. Ring the bell, ask about your suitcase, or inspect the suspicious trunk. A traveller with a map crosses the hall, then returns the other way.
 - **A living world.** Passengers wander through the hall, regulars drink in the pub, a ferry crosses the bay, and each room has its own music and ambience. With reduced motion on, the scenes keep still.
 
 <img src="docs/images/readme-inspection-contact.webp" alt="The Contact close-up: a red rotary telephone wired to tin cans on a tiled Sorrento terrace above the bay, next to a purple-framed card with live contact details and links, and a Back to the scene button" width="720" />
@@ -73,7 +73,7 @@ London, Zürich and the airport may become mobile locations later. See [the Pock
 
 - **A small canvas engine** (`src/engine/`). Scenes are plain data: walkboxes, depth, objects, exits and effects, in logical coordinates. The engine draws them, sorts objects by depth, walks Daniele between them and animates his cut-out rig.
 - **Content is data.** Personal details and portfolio copy live in `src/config/profile.ts` and feed the desktop, mobile and SEO pages. Dialogue lives in `src/config/dialogTrees.ts`. No portfolio text is painted into the art.
-- **Art.** Full-quality sources are committed with prompts and provenance. The build encodes them as WebP, and the game preloads them in tiers behind the launch dialog, within size budgets that are checked by a test. See [encoded images](docs/encoded-images.md), [the close-up artwork](docs/location-inspection-art.md) and [the duty-free artwork](docs/duty-free-inspection-art.md).
+- **Art.** Full-quality sources are committed with prompts and provenance. The build encodes them as WebP, and the game preloads them in tiers behind the launch dialog, within size budgets that are checked by a test. See [encoded images](docs/encoded-images.md), [the close-up artwork](docs/location-inspection-art.md) and [the Lost & Found artwork](docs/lost-and-found-art.md).
 - **Audio.** The music is written as code, as MIDI phrases rendered with FluidSynth. The sound effects are synthesised by script.
 
 ### Made with AI agents

@@ -17,11 +17,13 @@ Saved raw: `assets-src/approved/hall-stone-floor.png`.
 
 Use case background-extraction. Extract ONLY the entire DUTY FREE shop fixture from the far left of this airport reference as one game sprite on genuine transparent background. Include its crimson/red blank awning, ochre side posts, dark black shelf recesses, oak shelf boards, all existing small products in their exact arrangement (perfume, blue snow globe, postcards, boxed whisky, red toolbox, bottom display), ochre lower counter and bottom plinth. Do NOT include the hanging departures board above it, airport wall, window, floor, shadows on the floor, airplane or any other furniture. Preserve the original front-on view, rectangular proportions and original pixel art design/colours as closely as possible. Shop is clipped at the left image edge; keep a flat left vertical edge. No new lettering: awning stays blank for runtime text. Single isolated shop fixture, tightly framed with small transparent margin, approximately 160 wide to 142 tall aspect ratio. Transparent behind and around fixture but keep dark black backing within the shelves opaque. Do not redesign the shop.
 
-Saved raw: `assets-src/approved/hall-duty-free.png` (transparent background).
+The transparent shop source was retired when Lost & Found replaced it on
+2026-10-05; the original remains in Git history.
 
 ## Preparation
 
 Run `node --import tsx scripts/assets/airport-floor.ts`. This resizes the plate to
 640×320, restores original architecture and sign pixels outside the edited
-region, trims and fits the shop to 160×142, and maps both to the existing Hall
-palette with hard alpha. Runtime ground shadows remain separate from the art.
+region, and maps it to the existing Hall palette. It then applies the current
+Lost & Found sprites and luggage-desk removal patch through
+`scripts/assets/lost-and-found.ts`. Runtime ground shadows remain separate.

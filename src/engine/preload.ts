@@ -12,7 +12,6 @@
  */
 import boardingPass from "../assets/remaster/title/boarding-pass.webp";
 import { sectionInspection } from "../config/inspections";
-import { SOUVENIRS } from "../config/souvenirs";
 import {
   CHARACTER_RIG,
   CHARACTER_SHEET,
@@ -72,10 +71,7 @@ export function preloadTiers(): PreloadTier[] {
       "low",
     ),
     tier(
-      [
-        ...SECTIONS.map((section) => sectionInspection(section).art),
-        ...Object.values(SOUVENIRS).map((souvenir) => souvenir.art),
-      ],
+      SECTIONS.map((section) => sectionInspection(section).art),
       "low",
       false,
     ),
