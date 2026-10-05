@@ -1,14 +1,59 @@
+import "../styles/adventure-font.scss";
 import {
   capHeight,
   drawText,
   measureText,
+  type FontId,
   type TextLayer,
   type TextStyle,
 } from "./font";
 
-/** Smooth adventure lettering. Keep the existing line breaks, cap height,
- * colours and measured width, so the study changes no label or control layout.
- */
+let loading: Promise<void> | undefined;
+
+/** A local face shared by HTML and canvas. Failure never gates the content. */
+export function loadAdventureFont(): Promise<void> {
+  return (loading ??= document.fonts.load('16px "Pixel Operator"').then(
+    () => undefined,
+    () => undefined,
+  ));
+}
+
+/** Match the preview's visible capital heights without stretching letters. */
+export function letteringFont(ctx: CanvasRenderingContext2D, cap: number) {
+  ctx.font = '400 10px "Pixel Operator", sans-serif';
+  const height = ctx.measureText("H").actualBoundingBoxAscent || 7;
+  ctx.font = `400 ${(10 * cap) / height}px "Pixel Operator", sans-serif`;
+}
+
+const tokens = (text: string) => [
+  ...text.matchAll(/\{(?:experience|skills|about|contact|resume)\}/gi),
+];
+const caseFor = (text: string, font: FontId) =>
+  font === "small" || font === "tiny" ? text.toUpperCase() : text;
+
+let metrics: CanvasRenderingContext2D | null | undefined;
+
+/** Same native advances as painting, including the original inline icons. */
+export function measureLettering(
+  text: string,
+  font: FontId = "regular",
+): number {
+  metrics ??= document.createElement("canvas").getContext("2d");
+  if (!metrics) return measureText(text, font);
+  letteringFont(metrics, capHeight(font));
+  let width = 0;
+  let end = 0;
+  for (const token of tokens(text)) {
+    width += metrics.measureText(
+      caseFor(text.slice(end, token.index), font),
+    ).width;
+    width += measureText(token[0], font);
+    end = token.index + token[0].length;
+  }
+  return width + metrics.measureText(caseFor(text.slice(end), font)).width;
+}
+
+/** Pixel Operator at its natural proportions; bitmap section icons stay intact. */
 export function paintLettering(
   layer: TextLayer,
   text: string,
@@ -16,57 +61,31 @@ export function paintLettering(
   y: number,
   style: TextStyle,
 ) {
-  // Keep the original icon glyph and its exact advance while the surrounding
-  // words use native lettering. Measuring prefixes also preserves the tracking
-  // before a token, which is different from the gap after one.
-  const tokens = [
-    ...text.matchAll(/\{(?:experience|skills|about|contact|resume)\}/gi),
-  ];
-  if (tokens.length) {
-    const font = style.font ?? "regular";
+  const font = style.font ?? "regular";
+  const icons = tokens(text);
+  if (icons.length) {
     let end = 0;
-    for (const token of tokens) {
-      if (token.index > end) {
-        paintLettering(
-          layer,
-          text.slice(end, token.index),
-          x + measureText(text.slice(0, end), font, style.tracking),
-          y,
-          style,
-        );
-      }
+    let pen = x;
+    for (const token of icons) {
+      const words = text.slice(end, token.index);
+      if (words) paintLettering(layer, words, pen, y, style);
+      pen += measureLettering(words, font);
+      drawText({ ...layer, paintLine: undefined }, token[0], pen, y, style);
+      pen += measureText(token[0], font);
       end = token.index + token[0].length;
-      const iconX =
-        x +
-        measureText(text.slice(0, end), font, style.tracking) -
-        measureText(token[0], font, style.tracking);
-      drawText({ ...layer, paintLine: undefined }, token[0], iconX, y, style);
     }
-    if (end < text.length) {
-      paintLettering(
-        layer,
-        text.slice(end),
-        x + measureText(text.slice(0, end), font, style.tracking),
-        y,
-        style,
-      );
-    }
+    if (end < text.length)
+      paintLettering(layer, text.slice(end), pen, y, style);
     return;
   }
   const { ctx, scale } = layer;
-  const font = style.font ?? "regular";
-  if (font === "small" || font === "tiny") text = text.toUpperCase();
   const cap = capHeight(font);
-  const width = measureText(text, font, style.tracking);
+  text = caseFor(text, font);
   ctx.save();
   ctx.setTransform(scale, 0, 0, scale, 0, 0);
-  ctx.font = `${font === "tiny" ? 600 : 500} 10px Arial, sans-serif`;
-  const reference = ctx.measureText("H");
-  const height = reference.actualBoundingBoxAscent || 7;
-  ctx.font = `${font === "tiny" ? 600 : 500} ${(10 * cap) / height}px Arial, sans-serif`;
-  const measured = ctx.measureText(text).width;
+  letteringFont(ctx, cap);
   ctx.translate(x, y + cap);
-  ctx.scale(measured ? width / measured : 1, 1);
+  ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
   ctx.lineJoin = "round";
   if (style.shadow) {
@@ -82,3 +101,5 @@ export function paintLettering(
   ctx.fillText(text, 0, 0);
   ctx.restore();
 }
+
+paintLettering.measureText = measureLettering;

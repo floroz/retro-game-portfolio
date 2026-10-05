@@ -1,3 +1,4 @@
+import { useAdventureFont } from "../../hooks/useAdventureFont";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { paintLettering } from "../../engine/lettering";
 import styles from "./Toolbar.module.scss";
@@ -30,6 +31,7 @@ const fallbackOptions = (autoAdvance?: string): DialogOption[] => [
  * leaves. The choices are real buttons too, in Tab order.
  */
 export function Dialogue() {
+  const fontSettled = useAdventureFont();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rowRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const dialogNode = useGameStore((s) => s.dialogNode);
@@ -85,7 +87,7 @@ export function Dialogue() {
         paintLettering,
       );
     }
-  }, [options, active]);
+  }, [options, active, fontSettled]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

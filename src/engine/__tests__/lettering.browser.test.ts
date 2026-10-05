@@ -1,6 +1,13 @@
+import { DIALOG_TREE } from "../../config/dialogTrees";
+import { CHOICES_PAGE } from "../../components/toolbar/layout";
+import { SPEECH_WIDTH } from "../constants";
 import { describe, expect, test, vi } from "vitest";
-import { capHeight, measureText, type TextStyle } from "../font";
-import { paintLettering } from "../lettering";
+import { capHeight, wrapText, type TextStyle } from "../font";
+import {
+  loadAdventureFont,
+  measureLettering,
+  paintLettering,
+} from "../lettering";
 
 function canvasContext() {
   const canvas = document.createElement("canvas");
@@ -12,7 +19,46 @@ function canvasContext() {
 }
 
 describe("remastered inline lettering", () => {
-  test("keeps surrounding words native and icon slots in their original positions", () => {
+  test("keeps every dialogue choice and existing speech wrap within its available width", async () => {
+    await loadAdventureFont();
+    for (const node of Object.values(DIALOG_TREE)) {
+      for (const option of node.options ?? []) {
+        expect(measureLettering(option.label) * 2, option.label).toBeLessThan(
+          CHOICES_PAGE.w - 46,
+        );
+      }
+      for (const line of wrapText(node.text, SPEECH_WIDTH)) {
+        expect(measureLettering(line), line).toBeLessThanOrEqual(SPEECH_WIDTH);
+      }
+    }
+  });
+
+  test("uses the loaded pixel face without horizontally stretching its glyphs", async () => {
+    await loadAdventureFont();
+    expect(
+      [...document.fonts].some(
+        (face) => face.family === "Pixel Operator" && face.status === "loaded",
+      ),
+    ).toBe(true);
+    const ctx = canvasContext();
+    const scale = vi.spyOn(ctx, "scale");
+    let paintedFont = "";
+    let width = 0;
+    const fill = ctx.fillText.bind(ctx);
+    vi.spyOn(ctx, "fillText").mockImplementation((text, x, y) => {
+      paintedFont = ctx.font;
+      width = ctx.measureText(text).width;
+      fill(text, x, y);
+    });
+    const text = "Zürich — Tell me about yourself";
+    paintLettering({ ctx, scale: 4 }, text, 5, 5, { color: "#fff" });
+    expect(paintedFont).toContain("Pixel Operator");
+    expect(scale).not.toHaveBeenCalled();
+    expect(measureLettering(text)).toBeCloseTo(width, 4);
+  });
+
+  test("keeps words at native width and places icons at the matching advances", async () => {
+    await loadAdventureFont();
     const ctx = canvasContext();
     const words = vi.spyOn(ctx, "fillText");
     const icons = vi.spyOn(ctx, "drawImage");
@@ -30,25 +76,26 @@ describe("remastered inline lettering", () => {
     expect(positions.mock.calls).toEqual([
       [10, 5 + capHeight("regular")],
       [
-        10 + measureText("Read {skills}", "regular", 1),
+        10 + measureLettering("Read {skills}", "regular"),
         5 + capHeight("regular"),
       ],
       [
-        10 + measureText("Read {skills} then {resume}", "regular", 1),
+        10 + measureLettering("Read {skills} then {resume}", "regular"),
         5 + capHeight("regular"),
       ],
     ]);
-    // The bitmap icon has the same 1.5 logical-pixel inset in its backing
-    // canvas as standalone original text. Its placement includes the tracking
-    // before the token, never the length of the literal braces and name.
+    // The icon keeps its bitmap inset and follows the native word advance.
     const iconLeft =
       10 +
-      measureText("Read {skills}", "regular", 1) -
-      measureText("{skills}", "regular", 1);
-    expect(icons.mock.calls[0][1]).toBe((iconLeft - 1.5) * 4);
+      measureLettering("Read {skills}", "regular") -
+      measureLettering("{skills}", "regular");
+    expect(icons.mock.calls[0][1]).toBe(
+      (Math.round(iconLeft * 2) / 2 - 1.5) * 4,
+    );
   });
 
-  test("supports adjacent case-insensitive tokens and retains plain braces as text", () => {
+  test("supports adjacent case-insensitive tokens and retains plain braces as text", async () => {
+    await loadAdventureFont();
     const ctx = canvasContext();
     const words = vi.spyOn(ctx, "fillText");
     const icons = vi.spyOn(ctx, "drawImage");

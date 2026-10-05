@@ -113,8 +113,7 @@ export function useInspectionPagination(
     observer.observe(box);
     // Explicit requests also cover a card opened before @font-face was used.
     void Promise.allSettled([
-      document.fonts.load('24px "Adventure Reading"'),
-      document.fonts.load('36px "Adventure Display"'),
+      document.fonts.load('24px "Pixel Operator"'),
     ]).then(() => {
       fontsReady = true;
       fit();

@@ -42,15 +42,21 @@ export interface TextLayer {
   ctx: CanvasRenderingContext2D;
   /** Canvas px per logical px: 2 for the 640x320 text canvas. */
   scale: number;
-  /** Optional native-resolution lettering; layout still uses the original metrics. */
-  paintLine?: (
-    layer: TextLayer,
-    text: string,
-    x: number,
-    y: number,
-    style: TextStyle,
-  ) => void;
+  /** Optional native lettering, with matching metrics for layout. */
+  paintLine?: TextPainter;
 }
+
+export type TextPainter = ((
+  layer: TextLayer,
+  text: string,
+  x: number,
+  y: number,
+  style: TextStyle,
+) => void) & { measureText?: typeof measureText };
+
+/** Use the same face for layout and painting. */
+export const textMeasure = (layer: TextLayer): typeof measureText =>
+  layer.paintLine?.measureText ?? measureText;
 
 type Item = { glyph: Glyph; x: number } | { icon: SectionId; x: number };
 
@@ -145,13 +151,14 @@ export function wrapText(
   text: string,
   maxWidth: number,
   fontId: FontId = "regular",
+  measure: typeof measureText = measureText,
 ): string[] {
   const lines: string[] = [];
   for (const paragraph of text.split("\n")) {
     let line = "";
     for (const word of paragraph.split(/\s+/).filter(Boolean)) {
       const next = line ? `${line} ${word}` : word;
-      if (line && measureText(next, fontId) > maxWidth) {
+      if (line && measure(next, fontId) > maxWidth) {
         lines.push(line);
         line = word;
       } else {
@@ -189,6 +196,7 @@ export function fitText(
   text: string,
   maxWidth: number,
   fontId: FontId = "regular",
+  measure: typeof measureText = measureText,
 ): TextFit {
   const fonts = [fontId, ...SMALLER[fontId]];
   const settings: TextFit[] = [];
@@ -200,7 +208,7 @@ export function fitText(
   }
   for (const font of fonts) settings.push({ font, tracking: 0 });
   for (const setting of settings) {
-    if (measureText(text, setting.font, setting.tracking) <= maxWidth) {
+    if (measure(text, setting.font, setting.tracking) <= maxWidth) {
       return setting;
     }
   }

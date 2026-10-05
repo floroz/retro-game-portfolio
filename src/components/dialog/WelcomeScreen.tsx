@@ -1,3 +1,4 @@
+import { useAdventureFont } from "../../hooks/useAdventureFont";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGameStore } from "../../store/gameStore";
 import {
@@ -29,6 +30,7 @@ const WAIT_LIMIT_MS = 12000;
 
 /** Illustrated boarding pass with real keyboard, pointer and sound controls. */
 export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
+  const fontSettled = useAdventureFont();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const soundEnabled = useGameStore((s) => s.soundEnabled);
   const toggleSound = useGameStore((s) => s.toggleSound);
@@ -67,7 +69,7 @@ export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
         soundLit,
       });
     }
-  }, [soundEnabled, soundLit]);
+  }, [soundEnabled, soundLit, fontSettled]);
 
   // Space starts the game, whatever has focus except a button the visitor
   // tabbed to, which handles its own Space (the pass starts, the fitting
