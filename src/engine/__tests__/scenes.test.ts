@@ -178,26 +178,45 @@ describe("scene data contract", () => {
     }
   });
 
-  test("the Hall's four souvenirs are optional inspections, not portfolio shortcuts", () => {
-    const souvenirs = SCENES.hall.objects.filter((o) => o.inspection);
-    expect(souvenirs.map((o) => o.id)).toEqual([
-      "limoncello",
-      "swiss-knife",
-      "swiss-cheese",
-      "telephone-miniature",
-    ]);
-    for (const souvenir of souvenirs) {
-      expect(souvenir.action, souvenir.id).toBeUndefined();
-      expect(souvenir.sprite, souvenir.id).toBeTruthy();
-      expect(souvenir.hotspot, souvenir.id).toBeDefined();
-      expect(souvenir.inspection?.art, souvenir.id).toBeTruthy();
-      expect(
-        souvenir.inspection?.paragraphs.length,
-        souvenir.id,
-      ).toBeGreaterThan(0);
+  test("Lost & Found stays optional, with independent reachable hotspots", () => {
+    const ids = [
+      "lost-and-found",
+      "lost-and-found-clerk",
+      "service-bell",
+      "unclaimed-trunk",
+    ];
+    for (const id of ids) {
+      const item = SCENES.hall.objects.find((object) => object.id === id)!;
+      expect(item.hotspot).toBeDefined();
+      expect(item.interactionPoint).toBeDefined();
+      expect(item.use).toBeTruthy();
+      expect(item.action).toBeUndefined();
+      expect(item.inspection).toBeUndefined();
     }
-    expect(SCENES.hall.objects.some((o) => o.action)).toBe(false);
+    expect(
+      SCENES.hall.objects.some((object) => object.inspection || object.action),
+    ).toBe(false);
+    expect(
+      SCENES.hall.objects.some(
+        (object) => object.id === "duty-free" || object.id === "lost-luggage",
+      ),
+    ).toBe(false);
   });
+
+  test.each(scenes)(
+    "%s: variable frame holds describe a complete positive cycle",
+    (_id, scene) => {
+      for (const animation of scene.animations ?? []) {
+        if (!animation.frameDurationsMs) continue;
+        expect(animation.frameDurationsMs).toHaveLength(animation.frames);
+        expect(
+          animation.frameDurationsMs.every(
+            (duration) => Number.isFinite(duration) && duration > 0,
+          ),
+        ).toBe(true);
+      }
+    },
+  );
 
   test("the travel map marks every country", () => {
     for (const c of ["london", "zurich", "sorrento"] as const) {
@@ -210,13 +229,13 @@ describe("scene data contract", () => {
   const words = (line: string) => line.split(/\s+/).filter(Boolean).length;
 
   test.each(scenes)("%s: in-world labels are a word or two", (id, scene) => {
-    // Except a chalkboard: the London menu of skill groups is a list, at
-    // Daniele's request.
+    // An ampersand joins two words. The London chalkboard is a list of skills.
     for (const label of (scene.labels ?? []).filter((l) => !l.chalk)) {
       for (const line of resolveLabel(label.source)) {
-        expect(words(line), `${id}/${label.id}: ${line}`).toBeLessThanOrEqual(
-          2,
-        );
+        expect(
+          words(line.replace(" & ", " ")),
+          `${id}/${label.id}: ${line}`,
+        ).toBeLessThanOrEqual(2);
       }
     }
   });

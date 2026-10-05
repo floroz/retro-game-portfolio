@@ -5,16 +5,45 @@ import { propFrame } from "../effects";
 import { paintOrder } from "../depth";
 
 const walkers = HALL_SCENE.props!.filter((p) => p.id.startsWith("passenger-"));
-const seated = HALL_SCENE.animations!;
+const seated = HALL_SCENE.animations!.filter((animation) => animation.idle);
 
 describe("airport passengers", () => {
+  test("the traveller spends eight seconds offscreen before each return", () => {
+    const outward = walkers.find(
+      (p) => p.id === "passenger-traveller-outbound",
+    )!;
+    const returning = walkers.find(
+      (p) => p.id === "passenger-traveller-return",
+    )!;
+    expect(returning.delayMs! - outward.delayMs! - outward.durationMs).toBe(
+      8000,
+    );
+    expect(
+      outward.delayMs! +
+        outward.everyMs! -
+        returning.delayMs! -
+        returning.durationMs,
+    ).toBe(8000);
+    for (let time = 0; time < 120000; time += 100) {
+      expect(
+        [outward, returning].filter((p) => propFrame(p, time)).length,
+      ).toBeLessThanOrEqual(1);
+    }
+    expect(outward.hideForReducedMotion).toBe(true);
+    expect(returning.hideForReducedMotion).toBe(true);
+  });
   test.each(walkers)(
     "$id enters and leaves offscreen, then waits before repeating",
     (p) => {
       const start = p.delayMs!;
       const first = propFrame(p, start)!;
       const last = propFrame(p, start + p.durationMs)!;
-      const width = p.id === "passenger-family" ? 62 : 36;
+      const width =
+        p.id === "passenger-family"
+          ? 62
+          : p.id.startsWith("passenger-traveller")
+            ? 48
+            : 36;
       const offscreen = (x: number) => x >= 320 || x + width <= 0;
       expect(propFrame(p, start - 1)).toBeNull();
       expect(offscreen(first.x)).toBe(true);

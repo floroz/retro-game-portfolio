@@ -192,6 +192,8 @@ export interface SceneAnimation {
   x: number;
   y: number;
   frameMs: number;
+  /** Positive holds in strip order, one per frame; overrides frameMs. */
+  frameDurationsMs?: number[];
   /** Offset a decorative loop so neighbouring characters act independently. */
   phaseMs?: number;
   /** Hold the resting pose when the visitor prefers reduced motion. */

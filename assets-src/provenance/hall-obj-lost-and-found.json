@@ -1,0 +1,18 @@
+{
+  "id": "hall-obj-lost-and-found",
+  "output": "src/assets/scenes/hall/obj-lost-and-found.png",
+  "task": "airport-lost-and-found",
+  "source": "codex",
+  "prompt": "assets-src/prompts/hd/lost-and-found.json",
+  "candidate": "01",
+  "references": [
+    "src/assets/remaster/hall/obj-boarding-desk.png",
+    "src/assets/remaster/hall/anim-passenger-reader.png"
+  ],
+  "approvedRaw": "assets-src/approved/lost-and-found/booth.png",
+  "density": 2,
+  "style": "painted",
+  "cleanup": "scripts/assets/lost-and-found.ts prepares registered density-2 and density-4 exports with hard alpha and palettes sampled from the corresponding existing airport art.",
+  "approvedBy": "user",
+  "date": "2026-10-05"
+}

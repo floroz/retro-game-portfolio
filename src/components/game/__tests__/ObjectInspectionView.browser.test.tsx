@@ -7,7 +7,6 @@ import aboutArt from "../../../assets/remaster/inspections/about.webp";
 import { ObjectInspectionView } from "../ObjectInspectionView";
 import { Toolbar } from "../../toolbar/Toolbar";
 import { useGameStore } from "../../../store/gameStore";
-import { SOUVENIRS } from "../../../config/souvenirs";
 import { sectionInspection } from "../../../config/inspections";
 
 const initialState = useGameStore.getState();
@@ -340,7 +339,6 @@ describe.each([680, 900, 1280])("all inspection cards at %ipx", (width) => {
     ...(["about", "skills", "experience", "contact", "resume"] as const).map(
       sectionInspection,
     ),
-    ...Object.values(SOUVENIRS),
   ])("$title keeps every page inside the paper", async (item) => {
     const { container } = await render(
       <div

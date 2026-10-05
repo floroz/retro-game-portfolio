@@ -146,18 +146,6 @@ for (const viewport of viewports) {
         await page.keyboard.press("Escape");
         await expect(inspection).toBeHidden();
       };
-      for (const souvenir of [
-        { id: "limoncello", title: "Limoncello" },
-        { id: "swiss-knife", title: "Swiss Army knife" },
-        { id: "swiss-cheese", title: "Swiss cheese" },
-        { id: "telephone-miniature", title: "London calling" },
-      ]) {
-        await page
-          .locator(`[data-e2e=hotspot][data-hotspot="object:${souvenir.id}"]`)
-          .click();
-        await inspect(souvenir.id, souvenir.title);
-      }
-
       const advanceToScene = async (id: string) => {
         const canvas = page.locator(`canvas[data-drawn=${id}]`);
         for (let elapsed = 0; elapsed < 30000; elapsed += 500) {

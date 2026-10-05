@@ -1,16 +1,15 @@
 /**
  * The Hall: a 1990s airport departure lounge. Built in HB2 from the HD
  * hand-painted layers: `bg.png` is the empty-lounge plate with a stone tile
- * floor and the duty-free fixture removed, with the shop, seats and staffed
+ * floor and the old luggage desk removed, with Lost & Found, seats and staffed
  * boarding desk as separate sprites and the take-off plane as a moving prop.
  * Every coordinate is in logical pixels (320x160), top-left origin; the art is
  * 640x320, shown at 2x.
  *
  * Signposting, kept minimal: the three gates are the exits, each under a dark
  * sign board that carries its gate number and city only (`gate:<country>`). The
- * arrivals/departures board shows ambient flights, gates and times. Four
- * destination souvenirs make the duty-free shelf an optional discovery, each
- * with its own painted close-up.
+ * arrivals/departures board shows ambient flights, gates and times. The
+ * Lost & Found clerk stamps forms while an uncertain traveller crosses the hall.
  * The travel trunk's boarding passes keep portfolio information accessible.
  *
  * Walking depth: the row of seats and the boarding desk stand out
@@ -28,7 +27,6 @@
  * Check it with the dev overlay: `npm run dev`, then `?debug=scene`.
  */
 import { COUNTRIES } from "../sections";
-import { SOUVENIRS } from "../souvenirs";
 import type { SceneData } from "../../engine/types";
 import { HALL_FLIGHT_BOARD } from "./flight-board";
 import flightBoard from "../../assets/scenes/hall/obj-flight-board.png";
@@ -36,11 +34,9 @@ import sorrentoGate from "../../assets/scenes/hall/obj-gate-sorrento.png";
 import londonGate from "../../assets/scenes/hall/obj-gate-london.png";
 import zurichGate from "../../assets/scenes/hall/obj-gate-zurich.png";
 import hallBg from "../../assets/scenes/hall/bg.png";
-import dutyFree from "../../assets/scenes/hall/obj-duty-free.png";
-import limoncello from "../../assets/scenes/hall/obj-souvenir-limoncello.png";
-import swissKnife from "../../assets/scenes/hall/obj-souvenir-knife.png";
-import swissCheese from "../../assets/scenes/hall/obj-souvenir-cheese.png";
-import telephone from "../../assets/scenes/hall/obj-souvenir-telephone.png";
+import lostAndFound from "../../assets/scenes/hall/obj-lost-and-found.png";
+import clerk from "../../assets/scenes/hall/anim-lost-and-found-clerk.png";
+import traveller from "../../assets/scenes/hall/anim-passenger-traveller.png";
 import hallObjSeats from "../../assets/scenes/hall/obj-seats.png";
 import hallObjBoardingDesk from "../../assets/scenes/hall/obj-boarding-desk.png";
 import hallAnimPlane from "../../assets/scenes/hall/anim-plane.png";
@@ -105,7 +101,7 @@ export const HALL_SCENE: SceneData = {
   floor: "tile",
   characterShadow: { width: 0.38, depth: 0.085 },
   // The floor from the skirting (y 91) to the front edge, set back in front
-  // of the duty-free counter (base y 97). Keyhole slits cut out the seats'
+  // of the Lost & Found counter (base y 97). Keyhole slits cut out the seats'
   // bench (x 137-226, y 111-124) and boarding desk (x 245-273, y 108-117).
   // The gates and the newly open right-hand floor remain walkable.
   walkbox: [
@@ -167,64 +163,42 @@ export const HALL_SCENE: SceneData = {
       use: "I can't board through the glass. I've tried. Twice.",
     },
     {
-      id: "duty-free",
-      name: "duty-free shop",
-      sprite: dutyFree,
+      id: "lost-and-found",
+      name: "Lost & Found",
+      sprite: lostAndFound,
       x: 0,
       y: 27,
       baselineY: 97,
       groundShadows: [{ x: 39, y: 70, width: 80, depth: 5 }],
-      hotspot: { x: 0, y: 27, w: 80, h: 10 },
-      look: "Duty free: lower prices, and somehow you still spend more.",
-      use: "Four souvenirs, three destinations. Browsing is still free.",
+      hotspot: { x: 1, y: 28, w: 78, h: 14 },
+      interactionPoint: { x: 40, y: 106, facing: "n" },
+      look: "Everything finds its way here. Except the missing-property forms.",
+      use: '"Lost something? Take a number. We\'ve misplaced the dispenser."',
     },
     {
-      id: "limoncello",
-      name: "Sorrento limoncello",
-      sprite: limoncello,
-      x: 17,
-      y: 38.5,
-      baselineY: 97,
-      hotspot: { x: 7, y: 37, w: 29, h: 18 },
-      interactionPoint: { x: 21, y: 106, facing: "n" },
-      inspection: SOUVENIRS.limoncello,
-      look: "Sunshine in a bottle. A very persuasive souvenir.",
+      id: "lost-and-found-clerk",
+      name: "Lost & Found clerk",
+      hotspot: { x: 29, y: 44, w: 23, h: 22 },
+      interactionPoint: { x: 40, y: 106, facing: "n" },
+      look: "He's been filing lost property since the property was new.",
+      use: '"Describe your suitcase. And please don\'t say suitcase-shaped."',
     },
     {
-      id: "swiss-knife",
-      name: "Swiss Army knife",
-      sprite: swissKnife,
-      x: 50,
-      y: 36.5,
-      baselineY: 97,
-      hotspot: { x: 43, y: 36, w: 30, h: 19 },
-      interactionPoint: { x: 57, y: 106, facing: "n" },
-      inspection: SOUVENIRS.knife,
-      look: "Prepared for every emergency except airport security.",
+      id: "service-bell",
+      name: "service bell",
+      hotspot: { x: 66, y: 60, w: 10, h: 9 },
+      interactionPoint: { x: 66, y: 106, facing: "n" },
+      look: "For urgent matters. Like interrupting the stamping.",
+      use: "Ding. The clerk stamps my request to stop ringing the bell.",
+      sound: "boarding-chime",
     },
     {
-      id: "swiss-cheese",
-      name: "Swiss cheese wheel",
-      sprite: swissCheese,
-      x: 12.5,
-      y: 61.5,
-      baselineY: 97,
-      hotspot: { x: 7, y: 57, w: 29, h: 19 },
-      interactionPoint: { x: 21, y: 106, facing: "n" },
-      inspection: SOUVENIRS.cheese,
-      look: "Swiss cheese. A souvenir with built-in ventilation.",
-    },
-    {
-      id: "telephone-miniature",
-      name: "London telephone-box miniature",
-      sprite: telephone,
-      x: 53.5,
-      y: 57.5,
-      baselineY: 97,
-      hotspot: { x: 43, y: 57, w: 30, h: 19 },
-      interactionPoint: { x: 57, y: 106, facing: "n" },
-      inspection: SOUVENIRS.telephone,
-      look: "London calling. Very quietly: it's only a miniature.",
+      id: "unclaimed-trunk",
+      name: "unclaimed trunk",
+      hotspot: { x: 1, y: 81, w: 24, h: 16 },
+      interactionPoint: { x: 18, y: 106, facing: "n" },
+      look: "It's packed for a holiday. It hasn't told anyone where.",
+      use: '"Unaccompanied baggage," says the clerk. "Very independent."',
     },
     {
       id: "carousel",
@@ -233,14 +207,6 @@ export const HALL_SCENE: SceneData = {
       interactionPoint: { x: 104, y: 96, facing: "n" },
       look: "Going round since 1994, and still empty.",
       use: "Everyone's bag comes out first except yours. That's the rule.",
-    },
-    {
-      id: "lost-luggage",
-      name: "lost-luggage desk",
-      hotspot: { x: 129, y: 68, w: 23, h: 19 },
-      interactionPoint: { x: 141, y: 96, facing: "n" },
-      look: "One unclaimed suitcase. Not mine: all my baggage is emotional.",
-      use: "Ding! Nobody came. Probably lost as well.",
     },
     {
       id: "seats",
@@ -277,6 +243,17 @@ export const HALL_SCENE: SceneData = {
   // reader occupies the first seat, in front of its back but behind walkers.
   animations: [
     {
+      id: "lost-and-found-clerk",
+      strip: clerk,
+      frames: 5,
+      frameMs: 100,
+      frameDurationsMs: [1500, 600, 400, 700, 2200],
+      x: 30,
+      y: 45,
+      baselineY: 97.1,
+      freezeForReducedMotion: true,
+    },
+    {
       id: "passenger-reader",
       strip: reader,
       frames: 1,
@@ -310,6 +287,40 @@ export const HALL_SCENE: SceneData = {
   ],
   splitFlapBoard: HALL_FLIGHT_BOARD,
   props: [
+    // Two staggered passes are the same traveller returning after eight
+    // seconds offscreen. Their intervals never overlap.
+    ...(
+      [
+        {
+          id: "passenger-traveller-outbound",
+          from: -50,
+          to: 322,
+          delayMs: 19000,
+        },
+        {
+          id: "passenger-traveller-return",
+          from: 322,
+          to: -50,
+          delayMs: 47000,
+        },
+      ] as const
+    ).map(({ id, from, to, delayMs }) => ({
+      id,
+      sprite: traveller,
+      frames: 4,
+      frameMs: 170,
+      path: [
+        { at: 0, x: from, y: 92.5 },
+        { at: 1, x: to, y: 92.5 },
+      ],
+      durationMs: 20000,
+      everyMs: 56000,
+      delayMs,
+      faceTravel: true,
+      baselineY: 146,
+      groundShadows: [{ x: 26.5, y: 53, width: 28, depth: 3.5 }],
+      hideForReducedMotion: true,
+    })),
     // Crossing lanes are in front of the bench. Entire sprites start and
     // finish offscreen, with quiet gaps between passes; no teleport in view.
     {
@@ -391,13 +402,14 @@ export const HALL_SCENE: SceneData = {
       gateBoard: { area: GATE_BOARD_AREAS.zurich },
     },
     {
-      id: "duty-free",
-      source: "text:Duty free",
+      id: "lost-and-found",
+      source: "text:Lost & Found",
       baselineY: 97,
       x: 40,
-      y: 29,
+      y: 31,
       align: "center",
       font: "small",
+      color: "#171c1d",
     },
   ],
   exits: [

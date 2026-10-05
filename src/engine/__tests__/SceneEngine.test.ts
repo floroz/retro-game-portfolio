@@ -74,17 +74,43 @@ describe("SceneEngine", () => {
     expect(engine.scene.id).toBe("hall");
   });
 
-  test("a souvenir opens its own inspection after walking, without opening a section", () => {
+  test("an optional object inspection opens after walking, without opening a section", () => {
     const { engine, host } = setup();
-    const souvenir = SCENES.hall.objects.find((item) => item.inspection)!;
-    engine.activate({ kind: "object", object: souvenir });
+    const item = {
+      ...SCENES.hall.objects.find((item) => item.id === "lost-and-found")!,
+      inspection: {
+        title: "Test inspection",
+        paragraphs: ["A closer look."],
+        art: "inspection.png",
+        artAlt: "An example inspection",
+      },
+    };
+    engine.activate({ kind: "object", object: item });
     runUntil(engine, () => host.openInspection.mock.calls.length > 0);
-    expect(host.openInspection).toHaveBeenCalledWith(souvenir.inspection);
+    expect(host.openInspection).toHaveBeenCalledWith(item.inspection);
     expect(host.openSection).not.toHaveBeenCalled();
     expect(engine.scene.id).toBe("hall");
     const position = { ...engine.position };
     engine.contentClosed();
     expect(engine.position).toEqual(position);
+  });
+
+  test.each([
+    "lost-and-found",
+    "lost-and-found-clerk",
+    "service-bell",
+    "unclaimed-trunk",
+  ])("%s responds after walking without gating the portfolio", (id) => {
+    const { engine, host } = setup();
+    const target = object(SCENES.hall, id);
+    engine.activate(target);
+    runUntil(engine, () => engine.speech !== null);
+    expect(engine.speech?.lines.join(" ")).toBe(target.object.use);
+    expect(engine.position.x).toBeCloseTo(target.object.interactionPoint!.x, 0);
+    expect(host.openSection).not.toHaveBeenCalled();
+    expect(host.openInspection).not.toHaveBeenCalled();
+    if (target.object.sound)
+      expect(host.sound).toHaveBeenCalledWith(target.object.sound);
   });
 
   test("starts in the Hall at its start point", () => {

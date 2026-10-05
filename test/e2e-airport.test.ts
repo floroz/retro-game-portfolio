@@ -61,6 +61,87 @@ async function seatedPixels(page: Page) {
   });
 }
 
+/** Isolate the clerk, excluding the counter, signs and passing passengers. */
+async function clerkPixels(page: Page) {
+  return page.locator("canvas[data-drawn=hall]").evaluate((element) => {
+    const canvas = element as unknown as {
+      width: number;
+      getContext(kind: string): {
+        getImageData(
+          x: number,
+          y: number,
+          w: number,
+          h: number,
+        ): { data: ArrayLike<number> };
+      };
+    };
+    const density = canvas.width / 320;
+    return Array.from(
+      canvas
+        .getContext("2d")!
+        .getImageData(30 * density, 45 * density, 20 * density, 21 * density)
+        .data,
+    );
+  });
+}
+
+test("Lost & Found clerk stamps forms and its keyboard hotspots leave the gates accessible", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await openAirport(page);
+  const before = await clerkPixels(page);
+  let changed = false;
+  for (let time = 0; time < 5400; time += 300) {
+    await advanceScene(page, 300);
+    changed ||= (await clerkPixels(page)).some(
+      (value, index) => value !== before[index],
+    );
+  }
+  expect(changed).toBe(true);
+  await advanceScene(page, 22000);
+  // As in the other live airport snapshot, allow a neighbouring walking frame
+  // for ambient passengers. Clerk motion is checked independently above.
+  await expect(page.locator("[data-e2e=scene]")).toHaveScreenshot(
+    "airport-lost-and-found-active.png",
+    { maxDiffPixelRatio: 0.02 },
+  );
+  for (const id of [
+    "lost-and-found-clerk",
+    "service-bell",
+    "unclaimed-trunk",
+  ]) {
+    const hotspot = page.locator(
+      `[data-e2e=hotspot][data-hotspot="object:${id}"]`,
+    );
+    await hotspot.focus();
+    await page.keyboard.press("Enter");
+    await advanceScene(page, 8000);
+    await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
+    await expect(page.locator("[data-e2e=object-inspection]")).toHaveCount(0);
+  }
+  await expect(page.locator('[data-hotspot="object:duty-free"]')).toHaveCount(
+    0,
+  );
+  await page.locator('[data-hotspot="exit:gate-sorrento"]').first().click();
+  const destination = page.locator("canvas[data-drawn=sorrento]");
+  for (let time = 0; time < 30000; time += 1000) {
+    await advanceScene(page, 1000);
+    if (await destination.isVisible()) break;
+  }
+  await expect(destination).toBeVisible();
+});
+
+test("Lost & Found clerk holds its resting pose with reduced motion", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openAirport(page);
+  const before = await clerkPixels(page);
+  await advanceScene(page, 6000);
+  expect(await clerkPixels(page)).toEqual(before);
+});
+
 /** Each timetable row, excluding the static frame and column headings. */
 async function flightBoardPixels(page: Page) {
   return page.locator("canvas[data-drawn=hall]").evaluate((element) => {
@@ -280,35 +361,6 @@ test("Daniele's ground shadow follows his feet and clears the old floor", async 
   expect(after[0]).toEqual(floor[0]);
   expect(after[1][0]).toBeLessThan(floor[1][0]);
 });
-
-for (const souvenir of [
-  { id: "limoncello", title: "Limoncello" },
-  { id: "swiss-knife", title: "Swiss Army knife" },
-  { id: "swiss-cheese", title: "Swiss cheese" },
-  { id: "telephone-miniature", title: "London calling" },
-]) {
-  test(`duty-free ${souvenir.id} opens its illustrated close-up`, async ({
-    page,
-  }) => {
-    await openAirport(page);
-    await page
-      .locator(`[data-e2e=hotspot][data-hotspot="object:${souvenir.id}"]`)
-      .click();
-    const inspection = page.getByRole("dialog", {
-      name: souvenir.title,
-      exact: true,
-    });
-    for (let elapsed = 0; elapsed < 15000; elapsed += 500) {
-      await advanceScene(page, 500);
-      if (await inspection.isVisible()) break;
-    }
-    await expect(inspection).toBeVisible();
-    await expect(inspection.getByRole("img")).toBeVisible();
-    await inspection.getByRole("button", { name: "Back to the scene" }).click();
-    await expect(inspection).toBeHidden();
-    await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
-  });
-}
 
 for (const city of ["london", "zurich", "sorrento"] as const) {
   test(`boarding desk leaves the ${city} gate accessible`, async ({ page }) => {

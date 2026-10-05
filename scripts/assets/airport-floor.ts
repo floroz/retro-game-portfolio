@@ -1,5 +1,6 @@
-/** Prepare the stone-floor plate and independent shop using the shipped Hall palette. */
+/** Prepare the stone-floor plate and apply the current Lost & Found assets. */
 import sharp from "sharp";
+import { prepareLostAndFound } from "./lost-and-found";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { readImage, writePng } from "./lib";
@@ -11,11 +12,7 @@ const palette = fixedColoursFrom(
   await Promise.all([
     readImage(original),
     ...readdirSync(dir)
-      .filter(
-        (name) =>
-          name.endsWith(".png") &&
-          !["bg.png", "obj-duty-free.png"].includes(name),
-      )
+      .filter((name) => name.endsWith(".png") && name !== "bg.png")
       .map((name) => readImage(join(dir, name))),
   ]),
   256,
@@ -39,27 +36,17 @@ const background = await sharp("assets-src/approved/hall-stone-floor.png")
   .raw()
   .toBuffer({ resolveWithObject: true });
 
-const shop = await sharp("assets-src/approved/hall-duty-free.png")
-  .trim({ background: "#00000000", threshold: 1 })
-  .resize(160, 142, { fit: "fill" })
-  .ensureAlpha()
-  .raw()
-  .toBuffer({ resolveWithObject: true });
+const image = hardAlpha(
+  {
+    data: new Uint8ClampedArray(background.data),
+    width: background.info.width,
+    height: background.info.height,
+  },
+  { minNeighbours: 0 },
+).image;
+await writePng(
+  join(dir, "bg.png"),
+  quantizeJointly([image], { colours: 256, fixed: palette }).images[0],
+);
 
-for (const [name, result] of [
-  ["bg.png", background],
-  ["obj-duty-free.png", shop],
-] as const) {
-  const image = hardAlpha(
-    {
-      data: new Uint8ClampedArray(result.data),
-      width: result.info.width,
-      height: result.info.height,
-    },
-    { minNeighbours: 0 },
-  ).image;
-  await writePng(
-    join(dir, name),
-    quantizeJointly([image], { colours: 256, fixed: palette }).images[0],
-  );
-}
+await prepareLostAndFound();

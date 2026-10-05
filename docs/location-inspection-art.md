@@ -38,8 +38,7 @@ in desktop tier-four preload and the mobile cache warmer.
 Each card's `paperInsets` in `src/config/inspections.ts` defines a conservative
 rectangle inside its blank surface. Insets are percentages of the complete
 illustration, allowing the browser text fitter to preserve all content on resize.
-[Duty-free souvenir cards](duty-free-inspection-art.md) use the same shared inset
-model with their own airport illustrations. Narrow desktop windows use the
+Narrow desktop windows use the
 existing stacked reading layout. Pocket Adventure retains its full-width text
 pages without an artwork header, as established by the mobile spacing change.
 

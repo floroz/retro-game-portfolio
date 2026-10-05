@@ -12,6 +12,30 @@ const base: SceneAnimation = {
 };
 
 describe("anim-* strips", () => {
+  test("per-frame holds preserve the clerk's pause, glance, stamp and return", () => {
+    const clerk = {
+      ...base,
+      frames: 5,
+      frameDurationsMs: [1500, 600, 400, 700, 2200],
+      freezeForReducedMotion: true,
+    };
+    expect(
+      [0, 1499, 1500, 2099, 2100, 2499, 2500, 3199, 3200, 5399, 5400].map(
+        (time) => animationFrame(clerk, time)?.frame,
+      ),
+    ).toEqual([0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 0]);
+    expect(animationFrame(clerk, 2200, true)?.frame).toBe(0);
+    expect(cycleStarted(clerk, 5399, 5400)).toBe(true);
+    expect(cycleStarted(clerk, 499, 500)).toBe(false);
+    expect(animationFrame({ ...clerk, everyMs: 8000 }, 6000)?.frame).toBe(0);
+    expect(animationFrame({ ...clerk, phaseMs: 2100 }, 0)?.frame).toBe(2);
+    expect(
+      animationFrame(
+        { ...clerk, motion: { dx: 10, dy: 0, durationMs: 8000 } },
+        7500,
+      )?.frame,
+    ).toBe(2);
+  });
   test("loop forever by default", () => {
     expect(animationFrame(base, 0)?.frame).toBe(0);
     expect(animationFrame(base, 250)?.frame).toBe(2);
