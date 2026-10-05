@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { PROFILE } from "../src/config/profile";
 
 async function openAirport(page: Page) {
   await page.clock.install({ time: new Date("2030-01-01T00:00:00Z") });
@@ -101,8 +102,21 @@ for (const viewport of [
           page.locator("[data-e2e=object-inspection] img"),
         ).toHaveJSProperty("naturalHeight", 640);
         const links: string[] = [];
+        const skillPages: string[] = [];
+        if (section === "skills") {
+          await expect(page.getByLabel("Inspection text")).toHaveCSS(
+            "color",
+            "rgb(244, 236, 216)",
+          );
+        }
         for (let index = 0; index < 100; index++) {
           await expectTextFits(page);
+          if (section === "skills")
+            skillPages.push(
+              (await page
+                .locator("[data-e2e=inspection-page]")
+                .textContent()) ?? "",
+            );
           links.push(
             ...(await page
               .locator("[data-e2e=inspection-page] a")
@@ -118,6 +132,13 @@ for (const viewport of [
           await next.click();
           if (index === 99)
             throw new Error("Pagination did not reach the final page");
+        }
+        if (section === "skills") {
+          const text = skillPages.join(" ");
+          for (const label of Object.values(PROFILE.skillGroupLabels))
+            expect(text).toContain(label);
+          for (const skill of Object.values(PROFILE.skills).flat())
+            expect(text).toContain(skill);
         }
         if (section === "contact")
           expect(links.some((href) => href.startsWith("mailto:"))).toBe(true);

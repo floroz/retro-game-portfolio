@@ -54,6 +54,7 @@ export function ObjectInspectionView({ inspection, onClose }: Props) {
         data-e2e="object-inspection"
         data-ready={ready}
         data-travel-art={Boolean(inspection.paperInsets)}
+        data-reading-surface={inspection.readingSurface}
         onKeyDown={(event) => {
           if (event.key === "Escape") {
             event.preventDefault();
