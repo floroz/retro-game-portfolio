@@ -255,6 +255,16 @@
   }
 }
 
+.dialog[data-reading-surface="chalkboard"] {
+  color: #f4ecd8;
+  background: #302015;
+
+  .copy:focus-visible,
+  .copy :focus-visible {
+    outline-color: #f4ecd8;
+  }
+}
+
 @container (max-width: 720px) {
   .illustration {
     aspect-ratio: auto;
@@ -274,5 +284,9 @@
     padding: 18px 24px;
     background: #eed9ae;
     font-size: 22px;
+  }
+
+  .dialog[data-reading-surface="chalkboard"] .copy {
+    background: #1c2531;
   }
 }

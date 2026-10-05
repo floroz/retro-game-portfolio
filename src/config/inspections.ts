@@ -14,6 +14,7 @@ interface ReadingPage {
 
 export interface InspectionReading extends ObjectInspection {
   pages?: ReadingPage[];
+  readingSurface?: "chalkboard";
 }
 
 /** Every word of professional content comes from the shared profile. */
@@ -36,11 +37,12 @@ export function sectionInspection(section: SectionId): InspectionReading {
     case "skills":
       return {
         title: "Skills",
-        subtitle: "London calling. Skills answering.",
+        subtitle: "The house specialties. All on tap.",
         art: skillsArt,
         artAlt:
-          "A crooked red London phone booth stands in its own rainstorm beneath an inside-out umbrella, beside Big Ben and a blank noticeboard",
-        paperInsets: { top: 22, right: 8, bottom: 26, left: 57 },
+          "An empty oak-framed chalkboard above brass beer pumps and an amber pint in a London pub, with rainy St Paul's through the window",
+        paperInsets: { top: 18, right: 8, bottom: 22, left: 47 },
+        readingSurface: "chalkboard",
         paragraphs: [],
         pages: Object.entries(PROFILE.skills).map(([group, skills]) => ({
           title: PROFILE.skillGroupLabels[group as keyof typeof PROFILE.skills],

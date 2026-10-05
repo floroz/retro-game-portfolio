@@ -7,13 +7,13 @@ replace the earlier glossy cartoon rendering. Daniele's approved About portrait
 preserves his original facial proportions; it is the style reference for the set.
 Their text, links and pagination remain HTML from the shared profile.
 
-| Section    | Location    | Illustration                                                                                             |
-| ---------- | ----------- | -------------------------------------------------------------------------------------------------------- |
-| About      | Sorrento    | Daniele tries to close a suitcase containing a giant lemon, handheld console and hiking boots.           |
-| Contact    | Sorrento    | A rotary phone connects to tin cans on a tiled terrace above the Bay of Naples.                          |
-| Skills     | London      | A crooked red telephone booth battles its own rainstorm under an inside-out umbrella beside Westminster. |
-| Experience | Switzerland | A burgundy travel album holds mementos from Sorrento, London and Zürich beside its reading page.         |
-| Resume     | Switzerland | A leather satchel supports an upright cream document folio with a brass clip.                            |
+| Section    | Location    | Illustration                                                                                     |
+| ---------- | ----------- | ------------------------------------------------------------------------------------------------ |
+| About      | Sorrento    | Daniele tries to close a suitcase containing a giant lemon, handheld console and hiking boots.   |
+| Contact    | Sorrento    | A rotary phone connects to tin cans on a tiled terrace above the Bay of Naples.                  |
+| Skills     | London      | An oak-framed chalkboard sits above brass beer pumps and an amber pint in the warm London pub.   |
+| Experience | Switzerland | A burgundy travel album holds mementos from Sorrento, London and Zürich beside its reading page. |
+| Resume     | Switzerland | A leather satchel supports an upright cream document folio with a brass clip.                    |
 
 ## Sources and export
 
@@ -34,6 +34,8 @@ unchanged. `src/config/inspections.ts` imports the art, which is already include
 in desktop tier-four preload and the mobile cache warmer.
 
 ## Reading layout
+
+The Skills slate is completely blank in the artwork. Its `readingSurface: "chalkboard"` sets warm ivory live lettering and a dark reading background in compact windows. Skill groups and lists continue to come from `profile.ts`.
 
 Each card's `paperInsets` in `src/config/inspections.ts` defines a conservative
 rectangle inside its blank surface. Insets are percentages of the complete

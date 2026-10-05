@@ -36,7 +36,7 @@ taskbar. The welcome screen stays silent.
 
 - **Travel.** Walk through a gate and you fly there over a sepia map of Europe, _Fate of Atlantis_ style. Click to skip the flight.
 - **The travel trunk.** The toolbar is a painted trunk with a SCUMM-style sentence line. It holds one boarding pass per city, listing the sections that live there. Click a section and it opens right away, wherever you are.
-- **Close-ups.** Clicking an object opens a cartoon close-up: a suitcase that won't shut, a telephone wired to tin cans, a London phone booth, a Swiss travel album and a document satchel. The text on them is live HTML, paged, keyboard-friendly, and closes back to the same spot in the room.
+- **Close-ups.** Clicking an object opens a cartoon close-up: a suitcase that won't shut, a telephone wired to tin cans, a London pub chalkboard, a Swiss travel album and a document satchel. The text on them is live HTML, paged, keyboard-friendly, and closes back to the same spot in the room.
 - **Conversations.** Talk to Daniele and choose your lines, _Curse of Monkey Island_ style. Use the mouse, the arrow keys or the number keys.
 - **Lost & Found.** A clerk checks forms and stamps them with weary precision. Ring the bell, ask about your suitcase, or inspect the suspicious trunk. A traveller with a map crosses the hall, then returns the other way.
 - **A living world.** Passengers wander through the hall, regulars drink in the pub, a ferry crosses the bay, and each room has its own music and ambience. With reduced motion on, the scenes keep still.
