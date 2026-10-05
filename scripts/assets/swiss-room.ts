@@ -96,6 +96,17 @@ for (const [name, rect, w, h] of props)
     source: `${raw}/props.png`,
     image: await crop(`${raw}/props.png`, rect, w, h),
   });
+const balloonMeta = await sharp(`${raw}/balloon.png`).metadata();
+layers.push({
+  name: "anim-balloon",
+  source: `${raw}/balloon.png`,
+  image: await crop(
+    `${raw}/balloon.png`,
+    [0, 0, balloonMeta.width!, balloonMeta.height!],
+    9,
+    13,
+  ),
+});
 const cowMeta = await sharp(`${raw}/cow.png`).metadata();
 const cowCell = cowMeta.width! / 4;
 const cowPoses = await Promise.all(

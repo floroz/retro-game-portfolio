@@ -370,7 +370,7 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
       page.getByRole("button", { name: "Look at rubber plant", exact: true }),
     ).toHaveCount(0);
 
-    // Read the pendulum, fondue steam and lake, excluding speech and Daniele.
+    // Read the pendulum, steam, lake and balloon, excluding speech and Daniele.
     const pixels = () =>
       canvas.evaluate((element) => {
         const scene = element as unknown as {
@@ -389,6 +389,7 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
           { x: 234, y: 35, w: 10, h: 10 },
           { x: 26, y: 55, w: 9, h: 15 },
           { x: 140, y: 55, w: 58, h: 11 },
+          { x: 115, y: 24, w: 83, h: 20 },
         ].map(({ x, y, w, h }) =>
           Array.from(
             scene.getContext("2d").getImageData(x * d, y * d, w * d, h * d)
@@ -405,6 +406,10 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
     for (let i = 0; i < before.length; i++) {
       if (reducedMotion === "reduce") expect(after[i]).toEqual(before[i]);
       else expect(after[i]).not.toEqual(before[i]);
+    }
+    if (reducedMotion === "no-preference") {
+      await advanceScene(page, 14000);
+      await expect(canvas).toHaveScreenshot("zurich-balloon.png");
     }
     // Click the passage itself, not the narrow wooden door leaf. This used
     // to select the fence and leave the visitor stranded at the entrance.

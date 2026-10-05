@@ -4,7 +4,7 @@
  * table have separate footprints and depth lines; the cow stays outside.
  */
 import { HD_WORLD_SCALE } from "../../engine/constants";
-import type { SceneData } from "../../engine/types";
+import type { SceneData, PropKey } from "../../engine/types";
 import bg from "../../assets/scenes/zurich/bg.png";
 import bar from "../../assets/scenes/zurich/obj-fondue-bar.png";
 import fondue from "../../assets/scenes/zurich/obj-fondue.png";
@@ -15,12 +15,34 @@ import satchel from "../../assets/scenes/zurich/obj-satchel.png";
 import satchelOpen from "../../assets/scenes/zurich/obj-satchel@open.png";
 import door from "../../assets/scenes/zurich/obj-door.png";
 import cow from "../../assets/scenes/zurich/anim-garden-cow.png";
+import balloon from "../../assets/scenes/zurich/anim-balloon.png";
 import boat from "../../assets/scenes/zurich/anim-boat.png";
 import cuckoo from "../../assets/scenes/zurich/anim-cuckoo.png";
 
 const BAR_BASELINE = 124;
 const TABLE_BASELINE = 151;
 const WATER = { x: 140, y: 55, w: 58, h: 11 };
+
+// One-second keys give the existing prop renderer a gentle wind curve.
+// Each crossing takes 56 seconds, with eight seconds out of view at each end.
+const BALLOON_PATH: PropKey[] = Array.from({ length: 129 }, (_, second) => {
+  const across =
+    second <= 56
+      ? second / 56
+      : second <= 64
+        ? 1
+        : second <= 120
+          ? 1 - (second - 64) / 56
+          : 0;
+  return {
+    at: second / 128,
+    x: 105 + 94 * across,
+    y:
+      27 +
+      2 * Math.sin((second * Math.PI) / 7) +
+      0.7 * Math.sin((second * Math.PI) / 14.5),
+  };
+});
 
 export const ZURICH_SCENE: SceneData = {
   id: "zurich",
@@ -220,6 +242,15 @@ export const ZURICH_SCENE: SceneData = {
     },
   ],
   props: [
+    {
+      id: "alpine-balloon",
+      sprite: balloon,
+      path: BALLOON_PATH,
+      durationMs: 128000,
+      delayMs: 4000,
+      clip: { x: 115, y: 20, w: 83, h: 46 },
+      hideForReducedMotion: true,
+    },
     {
       id: "lake-boat",
       hideForReducedMotion: true,

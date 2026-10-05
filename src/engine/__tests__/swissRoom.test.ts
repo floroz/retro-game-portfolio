@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { ZURICH_SCENE } from "../../config/scenes/zurich";
 import { animationFrame } from "../animation";
-import { effectShapes } from "../effects";
+import { effectShapes, propFrame } from "../effects";
 import { findPath, pointInPolygon, segmentInPolygon } from "../geometry";
 
 const pendulum = ZURICH_SCENE.effects!.find((e) => e.kind === "pendulum")!;
@@ -9,6 +9,25 @@ const steam = ZURICH_SCENE.effects!.find((e) => e.kind === "steam")!;
 const cow = ZURICH_SCENE.animations!.find((a) => a.id === "garden-cow")!;
 
 describe("Swiss room", () => {
+  test("the distant balloon exits the window at both ends and returns with a gentle rise and fall", () => {
+    const balloon = ZURICH_SCENE.props!.find(
+      (prop) => prop.id === "alpine-balloon",
+    )!;
+    const frame = (seconds: number) =>
+      propFrame(balloon, balloon.delayMs! + seconds * 1000)!;
+    expect(propFrame(balloon, 0)).toBeNull();
+    expect(frame(0).x + 9).toBeLessThan(115);
+    expect(frame(60).x).toBeGreaterThan(198);
+    expect(frame(124).x + 9).toBeLessThan(115);
+    expect(frame(28).x).toBeGreaterThan(frame(14).x);
+    expect(frame(92).x).toBeLessThan(frame(78).x);
+    const heights = Array.from({ length: 128 }, (_, second) => frame(second).y);
+    expect(Math.max(...heights) - Math.min(...heights)).toBeGreaterThan(4);
+    expect(Math.min(...heights)).toBeGreaterThan(24);
+    expect(Math.max(...heights) + 13).toBeLessThan(43);
+    expect(balloon.hideForReducedMotion).toBe(true);
+  });
+
   test("the pendulum keeps a fixed pivot and rod length through a complete swing", () => {
     if (pendulum.kind !== "pendulum") throw new Error("Missing pendulum");
     const xs: number[] = [];
