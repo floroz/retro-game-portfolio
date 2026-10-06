@@ -3,9 +3,9 @@
   "output": "public/audio/ambience/hall.mp3",
   "task": "A2",
   "source": "opus",
-  "date": "2026-09-29",
+  "date": "2026-10-06",
   "recipe": "assets-src/audio/ambience/hall.ts",
-  "description": "Hall ambience: air-handling hum and fluorescent buzz, a murmur of travellers in a long reverb, and once a loop the boarding chime, a rolling suitcase, and a distant jet taking off.",
+  "description": "Hall ambience: air-handling hum and fluorescent buzz, a murmur of travellers in a long reverb, and once a loop the boarding chime and a distant jet taking off.",
   "loop": {
     "loopStart": 0.5,
     "loopEnd": 40.5,
@@ -16,10 +16,10 @@
   },
   "loudness": {
     "integratedLufs": -28,
-    "lraLu": 3.1,
-    "truePeakDbtp": -13.9,
-    "samplePeakDbfs": -13.87,
-    "gainDb": -9.4,
+    "lraLu": 3.2,
+    "truePeakDbtp": -13.6,
+    "samplePeakDbfs": -13.63,
+    "gainDb": -9.3,
     "target": "-28 LUFS"
   },
   "seam": {
@@ -28,7 +28,7 @@
       "identical": true,
       "differenceDb": null,
       "maxAbsDifference": 0,
-      "signalDbfs": -29.91,
+      "signalDbfs": -29.81,
       "wrapStepRatio": 0.549,
       "bestLag": 0
     },
@@ -36,18 +36,18 @@
       "windowFrames": 12000,
       "identical": false,
       "differenceDb": -23.41,
-      "maxAbsDifference": 0.012,
-      "signalDbfs": -30.34,
-      "wrapStepRatio": 0.88,
+      "maxAbsDifference": 0.0106,
+      "signalDbfs": -30.26,
+      "wrapStepRatio": 0.945,
       "bestLag": 0
     },
     "mp3WithDecoderOffset": {
       "windowFrames": 10895,
       "identical": false,
-      "differenceDb": -23.53,
-      "maxAbsDifference": 0.00991,
-      "signalDbfs": -30.29,
-      "wrapStepRatio": 1.014,
+      "differenceDb": -23.46,
+      "maxAbsDifference": 0.0106,
+      "signalDbfs": -30.21,
+      "wrapStepRatio": 1.192,
       "bestLag": 0
     }
   },

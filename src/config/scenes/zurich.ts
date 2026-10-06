@@ -120,7 +120,7 @@ export const ZURICH_SCENE: SceneData = {
     {
       id: "garden-cow",
       name: "curious Swiss cow",
-      hotspot: { x: 269, y: 59, w: 24, h: 18 },
+      hotspot: { x: 269, y: 65, w: 24, h: 18 },
       interactionPoint: { x: 281, y: 102, facing: "n" },
       look: "She's here for quality control. The fondue has her full attention.",
       use: "She's booked the grass suite. Excellent views, unlimited salad.",
@@ -194,8 +194,9 @@ export const ZURICH_SCENE: SceneData = {
       everyMs: 8300,
       phaseMs: 2300,
       x: 269,
-      y: 59,
-      baselineY: 77,
+      y: 65,
+      baselineY: 83,
+      groundShadows: [{ x: 12, y: 17, width: 23, depth: 2.5 }],
       clip: { x: 267, y: 20, w: 38, h: 75 },
       freezeForReducedMotion: true,
     },
@@ -291,10 +292,13 @@ export const ZURICH_SCENE: SceneData = {
       x: 302,
       y: 10,
       baselineY: 96,
-      hotspot: { x: 267, y: 78, w: 36, h: 20 },
+      // Cover the whole doorway and open leaf, leaving only the cow's
+      // inspection rectangle out: exits take precedence over objects.
+      hotspot: { x: 267, y: 83, w: 53, h: 15 },
       extraHotspots: [
-        { x: 293, y: 20, w: 10, h: 58 },
-        { x: 303, y: 21, w: 17, h: 77 },
+        { x: 267, y: 10, w: 53, h: 55 },
+        { x: 267, y: 65, w: 2, h: 18 },
+        { x: 293, y: 65, w: 27, h: 18 },
       ],
       interactionPoint: { x: 287, y: 106, facing: "n" },
       look: "Back to the airport. The cow has not cleared passport control.",

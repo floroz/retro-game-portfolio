@@ -406,7 +406,7 @@ export const HALL_SCENE: SceneData = {
       source: "text:Lost & Found",
       baselineY: 97,
       x: 40,
-      y: 31,
+      y: 32,
       align: "center",
       font: "small",
       color: "#171c1d",
