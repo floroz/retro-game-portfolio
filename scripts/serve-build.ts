@@ -5,7 +5,7 @@
  * (generate-og-image.ts, check-reachability.ts).
  */
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -35,13 +35,12 @@ export interface BuiltSite {
 }
 
 export async function serveBuild(): Promise<BuiltSite> {
-  // index.html is generated from profile.ts and not committed.
-  if (!existsSync(join(root, "index.html"))) {
-    execFileSync("npx", ["tsx", "scripts/generate-html.ts"], {
-      cwd: root,
-      stdio: "inherit",
-    });
-  }
+  // Always refresh metadata: an existing index.html may contain old profile
+  // copy or an OG hash from before the latest screenshot was generated.
+  execFileSync("npx", ["tsx", "scripts/generate-html.ts"], {
+    cwd: root,
+    stdio: "inherit",
+  });
 
   const outDir = mkdtempSync(join(tmpdir(), "rgp-build-"));
   await build({

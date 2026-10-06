@@ -78,12 +78,11 @@
 
 # Open Graph image - cache but allow updates
 [[headers]]
-  for = "/daniele-og-*.png"
+  for = "/og-image.png"
   [headers.values]
-    Cache-Control = "public, max-age=604800"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
-# Prerendering for SEO (Netlify's built-in prerendering)
-# This helps search engine crawlers see the rendered content
+# Build output processing (this does not prerender the React application)
 [build.processing]
   skip_processing = false
 
@@ -93,7 +92,7 @@
 # Environment variables for build
 [context.production.environment]
   NODE_ENV = "production"
-  VITE_APP_URL = "https://www.danieletortora.com"
+  VITE_APP_URL = "https://danieletortora.com/"
 
 # Preview/branch deploy settings
 [context.deploy-preview.environment]

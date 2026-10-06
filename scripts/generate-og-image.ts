@@ -1,7 +1,7 @@
 /**
  * Generate the OG image (public/{PROFILE.seo.ogImage}, 1200x630): a
- * screenshot of the real game, the painted Hall with the travel-trunk
- * toolbar, in its Win95 window.
+ * screenshot of the real game, the painted Sorrento kitchen with the travel-trunk
+ * toolbar, in its Windows 98 window.
  *
  * Usage:
  *   npm run generate:og-image
@@ -11,12 +11,10 @@
  * for a fixed time:
  *
  * 1. the title card, then Space;
- * 2. the canvas saying it has drawn the Hall (`data-drawn`, set by
- *    engine/render.ts once every image is in);
- * 3. the intro conversation opening, then Escape closing it;
- * 4. Daniele's greeting after it to finish (`data-speaking`), so no line of
- *    speech covers the room;
- * 5. two animation frames, so the screenshot is a frame drawn after all that.
+ * 2. the airport canvas and intro conversation, then Escape;
+ * 3. the Sorrento gate and the destination canvas after travel;
+ * 4. Daniele's greeting to finish, so no speech covers the room;
+ * 5. two animation frames after clearing the pointer from the game.
  *
  * The screenshot is taken at the window's own size on a big viewport (the
  * art stays on the pixel grid), and resized once with Lanczos to 1200x630.
@@ -46,6 +44,7 @@ async function generateOGImage() {
   try {
     const context = await browser.newContext({
       viewport: VIEWPORT,
+      reducedMotion: "reduce",
       deviceScaleFactor: 1,
     });
     const page = await context.newPage();
@@ -64,7 +63,14 @@ async function generateOGImage() {
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden", timeout: 10000 });
 
-    // Daniele then greets the visitor, once; let him finish.
+    // Travel through the real gate; wait for every Sorrento layer to draw.
+    await page.locator('[data-hotspot="exit:gate-sorrento"]').first().click();
+    await page.waitForSelector('canvas[data-drawn="sorrento"]', {
+      timeout: 30000,
+    });
+    await page.mouse.move(0, 0);
+
+    // Let the destination greeting finish before taking the screenshot.
     const canvas = page.locator("canvas[data-drawn]");
     await page
       .locator('canvas[data-speaking="true"]')
@@ -74,10 +80,12 @@ async function generateOGImage() {
       timeout: 30000,
     });
 
-    // Desktop icons would poke into the crop.
-    await page.addStyleTag({
-      content: "[data-e2e^=desktop-icon]{visibility:hidden}",
-    });
+    // Desktop icons and wallpaper branding would poke into the crop.
+    await page
+      .locator('[data-e2e^="desktop-icon"], [class*="wallpaperBrand"]')
+      .evaluateAll((elements) =>
+        elements.forEach((element) => element.remove()),
+      );
     await page.evaluate(
       "new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))",
     );
@@ -100,8 +108,8 @@ async function generateOGImage() {
     const outputPath = join(root, "public", PROFILE.seo.ogImage);
     await sharp(shot)
       .resize(OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT, { kernel: "lanczos3" })
-      // A 256-colour palette: the art is painted in few colours, and social
-      // crawlers (WhatsApp's is about 300 KB) prefer a small file.
+      // A 256-colour palette keeps the painted screenshot compact for
+      // social crawlers while preserving the full 1200x630 dimensions.
       .png({ palette: true, colours: 256, quality: 100, effort: 10 })
       .toFile(outputPath);
 
