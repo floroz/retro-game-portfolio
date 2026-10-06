@@ -45,7 +45,7 @@ for (const input of ["click", "Escape"] as const) {
     await advanceScene(page, 100);
     await expect(paintedScene(page)).toHaveAttribute("data-drawn", "london");
     await arriveInScene(page, "london");
-    await page.locator('[data-hotspot="object:chalkboard"]').first().click();
+    await page.locator('[data-hotspot="object:back-bar"]').first().click();
     const skills = page.getByRole("dialog", { name: "Skills", exact: true });
     await advanceUntilVisible(page, skills);
     await expect(skills).toHaveAttribute("data-ready", "true");

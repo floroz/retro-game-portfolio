@@ -25,7 +25,7 @@ test.describe("Desktop gameplay smoke", { tag: "@smoke" }, () => {
   test.setTimeout(60000);
 
   for (const destination of [
-    { scene: "london", object: "chalkboard", title: "Skills" },
+    { scene: "london", object: "back-bar", title: "Skills" },
     { scene: "zurich", object: "career-album", title: "Experience" },
     {
       scene: "sorrento",
