@@ -547,7 +547,7 @@ export class SceneEngine {
 
   /** Stop walking and drop any queued action. */
   stop() {
-    if (this.skipFn) {
+    if (this.skipFn || this.transition?.kind === "map") {
       this.interrupt();
       return;
     }

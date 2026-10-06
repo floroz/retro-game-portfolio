@@ -170,6 +170,10 @@ export function renderFrame(rc: RenderContext) {
   if (dataset.drawn !== shown) dataset.drawn = shown;
   const speaking = String(engine.speech !== null);
   if (dataset.speaking !== speaking) dataset.speaking = speaking;
+  // Observe the actor shown in this frame without mutating engine state in E2E.
+  const { x, y } = engine.position;
+  const position = JSON.stringify({ x, y });
+  if (dataset.position !== position) dataset.position = position;
   const t = rc.text.ctx;
   t.setTransform(1, 0, 0, 1, 0, 0);
   t.clearRect(0, 0, t.canvas.width, t.canvas.height);

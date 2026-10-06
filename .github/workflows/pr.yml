@@ -44,6 +44,14 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Upload production build
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build
+          path: dist/
+          if-no-files-found: error
+          retention-days: 1
+
   test:
     name: Unit and Browser Tests
     runs-on: ubuntu-latest
@@ -89,16 +97,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".node-version"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Download production build
+        uses: actions/download-artifact@v4
+        with:
+          name: production-build
+          path: dist/
 
       - name: Run E2E tests
         run: npm run test:e2e
         env:
           CI: true
+          PLAYWRIGHT_SKIP_BUILD: "1"
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4

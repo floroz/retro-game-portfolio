@@ -169,3 +169,21 @@ npm run test:e2e:docker -- --project=firefox --project=webkit --project=mobile-s
 The `mobile-safari` project emulates an iPhone using Playwright WebKit; it does
 not replace a short real-device Safari check before a release. The tablet
 project remains disabled. See [the testing strategy](docs/testing-strategy.md).
+
+Additional Chromium gameplay checks cover click/Escape travel skipping,
+keyboard release and focus loss, compact right-click interactions, and room
+continuity after moving, resizing and reopening the game window.
+
+The remaster comparison is an art-review tool and runs separately from the
+visitor journeys. Its existing Chromium/Linux baselines remain available:
+
+```bash
+npm run test:e2e:docker:art-review
+# Update only intended changes to the comparison artwork:
+npm run test:e2e:docker:art-review -- --update-snapshots
+```
+
+CI builds once and passes `dist/` to E2E as a workflow artifact. To verify an
+existing production build in Docker, run
+`PLAYWRIGHT_SKIP_BUILD=1 npm run test:e2e:docker`. This requires `dist/index.html`
+and starts a fresh preview server. Normal Docker runs still build first.

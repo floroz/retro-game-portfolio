@@ -15,6 +15,7 @@ docker run --rm -it \
   -v "$(pwd):/work" \
   -v /work/node_modules \
   -w /work \
+  -e PLAYWRIGHT_SKIP_BUILD \
   --ipc=host \
   "$IMAGE" \
   /bin/bash -c 'npm ci && npm run test:e2e -- "$@"' -- "$@"
