@@ -1,7 +1,14 @@
 import { defineConfig, devices, type Project } from "@playwright/test";
+import { existsSync } from "node:fs";
 
 const isCI = !!process.env.CI;
 const baseURL = "http://localhost:4173";
+const usePrebuilt = process.env.PLAYWRIGHT_SKIP_BUILD === "1";
+if (usePrebuilt && !existsSync(new URL("./dist/index.html", import.meta.url))) {
+  throw new Error(
+    "PLAYWRIGHT_SKIP_BUILD=1 requires a production build in dist/",
+  );
+}
 
 // Chromium keeps the full functional and visual suite. Other browser engines
 // run only tagged gameplay journeys, without committed screenshot baselines.
@@ -18,7 +25,7 @@ const browserProjects: (Project & { name: string })[] = [
   {
     name: "chromium",
     use: { ...devices["Desktop Chrome"] },
-    testIgnore: mobileTests,
+    testIgnore: [mobileTests, /e2e-remaster\.test\.ts/],
   },
   {
     name: "firefox",
@@ -69,8 +76,10 @@ export default defineConfig({
   },
   projects: browserProjects.filter(({ name }) => enabledProjects.has(name)),
   webServer: {
-    command: "npm run generate:html && npx vite build && npm run preview",
+    command: usePrebuilt
+      ? "npm run preview"
+      : "npm run generate:html && npx vite build && npm run preview",
     url: baseURL,
-    reuseExistingServer: !isCI,
+    reuseExistingServer: !isCI && !usePrebuilt,
   },
 });

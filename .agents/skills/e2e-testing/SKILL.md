@@ -22,7 +22,7 @@ This skill guides running E2E tests and updating visual regression snapshots for
 | Run specific browser           | `npm run test:e2e:docker -- --project=chromium`                             |
 | Run specific test              | `npm run test:e2e:docker -- -g "test name"`                                 |
 
-CI runs `npm run test:e2e` inside the Playwright container; the local Docker wrapper provides the same Linux environment.
+CI runs `npm run test:e2e` inside the Playwright container against the production-build artifact downloaded from the build job (`PLAYWRIGHT_SKIP_BUILD=1`). The local Docker wrapper builds by default; `PLAYWRIGHT_SKIP_BUILD=1 npm run test:e2e:docker` verifies an existing `dist/` build and starts a fresh preview server. A missing `dist/index.html` fails configuration early.
 
 ## Workflow: After Modifying a Feature
 
@@ -121,6 +121,20 @@ npm run test:e2e:docker -- --project=firefox --project=webkit --project=mobile-s
 ```
 
 Playwright mobile WebKit emulates an iPhone; it does not replace a real-device Safari check for platform-specific touch, scrolling and audio behavior.
+
+## Additional Control Journeys and Art Review
+
+`test/e2e-gameplay-controls.test.ts` adds Chromium-only checks for gate-walk cancellation, travel-map skipping, keyboard release/focus loss, compact pointer interactions and adventure continuity through window changes. Do not tag these longer checks `@smoke` without reviewing their compatibility cost.
+
+The remaster comparison is excluded from the default visitor suite. Run its two tests with the dedicated configuration; its existing Chromium/Linux baselines stay at the same paths:
+
+```bash
+npm run test:e2e:docker:art-review
+# Only for intended artwork changes:
+npm run test:e2e:docker:art-review -- --update-snapshots
+```
+
+The default suite contains 91 executions; art review adds two when run explicitly. Normal snapshot updates do not update the remaster comparison.
 
 ## Docker Configuration
 

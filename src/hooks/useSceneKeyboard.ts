@@ -20,7 +20,9 @@ const KEYS: Record<string, Dir> = {
  * a running trip. Ignored while typing, or while another window has focus.
  */
 export function useSceneKeyboard() {
+  const gameWindowActive = useGameStore((s) => s.gameWindowActive);
   useEffect(() => {
+    if (!gameWindowActive) return;
     const held = new Set<Dir>();
     const push = () => {
       const dx = (held.has("right") ? 1 : 0) - (held.has("left") ? 1 : 0);
@@ -70,5 +72,5 @@ export function useSceneKeyboard() {
       held.clear();
       getEngine().setKeyboard(0, 0);
     };
-  }, []);
+  }, [gameWindowActive]);
 }

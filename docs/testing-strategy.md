@@ -8,13 +8,13 @@ Screenshot-free functional checks now live in [desktop gameplay](../test/e2e-gam
 
 Ten journeys are tagged `@smoke`: five desktop checks (three country round trips, dialogue and essential content access) and five mobile checks (content shortcuts, object taps, profile links, browser history and dialogue). Select just these journeys with `npm run test:e2e:docker -- --grep @smoke`, or run both gameplay specs by passing their paths to the Docker command. No smoke journey compares screenshots.
 
-Visual checks retain their original spec paths, screenshot names and PNG baselines. Mixed visual tours remain in the full Chromium suite. Mobile Chromium project matching includes both mobile files, and desktop Chromium excludes both. Reducing visual coverage and changing CI build/concurrency behavior remain later steps.
+Visual checks retain their original spec paths, screenshot names and PNG baselines. Mixed visitor-flow visual tours remain in the default Chromium suite. Mobile Chromium project matching includes both mobile files, and desktop Chromium excludes both.
 
 ## Second step implemented: cross-browser functional smoke
 
 Firefox and desktop WebKit now select only `e2e-gameplay.test.ts` and tests tagged `@smoke` (five journeys per engine). Mobile WebKit selects only `e2e-mobile-gameplay.test.ts` and the same tag (five mobile journeys). Both file matching and tag filtering are configured per project, so a normal full run includes compatibility checks without duplicating the visual suite. The tablet project remains disabled.
 
-The resulting matrix contains 88 test executions: 73 existing Chromium desktop/mobile checks and 15 additional compatibility checks. `npm run test:e2e:docker -- --grep @smoke` selects 25 executions across all five enabled projects. To run only the new engines, use `npm run test:e2e:docker -- --project=firefox --project=webkit --project=mobile-safari`.
+At this step the matrix contained 88 test executions: 73 existing Chromium desktop/mobile checks and 15 additional compatibility checks. `npm run test:e2e:docker -- --grep @smoke` selects 25 executions across all five enabled projects. To run only the new engines, use `npm run test:e2e:docker -- --project=firefox --project=webkit --project=mobile-safari`.
 
 Secondary projects capture screenshots only on failure and inherit the first-retry trace policy. These are temporary diagnostic/report artifacts, not committed pixel-comparison baselines. No Firefox or WebKit PNG baseline is needed. Real-device Safari checks are still useful for platform-specific touch, scrolling and audio behavior.
 
@@ -29,6 +29,18 @@ The first Docker run of the new projects used one worker and no retries. All 15 
 | WebKit mobile   | 5        | 6.4 s     |
 
 The combined test time was 72.3 s. Playwright reported 98.5 s for the isolated run including web-server startup/build, excluding the Docker wrapper's dependency installation. These are local Docker measurements, not a CI runtime guarantee; they provide an initial cost estimate for adding compatibility coverage without multiplying visual baselines.
+
+## Third step implemented: interaction gaps and CI cost
+
+[Chromium control journeys](../test/e2e-gameplay-controls.test.ts) now check click/Escape cancellation of the gate walk, skipping the travel map to a usable destination, arrow/WASD walking and key release, browser blur, another desktop window taking focus, compact right-click/left-click object interactions, and preserving the room and character position after moving, shrinking and reopening the game. The browser blur event is delivered explicitly because OS focus events are unreliable in headless runs; desktop window focus changes use ordinary pointer clicks. Position assertions observe the rendered canvas; tests never change engine/store state.
+
+These checks exposed two behavior gaps: held walking keys survived loss of the game's desktop-window focus, and Escape did not skip a map entered through a gate. Keyboard listeners now clear held directions on loss of game-window focus, and the engine's stop command skips gate maps as well as scripted trips.
+
+The default matrix is now 91 executions: 52 desktop Chromium, 24 mobile Chromium and the unchanged 15 secondary-engine smoke checks. The five new control journeys run only in Chromium; the cross-browser smoke selection stays at 25 executions.
+
+The remaster comparison is a developer art-review route, not part of the visitor tour. Its two tests and six existing Linux baselines are preserved under a dedicated [art-review configuration](../playwright.art-review.config.ts). Run `npm run test:e2e:docker:art-review`, adding `-- --update-snapshots` only for intended artwork changes. It no longer runs in the default PR gate. The overlapping readability screenshots were reviewed and retained: full/compact framing, dialogue, gates and object/content states still cover distinct usability and layout risks. No baselines were deleted or added.
+
+The build job uploads `dist/` with one-day retention and E2E downloads that same artifact. `PLAYWRIGHT_SKIP_BUILD=1` makes Playwright start only the preview server; it rejects a missing `dist/index.html` and never reuses an existing server in this mode. This removes both the E2E job's repeated production build and the web-server build inside that job. Normal local Docker runs still build before serving; `PLAYWRIGHT_SKIP_BUILD=1 npm run test:e2e:docker` explicitly verifies an existing build. Artifact upload/download adds overhead, so this change does not promise a particular CI time saving. [Sharing build artifacts between jobs](https://docs.github.com/en/actions/tutorials/store-and-share-data), [Playwright web-server configuration](https://playwright.dev/docs/test-webserver)
 
 ## What the repository currently tests
 
@@ -82,7 +94,7 @@ The current config enables the full `chromium` and `mobile-chrome` suites plus t
 
 Measure per-project duration and retry counts before increasing concurrency. Playwright recommends one worker for stable CI and suggests sharding across jobs for wider parallelization. This repo already uses `fullyParallel: true`, allowing test-level sharding if the suite grows; two shards are a reasonable experiment, not a guaranteed runtime improvement once build/install overhead is included. [CI workers](https://playwright.dev/docs/ci), [sharding](https://playwright.dev/docs/test-sharding)
 
-The workflow builds in its build job and again in E2E; Playwright's web server command builds once more. Consider sharing a production build artifact and serving that in E2E after measuring build cost. The Docker wrapper also installs dependencies for every invocation. Keep the remaster comparison available as an explicit art-review check; consider taking it out of the default PR gate if it no longer represents a supported visitor flow. These are proposals, not changes made by this audit.
+CI now shares its production build with E2E, and the remaster comparison runs through the explicit art-review command described above. The Docker wrapper still installs dependencies for every invocation. Worker counts and retries have not changed.
 
 Keep retries as diagnostics, and review tests labelled flaky: Playwright distinguishes a first-attempt pass from a test that passes only on retry. A retry should not be interpreted as equivalent evidence of reliability. [Retries](https://playwright.dev/docs/test-retries)
 

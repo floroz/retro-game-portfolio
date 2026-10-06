@@ -263,6 +263,18 @@ describe("SceneEngine", () => {
     expect(engine.scene.id).toBe("sorrento");
   });
 
+  test("stop skips a gate's travel map and leaves the destination usable", () => {
+    const { engine, host } = setup();
+    engine.activate(exit(SCENES.hall, "london"));
+    runUntil(engine, () => engine.transition?.kind === "map");
+    engine.stop();
+    expect(engine.scene.id).toBe("london");
+    runUntil(engine, () => engine.transition === null);
+    engine.activate(object(SCENES.london, "chalkboard"));
+    runUntil(engine, () => host.openSection.mock.calls.length > 0);
+    expect(host.openSection).toHaveBeenCalledWith("skills");
+  });
+
   test("a country door irises back to the Hall at the matching entry", () => {
     const { engine } = setup("zurich");
     engine.activate(exit(SCENES.zurich, "hall"));
