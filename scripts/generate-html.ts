@@ -10,10 +10,10 @@
  * This runs automatically before build via the prebuild script.
  */
 
-import { writeFileSync, readFileSync, existsSync } from "fs";
+import { writeFileSync, readFileSync } from "fs";
 import { createHash } from "crypto";
 import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { dirname, join, resolve } from "path";
 import { PROFILE } from "../src/config/profile.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,63 +23,49 @@ const __dirname = dirname(__filename);
 function getOGImageHash(): string {
   const ogImagePath = join(__dirname, "..", "public", PROFILE.seo.ogImage);
 
-  if (!existsSync(ogImagePath)) {
-    console.warn(`⚠️  Warning: OG image not found at ${ogImagePath}`);
-    return "no-image";
-  }
-
   const imageBuffer = readFileSync(ogImagePath);
   const hash = createHash("md5").update(imageBuffer).digest("hex");
   return hash.substring(0, 8); // Use first 8 characters
 }
 
+// Profile copy can contain quotes, ampersands and angle brackets.
+function escapeHTML(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
 // Derived SEO values
 const SEO = {
-  title: `${PROFILE.name} | ${PROFILE.title}`,
+  title: `${PROFILE.name} | ${PROFILE.seo.currentRole}`,
   description: PROFILE.seo.shortDescription,
-  topSkills:
-    "React, Vue.js, TypeScript, Node.js, Go, Kubernetes, AWS, GCP, AI Integration, Design Systems",
+  topSkills: Object.values(PROFILE.skills).flat().join(", "),
 };
 
 function generateStructuredData() {
   const ogImageHash = getOGImageHash();
-  const ogImageUrl = `${PROFILE.seo.siteUrl}/${PROFILE.seo.ogImage}?v=${ogImageHash}`;
+  const ogImageUrl = `${new URL(PROFILE.seo.ogImage, PROFILE.seo.siteUrl).href}?v=${ogImageHash}`;
 
   const personSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
     name: PROFILE.name,
     jobTitle: PROFILE.seo.currentRole,
-    description: `${PROFILE.seo.currentRole} with 10 years of experience specializing in React, TypeScript, Vue.js, Node.js, and AI integration. Currently at ${PROFILE.seo.currentCompany} building AI-powered security features.`,
+    description: PROFILE.experienceSummary,
     url: PROFILE.seo.siteUrl,
     email: PROFILE.email,
-    image: ogImageUrl,
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Zürich",
-      addressRegion: "ZH",
-      addressCountry: "CH",
-    },
+    address: PROFILE.location,
     sameAs: [
       PROFILE.social.github,
       PROFILE.social.linkedin,
       `https://twitter.com/${PROFILE.seo.twitter.replace("@", "")}`,
     ],
-    knowsAbout: [
-      ...PROFILE.skills.frontend.slice(0, 5),
-      ...PROFILE.skills.backend.slice(0, 4),
-      ...PROFILE.skills.cloud.slice(0, 3),
-      "AI Integration",
-      "Design Systems",
-    ],
-    alumniOf: {
-      "@type": "EducationalOrganization",
-      name: "Università degli Studi di Napoli Federico II",
-    },
+    knowsAbout: Object.values(PROFILE.skills).flat(),
     worksFor: {
       "@type": "Organization",
       name: PROFILE.seo.currentCompany,
-      url: "https://snyk.io",
     },
   };
 
@@ -88,7 +74,8 @@ function generateStructuredData() {
     "@type": "WebSite",
     name: PROFILE.seo.siteName,
     url: PROFILE.seo.siteUrl,
-    description: `Interactive portfolio of ${PROFILE.name}, ${PROFILE.seo.currentRole} specializing in React, TypeScript, and AI integration.`,
+    description: PROFILE.seo.shortDescription,
+    image: ogImageUrl,
     author: {
       "@type": "Person",
       name: PROFILE.name,
@@ -98,10 +85,10 @@ function generateStructuredData() {
   return { personSchema, websiteSchema };
 }
 
-function generateHTML(): string {
+export function generateHTML(): string {
   const { personSchema, websiteSchema } = generateStructuredData();
   const ogImageHash = getOGImageHash();
-  const ogImageUrl = `${PROFILE.seo.siteUrl}/${PROFILE.seo.ogImage}?v=${ogImageHash}`;
+  const ogImageUrl = `${new URL(PROFILE.seo.ogImage, PROFILE.seo.siteUrl).href}?v=${ogImageHash}`;
 
   return `<!doctype html>
 <html lang="en">
@@ -110,44 +97,44 @@ function generateHTML(): string {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Primary Meta Tags -->
-    <title>${SEO.title}</title>
-    <meta name="title" content="${SEO.title}" />
-    <meta name="description" content="${SEO.description}" />
-    <meta name="author" content="${PROFILE.name}" />
-    <meta name="keywords" content="${PROFILE.seo.keywords.join(", ")}" />
+    <title>${escapeHTML(SEO.title)}</title>
+    <meta name="title" content="${escapeHTML(SEO.title)}" />
+    <meta name="description" content="${escapeHTML(SEO.description)}" />
+    <meta name="author" content="${escapeHTML(PROFILE.name)}" />
+    <meta name="keywords" content="${escapeHTML(PROFILE.seo.keywords.join(", "))}" />
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="${PROFILE.seo.siteUrl}" />
+    <link rel="canonical" href="${escapeHTML(PROFILE.seo.siteUrl)}" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="${PROFILE.seo.themeColor}" />
+    <meta name="theme-color" content="${escapeHTML(PROFILE.seo.themeColor)}" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="${PROFILE.seo.siteUrl}" />
-    <meta property="og:title" content="${PROFILE.name} | ${PROFILE.seo.currentRole}" />
-    <meta property="og:description" content="${PROFILE.seo.shortDescription}" />
-    <meta property="og:image" content="${ogImageUrl}" />
+    <meta property="og:url" content="${escapeHTML(PROFILE.seo.siteUrl)}" />
+    <meta property="og:title" content="${escapeHTML(PROFILE.name)} | ${escapeHTML(PROFILE.seo.currentRole)}" />
+    <meta property="og:description" content="${escapeHTML(PROFILE.seo.shortDescription)}" />
+    <meta property="og:image" content="${escapeHTML(ogImageUrl)}" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="${PROFILE.name} - ${PROFILE.seo.currentRole} Portfolio" />
-    <meta property="og:site_name" content="${PROFILE.seo.siteName}" />
+    <meta property="og:image:alt" content="${escapeHTML(PROFILE.seo.ogImageAlt)}" />
+    <meta property="og:site_name" content="${escapeHTML(PROFILE.seo.siteName)}" />
     <meta property="og:locale" content="en_US" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="${PROFILE.seo.siteUrl}" />
-    <meta name="twitter:title" content="${PROFILE.name} | ${PROFILE.seo.currentRole}" />
-    <meta name="twitter:description" content="${PROFILE.seo.shortDescription}" />
-    <meta name="twitter:image" content="${ogImageUrl}" />
-    <meta name="twitter:image:alt" content="${PROFILE.name} - ${PROFILE.seo.currentRole} Portfolio" />
-    <meta name="twitter:site" content="${PROFILE.seo.twitter}" />
-    <meta name="twitter:creator" content="${PROFILE.seo.twitter}" />
+    <meta name="twitter:url" content="${escapeHTML(PROFILE.seo.siteUrl)}" />
+    <meta name="twitter:title" content="${escapeHTML(PROFILE.name)} | ${escapeHTML(PROFILE.seo.currentRole)}" />
+    <meta name="twitter:description" content="${escapeHTML(PROFILE.seo.shortDescription)}" />
+    <meta name="twitter:image" content="${escapeHTML(ogImageUrl)}" />
+    <meta name="twitter:image:alt" content="${escapeHTML(PROFILE.seo.ogImageAlt)}" />
+    <meta name="twitter:site" content="${escapeHTML(PROFILE.seo.twitter)}" />
+    <meta name="twitter:creator" content="${escapeHTML(PROFILE.seo.twitter)}" />
 
     <!-- Additional SEO Meta Tags -->
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -164,6 +151,7 @@ function generateHTML(): string {
     <!-- Structured Data - Person Schema -->
     <script type="application/ld+json">
 ${JSON.stringify(personSchema, null, 2)
+  .replaceAll("<", "\\u003c")
   .split("\n")
   .map((line) => "    " + line)
   .join("\n")}
@@ -172,6 +160,7 @@ ${JSON.stringify(personSchema, null, 2)
     <!-- Structured Data - WebSite Schema -->
     <script type="application/ld+json">
 ${JSON.stringify(websiteSchema, null, 2)
+  .replaceAll("<", "\\u003c")
   .split("\n")
   .map((line) => "    " + line)
   .join("\n")}
@@ -185,21 +174,23 @@ ${JSON.stringify(websiteSchema, null, 2)
     <!-- Noscript fallback for SEO crawlers -->
     <noscript>
       <div style="padding: 20px; font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto;">
-        <h1>${PROFILE.name} - ${PROFILE.seo.currentRole}</h1>
-        <p>${PROFILE.seo.shortDescription}</p>
+        <h1>${escapeHTML(PROFILE.name)} - ${escapeHTML(PROFILE.seo.currentRole)}</h1>
+        <p>${escapeHTML(PROFILE.seo.shortDescription)}</p>
         <h2>About</h2>
-        <p>${PROFILE.bio.split("\n")[0]}</p>
+        <p>${PROFILE.bio.split("\n\n").slice(0, 4).map(escapeHTML).join("</p><p>")}</p>
         <h2>Experience</h2>
         <ul>
-${PROFILE.workExperience.map((job) => `          <li><strong>${job.company}</strong> - ${job.role} (${job.period})</li>`).join("\n")}
+${PROFILE.workExperience.map((job) => `          <li><strong>${escapeHTML(job.company)}</strong> - ${escapeHTML(job.role)} (${escapeHTML(job.period)})</li>`).join("\n")}
         </ul>
+        <h2>Resume</h2>
+        <p><a href="${escapeHTML(PROFILE.resumeUrl)}">Download ${escapeHTML(PROFILE.name)}’s resume</a></p>
         <h2>Skills</h2>
-        <p>${SEO.topSkills}</p>
+        <p>${escapeHTML(SEO.topSkills)}</p>
         <h2>Contact</h2>
         <ul>
-          <li>Email: <a href="mailto:${PROFILE.email}">${PROFILE.email}</a></li>
-          <li>GitHub: <a href="${PROFILE.social.github}">github.com/floroz</a></li>
-          <li>LinkedIn: <a href="${PROFILE.social.linkedin}">linkedin.com/in/danieletortora</a></li>
+          <li>Email: <a href="mailto:${escapeHTML(PROFILE.email)}">${escapeHTML(PROFILE.email)}</a></li>
+          <li>GitHub: <a href="${escapeHTML(PROFILE.social.github)}">${escapeHTML(new URL(PROFILE.social.github).host + new URL(PROFILE.social.github).pathname)}</a></li>
+          <li>LinkedIn: <a href="${escapeHTML(PROFILE.social.linkedin)}">${escapeHTML(new URL(PROFILE.social.linkedin).host + new URL(PROFILE.social.linkedin).pathname)}</a></li>
         </ul>
       </div>
     </noscript>
@@ -225,4 +216,6 @@ function main() {
   console.log(`   Author: ${PROFILE.name}\n`);
 }
 
-main();
+if (process.argv[1] && resolve(process.argv[1]) === __filename) {
+  main();
+}

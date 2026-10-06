@@ -206,15 +206,17 @@ Core expertise: React, Vue, TypeScript, Node.js, Go, Kubernetes, AI integration`
 
   // SEO metadata
   seo: {
-    siteUrl: "https://www.danieletortora.com",
+    siteUrl: "https://danieletortora.com/",
     siteName: "Daniele Tortora - Portfolio",
     shortDescription:
-      "Senior Software Engineer with 10 years of experience building web applications in React, TypeScript, Golang, Next.js, Vue, Node.js. Currently focused on AI-powered solutions.",
+      "Senior Software Engineer in Zürich with 10 years building React, TypeScript and full-stack applications. Explore my career in a 90s point-and-click adventure.",
     currentRole: "Senior Software Engineer",
     currentCompany: "Snyk",
     twitter: "@floroz87",
     themeColor: "#1a1a2e",
     ogImage: "og-image.png",
+    ogImageAlt:
+      "Daniele’s Sorrento kitchen overlooking the Gulf of Naples, with the travel-trunk toolbar inside a Windows 98 game window.",
     keywords: [
       "Daniele Tortora",
       "floroz",
