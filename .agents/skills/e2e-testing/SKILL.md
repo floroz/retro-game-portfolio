@@ -36,13 +36,13 @@ npm run test:e2e:docker
 
 Review which visual regression tests fail. The test output shows pixel differences.
 
-### Step 2: Update Snapshots in Docker
+### Step 2: Update Snapshots Only for Intended Visual Changes
 
 ```bash
 npm run test:e2e:docker:update
 ```
 
-This regenerates all snapshots using the Docker container, ensuring consistency with CI.
+Investigate unexpected failures first. Regenerate a baseline only when the visual change is intended; functional compatibility journeys never need baselines.
 
 ### Step 3: Verify Tests Pass
 
@@ -64,7 +64,7 @@ Visually inspect the updated desktop and mobile screenshots to confirm they look
 
 ### Step 1: Write the Test
 
-Add desktop tests to `test/e2e.test.ts` or mobile tests to `test/e2e-mobile.test.ts`. Follow existing patterns:
+Add screenshot-free desktop journeys to `test/e2e-gameplay.test.ts` and mobile journeys to `test/e2e-mobile-gameplay.test.ts`. Tag critical compatibility journeys `@smoke`. Keep visual checks in `test/e2e.test.ts` and `test/e2e-mobile.test.ts` so their existing baseline paths stay stable. Follow existing patterns:
 
 ```typescript
 test("new feature test", async ({ page }) => {
@@ -83,33 +83,44 @@ test("new feature test", async ({ page }) => {
 
 To compare canvas pixels with an image, compare with the art the build ships, not its PNG source. The build encodes painted art as lossy WebP (`scripts/vite/optimize-images.ts`), which moves colours by a few levels. Use the `shippedArt` helper in `test/e2e-airport.test.ts`. The image pipeline is described in `docs/encoded-images.md`.
 
-### Step 2: Generate Initial Snapshots
+### Step 2: Verify Functional Journeys or Generate Visual Baselines
+
+For tagged functional journeys, run `npm run test:e2e:docker -- --grep @smoke`. Do not generate screenshot baselines for these tests.
+
+For an intended new visual check, generate its Chromium baseline in Docker:
 
 ```bash
-npm run test:e2e:docker:update
+npm run test:e2e:docker:update -- --project=chromium --project=mobile-chrome
 ```
 
-New snapshots are created beside the test file in a `-snapshots/` directory with browser-specific Linux suffixes.
+New visual snapshots are created beside the visual test file in a `-snapshots/` directory with Chromium project and Linux suffixes.
 
 ### Step 3: Verify and Commit
 
-Review the generated screenshots, then commit both the test and snapshots.
+For functional journeys, verify the assertions and commit the tests without image baselines. For intended visual changes, review the generated Linux screenshots and commit the tests and baselines together.
 
 ## Test Structure
 
-The desktop test file is organized into two describe blocks:
-
-1. **Portfolio E2E Tests** - Functional tests (page loads, elements visible)
-2. **Visual Regression Tests** - Screenshot comparisons
+The dedicated gameplay specs contain screenshot-free functional checks, with critical journeys tagged `@smoke`. The existing visual specs keep their screenshot comparisons and baseline paths. Longer readability and ambient-animation tours can still combine interaction assertions with visual checks, and remain part of the full Chromium suite.
 
 ### Browser Coverage
 
-Only Chromium runs: desktop tests on the `chromium` project and mobile tests on `mobile-chrome`. Snapshots are generated per project with suffixes like:
+Chromium runs the complete desktop and mobile suites on the `chromium` and `mobile-chrome` projects. Only these projects use committed visual baselines, with suffixes like:
 
 - `01-welcome-screen-chromium-linux.png`
 - `pocket-about-mobile-chrome-linux.png`
 
-Firefox, WebKit, mobile Safari and tablet projects are still defined in `playwright.config.ts` but disabled. To bring one back, add its name to `enabledProjects`, generate its baselines with `npm run test:e2e:docker:update -- --project=<name>`, review them, and commit the new `*-linux.png` files.
+Firefox and desktop WebKit select only `test/e2e-gameplay.test.ts` and tests tagged `@smoke` (five each). The `mobile-safari` project selects only `test/e2e-mobile-gameplay.test.ts` and `@smoke` (five). Both file matching and tag filtering belong to each project; do not enable the full visual suite on these engines. Failure screenshots and retry traces are temporary report artifacts and must not be committed as baselines. The tablet project remains disabled.
+
+```bash
+# Smoke journeys on all enabled projects
+npm run test:e2e:docker -- --grep @smoke
+
+# Only the additional browser engines
+npm run test:e2e:docker -- --project=firefox --project=webkit --project=mobile-safari
+```
+
+Playwright mobile WebKit emulates an iPhone; it does not replace a real-device Safari check for platform-specific touch, scrolling and audio behavior.
 
 ## Docker Configuration
 

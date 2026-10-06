@@ -3,11 +3,15 @@ import { defineConfig, devices, type Project } from "@playwright/test";
 const isCI = !!process.env.CI;
 const baseURL = "http://localhost:4173";
 
-// Only Chromium runs, on desktop and on a phone, to keep the suite fast and the
-// screenshot baselines small. Screenshot-free journeys are tagged @smoke;
-// select those separately when restoring other browser projects so they do
-// not need a copy of Chromium's visual baselines.
-const enabledProjects = new Set(["chromium", "mobile-chrome"]);
+// Chromium keeps the full functional and visual suite. Other browser engines
+// run only tagged gameplay journeys, without committed screenshot baselines.
+const enabledProjects = new Set([
+  "chromium",
+  "mobile-chrome",
+  "firefox",
+  "webkit",
+  "mobile-safari",
+]);
 const mobileTests = /e2e-mobile(?:-gameplay)?\.test\.ts/;
 
 const browserProjects: (Project & { name: string })[] = [
@@ -18,14 +22,16 @@ const browserProjects: (Project & { name: string })[] = [
   },
   {
     name: "firefox",
-    use: { ...devices["Desktop Firefox"] },
-    testIgnore: mobileTests, // Firefox doesn't support isMobile
+    use: { ...devices["Desktop Firefox"], screenshot: "only-on-failure" },
+    testMatch: /e2e-gameplay\.test\.ts/,
+    grep: /@smoke/,
   },
   {
     name: "webkit",
-    use: { ...devices["Desktop Safari"] },
+    use: { ...devices["Desktop Safari"], screenshot: "only-on-failure" },
     timeout: 60000, // Webkit is slower, increase timeout from default 30s to 60s
-    testIgnore: mobileTests,
+    testMatch: /e2e-gameplay\.test\.ts/,
+    grep: /@smoke/,
   },
   // Mobile browsers
   {
@@ -35,8 +41,10 @@ const browserProjects: (Project & { name: string })[] = [
   },
   {
     name: "mobile-safari",
-    use: { ...devices["iPhone 14 Pro"] },
-    testMatch: mobileTests,
+    use: { ...devices["iPhone 14 Pro"], screenshot: "only-on-failure" },
+    timeout: 60000,
+    testMatch: /e2e-mobile-gameplay\.test\.ts/,
+    grep: /@smoke/,
   },
   {
     name: "tablet",
