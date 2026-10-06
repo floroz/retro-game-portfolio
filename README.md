@@ -156,6 +156,16 @@ npm run test:e2e:docker -- test/e2e-gameplay.test.ts test/e2e-mobile-gameplay.te
 `npm run test:e2e:docker` still runs all functional and visual checks. The
 existing visual specs and Linux PNG baselines stay in place, including the
 readability tours that exercise real interactions while capturing artwork.
-Only desktop and mobile Chromium are enabled. The functional smoke suite can
-be selected for other browser projects later without introducing image
-baselines. See [the testing strategy](docs/testing-strategy.md).
+Desktop and mobile Chromium run the complete suite. Firefox and desktop WebKit
+run the five desktop `@smoke` journeys; mobile WebKit runs the five mobile
+journeys. These projects select only gameplay specs and tagged tests, so they
+do not require additional screenshot baselines. Failure screenshots and retry
+traces are diagnostic artifacts. Run just the secondary browser checks with:
+
+```bash
+npm run test:e2e:docker -- --project=firefox --project=webkit --project=mobile-safari
+```
+
+The `mobile-safari` project emulates an iPhone using Playwright WebKit; it does
+not replace a short real-device Safari check before a release. The tablet
+project remains disabled. See [the testing strategy](docs/testing-strategy.md).

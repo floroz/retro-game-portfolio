@@ -1,6 +1,6 @@
 # Testing strategy research
 
-Reviewed on 6 October 2026. Browser coverage remains desktop and mobile Chromium; CI scheduling has not changed.
+Reviewed on 6 October 2026. Chromium runs the full suite; Firefox and WebKit run selected functional smoke journeys on every PR. CI scheduling has not changed.
 
 ## First step implemented: functional gameplay specs
 
@@ -8,7 +8,27 @@ Screenshot-free functional checks now live in [desktop gameplay](../test/e2e-gam
 
 Ten journeys are tagged `@smoke`: five desktop checks (three country round trips, dialogue and essential content access) and five mobile checks (content shortcuts, object taps, profile links, browser history and dialogue). Select just these journeys with `npm run test:e2e:docker -- --grep @smoke`, or run both gameplay specs by passing their paths to the Docker command. No smoke journey compares screenshots.
 
-Visual checks retain their original spec paths, screenshot names and PNG baselines. Mixed visual tours remain in the full suite. Mobile project matching includes both mobile files, and desktop projects exclude both. Enabling other browsers, reducing visual coverage and changing CI build/concurrency behavior remain later steps.
+Visual checks retain their original spec paths, screenshot names and PNG baselines. Mixed visual tours remain in the full Chromium suite. Mobile Chromium project matching includes both mobile files, and desktop Chromium excludes both. Reducing visual coverage and changing CI build/concurrency behavior remain later steps.
+
+## Second step implemented: cross-browser functional smoke
+
+Firefox and desktop WebKit now select only `e2e-gameplay.test.ts` and tests tagged `@smoke` (five journeys per engine). Mobile WebKit selects only `e2e-mobile-gameplay.test.ts` and the same tag (five mobile journeys). Both file matching and tag filtering are configured per project, so a normal full run includes compatibility checks without duplicating the visual suite. The tablet project remains disabled.
+
+The resulting matrix contains 88 test executions: 73 existing Chromium desktop/mobile checks and 15 additional compatibility checks. `npm run test:e2e:docker -- --grep @smoke` selects 25 executions across all five enabled projects. To run only the new engines, use `npm run test:e2e:docker -- --project=firefox --project=webkit --project=mobile-safari`.
+
+Secondary projects capture screenshots only on failure and inherit the first-retry trace policy. These are temporary diagnostic/report artifacts, not committed pixel-comparison baselines. No Firefox or WebKit PNG baseline is needed. Real-device Safari checks are still useful for platform-specific touch, scrolling and audio behavior.
+
+### Initial compatibility timing
+
+The first Docker run of the new projects used one worker and no retries. All 15 journeys passed on their first attempt, with no skipped or flaky cases. Summed test durations were:
+
+| Project         | Journeys | Test time |
+| --------------- | -------- | --------- |
+| Firefox desktop | 5        | 21.6 s    |
+| WebKit desktop  | 5        | 44.3 s    |
+| WebKit mobile   | 5        | 6.4 s     |
+
+The combined test time was 72.3 s. Playwright reported 98.5 s for the isolated run including web-server startup/build, excluding the Docker wrapper's dependency installation. These are local Docker measurements, not a CI runtime guarantee; they provide an initial cost estimate for adding compatibility coverage without multiplying visual baselines.
 
 ## What the repository currently tests
 
@@ -58,7 +78,7 @@ Prefer assertions on player-visible outcomes: destination scene, actual close-up
 
 ## Runtime and diagnostics
 
-The current config enables only `chromium` and `mobile-chrome`, uses one worker in CI, allows two retries, and captures a trace on the first retry. The workflow already uploads reports with one-day retention. Keep traces and failure screenshots as CI artifacts rather than adding them to Git; they serve diagnosis, while committed baselines serve intentional visual comparison. [CI report artifacts](https://playwright.dev/docs/ci)
+The current config enables the full `chromium` and `mobile-chrome` suites plus the `firefox`, `webkit` and `mobile-safari` smoke subsets. It uses one worker in CI, allows two retries, and captures a trace on the first retry. The workflow already uploads reports with one-day retention. Keep traces and failure screenshots as CI artifacts rather than adding them to Git; they serve diagnosis, while committed baselines serve intentional visual comparison. [CI report artifacts](https://playwright.dev/docs/ci)
 
 Measure per-project duration and retry counts before increasing concurrency. Playwright recommends one worker for stable CI and suggests sharding across jobs for wider parallelization. This repo already uses `fullyParallel: true`, allowing test-level sharding if the suite grows; two shards are a reasonable experiment, not a guaranteed runtime improvement once build/install overhead is included. [CI workers](https://playwright.dev/docs/ci), [sharding](https://playwright.dev/docs/test-sharding)
 
