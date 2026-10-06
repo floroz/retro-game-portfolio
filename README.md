@@ -134,3 +134,28 @@ git worktree add ../retro-game-portfolio-v1 v1
 Then run `npm ci` and `npm run dev` inside the new folder. Use the Node.js version in that checkout's `.node-version`. To browse a version on GitHub, open `https://github.com/floroz/retro-game-portfolio/tree/v1`.
 
 Contributors and coding agents should start with [`AGENTS.md`](AGENTS.md).
+
+### Functional journeys and visual checks
+
+`test/e2e-gameplay.test.ts` and `test/e2e-mobile-gameplay.test.ts` hold
+screenshot-free functional checks. The critical journeys are tagged `@smoke`:
+desktop launch, each country's gate/object/return trip, dialogue and essential
+content access; mobile object taps, content links, browser history and dialogue.
+Run just these journeys in Docker with:
+
+```bash
+npm run test:e2e:docker -- --grep @smoke
+```
+
+Run both complete gameplay specs with:
+
+```bash
+npm run test:e2e:docker -- test/e2e-gameplay.test.ts test/e2e-mobile-gameplay.test.ts
+```
+
+`npm run test:e2e:docker` still runs all functional and visual checks. The
+existing visual specs and Linux PNG baselines stay in place, including the
+readability tours that exercise real interactions while capturing artwork.
+Only desktop and mobile Chromium are enabled. The functional smoke suite can
+be selected for other browser projects later without introducing image
+baselines. See [the testing strategy](docs/testing-strategy.md).

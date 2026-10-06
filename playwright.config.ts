@@ -4,43 +4,44 @@ const isCI = !!process.env.CI;
 const baseURL = "http://localhost:4173";
 
 // Only Chromium runs, on desktop and on a phone, to keep the suite fast and the
-// screenshot baselines small. To bring another browser back, add its name here,
-// write its baselines with `npm run test:e2e:docker:update -- --project=<name>`,
-// and commit the new `*-linux.png` files.
+// screenshot baselines small. Screenshot-free journeys are tagged @smoke;
+// select those separately when restoring other browser projects so they do
+// not need a copy of Chromium's visual baselines.
 const enabledProjects = new Set(["chromium", "mobile-chrome"]);
+const mobileTests = /e2e-mobile(?:-gameplay)?\.test\.ts/;
 
 const browserProjects: (Project & { name: string })[] = [
   {
     name: "chromium",
     use: { ...devices["Desktop Chrome"] },
-    testIgnore: /e2e-mobile\.test\.ts/, // Skip mobile tests for desktop browser
+    testIgnore: mobileTests,
   },
   {
     name: "firefox",
     use: { ...devices["Desktop Firefox"] },
-    testIgnore: /e2e-mobile\.test\.ts/, // Firefox doesn't support isMobile
+    testIgnore: mobileTests, // Firefox doesn't support isMobile
   },
   {
     name: "webkit",
     use: { ...devices["Desktop Safari"] },
     timeout: 60000, // Webkit is slower, increase timeout from default 30s to 60s
-    testIgnore: /e2e-mobile\.test\.ts/, // Skip mobile tests for desktop browser
+    testIgnore: mobileTests,
   },
   // Mobile browsers
   {
     name: "mobile-chrome",
     use: { ...devices["Galaxy S24"] },
-    testMatch: /e2e-mobile\.test\.ts/, // Only run mobile tests
+    testMatch: mobileTests,
   },
   {
     name: "mobile-safari",
     use: { ...devices["iPhone 14 Pro"] },
-    testMatch: /e2e-mobile\.test\.ts/, // Only run mobile tests
+    testMatch: mobileTests,
   },
   {
     name: "tablet",
     use: { ...devices["iPad Pro 11"] },
-    testMatch: /e2e-mobile\.test\.ts/, // Only run mobile tests
+    testMatch: mobileTests,
   },
 ];
 
