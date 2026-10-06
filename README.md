@@ -31,7 +31,7 @@ taskbar. The welcome screen stays silent.
 | ---------------------- | ------------------------------------------------------------- | ------------------ |
 | **The airport hall**   | Three gates, a staffed Lost & Found and waiting passengers    | The way to all     |
 | **A Sorrento kitchen** | A view of the Gulf of Naples, a postcard and a telephone      | About, Contact     |
-| **A London pub**       | A rainy evening, a chalkboard of skills and a jukebox         | Skills             |
+| **A London pub**       | A rainy evening, a bored bartender and a wall of regulars     | Skills             |
 | **A Zürich chalet**    | A sunny fondue room, a travel album and a cow resting outside | Experience, Resume |
 
 - **Travel.** Walk through a gate and you fly there over a sepia map of Europe, _Fate of Atlantis_ style. Click to skip the flight.
@@ -39,7 +39,7 @@ taskbar. The welcome screen stays silent.
 - **Close-ups.** Clicking an object opens a cartoon close-up: a suitcase that won't shut, a telephone wired to tin cans, a London pub chalkboard, a Swiss travel album and a document satchel. The text on them is live HTML, paged, keyboard-friendly, and closes back to the same spot in the room.
 - **Conversations.** Talk to Daniele and choose your lines, _Curse of Monkey Island_ style. Use the mouse, the arrow keys or the number keys.
 - **Lost & Found.** A clerk checks forms and stamps them with weary precision. Ring the bell, ask about your suitcase, or inspect the suspicious trunk. A traveller with a map crosses the hall, then returns the other way.
-- **A living world.** Passengers wander through the hall, regulars drink in the pub, a ferry crosses the bay, and each room has its own music and ambience. With reduced motion on, the scenes keep still.
+- **A living world.** Passengers wander through the hall, regulars drink while the pub bartender pours and wipes, a ferry crosses the bay, and each room has its own music and ambience. With reduced motion on, the scenes keep still.
 
 <img src="docs/images/readme-inspection-contact.webp" alt="The Contact close-up: a red rotary telephone wired to tin cans on a tiled Sorrento terrace above the bay, next to a purple-framed card with live contact details and links, and a Back to the scene button" width="720" />
 

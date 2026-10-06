@@ -96,8 +96,8 @@
     {
       "output": "src/assets/remaster/london/bg.png",
       "original": "src/assets/scenes/london/bg.png",
-      "source": "assets-src/approved/london-plate@hd.webp",
-      "note": "Original approved plate, full colour at density 4; unchanged composition."
+      "source": "assets-src/approved/london-pub/background.png",
+      "note": "Approved wood-backed pub shelving, full colour at density 4. Bartender and guest board use scripts/assets/london-bartender.ts."
     },
     {
       "output": "src/assets/remaster/sorrento/bg.png",

@@ -3,11 +3,15 @@
  * The foreground table and its patrons sort at their feet, in front of
  * the bar. The floor connects behind and in front of the table via its
  * right-hand aisle. The jukebox occupies the old machine's footprint.
- * Rain and the passing bus remain behind the window glass; the central
- * chalkboard and taps expose Skills directly. Check with ?debug=scene.
+ * Rain and traffic stay behind the glass. A bored bartender works behind
+ * the counter; clicking his section reveals Skills. Check with ?debug=scene.
  */
 import { SECTIONS } from "../sections";
-import type { Rect, SceneData } from "../../engine/types";
+import type {
+  SceneAnimation,
+  SceneData,
+  SceneObject,
+} from "../../engine/types";
 import londonBg from "../../assets/scenes/london/bg.png";
 import londonObjBar from "../../assets/scenes/london/obj-bar.png";
 import londonObjTable from "../../assets/scenes/london/obj-table.png";
@@ -15,6 +19,10 @@ import londonObjJukebox from "../../assets/scenes/london/obj-jukebox.png";
 import londonObjDoor from "../../assets/scenes/london/obj-door.png";
 import londonObjDoorOpen from "../../assets/scenes/london/obj-door@open.png";
 import londonAnimBus from "../../assets/scenes/london/anim-bus.png";
+import bartenderPour from "../../assets/scenes/london/anim-bartender-pour.png";
+import bartenderWipe from "../../assets/scenes/london/anim-bartender-wipe.png";
+import guestBoard from "../../assets/scenes/london/obj-guest-board.png";
+import tap from "../../assets/shared/slots/slot-tap.png";
 
 import tableWoman from "../../assets/scenes/london/anim-patron-table-woman.png";
 import tableMan from "../../assets/scenes/london/anim-patron-table-man.png";
@@ -29,30 +37,48 @@ const TABLE_BASELINE = 138;
 const BAR_BASELINE = 119;
 const JUKEBOX_BASELINE = 123;
 
-/** The bar top, where the taps stand (each tap's bottom row sits on it). */
-const TAP_Y = 73.5;
-/** Eight taps at 9 px, centred under the chalkboard (x 140-200). */
-const TAP_X0 = 135;
+/** The barman's body sorts behind the counter; his hands rest on its top. */
+const BARTENDER_POSITION = {
+  x: 146,
+  y: 58,
+  frames: 8,
+  frameMs: 300,
+  freezeForReducedMotion: true,
+  baselineY: BAR_BASELINE - 0.1,
+};
+
+// Both strips have an 11.55 s cycle. Pour ends with a transparent hold; wipe
+// starts with one. Exactly one body is visible, including under reduced motion.
+const BARTENDERS: SceneAnimation[] = [
+  {
+    ...BARTENDER_POSITION,
+    id: "bartender-pour",
+    strip: bartenderPour,
+    frameDurationsMs: [2600, 350, 900, 1200, 650, 400, 550, 4900],
+  },
+  {
+    ...BARTENDER_POSITION,
+    id: "bartender-wipe",
+    strip: bartenderWipe,
+    frameDurationsMs: [6650, 300, 250, 400, 250, 1000, 250, 2450],
+  },
+];
+
+/** Clear working space around his animated tap and wiping hand. */
+const TAPS: SceneObject[] = [135, 184, 195, 206].map((x, index) => ({
+  id: `tap-${index + 1}`,
+  name: "beer tap",
+  sprite: tap,
+  x,
+  y: 73.5,
+  baselineY: BAR_BASELINE,
+  interactionPoint: { x: 185, y: 126, facing: "n" },
+  action: "skills",
+  look: "A well-rounded selection. The barman's enthusiasm is sold separately.",
+}));
 
 /** The window's glass, inside its wooden frame: the rain is clipped to it. */
 const WINDOW_GLASS = { x: 33, y: 10, w: 76, h: 64 };
-
-/**
- * The chalkboard's slate, measured from the painted plate
- * (assets/scenes/london/bg.png: art px 284-394 by 28-144, inside the wooden
- * frame, under the header and above the ledge), in logical px. A test reads
- * the pixels to keep it honest.
- */
-export const CHALKBOARD_SLATE: Rect = { x: 142, y: 14, w: 55, h: 58 };
-
-/**
- * Where the chalk goes: the slate less a 3 px margin on the sides and top,
- * and cut off at y 66. That is the top of Daniele's head when he stands at
- * the board (his stand point is y 126, and he is 59 px tall there), so the
- * list stays clear of him, and it keeps well above the ledge and the chalk
- * stub on it.
- */
-export const CHALKBOARD_AREA: Rect = { x: 145, y: 17, w: 49, h: 49 };
 
 /** Daniele's standing height at the back and front of the floor, in px. */
 const LONDON_HEIGHTS = { farHeight: 55, nearHeight: 66 } as const;
@@ -131,7 +157,7 @@ export const LONDON_SCENE: SceneData = {
       name: "bottles",
       hotspot: { x: 111, y: 14, w: 28, h: 88 },
       interactionPoint: { x: 125, y: 126, facing: "n" },
-      look: "Spirits, sorted by colour, then by regret.",
+      look: "Spirits, arranged by whoever closed last.",
       use: "Not while I'm working. This portfolio is always working.",
     },
     {
@@ -143,13 +169,33 @@ export const LONDON_SCENE: SceneData = {
       use: "They're clean. I won't be the one to ruin that.",
     },
     {
-      id: "chalkboard",
-      name: "chalkboard menu",
+      id: "back-bar",
+      name: "back bar",
       hotspot: { x: 139, y: 5, w: 61, h: 71 },
-      interactionPoint: { x: 170, y: 126, facing: "n" },
+      interactionPoint: { x: 185, y: 126, facing: "n" },
       action: "skills",
-      look: "Tonight's menu: every skill I've got, all on tap.",
+      look: "Skills acquired on the job. Others, on the rocks.",
     },
+    {
+      id: "bartender",
+      name: "bored bartender",
+      hotspot: { x: 149, y: 61, w: 27, h: 28 },
+      interactionPoint: { x: 185, y: 126, facing: "n" },
+      action: "skills",
+      look: "He's polished that patch through three governments. Still waiting for a promotion.",
+    },
+    {
+      id: "guest-board",
+      name: "regulars' photo board",
+      sprite: guestBoard,
+      x: 231,
+      y: 23,
+      hotspot: { x: 231, y: 23, w: 61, h: 46 },
+      interactionPoint: { x: 262, y: 123, facing: "n" },
+      look: "The regulars. Immortalised in blurry photos and unpaid tabs.",
+      use: "The dog is the only one here with a clean record.",
+    },
+    ...TAPS,
     {
       id: "dartboard",
       name: "dartboard",
@@ -168,7 +214,7 @@ export const LONDON_SCENE: SceneData = {
       interactionPoint: { x: 61, y: 147, facing: "n" },
       baselineY: TABLE_BASELINE,
       look: "A permanent wobble. The beer mat under the leg is load-bearing.",
-      use: "I'd sit down, but the chalkboard won't read itself.",
+      use: "I'd sit down, but the barman might mistake me for a regular.",
     },
     {
       id: "stool",
@@ -187,7 +233,8 @@ export const LONDON_SCENE: SceneData = {
       y: 86.5,
       interactionPoint: { x: 140, y: 126, facing: "n" },
       baselineY: BAR_BASELINE,
-      look: "Polished by a century of elbows. Every tap pours a skill.",
+      action: "skills",
+      look: "Polished by a century of elbows. And one very bored man.",
       use: "Leaning like a regular. The barman pretends not to know me.",
     },
     {
@@ -203,10 +250,20 @@ export const LONDON_SCENE: SceneData = {
       use: "Already playing the house playlist. No skips, no subscriptions.",
     },
   ],
-  // Four regulars leave the central taps and chalkboard clear. The table
+  // The bartender works behind the bar. His hands and props cross its top
+  // edge, but stay behind the guests and Daniele. The table
   // pair sit on its existing stools; the rear-view guests carry their stools
   // in the strip and sort just in front of the counter. Their laps stay fixed.
   animations: [
+    ...BARTENDERS.flatMap((animation) => [
+      animation,
+      {
+        ...animation,
+        id: `${animation.id}-countertop`,
+        clip: { x: 146, y: 86.5, w: 32, h: 4 },
+        baselineY: BAR_BASELINE + 0.05,
+      },
+    ]),
     {
       id: "patron-table-woman",
       strip: tableWoman,
@@ -309,60 +366,6 @@ export const LONDON_SCENE: SceneData = {
       everyMs: 15000,
       delayMs: 2500,
       clip: BUS_VIEW,
-    },
-  ],
-  slots: [
-    {
-      // One tap per skill group, standing on the bar top; sorts with the bar.
-      // No caption: at 9 px spacing every name overlaps its neighbours (the
-      // small font is 4 px a character), so each tap names its group on
-      // hover.
-      id: "taps",
-      kind: "tap",
-      source: "skills:groups",
-      positions: Array.from(
-        { length: 8 },
-        (_, i) => [TAP_X0 + 9 * i, TAP_Y] as const,
-      ),
-      fold: "slot-tap-more",
-      baselineY: BAR_BASELINE,
-    },
-    {
-      // Bare red panelling under the pendant lamps: two rows of three
-      // frames, a lamp above each column.
-      id: "job-photos",
-      kind: "photo-frame",
-      source: "jobs:london",
-      positions: [
-        [232, 34],
-        [253, 34],
-        [274, 34],
-        [232, 54],
-        [253, 54],
-        [274, 54],
-      ],
-      fold: "slot-photo-frame-more",
-    },
-  ],
-  labels: [
-    {
-      // The skill groups in chalk on the slate, from profile.ts. Part of the
-      // wall (no baselineY), so Daniele stands in front of it.
-      id: "board-chalk",
-      source: "skills:groups",
-      x: CHALKBOARD_AREA.x,
-      y: CHALKBOARD_AREA.y,
-      chalk: { area: CHALKBOARD_AREA, seed: 7 },
-    },
-    {
-      // Gilt lettering on the chalkboard's wooden header.
-      id: "board-header",
-      source: "section:skills",
-      x: 170,
-      y: 6,
-      align: "center",
-      font: "small",
-      color: "#e0b040",
     },
   ],
   exits: [
