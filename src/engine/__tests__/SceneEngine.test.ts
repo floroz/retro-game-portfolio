@@ -54,24 +54,46 @@ const exit = (scene: SceneData, to: string) => {
 };
 
 describe("SceneEngine", () => {
-  test("clicking the open Zurich threshold returns to the airport", () => {
-    const { engine } = setup("zurich");
+  test("the whole Zurich doorway returns to the airport except the cow", () => {
     const hits = interactablesFor(SCENES.zurich, () => undefined);
-    // The passage itself, where a visitor naturally clicks to leave.
-    const hit = [...hits]
-      .reverse()
-      .find(
-        ({ rect }) =>
-          287 >= rect.x &&
-          287 < rect.x + rect.w &&
-          90 >= rect.y &&
-          90 < rect.y + rect.h,
-      );
-    expect(hit?.target.kind).toBe("exit");
-    if (!hit) throw new Error("The open threshold has no exit target");
-    engine.activate(hit.target);
-    runUntil(engine, () => engine.scene.id === "hall");
-    expect(engine.scene.id).toBe("hall");
+    const hitAt = (x: number, y: number) =>
+      [...hits]
+        .reverse()
+        .find(
+          ({ rect }) =>
+            x >= rect.x &&
+            x < rect.x + rect.w &&
+            y >= rect.y &&
+            y < rect.y + rect.h,
+        );
+    // Sweep the opening and door leaf, including the formerly uncovered sky
+    // and grass beside the cow. Exits are topmost, so leave her a real hole.
+    for (let y = 10; y < 98; y++) {
+      for (let x = 267; x < 320; x++) {
+        const hit = hitAt(x, y);
+        const isCow = x >= 269 && x < 293 && y >= 65 && y < 83;
+        if (isCow) {
+          expect(hit?.target.kind, `${x},${y}`).toBe("object");
+          if (hit?.target.kind === "object")
+            expect(hit.target.object.id).toBe("garden-cow");
+        } else {
+          expect(hit?.target.kind, `${x},${y}`).toBe("exit");
+        }
+      }
+    }
+    for (const [x, y] of [
+      [280, 30],
+      [268, 65],
+      [310, 65],
+      [287, 90],
+    ]) {
+      const { engine } = setup("zurich");
+      const hit = hitAt(x, y);
+      if (!hit) throw new Error(`No exit at ${x},${y}`);
+      engine.activate(hit.target);
+      runUntil(engine, () => engine.scene.id === "hall");
+      expect(engine.scene.id).toBe("hall");
+    }
   });
 
   test("an optional object inspection opens after walking, without opening a section", () => {

@@ -411,6 +411,13 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
       if (await canvas.isVisible()) break;
     }
     await expect(canvas).toBeVisible();
+    // Step aside so the garden snapshots show the cow's contact with the lawn.
+    const arrivalBounds = await canvas.boundingBox();
+    if (!arrivalBounds) throw new Error("Missing Zurich canvas bounds");
+    await page.mouse.click(
+      arrivalBounds.x + (arrivalBounds.width * 210) / 320,
+      arrivalBounds.y + (arrivalBounds.height * 150) / 160,
+    );
     await advanceScene(page, 12000);
     await expect(
       page.getByRole("button", {
@@ -463,13 +470,22 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
       await advanceScene(page, 14000);
       await expect(canvas).toHaveScreenshot("zurich-balloon.png");
     }
-    // Click the passage itself, not the narrow wooden door leaf. This used
-    // to select the fence and leave the visitor stranded at the entrance.
+    // The sky above the cow used to have no exit hotspot. Keep the cow
+    // inspectable, then leave through that formerly dead part of the opening.
+    await page
+      .getByRole("button", {
+        name: "Look at curious Swiss cow",
+        exact: true,
+      })
+      .hover();
+    await expect(page.locator("[data-e2e=toolbar-status]")).toHaveText(
+      "Look at curious Swiss cow",
+    );
     const bounds = await canvas.boundingBox();
     if (!bounds) throw new Error("Missing Zurich canvas bounds");
     await page.mouse.click(
       bounds.x + (bounds.width * 287) / 320,
-      bounds.y + (bounds.height * 90) / 160,
+      bounds.y + (bounds.height * 30) / 160,
     );
     await advanceScene(page, 6000);
     await expect(page.locator("canvas[data-drawn=hall]")).toBeVisible();
