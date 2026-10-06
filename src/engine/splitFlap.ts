@@ -67,14 +67,6 @@ export function splitFlapCells(
     });
 }
 
-export function splitFlapCycleStarted(
-  board: SplitFlapBoard,
-  from: number,
-  to: number,
-): boolean {
-  return Math.floor(to / board.everyMs) > Math.floor(from / board.everyMs);
-}
-
 type Ctx = CanvasRenderingContext2D;
 const glyphCache = new Map<string, HTMLCanvasElement>();
 const RASTER = 16;

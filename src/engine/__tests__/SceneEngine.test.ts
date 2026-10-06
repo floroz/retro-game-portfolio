@@ -372,15 +372,10 @@ describe("SceneEngine", () => {
   });
 
   describe("object and animation sounds", () => {
-    test("the airport board sounds every five seconds and stays silent with reduced motion", () => {
+    test("the airport board stays silent across arrival and departure updates", () => {
       const { engine, host } = setup();
-      for (let t = 0; t < 15000; t += 100) engine.update(100);
-      expect(
-        host.sound.mock.calls.filter(([name]) => name === "split-flap"),
-      ).toHaveLength(3);
-      host.sound.mockClear();
-      for (let t = 0; t < 10000; t += 100)
-        engine.update(100, { reducedMotion: true });
+      // Cross a full rotation of arrival and departure row updates.
+      for (let t = 0; t < 40000; t += 100) engine.update(100);
       expect(host.sound).not.toHaveBeenCalledWith("split-flap");
     });
     /** Sorrento with a sounding phone, moka pot, and a timed animation. */

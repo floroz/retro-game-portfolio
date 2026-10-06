@@ -173,7 +173,14 @@ async function flightBoardPixels(page: Page) {
   });
 }
 
-test("airport board flips one row every five seconds", async ({ page }) => {
+test("airport board silently flips one row every five seconds", async ({
+  page,
+}) => {
+  const boardSoundRequests: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/audio/sfx/split-flap.mp3"))
+      boardSoundRequests.push(request.url());
+  });
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await openAirport(page);
   await expect(
@@ -208,6 +215,7 @@ test("airport board flips one row every five seconds", async ({ page }) => {
   expect(next.filter((_, i) => i !== 4)).toEqual(
     settled.filter((_, i) => i !== 4),
   );
+  expect(boardSoundRequests).toEqual([]);
 });
 
 test("airport board holds the complete timetable still with reduced motion", async ({
