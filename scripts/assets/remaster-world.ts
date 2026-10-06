@@ -121,7 +121,14 @@ for (const scene of ["london", "sorrento"] as const) {
   for (const name of (await readdir(`src/assets/scenes/${scene}`))
     .filter((file) => file.endsWith(".png"))
     .sort()) {
-    if (name === "bg.png" || name.startsWith("anim-patron-")) continue;
+    // These multi-cell strips and trimmed decorations have their own recipe.
+    if (
+      name === "bg.png" ||
+      name.startsWith("anim-patron-") ||
+      name.startsWith("anim-bartender-") ||
+      name === "obj-guest-board.png"
+    )
+      continue;
     const original = `src/assets/scenes/${scene}/${name}`;
     const provenance: { approvedRaw: string } = JSON.parse(
       await readFile(
@@ -146,10 +153,10 @@ for (const scene of ["london", "sorrento"] as const) {
 const london = "src/assets/scenes/london/bg.png";
 await save(
   "london/bg.png",
-  await png(`${raw}/london-plate@hd.webp`, 1280, 640),
+  await png(`${raw}/london-pub/background.png`, 1280, 640),
   london,
-  `${raw}/london-plate@hd.webp`,
-  "Original approved plate, full colour at density 4; unchanged composition.",
+  `${raw}/london-pub/background.png`,
+  "Approved wood-backed pub shelving, full colour at density 4. Bartender and guest board use scripts/assets/london-bartender.ts.",
 );
 
 // Preserve the two later story-object patches, never the stale empty fridge.

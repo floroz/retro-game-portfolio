@@ -159,7 +159,7 @@ for (const viewport of viewports) {
       for (const destination of [
         {
           scene: "london",
-          object: "chalkboard",
+          object: "back-bar",
           section: "skills",
           title: "Skills",
         },

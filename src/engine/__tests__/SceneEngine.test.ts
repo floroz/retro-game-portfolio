@@ -270,7 +270,7 @@ describe("SceneEngine", () => {
     engine.stop();
     expect(engine.scene.id).toBe("london");
     runUntil(engine, () => engine.transition === null);
-    engine.activate(object(SCENES.london, "chalkboard"));
+    engine.activate(object(SCENES.london, "back-bar"));
     runUntil(engine, () => host.openSection.mock.calls.length > 0);
     expect(host.openSection).toHaveBeenCalledWith("skills");
   });

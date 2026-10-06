@@ -1,6 +1,6 @@
 /**
  * Chalk lettering on a slate: a scene label whose lines come from config
- * (the London chalkboard lists the skill groups from `profile.ts`) and are
+ * and are
  * set to fit a writable rectangle, so the board never needs repainting when
  * the content changes. The text is part of the wall: it sorts with the
  * background, and Daniele stands in front of it (render.ts masks it where

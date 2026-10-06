@@ -62,6 +62,32 @@ async function patronPixels(page: Page) {
   });
 }
 
+/** The bartender and the narrow strip where his cloth crosses the bar top. */
+async function bartenderPixels(page: Page) {
+  return page.locator("canvas[data-drawn=london]").evaluate((element) => {
+    const canvas = element as unknown as {
+      width: number;
+      getContext(kind: string): {
+        getImageData(
+          x: number,
+          y: number,
+          w: number,
+          h: number,
+        ): { data: ArrayLike<number> };
+      } | null;
+    };
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Missing canvas context");
+    const d = canvas.width / 320;
+    return [
+      { x: 143, y: 54, w: 38, h: 32 },
+      { x: 143, y: 86.5, w: 38, h: 4 },
+    ].map(({ x, y, w, h }) =>
+      Array.from(ctx.getImageData(x * d, y * d, w * d, h * d).data),
+    );
+  });
+}
+
 /** Separate the body from its notes to verify both kinds of motion. */
 async function jukeboxPixels(page: Page) {
   return page.locator("canvas[data-drawn=london]").evaluate((element) => {
@@ -94,6 +120,8 @@ test("pub patrons drink while skills and the airport exit stay reachable", async
   await openPub(page);
   const before = await patronPixels(page);
   const moved = [false, false];
+  const bartenderBefore = await bartenderPixels(page);
+  const bartenderMoved = [false, false];
   const jukeboxBefore = await jukeboxPixels(page);
   const jukeboxMoved = [false, false];
   // Check several phases so a resting pose or quantized breath cannot alias
@@ -106,6 +134,12 @@ test("pub patrons drink while skills and the airport exit stay reachable", async
         (value, index) => value !== before[guest][index],
       );
     }
+    const bartenderNow = await bartenderPixels(page);
+    for (let area = 0; area < bartenderMoved.length; area++) {
+      bartenderMoved[area] ||= bartenderNow[area].some(
+        (value, index) => value !== bartenderBefore[area][index],
+      );
+    }
     const jukeboxNow = await jukeboxPixels(page);
     for (let area = 0; area < jukeboxMoved.length; area++) {
       jukeboxMoved[area] ||= jukeboxNow[area].some(
@@ -115,13 +149,14 @@ test("pub patrons drink while skills and the airport exit stay reachable", async
   }
   expect(moved).toEqual([true, true]);
   expect(jukeboxMoved).toEqual([true, true]);
+  expect(bartenderMoved).toEqual([true, true]);
   await expect(page.locator("[data-e2e=scene]")).toHaveScreenshot(
     "pub-patrons-drinking.png",
     { maxDiffPixelRatio: 0.02 },
   );
 
   await page
-    .locator('[data-e2e=hotspot][data-hotspot="object:chalkboard"]')
+    .locator('[data-e2e=hotspot][data-hotspot="object:bartender"]')
     .first()
     .click({ force: true });
   await advanceUntilVisible(
@@ -144,8 +179,10 @@ test("pub patrons respect reduced motion", async ({ page }) => {
   await openPub(page);
   const before = await patronPixels(page);
   const jukeboxBefore = await jukeboxPixels(page);
+  const bartenderBefore = await bartenderPixels(page);
   await page.clock.runFor(16000);
   expect(await patronPixels(page)).toEqual(before);
+  expect(await bartenderPixels(page)).toEqual(bartenderBefore);
   expect(await jukeboxPixels(page)).toEqual(jukeboxBefore);
   await expect(page.locator("[data-e2e=scene]")).toHaveScreenshot(
     "pub-patrons-reduced-motion.png",
@@ -219,7 +256,7 @@ test("the foreground table has paths behind and in front, and the jukebox respon
   await page.clock.runFor(10000);
 
   await page
-    .locator('[data-e2e=hotspot][data-hotspot="object:chalkboard"]')
+    .locator('[data-e2e=hotspot][data-hotspot="object:back-bar"]')
     .first()
     .click({ force: true });
   await advanceUntilVisible(
