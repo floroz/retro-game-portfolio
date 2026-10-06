@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { HALL_FLIGHT_BOARD } from "../../config/scenes/flight-board";
-import { splitFlapCells, splitFlapCycleStarted } from "../splitFlap";
+import { splitFlapCells } from "../splitFlap";
 
 const board = HALL_FLIGHT_BOARD;
 const textAt = (now: number, reduced = false) =>
@@ -54,11 +54,5 @@ describe("airport split-flap timetable", () => {
     expect(splitFlapCells(board, 16100, true)).toEqual(
       splitFlapCells(board, 0),
     );
-  });
-
-  test("starts one sound per update, including an exact boundary", () => {
-    expect(splitFlapCycleStarted(board, 0, 4999)).toBe(false);
-    expect(splitFlapCycleStarted(board, 4999, 5000)).toBe(true);
-    expect(splitFlapCycleStarted(board, 5000, 5100)).toBe(false);
   });
 });

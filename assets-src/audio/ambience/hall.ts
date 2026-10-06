@@ -5,8 +5,8 @@
  *   100 Hz buzz of the fluorescent lights.
  * - A murmur of travellers under the high ceiling, in a long reverb.
  * - Once a loop: the boarding chime (the motif's head on tubular bells, the
- *   same render as sfx-boarding-chime) over the PA, and a jet taking off
- *   beyond the windows.
+ *   same render as sfx-boarding-chime) over the PA, a suitcase rolling past
+ *   over the carpet's seams, and a jet taking off beyond the windows.
  *
  * 40 s loop. Beds are crossfaded by the renderer; the events and the hum
  * are exactly periodic (see `periodic`).
@@ -22,7 +22,10 @@ import {
   type SfxRecipe,
 } from "../../../scripts/assets/sfx";
 import {
+  addInto,
   babble,
+  between,
+  burst,
   drift,
   filters,
   loopEvents,
@@ -35,6 +38,36 @@ import {
 import { bell } from "../sfx/boarding-chime";
 
 const LOOP = 40;
+
+/** A hard-shell suitcase rolling past: a rumble and the clack of each seam. */
+function suitcase(random: () => number) {
+  const seconds = 6;
+  const n = sec(seconds);
+  const rumble = filters(noise(n, random, "brown"), [
+    { type: "bandpass", freq: 160, q: 1.2 },
+  ]);
+  const clacks = new Float32Array(n);
+  for (let t = 0.2; t < seconds - 0.2; t += between(random, 0.34, 0.4)) {
+    mix(
+      clacks,
+      burst(random, {
+        seconds: 0.05,
+        halfLife: 0.004,
+        colour: "pink",
+        chain: [{ type: "bandpass", freq: 700, q: 1.5 }],
+      }),
+      sec(t),
+      { level: 0.5 },
+    );
+  }
+  const passBy = envelope(n, [
+    [0, 0],
+    [2.8, 1],
+    [3.3, 1],
+    [seconds, 0],
+  ]);
+  return mul(addInto(rumble, clacks), passBy);
+}
 
 /** A jet taking off outside the windows: a long, muffled roar and a whine. */
 function jet(random: () => number) {
@@ -59,7 +92,7 @@ function jet(random: () => number) {
 const recipe: SfxRecipe = {
   task: "A2",
   description:
-    "Hall ambience: air-handling hum and fluorescent buzz, a murmur of travellers in a long reverb, and once a loop the boarding chime and a distant jet taking off.",
+    "Hall ambience: air-handling hum and fluorescent buzz, a murmur of travellers in a long reverb, and once a loop the boarding chime, a rolling suitcase, and a distant jet taking off.",
   seconds: LOOP,
   seed: 41,
   render: (ctx) => {
@@ -108,6 +141,15 @@ const recipe: SfxRecipe = {
         name: "boarding chime",
         channels: loopEvents(ctx, [{ sound: chime, at: 12, pan: -0.15 }], hall),
         level: 0.6,
+      },
+      {
+        name: "suitcase",
+        channels: loopEvents(
+          ctx,
+          [{ sound: suitcase(r), at: 3, pan: 0.5 }],
+          hall,
+        ),
+        level: 0.5,
       },
       {
         name: "jet",
