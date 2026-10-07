@@ -1,16 +1,17 @@
 # Location inspection artwork
 
-The five portfolio cards share the inked, raster-drawn adventure direction of
-_Sam & Max Hit the Road_ and _Full Throttle_, with a 2:1 composition. Strong dark
-contours, hard shadow shapes, stepped edges and eccentric supporting characters
-replace the earlier glossy cartoon rendering. Daniele's approved About portrait
-preserves his original facial proportions; it is the style reference for the set.
-Their text, links and pagination remain HTML from the shared profile.
+The five portfolio cards use a 2:1 composition with painted materials, hard
+shadow shapes and stepped raster edges inspired by 1990s point-and-click
+adventures. Skills and Experience provide the painted pixel style references
+for the Sorrento cards: warmer amber light, restrained colour ramps and tactile
+wood, fabric and paper replace the earlier glossy cartoon rendering. About
+preserves the suitcase joke and Daniele's facial proportions. Their text, links
+and pagination remain HTML from the shared profile.
 
 | Section    | Location    | Illustration                                                                                     |
 | ---------- | ----------- | ------------------------------------------------------------------------------------------------ |
 | About      | Sorrento    | Daniele tries to close a suitcase containing a giant lemon, handheld console and hiking boots.   |
-| Contact    | Sorrento    | A rotary phone connects to tin cans on a tiled terrace above the Bay of Naples.                  |
+| Contact    | Sorrento    | An olive-grey rotary phone, espresso and envelopes sit beside a cream folio on a walnut desk.    |
 | Skills     | London      | An oak-framed chalkboard sits above brass beer pumps and an amber pint in the warm London pub.   |
 | Experience | Switzerland | A burgundy travel album holds mementos from Sorrento, London and Zürich beside its reading page. |
 | Resume     | Switzerland | A leather satchel supports an upright cream document folio with a brass clip.                    |
@@ -24,8 +25,9 @@ The built-in imagegen tool produced the full-resolution PNG sources in
 are named `assets-src/provenance/remaster-inspection-*.json`. Superseded
 illustrations, concept sheets and generation references are kept in Git history,
 not as duplicate images in the current tree. Provenance notes identify their
-historical revision when needed. The approved About master is the current style
-reference for the other four cards.
+historical revision when needed. The Contact correspondence desk and About
+suitcase were adapted using Skills and Experience as rendering references on
+2026-10-07; their full-resolution sources retain the generated painted pixels.
 
 Run `npx tsx scripts/assets/remaster-ui.ts` to export the approved sources as
 lossless 1280×640 WebP files under `src/assets/remaster/inspections/`, using

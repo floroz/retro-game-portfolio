@@ -6,6 +6,7 @@ import {
   segmentInPolygon,
 } from "../geometry";
 import { SCENES } from "../scenes";
+import { animationFrame } from "../animation";
 import type { Rect, SceneEffect } from "../types";
 
 const london = SCENES.london;
@@ -39,7 +40,9 @@ const SIZE = {
 describe("London (HB3)", () => {
   test("keeps weather and traffic separate from the seated patrons", () => {
     expect(london.foreground).toBeUndefined();
-    expect(london.animations).toHaveLength(4);
+    expect(
+      london.animations?.filter((a) => a.id.startsWith("patron-")),
+    ).toHaveLength(4);
     expect(london.effects?.map((e) => e.kind).sort()).toEqual([
       "music-notes",
       "rain",
@@ -156,42 +159,64 @@ describe("London (HB3)", () => {
     expect(london.effects?.some((e) => e.id === "fruit-lamps")).toBe(false);
   });
 
-  test("the chalkboard (Skills) stays one click away, with its label on the header", () => {
-    expect(object("chalkboard").action).toBe("skills");
-    const label = london.labels?.find((l) => l.id === "board-header");
-    expect(label?.source).toBe("section:skills");
-    const board = rectOf("chalkboard");
-    expect(inside(board, label?.x ?? -1, label?.y ?? -1)).toBe(true);
+  test("Skills opens from the bar and bartender without revealing its content on the wall", () => {
+    for (const id of ["back-bar", "bartender", "bar"])
+      expect(object(id).action).toBe("skills");
+    expect(london.labels ?? []).toEqual([]);
+    expect(london.slots ?? []).toEqual([]);
   });
 
-  test("the eight taps stand on the bar top, under the chalkboard", () => {
-    const row = london.slots?.find((s) => s.id === "taps");
-    const bar = object("bar");
-    expect(row?.kind).toBe("tap");
-    expect(row?.positions).toHaveLength(8);
-    const board = rectOf("chalkboard");
-    for (const [x, y] of row?.positions ?? []) {
-      // 7x16 logical px, its bottom row on the bar top (the lit surface
-      // is the top 6 px of the counter).
-      expect(x).toBeGreaterThanOrEqual(board.x - 8);
-      expect(x + 7).toBeLessThanOrEqual(board.x + board.w + 8);
-      expect(y + 16).toBeGreaterThanOrEqual((bar.y ?? 0) + 1);
-      expect(y + 16).toBeLessThanOrEqual((bar.y ?? 0) + 6);
+  test("the bartender's hands stay on the counter while his body stays behind it", () => {
+    const body = london.animations?.find((a) => a.id === "bartender-pour");
+    const hands = london.animations?.find(
+      (a) => a.id === "bartender-pour-countertop",
+    );
+    if (!body || !hands) throw new Error("Missing bartender layers");
+    expect(body.baselineY).toBeLessThan(object("bar").baselineY ?? 0);
+    expect(hands.baselineY).toBeGreaterThan(object("bar").baselineY ?? 0);
+    expect(hands.baselineY).toBeLessThan(119.1);
+    expect(hands.clip?.y).toBe(object("bar").y);
+    const poses = new Set<number>();
+    for (let now = 0; now < 24000; now += 100) {
+      const frame = animationFrame(body, now);
+      expect(animationFrame(hands, now)).toEqual(frame);
+      if (frame) poses.add(frame.frame);
+      expect(animationFrame(body, now, true)?.frame).toBe(0);
+      expect(animationFrame(hands, now, true)?.frame).toBe(0);
     }
-    expect(row?.baselineY).toBe(bar.baselineY);
+    expect(poses.size).toBe(body.frames);
   });
 
-  test("the six job photos hang on bare wall, clear of the dartboard and shelves", () => {
-    const row = london.slots?.find((s) => s.id === "job-photos");
-    expect(row?.kind).toBe("photo-frame");
-    expect(row?.positions).toHaveLength(6);
-    const dart = rectOf("dartboard");
-    const shelf = rectOf("glasses");
-    for (const [x, y] of row?.positions ?? []) {
-      // 20x16 logical px each.
-      expect(x, `frame at ${x},${y}`).toBeGreaterThanOrEqual(shelf.x + shelf.w);
-      expect(x + 20, `frame at ${x},${y}`).toBeLessThanOrEqual(dart.x);
+  test("pouring and wiping alternate without a missing or doubled bartender", () => {
+    const pour = london.animations?.find((a) => a.id === "bartender-pour");
+    const wipe = london.animations?.find((a) => a.id === "bartender-wipe");
+    if (!pour || !wipe) throw new Error("Missing bartender phases");
+    for (let now = 0; now < 24000; now += 25) {
+      const pouring = animationFrame(pour, now)?.frame !== 7;
+      const wiping = animationFrame(wipe, now)?.frame !== 0;
+      expect(Number(pouring) + Number(wiping)).toBe(1);
+      expect(animationFrame(wipe, now, true)?.frame).toBe(0);
     }
+  });
+
+  test("the taps stand on the counter without occupying the bartender's working space", () => {
+    const taps = london.objects.filter((o) => o.id.startsWith("tap-"));
+    expect(taps.length).toBeGreaterThan(0);
+    for (const tap of taps) {
+      expect((tap.y ?? 0) + 16).toBeGreaterThan(object("bar").y ?? 0);
+      expect((tap.y ?? 0) + 16).toBeLessThan((object("bar").y ?? 0) + 6);
+      expect((tap.x ?? 0) + 7 <= 143 || (tap.x ?? 0) >= 181).toBe(true);
+      expect(tap.action).toBe("skills");
+    }
+  });
+
+  test("the regulars' board clears the shelves and dartboard", () => {
+    const board = rectOf("guest-board");
+    expect(board.x).toBeGreaterThanOrEqual(
+      rectOf("glasses").x + rectOf("glasses").w,
+    );
+    expect(board.x + board.w).toBeLessThan(rectOf("dartboard").x);
+    expect(object("guest-board").sprite).toContain("obj-guest-board");
   });
 
   test("the rain stays inside the window", () => {
