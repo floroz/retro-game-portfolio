@@ -3,7 +3,7 @@
  * as MI3 drew its sprites, and none where its parts overlap.
  *
  * The parts are painted with an ink ring of their own, except at their
- * joint ends (scripts/assets/rigpaint.ts), so at rest the ring is already
+ * joint ends in the part sources, so at rest the ring is already
  * there. This pass makes it true in every pose: once the posed parts are
  * composited and their alpha is hard, every pixel on the figure's edge
  * becomes ink, so a knee or elbow that bends, a limb that swings clear of

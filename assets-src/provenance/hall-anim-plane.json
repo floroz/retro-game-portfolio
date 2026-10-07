@@ -5,11 +5,11 @@
   "source": "codex",
   "prompt": "assets-src/prompts/hd/layers-hall.md",
   "candidate": "02",
-  "references": ["assets-src/refs/hd/hall-chosen.png"],
+  "references": [],
   "approvedRaw": "assets-src/approved/hall-plane@hd.webp",
   "density": 2,
   "style": "painted",
-  "cleanup": "HB2: candidate 02 of hall-plane@hd, the take-off airliner, keyed from its own alpha and resized (Lanczos) to 52x16 art px with assets:prepare --painted --no-quantize, hard alpha, quantized jointly with the Hall plate. One frame: the scene data slides it along a path up the right-hand pane of the glass wall, shrinking as it climbs.",
+  "cleanup": "HB2: candidate 02 of hall-plane@hd, the take-off airliner, keyed from its own alpha and resized (Lanczos) to 52x16 art px with assets:prepare --painted --no-quantize, hard alpha, quantized jointly with the Hall plate. One frame: the scene data slides it along a path up the right-hand pane of the glass wall, shrinking as it climbs. Historical generation references at Git revision bc8f4c66811f0a955eb3515bddeae77b30b07e23: assets-src/refs/hd/hall-chosen.png. Removed from the working tree after export; current approved sources reproduce the shipped artwork.",
   "approvedBy": "orchestrator",
   "date": "2026-09-29"
 }

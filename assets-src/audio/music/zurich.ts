@@ -65,11 +65,11 @@ const opts = (bar: number, velocity: number) => ({
  *     bar 4:  A5 F#5 (sixteenths)  D5 (quarter)
  *     bar 5:  A4 (dotted quarter)
  */
-export const RANZ_PLATE =
+const RANZ_PLATE =
   "D5:1.5 F#5:1.5 G#5:1.5 | A5:3 B5:.5 A5:.5 G#5:.5 | A5:3 B5:.5 A5:.5 G#5:.5 | A5:.75 F#5:.75 D5:3 | A4:6";
 
 /** Down a tone to G major, then two octaves down for the alphorn. */
-export const RANZ_TRANSPOSE = -2 - 24;
+const RANZ_TRANSPOSE = -2 - 24;
 /** Bars 1 and 2 of the call (the head), and the cadence, for the echo and the ending. */
 const RANZ_HEAD = "D5:1.5 F#5:1.5 G#5:1.5";
 

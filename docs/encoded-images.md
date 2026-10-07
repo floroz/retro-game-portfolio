@@ -26,6 +26,25 @@ Record historical references in provenance notes rather than keeping obsolete
 image files just to satisfy a reference path. Current visual-test baselines and
 images used by documentation serve separate purposes and remain where needed.
 
+## Retained source files
+
+The pixel scene exports under `scenes/` and the sprite-sheet character remain
+inputs to the remaster mapping and the separate art-review comparison. Shared
+slot sprites include overflow variants that may be dormant until profile data
+grows. They are not orphan assets.
+
+`assets-src/refs/` retains only registered recipe inputs (`hall-before-stone`,
+`sorrento-before-inspections`) and the sprite-sheet turnaround master.
+Generation-only references are recorded in provenance cleanup notes with their
+Git revision. The portrait reference lives beside its approved rig sources,
+rather than under application assets. The alternative London Merseybeat track
+is deliberately retained with its source and tests for art/audio review.
+
+Only the decorative Caslon logo atlas remains from the old serif bitmap fonts.
+`scripts/fonts/rasterize.py` reproduces it; `scripts/fonts/adventure.py` owns
+the current world lettering, and `scripts/fonts/pocket.py` owns the mobile
+heading font. Keep their font sources and licenses.
+
 ## Task checklists
 
 **Add or replace canvas art**, meaning a scene background, sprite, object state, animation strip, prop or slot:

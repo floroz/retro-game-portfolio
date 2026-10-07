@@ -55,11 +55,6 @@ export const WALK_SPEED = 350 / PIXEL_SCALE;
  */
 export const VERTICAL_SPEED = 0.7;
 
-/**
- * Longest a shortcut walk may take, in seconds. Longer walks speed up to fit.
- */
-export const MAX_TRAVEL_TIME = 1.5;
-
 export const IRIS_MS = 400;
 export const IRIS_HOLD_MS = 120;
 

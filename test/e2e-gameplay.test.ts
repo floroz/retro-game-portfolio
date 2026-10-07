@@ -163,6 +163,77 @@ test.describe("Desktop gameplay smoke", { tag: "@smoke" }, () => {
   });
 });
 
+test(
+  "all portfolio sections remain one click away in every room",
+  { tag: "@reachability" },
+  async ({ page }) => {
+    test.setTimeout(60000);
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await openAirport(page);
+    for (const scene of ["hall", "sorrento", "london", "zurich"]) {
+      if (scene !== "hall") {
+        await page
+          .locator(`[data-e2e=hotspot][data-hotspot="exit:gate-${scene}"]`)
+          .first()
+          .click();
+        await arriveInScene(page, scene);
+        await page.keyboard.press("Escape");
+      }
+      for (const section of [
+        "About",
+        "Skills",
+        "Experience",
+        "Contact",
+        "Resume",
+      ]) {
+        const opener = page.getByRole("button", {
+          name: new RegExp(`^${section}, in `),
+        });
+        await opener.click();
+        const inspection = page.locator("[data-e2e=object-inspection]");
+        await expect(inspection).toHaveAttribute("data-ready", "true");
+        await expect(inspection.getByRole("heading", { level: 2 })).toHaveText(
+          section === "About" ? `About ${PROFILE.name.split(" ")[0]}` : section,
+        );
+        if (section === "Contact") {
+          await expect(
+            inspection.getByRole("link", { name: PROFILE.email, exact: true }),
+          ).toHaveAttribute("href", `mailto:${PROFILE.email}`);
+          await expect(
+            inspection.getByRole("link", { name: "GitHub", exact: true }),
+          ).toHaveAttribute("href", PROFILE.social.github);
+          await expect(
+            inspection.getByRole("link", { name: "LinkedIn", exact: true }),
+          ).toHaveAttribute("href", PROFILE.social.linkedin);
+        }
+        if (section === "Resume") {
+          await expect(
+            inspection.getByRole("link", {
+              name: "Read or download my resume (PDF)",
+              exact: true,
+            }),
+          ).toHaveAttribute("href", PROFILE.resumeUrl);
+        }
+        await page.keyboard.press("Escape");
+        await expect(inspection).toBeHidden();
+        await expect(opener).toBeFocused();
+        await expect(page.locator("canvas[data-drawn]")).toHaveAttribute(
+          "data-drawn",
+          scene,
+        );
+      }
+      if (scene !== "hall") {
+        await page
+          .locator('[data-e2e=hotspot][data-hotspot="exit:door-hall"]')
+          .first()
+          .click();
+        await arriveInScene(page, "hall");
+        await page.keyboard.press("Escape");
+      }
+    }
+  },
+);
+
 async function closeGameWindow(page: Page) {
   // The game window is wrapped in a Win95Window which has the close button
   // The window may be larger than viewport, so we use dispatchEvent to click

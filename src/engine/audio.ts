@@ -22,8 +22,8 @@ const FADE_S = 0.8;
 
 /**
  * Loudness cap for one-shot effects, in LUFS. Effects are mastered to a
- * −3 dBFS sample peak, so the tonal ones measure far louder than the
- * −20 LUFS music (the fruit machine −7.7 LUFS); each is turned down to at
+ * −3 dBFS sample peak, so the tonal ones can measure louder than the
+ * −20 LUFS music; each is turned down to at
  * most this. Short transients such as footsteps sit well under it.
  */
 export const EFFECT_LUFS_CAP = -16;
@@ -37,7 +37,6 @@ export const EFFECT_LUFS_CAP = -16;
  */
 export const EFFECT_GAIN_DB: Readonly<Record<string, number>> = {
   cuckoo: -6,
-  "fruit-machine": -8.3,
   "phone-ring": -2.4,
 };
 

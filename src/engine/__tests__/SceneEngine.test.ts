@@ -153,12 +153,13 @@ describe("SceneEngine", () => {
 
   test("doesn't greet over a trip that's already under way", () => {
     const { engine } = setup();
-    engine.goToSection("skills");
+    engine.activate(exit(SCENES.hall, "london"));
+    runUntil(engine, () => engine.transition?.kind === "map");
     engine.greet();
     expect(engine.speech).toBeNull();
     runUntil(engine, () => engine.scene.id === "london");
     engine.greet();
-    expect(engine.speech).toBeNull();
+    expect(engine.speech?.lines.join(" ")).toContain("Skills");
   });
 
   test("walks to a clicked floor point and faces the way it walks", () => {
@@ -224,7 +225,7 @@ describe("SceneEngine", () => {
       host,
       start: "zurich",
     });
-    engine.goToSection("resume");
+    engine.activate(object(scenes.zurich, "satchel"));
     runUntil(engine, () => host.openSection.mock.calls.length > 0);
     expect(engine.stateOf("satchel")).toBe("open");
     engine.contentClosed();
@@ -284,65 +285,6 @@ describe("SceneEngine", () => {
     expect(engine.position).toMatchObject(SCENES.hall.entryPoints.fromZurich);
   });
 
-  describe("section shortcuts", () => {
-    test("in the same scene: a fast walk, then the content", () => {
-      const { engine, host } = setup("sorrento");
-      engine.goToSection("contact");
-      const t = runUntil(engine, () => host.openSection.mock.calls.length > 0);
-      expect(host.openSection).toHaveBeenCalledWith("contact");
-      expect(t).toBeLessThanOrEqual(1500 + 400);
-    });
-
-    test("from the Hall: walk to the gate, fly, open on arrival", () => {
-      const { engine, host } = setup();
-      engine.goToSection("skills");
-      const walk = runUntil(engine, () => engine.transition?.kind === "map");
-      expect(walk).toBeLessThanOrEqual(1500 + 50);
-      expect(engine.transition).toMatchObject({ kind: "map", to: "london" });
-      runUntil(engine, () => host.openSection.mock.calls.length > 0);
-      expect(engine.scene.id).toBe("london");
-      expect(host.openSection).toHaveBeenCalledWith("skills");
-    });
-
-    test("country to country leaves through the Hall door and flies from there", () => {
-      const { engine, host } = setup("london");
-      engine.goToSection("experience");
-      runUntil(engine, () => engine.transition?.kind === "map");
-      const tr = engine.transition;
-      expect(tr?.kind === "map" && tr.route.a).toEqual(
-        TRAVEL_MAP_DATA.markers.london,
-      );
-      runUntil(engine, () => host.openSection.mock.calls.length > 0);
-      expect(engine.scene.id).toBe("zurich");
-      expect(host.openSection).toHaveBeenCalledWith("experience");
-    });
-
-    test("a click during the trip skips straight to the content", () => {
-      const { engine, host } = setup();
-      engine.goToSection("about");
-      run(engine, 200);
-      engine.walkTo(10, 150);
-      expect(engine.scene.id).toBe("sorrento");
-      run(engine, 200);
-      expect(host.openSection).toHaveBeenCalledWith("about");
-      expect(host.openSection).toHaveBeenCalledTimes(1);
-    });
-
-    test("never takes more than walk + map + a moment", () => {
-      const { engine, host } = setup("sorrento");
-      engine.goToSection("skills");
-      const t = runUntil(engine, () => host.openSection.mock.calls.length > 0);
-      expect(t).toBeLessThanOrEqual(1500 + 1500 + 250 + 400);
-    });
-  });
-
-  test("travelTo reaches the Hall from a country", () => {
-    const { engine } = setup("sorrento");
-    engine.travelTo("hall");
-    runUntil(engine, () => engine.scene.id === "hall");
-    expect(engine.position).toMatchObject(SCENES.hall.entryPoints.fromSorrento);
-  });
-
   test("the first flight takes off from the Hall's marked spot", () => {
     const { engine } = setup();
     engine.activate(exit(SCENES.hall, "zurich"));
@@ -356,9 +298,9 @@ describe("SceneEngine", () => {
 
   test("travel map origin is the last country visited", () => {
     const { engine } = setup("london");
-    engine.travelTo("hall");
+    engine.activate(exit(SCENES.london, "hall"));
     runUntil(engine, () => engine.scene.id === "hall" && !engine.transition);
-    engine.travelTo("zurich");
+    engine.activate(exit(SCENES.hall, "zurich"));
     runUntil(engine, () => engine.transition?.kind === "map");
     const tr = engine.transition;
     expect(tr?.kind === "map" && tr.route.a).toEqual(
@@ -446,13 +388,6 @@ describe("SceneEngine", () => {
       expect(host.openSection).toHaveBeenCalledWith("contact");
       expect(host.sound).toHaveBeenCalledWith("phone-ring");
       expect(host.sound).not.toHaveBeenCalledWith("ui-blip");
-    });
-
-    test("the toolbar shortcut plays it too", () => {
-      const { engine, host } = setup("sorrento", withSounds());
-      engine.goToSection("contact");
-      runUntil(engine, () => host.openSection.mock.calls.length > 0);
-      expect(host.sound).toHaveBeenCalledWith("phone-ring");
     });
 
     test("an animation plays its sound once per cycle", () => {

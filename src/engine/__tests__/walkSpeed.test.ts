@@ -1,13 +1,13 @@
 import { describe, expect, test, vi } from "vitest";
 import { CHARACTER_SHEET } from "../assets";
-import { MAX_TRAVEL_TIME, VERTICAL_SPEED, WALK_SPEED } from "../constants";
+import { VERTICAL_SPEED, WALK_SPEED } from "../constants";
 import { heightAt, scaleAt } from "../geometry";
 import { parseRig } from "../rig/rig";
 import { placeholderRig } from "../rig/placeholder";
 import { SceneEngine, type EngineHost } from "../SceneEngine";
 import { SCENES, TRAVEL_MAP_DATA } from "../scenes";
 import type { Facing, SceneId, SectionId } from "../types";
-import { depthFactor, groundSpeed, walkTime } from "../walkSpeed";
+import { depthFactor, groundSpeed } from "../walkSpeed";
 
 const FRAME = 16;
 const rig = parseRig(placeholderRig().json, "atlas.png");
@@ -235,80 +235,5 @@ describe("walking keeps the feet on the floor", () => {
       // Body-heights a second and strides per body-height are both constant.
       expect(Math.abs(rate(back) / rate(front) - 1)).toBeLessThan(0.15);
     });
-  });
-});
-
-describe("shortcut walks keep the travel cap", () => {
-  const points: [number, number][] = [
-    [6, 157],
-    [200, 157],
-    [280, 100],
-    [100, 96],
-    [10, 103],
-  ];
-  const ids = ["hall", "zurich", "sorrento", "london"] as const;
-  const sections: SectionId[] = ["about", "skills", "experience", "contact"];
-
-  test("from anywhere, at any depth, the walk to the exit takes at most MAX_TRAVEL_TIME", () => {
-    let slowest = 0;
-    for (const id of ids) {
-      for (const [x, y] of points) {
-        for (const section of sections) {
-          const { engine } = setup(id);
-          engine.walkTo(x, y);
-          finishWalk(engine);
-          engine.goToSection(section);
-          const ms = finishWalk(engine);
-          // One frame's slack: the clock runs in 16 ms frames.
-          expect(ms, `${id} ${x},${y} ${section}`).toBeLessThanOrEqual(
-            MAX_TRAVEL_TIME * 1000 + FRAME,
-          );
-          slowest = Math.max(slowest, ms);
-        }
-      }
-    }
-    // The cap is what's holding the long ones back, not a short room.
-    expect(slowest).toBeGreaterThan(MAX_TRAVEL_TIME * 1000 - 100);
-  });
-
-  test("a long walk is sped up to fit; a short one keeps the natural pace", () => {
-    const { depth } = SCENES.hall;
-    const exit = SCENES.hall.exits.find((e) => e.to === "london");
-    if (!exit) throw new Error("no gate");
-    const gate: [number, number] = [
-      exit.interactionPoint.x,
-      exit.interactionPoint.y,
-    ];
-    const natural = (from: [number, number]) =>
-      walkTime(depth, from, [gate]) * 1000;
-    // Front-left corner to a gate is well over the cap at the natural pace.
-    expect(natural([6, 157])).toBeGreaterThan(MAX_TRAVEL_TIME * 1000);
-    const { engine } = setup("hall");
-    goTo(engine, 6, 157);
-    engine.goToSection("skills");
-    const ms = finishWalk(engine);
-    expect(ms).toBeGreaterThan(MAX_TRAVEL_TIME * 1000 - 60);
-    expect(ms).toBeLessThanOrEqual(MAX_TRAVEL_TIME * 1000 + FRAME);
-    // A step or two away takes the natural time, not the cap.
-    const near = setup("hall");
-    const [gx, gy] = gate;
-    goTo(near.engine, gx - 6, gy + 3);
-    near.engine.goToSection("skills");
-    const t = finishWalk(near.engine);
-    expect(t).toBeLessThan(natural([gx - 6, gy + 3]) + 3 * FRAME);
-    expect(t).toBeLessThan(MAX_TRAVEL_TIME * 1000);
-  });
-
-  test("walkTime is the ground distance over the ground speed", () => {
-    const { depth } = SCENES.zurich;
-    // Across the front edge, at WALK_SPEED.
-    expect(walkTime(depth, [0, depth.nearY], [[70, depth.nearY]])).toBeCloseTo(
-      70 / WALK_SPEED,
-      6,
-    );
-    // Up the screen it's slower by VERTICAL_SPEED, and slower again at the back.
-    const up = walkTime(depth, [50, depth.nearY], [[50, depth.farY]]);
-    const dy = depth.nearY - depth.farY;
-    expect(up).toBeGreaterThan(dy / VERTICAL_SPEED / WALK_SPEED);
   });
 });

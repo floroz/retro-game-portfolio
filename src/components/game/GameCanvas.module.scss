@@ -23,19 +23,3 @@
   /* Prevent the un-scaled box from affecting layout */
   flex-shrink: 0;
 }
-
-/* Scene area - top 640px (80% of 800px) */
-.scene {
-  position: relative;
-  inline-size: to-rem(1280px);
-  block-size: to-rem(640px);
-  overflow: hidden;
-}
-
-/* Controls area - bottom 160px (20% of 800px); the panel paints its own
-   edge (components/toolbar) */
-.toolbar {
-  position: relative;
-  inline-size: to-rem(1280px);
-  block-size: to-rem(160px);
-}

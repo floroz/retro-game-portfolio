@@ -165,12 +165,12 @@ describe("scene audio", () => {
     const { audio, gains } = setup();
     audio.setEnabled(true);
     audio.play("door-open");
-    audio.play("fruit-machine");
+    audio.play("phone-ring");
     await flush();
     // gains[0] is the master; then one gain per effect.
-    const [door, fruit] = gains.slice(1).map((g) => g.gain.value);
+    const [door, phone] = gains.slice(1).map((g) => g.gain.value);
     expect(door).toBeCloseTo(0.7);
-    expect(fruit).toBeCloseTo(0.7 * 10 ** (-8.3 / 20));
+    expect(phone).toBeCloseTo(0.7 * 10 ** (-2.4 / 20));
   });
 });
 

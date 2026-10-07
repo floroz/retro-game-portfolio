@@ -2,7 +2,7 @@
  * Builds the site into a temporary folder and serves it with Vite's preview
  * server on a free port (`strictPort`, so it never clashes with a dev
  * server), for the scripts that drive the real game in a browser
- * (generate-og-image.ts, check-reachability.ts).
+ * (generate-og-image.ts).
  */
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";

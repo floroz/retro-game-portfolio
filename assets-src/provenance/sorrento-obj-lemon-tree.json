@@ -5,14 +5,11 @@
   "source": "codex",
   "prompt": "assets-src/prompts/hd/layers-sorrento.md",
   "candidate": "02",
-  "references": [
-    "assets-src/refs/hd/sorrento-chosen.png",
-    "assets-src/refs/hd/scale-sheet.png"
-  ],
+  "references": [],
   "approvedRaw": "assets-src/approved/sorrento-lemon-tree@hd.webp",
   "density": 2,
   "style": "painted",
-  "cleanup": "HB4: candidate 02 of sorrento-lemon-tree@hd (the fullest crown, and a pot with a rim like the composite's), prepared with assets:prepare --painted --no-quantize (alpha key, Lanczos, hard alpha at 128), then quantized with the rest of the scene to one shared 256-colour palette (assets:quantize, no dither), 88x156 art px (44x78 logical) at logical 283,82, so the right side runs 6 logical px off the scene edge as in the composite. It is an object whose baseline is the floor's front edge (logical y 158), so Daniele always walks behind it; the pot's footprint is outside the walkbox.",
+  "cleanup": "HB4: candidate 02 of sorrento-lemon-tree@hd (the fullest crown, and a pot with a rim like the composite's), prepared with assets:prepare --painted --no-quantize (alpha key, Lanczos, hard alpha at 128), then quantized with the rest of the scene to one shared 256-colour palette (assets:quantize, no dither), 88x156 art px (44x78 logical) at logical 283,82, so the right side runs 6 logical px off the scene edge as in the composite. It is an object whose baseline is the floor's front edge (logical y 158), so Daniele always walks behind it; the pot's footprint is outside the walkbox. Historical generation references at Git revision bc8f4c66811f0a955eb3515bddeae77b30b07e23: assets-src/refs/hd/sorrento-chosen.png, assets-src/refs/hd/scale-sheet.png. Removed from the working tree after export; current approved sources reproduce the shipped artwork.",
   "approvedBy": "orchestrator",
   "date": "2026-09-29"
 }
