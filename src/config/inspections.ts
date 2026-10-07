@@ -75,7 +75,7 @@ export function sectionInspection(section: SectionId): InspectionReading {
         subtitle: "A direct line from Sorrento",
         art: contactArt,
         artAlt:
-          "A red telephone connects to tin cans on a tiled Sorrento terrace, with lemons and the Bay of Naples behind it",
+          "An olive-grey rotary telephone, espresso and envelopes on a walnut desk beside a blank cream correspondence folio, overlooking the Bay of Naples",
         paperInsets: { top: 14, right: 8, bottom: 24, left: 57 },
         paragraphs: [],
         pages: [
