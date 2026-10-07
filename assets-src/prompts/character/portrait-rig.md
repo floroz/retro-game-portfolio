@@ -12,7 +12,7 @@ The density-4 atlas and render surface retain facial detail; the figure remains
 72 logical pixels tall. The source sheets for the first assembly are retained
 alongside the turnaround for provenance; only the revised cutouts ship.
 
-Generated with the built-in image generation tool on 2026-09-30. The user approved the front sheet and requested implementation; side and back extend that design. Canonical identity reference: `src/assets/daniele-static.png` and the user-provided original portrait. Preserve the original face, broad sweater, dark denim, and natural proportions.
+Generated with the built-in image generation tool on 2026-09-30. The user approved the front sheet and requested implementation; side and back extend that design. Canonical identity reference: `assets-src/approved/portrait-rig/reference.png` and the user-provided original portrait. Preserve the original face, broad sweater, dark denim, and natural proportions.
 
 ## front
 

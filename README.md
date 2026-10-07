@@ -79,6 +79,9 @@ London, Zürich and the airport may become mobile locations later. See [the Pock
 - **Art.** Full-quality sources are committed with prompts and provenance. The build encodes them as WebP, and the game preloads them in tiers behind the launch dialog, within size budgets that are checked by a test. See [encoded images](docs/encoded-images.md), [the close-up artwork](docs/location-inspection-art.md) and [the Lost & Found artwork](docs/lost-and-found-art.md).
 - **Audio.** The music is written as code, as MIDI phrases rendered with FluidSynth. The sound effects are synthesised by script.
 
+The [font decision](docs/font-decision.md) records the adventure typography; the
+[SEO audit](docs/seo-audit.md) records the current search and social metadata.
+
 ### Made with AI agents
 
 Version 2 was built by AI agents and directed by Daniele. **Claude Code** (Claude Opus 5.5 and Claude Sonnet 5.5) wrote the engine, tooling, tests and most of the integration, and ran the multi-agent orchestration. **OpenAI Codex** took implementation tasks and generated the artwork with its built-in image tool.
@@ -146,6 +149,16 @@ Run just these journeys in Docker with:
 ```bash
 npm run test:e2e:docker -- --grep @smoke
 ```
+
+Check one-click access to all five sections from every room with:
+
+```bash
+npm run check:reachability
+```
+
+This runs the `@reachability` Chromium journey in Docker, using real gates and
+toolbar controls. It also checks contact links, the resume URL, and return to
+the same room after dismissing content.
 
 Run both complete gameplay specs with:
 

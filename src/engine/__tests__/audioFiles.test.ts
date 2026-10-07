@@ -44,7 +44,6 @@ const EFFECTS: Record<EffectName, true> = {
   "dart-thunk": true,
   "door-close": true,
   "door-open": true,
-  "fruit-machine": true,
   "map-plane": true,
   "moka-gurgle": true,
   "phone-ring": true,

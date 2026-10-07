@@ -8,10 +8,8 @@
  * - country to country only through the Hall: a country's exits lead to
  *   the Hall, and the Hall's gates lead to the countries;
  * - Hall gates play the travel map; doors back to the Hall use an iris;
- * - a section shortcut walks to the nearest exit (at most MAX_TRAVEL_TIME),
- *   flies, and opens the content on arrival. A click skips to the content.
  */
-import { SECTIONS, isCountryScene } from "../config/sections";
+import { isCountryScene } from "../config/sections";
 import { cycleStarted } from "./animation";
 import { effectCycleStarted, propPassStarted } from "./effects";
 import {
@@ -23,13 +21,7 @@ import {
 } from "./character";
 import { RigAnimator, type RigState } from "./rig/animator";
 import type { Rig } from "./rig/rig";
-import {
-  IRIS_HOLD_MS,
-  IRIS_MS,
-  MAX_TRAVEL_TIME,
-  SPEECH_WIDTH,
-  speechMs,
-} from "./constants";
+import { IRIS_HOLD_MS, IRIS_MS, SPEECH_WIDTH, speechMs } from "./constants";
 import { wrapText } from "./font";
 import {
   clampToPolygon,
@@ -39,7 +31,7 @@ import {
   scaleAt,
 } from "./geometry";
 import { hoverText, lookText } from "./hover";
-import { groundDistance, groundSpeed, walkTime } from "./walkSpeed";
+import { groundDistance, groundSpeed } from "./walkSpeed";
 import { fillSlotRow, type SlotItem } from "./slots";
 import {
   FLIGHT_MS,
@@ -141,8 +133,6 @@ interface Actor {
   y: number;
   facing: Facing;
   path: Vec[];
-  /** Multiplies the natural walking speed (walkSpeed.ts): 1, or more for a shortcut. */
-  pace: number;
   onArrive: (() => void) | null;
 }
 
@@ -174,9 +164,6 @@ export interface EngineOptions {
   rng?: () => number;
 }
 
-/** "fromLondon" for a trip from London into the Hall. */
-const entryFrom = (id: SceneId) => `from${id[0].toUpperCase()}${id.slice(1)}`;
-
 export class SceneEngine {
   private readonly scenes: SceneRegistry;
   private readonly map: TravelMapData;
@@ -191,7 +178,6 @@ export class SceneEngine {
   private actor: Actor;
   private clock = 0;
   private timers: Timer[] = [];
-  private skipFn: (() => void) | null = null;
   private keyboard: Vec = [0, 0];
   private states = new Map<string, string>();
   private visited = new Set<SceneId>();
@@ -218,7 +204,7 @@ export class SceneEngine {
     this.start = start;
     this.current = this.scenes[start];
     const ep = this.entryPoint(this.current, "start");
-    this.actor = { ...ep, path: [], pace: 1, onArrive: null };
+    this.actor = { ...ep, path: [], onArrive: null };
     this.visited.add(start);
     if (isCountryScene(start)) this.lastCountry = start;
     this.slotItems = this.fillSlots(this.current);
@@ -240,11 +226,6 @@ export class SceneEngine {
 
   get walking(): boolean {
     return this.actor.path.length > 0 || this.keyboardActive;
-  }
-
-  /** True while a shortcut or trip is running and a click would skip it. */
-  get sequenceRunning(): boolean {
-    return this.skipFn !== null;
   }
 
   get slots(): SlotItem[] {
@@ -294,15 +275,9 @@ export class SceneEngine {
 
   /**
    * Handles a click that arrives while something is playing. Returns true
-   * when the click was used up (skipping a sequence, the map, or a line).
+   * when the click was used up (skipping the map or a line).
    */
   interrupt(): boolean {
-    if (this.skipFn) {
-      const skip = this.skipFn;
-      this.skipFn = null;
-      skip();
-      return true;
-    }
     const tr = this.transition;
     if (tr?.kind === "map") {
       tr.onDone();
@@ -436,65 +411,6 @@ export class SceneEngine {
     this.say(lookText(target));
   }
 
-  /** Section shortcut: go to a section's object and open it. */
-  goToSection(section: SectionId) {
-    this.reset();
-    const home = SECTIONS[section].home;
-    const object = this.scenes[home].objects.find((o) => o.action === section);
-    const ip = object?.interactionPoint;
-
-    const finish = () => {
-      this.reset();
-      if (this.current.id !== home) {
-        this.enter(home, "fromHall", { place: ip });
-      } else if (ip) {
-        Object.assign(this.actor, { x: ip.x, y: ip.y, facing: ip.facing });
-      }
-      this.useAndOpen(section, object);
-    };
-    this.skipFn = finish;
-
-    if (this.current.id === home) {
-      if (!ip) return finish();
-      this.walk([ip.x, ip.y], { fast: true, onArrive: finish });
-      return;
-    }
-    this.leaveToward(home, () => this.fly(home, finish));
-  }
-
-  /** Travel to a scene without opening anything. */
-  travelTo(to: SceneId) {
-    this.reset();
-    if (to === this.current.id) {
-      this.say(`We're already in ${this.current.name}.`);
-      return;
-    }
-    const via = this.exitToward(to);
-    const entry =
-      to === "hall"
-        ? via?.to === "hall"
-          ? via.entry
-          : entryFrom(this.current.id)
-        : "fromHall";
-    const finish = () => {
-      this.reset();
-      this.enter(to, entry, { arrivalLine: true });
-    };
-    this.skipFn = finish;
-    this.leaveToward(to, () => {
-      if (to === "hall") {
-        this.iris(
-          () => this.enter(to, entry, { arrivalLine: true }),
-          () => {
-            this.skipFn = null;
-          },
-        );
-      } else {
-        this.fly(to, finish);
-      }
-    });
-  }
-
   /**
    * Daniele greets the visitor with the start scene's `entryLine`, once per
    * page load, when the game is first on screen. The start scene counts as
@@ -506,7 +422,7 @@ export class SceneEngine {
     this.greeted = true;
     const line = this.current.entryLine;
     if (!line || this.current.id !== this.start) return;
-    if (this.skipFn || this.transition || this.speech) return;
+    if (this.transition || this.speech) return;
     this.say(line);
   }
 
@@ -524,7 +440,7 @@ export class SceneEngine {
 
   /** Held arrow keys, as a direction vector (each component -1, 0, or 1). */
   setKeyboard(dx: number, dy: number) {
-    if (this.skipFn || this.transition) {
+    if (this.transition) {
       this.keyboard = [0, 0];
       return;
     }
@@ -547,7 +463,7 @@ export class SceneEngine {
 
   /** Stop walking and drop any queued action. */
   stop() {
-    if (this.skipFn || this.transition?.kind === "map") {
+    if (this.transition?.kind === "map") {
       this.interrupt();
       return;
     }
@@ -607,7 +523,7 @@ export class SceneEngine {
     if (footstep) this.host.sound?.(`footstep-${this.current.floor ?? "wood"}`);
     this.animationSounds(before, this.clock);
 
-    const skippable = this.skipFn !== null || this.transition?.kind === "map";
+    const skippable = this.transition?.kind === "map";
     if (skippable !== this.wasSkippable) {
       this.wasSkippable = skippable;
       this.host.skippableChanged?.(skippable);
@@ -664,15 +580,14 @@ export class SceneEngine {
     this.timers.push({ at: this.clock + ms, fn });
   }
 
-  /** Drops the walk, timers, and any pending skip. */
+  /** Drops the walk and timers. */
   private cancel() {
     this.timers = [];
-    this.skipFn = null;
     this.actor.path = [];
     this.actor.onArrive = null;
   }
 
-  /** `cancel()`, plus any line and transition. For shortcuts. */
+  /** `cancel()`, plus any line and transition. For developer previews. */
   private reset() {
     this.cancel();
     this.speech = null;
@@ -689,7 +604,7 @@ export class SceneEngine {
     };
   }
 
-  private walk(to: Vec, opts: { fast?: boolean; onArrive?: () => void } = {}) {
+  private walk(to: Vec, opts: { onArrive?: () => void } = {}) {
     const path = findPath(
       [this.actor.x, this.actor.y],
       to,
@@ -702,15 +617,6 @@ export class SceneEngine {
       prev = p;
     }
     this.actor.path = path;
-    // A shortcut walk speeds up just enough to take at most MAX_TRAVEL_TIME.
-    // The speed varies with depth, so the time is summed over the path.
-    this.actor.pace = opts.fast
-      ? Math.max(
-          1,
-          walkTime(this.current.depth, [this.actor.x, this.actor.y], path) /
-            MAX_TRAVEL_TIME,
-        )
-      : 1;
     this.actor.onArrive = opts.onArrive ?? null;
     if (length < 0.5) this.arrive();
   }
@@ -764,7 +670,7 @@ export class SceneEngine {
       const dx = tx - a.x;
       const dy = ty - a.y;
       const ground = groundDistance(dx, dy);
-      const speed = groundSpeed(depth, a.y) * a.pace;
+      const speed = groundSpeed(depth, a.y);
       a.facing = facingFor(dx, dy, a.facing);
       if (ground <= speed * left) {
         a.x = tx;
@@ -806,32 +712,6 @@ export class SceneEngine {
     this.rigAnimator?.startUse();
     this.host.sound?.(object?.sound ?? "ui-blip");
     this.after(150, () => this.host.openSection(section));
-  }
-
-  /** Where a trip to `to` leaves this scene. */
-  private exitToward(to: SceneId): SceneExit | undefined {
-    const exits = this.current.exits;
-    return (
-      exits.find((e) => e.to === to) ??
-      (this.current.id === "hall"
-        ? undefined
-        : exits.find((e) => e.to === "hall"))
-    );
-  }
-
-  /** Fast walk to the exit towards `to`, open its door, then `next()`. */
-  private leaveToward(to: SceneId, next: () => void) {
-    const exit = this.exitToward(to);
-    if (!exit) return next();
-    const ip = exit.interactionPoint;
-    this.walk([ip.x, ip.y], {
-      fast: true,
-      onArrive: () => {
-        this.actor.facing = ip.facing;
-        this.openDoor(exit);
-        next();
-      },
-    });
   }
 
   private openDoor(exit: SceneExit) {
@@ -936,14 +816,14 @@ export class SceneEngine {
   private enter(
     id: SceneId,
     entryKey: string,
-    opts: { arrivalLine?: boolean; place?: StandPoint } = {},
+    opts: { arrivalLine?: boolean } = {},
   ) {
     const scene = this.scenes[id];
     this.current = scene;
     this.states.clear();
     this.opened = null;
     this.slotItems = this.fillSlots(scene);
-    const ep = opts.place ?? this.entryPoint(scene, entryKey);
+    const ep = this.entryPoint(scene, entryKey);
     const [x, y] = clampToPolygon([ep.x, ep.y], scene.walkbox);
     Object.assign(this.actor, {
       x,

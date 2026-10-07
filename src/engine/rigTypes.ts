@@ -23,10 +23,9 @@
  */
 
 /**
- * The one ink colour of the puppet's outline. The parts are painted with it
- * (scripts/assets/rigpaint.ts), and the renderer inks the posed figure's
- * silhouette with it (rig/draw.ts), so a joint that bends still gets a
- * single outline.
+ * Ink colour for the optional pixel puppet outline. The renderer inks the
+ * posed silhouette with it (rig/draw.ts), so a joint that bends still gets a
+ * single outline. The current portrait rig preserves its painted source edges.
  */
 export const RIG_INK = [6, 5, 12] as const;
 

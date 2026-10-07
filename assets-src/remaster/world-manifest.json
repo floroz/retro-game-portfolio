@@ -28,12 +28,6 @@
       "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
     },
     {
-      "output": "src/assets/remaster/london/obj-fruit-machine.png",
-      "original": "src/assets/scenes/london/obj-fruit-machine.png",
-      "source": "assets-src/approved/london-fruit-machine@hd.webp",
-      "note": "Density 4 from approved original, soft alpha. Shipped alpha bounds retain canvas size, offsets and state registration; smooth colour correction retains the approved contrast/colour treatment. Right Sorrento chair mirrors the left source as before."
-    },
-    {
       "output": "src/assets/remaster/london/obj-jukebox.png",
       "original": "src/assets/scenes/london/obj-jukebox.png",
       "source": "assets-src/approved/london-jukebox.webp",

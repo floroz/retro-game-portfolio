@@ -1,7 +1,7 @@
 /**
  * Slice the portrait-faithful generated sheets into the existing puppet rig.
- * Unlike the legacy rigcut.ts repaint, this keeps the generated silhouettes,
- * face, hands, fabric and colours. Coordinates below are measured against
+ * This keeps the generated silhouettes, face, hands, fabric and colours.
+ * Coordinates below are measured against
  * assets-src/approved/portrait-rig; prompts are in prompts/character/portrait-rig.md.
  *
  * npm run assets:rigcut -- --preview assets-src/review/portrait-rig

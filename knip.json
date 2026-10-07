@@ -3,12 +3,19 @@
   "entry": [
     "src/main.tsx",
     "scripts/assets/*.ts",
-    "src/engine/rig/dev/preview.ts"
+    "src/engine/rig/dev/preview.ts",
+    "assets-src/audio/{ambience,music,sfx}/*.ts",
+    "!assets-src/audio/music/motif.ts"
   ],
-  "project": ["src/**/*.{ts,tsx}", "scripts/assets/**/*.ts"],
+  "project": [
+    "src/**/*.{ts,tsx}",
+    "scripts/**/*.ts",
+    "assets-src/audio/**/*.ts"
+  ],
   "ignore": ["src/vite-env.d.ts"],
   "playwright": {
     "entry": ["test/**/*.test.ts"],
     "config": ["playwright.config.ts"]
-  }
+  },
+  "include": ["classMembers"]
 }

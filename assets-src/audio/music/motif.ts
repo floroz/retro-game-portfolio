@@ -19,8 +19,6 @@
  */
 import { phrase, type PhraseOptions } from "../../../scripts/assets/music";
 
-export const MOTIF_KEY = "F major";
-
 /** The motif as phrase text (see `phrase` in scripts/assets/music.ts). */
 export const MOTIF =
   "A4:.5 C5:.5 F5:1 E5:.5 C5:1 A4:.5 | Bb4:.5 A4:.5 G4:2 r:1";

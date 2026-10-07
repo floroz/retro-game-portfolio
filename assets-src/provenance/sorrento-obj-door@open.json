@@ -5,14 +5,11 @@
   "source": "codex",
   "prompt": "assets-src/prompts/hd/layers-sorrento.md",
   "candidate": "01",
-  "references": [
-    "assets-src/refs/hd/sorrento-chosen.png",
-    "assets-src/refs/hd/scale-sheet.png"
-  ],
+  "references": [],
   "approvedRaw": "assets-src/approved/sorrento-door-open@hd.webp",
   "density": 2,
   "style": "painted",
-  "cleanup": "HB4: candidate 01 of sorrento-door-open@hd (the leaf swung out into a lemon garden at sunset), cropped to its alpha bounds and squeezed 11% narrower so its frame matches the closed door's (the candidate drew a wider frame), then prepared with assets:prepare --painted --no-quantize (alpha key, Lanczos, hard alpha at 128), then quantized with the rest of the scene to one shared 256-colour palette (assets:quantize, no dither). 76x150 art px at logical 3,25, the same box as obj-door.png.",
+  "cleanup": "HB4: candidate 01 of sorrento-door-open@hd (the leaf swung out into a lemon garden at sunset), cropped to its alpha bounds and squeezed 11% narrower so its frame matches the closed door's (the candidate drew a wider frame), then prepared with assets:prepare --painted --no-quantize (alpha key, Lanczos, hard alpha at 128), then quantized with the rest of the scene to one shared 256-colour palette (assets:quantize, no dither). 76x150 art px at logical 3,25, the same box as obj-door.png. Historical generation references at Git revision bc8f4c66811f0a955eb3515bddeae77b30b07e23: assets-src/refs/hd/sorrento-chosen.png, assets-src/refs/hd/scale-sheet.png. Removed from the working tree after export; current approved sources reproduce the shipped artwork.",
   "approvedBy": "orchestrator",
   "date": "2026-09-29"
 }

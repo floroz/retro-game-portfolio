@@ -6,7 +6,7 @@
   "prompt": "assets-src/prompts/character/portrait-rig.md",
   "candidate": "Approved front face and side sheet, with complete front/back turnaround correcting the requested stance and assembly",
   "references": [
-    "src/assets/daniele-static.png",
+    "assets-src/approved/portrait-rig/reference.png",
     "assets-src/approved/portrait-rig/front.png",
     "assets-src/approved/portrait-rig/side.png",
     "assets-src/approved/portrait-rig/back.png",

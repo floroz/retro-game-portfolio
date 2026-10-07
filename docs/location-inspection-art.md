@@ -19,8 +19,9 @@ and pagination remain HTML from the shared profile.
 ## Sources and export
 
 The built-in imagegen tool produced the full-resolution PNG sources in
-`assets-src/approved/location-inspections/`. The current prompts are in
-`assets-src/prompts/classic-inspections/`, and individual provenance records
+`assets-src/approved/location-inspections/`. The current Sorrento and London prompts are in
+`assets-src/prompts/classic-inspections/`; Zürich uses
+`assets-src/prompts/swiss-room.md`, and individual provenance records
 are named `assets-src/provenance/remaster-inspection-*.json`. Superseded
 illustrations, concept sheets and generation references are kept in Git history,
 not as duplicate images in the current tree. Provenance notes identify their

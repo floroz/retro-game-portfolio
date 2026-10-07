@@ -20,7 +20,7 @@
  */
 import { VERTICAL_SPEED, WALK_SPEED } from "./constants";
 import { heightAt } from "./geometry";
-import type { DepthScale, Vec } from "./types";
+import type { DepthScale } from "./types";
 
 /**
  * His height with feet at `y`, over his height at the front edge: 1 at
@@ -39,33 +39,4 @@ export function groundSpeed(depth: DepthScale, y: number): number {
 /** Ground distance covered by a screen displacement. */
 export function groundDistance(dx: number, dy: number): number {
   return Math.hypot(dx, dy / VERTICAL_SPEED);
-}
-
-/** Longest step, in screen px, that `walkTime` assumes the speed is steady over. */
-const TIME_STEP = 0.5;
-
-/**
- * Seconds to walk `path` from `from` at the natural pace: the sum, over
- * short steps, of ground distance over the ground speed there.
- */
-export function walkTime(
-  depth: DepthScale,
-  from: Vec,
-  path: readonly Vec[],
-): number {
-  let seconds = 0;
-  let [x, y] = from;
-  for (const [tx, ty] of path) {
-    const dx = tx - x;
-    const dy = ty - y;
-    const steps = Math.max(1, Math.ceil(Math.hypot(dx, dy) / TIME_STEP));
-    const ground = groundDistance(dx, dy) / steps;
-    for (let i = 0; i < steps; i++) {
-      // The speed at the middle of the step.
-      seconds += ground / groundSpeed(depth, y + (dy * (i + 0.5)) / steps);
-    }
-    x = tx;
-    y = ty;
-  }
-  return seconds;
 }

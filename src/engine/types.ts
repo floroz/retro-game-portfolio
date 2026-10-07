@@ -84,7 +84,6 @@ export type EffectName =
   | "dart-thunk"
   | "door-close"
   | "door-open"
-  | "fruit-machine"
   | "map-plane"
   | "moka-gurgle"
   | "phone-ring"
@@ -175,7 +174,7 @@ export interface SceneObject {
   use?: string;
   /**
    * Played when the object is used (left click), as the character reaches
-   * it: `"dart-thunk"`, `"fruit-machine"`, `"phone-ring"`, `"moka-gurgle"`.
+   * it: `"dart-thunk"`, `"phone-ring"`, `"moka-gurgle"`.
    * For an object with an `action`, it replaces the UI blip.
    */
   sound?: EffectName;
