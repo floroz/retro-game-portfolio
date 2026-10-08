@@ -21,6 +21,11 @@ const UTILITY_RECTS = Object.fromEntries(
   PANEL_LAYOUT.utilities.map((u) => [u.id, u.rect]),
 ) as Record<UtilityId, Rect>;
 
+interface ToolbarProps {
+  /** Opens the instructions when their screen is connected to the game host. */
+  onShowControls?: () => void;
+}
+
 /**
  * The controls under the scene: a travel trunk painted on the scenes' own
  * 2x grid (layout.ts, paint.ts). The sentence line runs along its top; one
@@ -37,7 +42,7 @@ const UTILITY_RECTS = Object.fromEntries(
  * place (Dialogue.tsx), as MI3's replace its verbs; the trunk comes back
  * when the conversation ends.
  */
-export function Toolbar() {
+export function Toolbar({ onShowControls }: ToolbarProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const dialogOpen = useGameStore((s) => s.dialogOpen);
 
@@ -69,12 +74,12 @@ export function Toolbar() {
 
   return (
     <div className={styles.panel} data-e2e="toolbar" ref={panelRef}>
-      {dialogOpen ? <Dialogue /> : <Trunk />}
+      {dialogOpen ? <Dialogue /> : <Trunk onShowControls={onShowControls} />}
     </div>
   );
 }
 
-function Trunk() {
+function Trunk({ onShowControls }: ToolbarProps) {
   const fontSettled = useAdventureFont();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hovered, setHovered] = useState<ControlId | null>(null);
@@ -223,6 +228,16 @@ function Trunk() {
         href={PROFILE.social.linkedin}
         target="_blank"
         rel="noopener noreferrer"
+      />
+      <button
+        type="button"
+        className={styles.fitting}
+        style={panelPct(PANEL_LAYOUT.help)}
+        data-e2e="toolbar-button"
+        data-control="help"
+        aria-label="How to play"
+        onClick={onShowControls}
+        {...pointAt("help")}
       />
     </>
   );

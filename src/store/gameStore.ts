@@ -25,6 +25,9 @@ interface GameState {
 
   // Dialog state
   welcomeShown: boolean;
+  controlsOpen: boolean;
+  openControls: () => void;
+  closeControls: () => void;
   dialogOpen: boolean;
   dialogNode: string;
   /**
@@ -70,6 +73,9 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   // Initial dialog state - always start fresh
   welcomeShown: false,
+  controlsOpen: false,
+  openControls: () => set({ controlsOpen: true, hoveredObject: null }),
+  closeControls: () => set({ controlsOpen: false }),
   dialogOpen: false,
   dialogNode: "",
   dialogReady: false,
@@ -92,6 +98,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     // A content screen ends any conversation.
     set({
+      controlsOpen: false,
       contentSection: action,
       inspection: null,
       hoveredObject: null,
@@ -102,6 +109,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   openInspection: (inspection) =>
     set({
+      controlsOpen: false,
       inspection,
       contentSection: null,
       hoveredObject: null,
@@ -136,6 +144,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     const again = dialogOpen && dialogNode === startNode;
 
     set({
+      controlsOpen: false,
       dialogOpen: true,
       dialogNode: startNode,
       dialogReady: again ? dialogReady : false,

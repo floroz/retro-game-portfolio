@@ -78,7 +78,15 @@ for (const viewport of viewports) {
       };
 
       await screenshot("ticket");
-      await page.keyboard.press("Space");
+      await page.locator("[data-e2e=welcome-screen-prompt]").click();
+      await expect(page.locator("[data-e2e=how-to-play]")).toBeVisible();
+      await page
+        .locator("[data-e2e=how-to-play] > img")
+        .evaluate(async (img) => {
+          await (img as unknown as { decode: () => Promise<void> }).decode();
+        });
+      await screenshot("how-to-play");
+      await page.locator("[data-e2e=how-to-play-continue]").click();
       await advanceScene(page, 1000);
       await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();
       await page.keyboard.press("Enter");

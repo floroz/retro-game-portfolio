@@ -109,8 +109,9 @@ heading font. Keep their font sources and licenses.
 | ---- | -------------------------------------------------------- | -------- | --------------------------------- |
 | 1    | Title card boarding pass                                 | high     | `ImageStore`                      |
 | 2    | Daniele (sheet and rig), the first scene (`START_SCENE`) | high     | `ImageStore`                      |
-| 3    | Every other scene, the travel map                        | low      | `ImageStore`                      |
-| 4    | Portfolio inspection cards                               | low      | HTTP cache only (`canvas: false`) |
+| 3    | Airport How to Play guide                                | high     | HTTP cache only (`canvas: false`) |
+| 4    | Every other scene, the travel map                        | low      | `ImageStore`                      |
+| 5    | Portfolio inspection cards                               | low      | HTTP cache only (`canvas: false`) |
 
 Each stage waits for its art, with a fallback:
 

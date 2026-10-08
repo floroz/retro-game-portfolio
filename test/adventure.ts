@@ -13,8 +13,22 @@ export async function waitForGameWindowReady(page: Page) {
   });
 }
 
+/** Complete the explicit boarding-pass action and first-visit instructions. */
+export async function beginAdventure(page: Page) {
+  const firstVisit = await page.evaluate(
+    () => localStorage.getItem("retro-adventure:controls-seen:v1") !== "1",
+  );
+  await page.locator("[data-e2e=welcome-screen-prompt]").click();
+  if (firstVisit) {
+    await expect(page.locator("[data-e2e=how-to-play]")).toBeVisible({
+      timeout: 15000,
+    });
+    await page.locator("[data-e2e=how-to-play-continue]").click();
+  }
+}
+
 export async function dismissWelcomeAndWaitForDialog(page: Page) {
-  await page.keyboard.press("Space");
+  await beginAdventure(page);
   const dialog = page.locator("[data-e2e=adventure-dialog]");
   await expect(dialog).toBeVisible({ timeout: 5000 });
   // Daniele says the line over his head; Enter skips ahead to the choices.
@@ -38,7 +52,7 @@ export async function startAdventure(page: Page) {
   );
   // Audio has its own functional tests. Keep these journeys silent.
   await welcome.getByRole("button", { name: "Sound", exact: true }).click();
-  await page.keyboard.press("Space");
+  await beginAdventure(page);
   await advanceScene(page, 1000);
   await expect(welcome).toBeHidden();
   await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();

@@ -42,9 +42,9 @@
   }
 }
 
-/* The boarding pass is the start button */
+/* Only the explicit key starts the adventure. */
 .pass {
-  @extend %control;
+  position: absolute;
 }
 
 /* The round brass sound fitting */
@@ -86,6 +86,14 @@
 }
 
 .key {
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+
+  &:focus-visible {
+    outline: 2px solid #172b40;
+    outline-offset: 6px;
+  }
   display: grid;
   place-items: center;
   inline-size: 80%;
@@ -107,13 +115,13 @@
   font-size: to-rem(16px);
 }
 
-.pass:hover .key,
-.pass:focus-visible .key {
+.key:hover,
+.key:focus-visible {
   color: #fff5d8;
   background: #172b40;
 }
 
-.pass:active .key {
+.key:active {
   transform: translateY(4px);
   animation: none;
   box-shadow: 0 2px #172b40;

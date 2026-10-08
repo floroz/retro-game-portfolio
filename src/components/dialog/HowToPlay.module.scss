@@ -1,0 +1,311 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+}
+
+.screen {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
+  color: #f4d5a0;
+  font-family: "Pixel Operator", sans-serif;
+  font-size: 26px;
+  line-height: 1.05;
+  outline: none;
+
+  p,
+  h1,
+  h2 {
+    margin: 0;
+  }
+
+  h2 {
+    color: #edb756;
+    font-size: 28px;
+    font-weight: 400;
+    margin-block-end: 12px;
+  }
+}
+
+.art {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.title {
+  position: absolute;
+  inset-inline-start: 37.8%;
+  inset-block-start: 19.2%;
+  inline-size: 28.9%;
+  block-size: 6%;
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+  font-weight: 400;
+  color: #352719;
+}
+
+.leftMouse {
+  position: absolute;
+  inset-inline-start: 33.8%;
+  inset-block-start: 31%;
+  inline-size: 22%;
+}
+
+.rightMouse {
+  position: absolute;
+  inset-inline-start: 65.5%;
+  inset-block-start: 31%;
+  inline-size: 22%;
+}
+
+.arrows,
+.wasd,
+.tab,
+.enter,
+.space,
+.escape {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  block-size: 4.7%;
+  color: #382c1d;
+  font-size: 25px;
+}
+
+.arrows {
+  inset-inline-start: 26.1%;
+  inset-block-start: 46.4%;
+  inline-size: 9.6%;
+}
+
+.wasd {
+  inset-inline-start: 39.6%;
+  inset-block-start: 46.4%;
+  inline-size: 6.5%;
+}
+
+.tab {
+  inset-inline-start: 26.1%;
+  inset-block-start: 52.2%;
+  inline-size: 5.3%;
+}
+
+.enter {
+  inset-inline-start: 26.1%;
+  inset-block-start: 58.2%;
+  inline-size: 7.1%;
+}
+
+.space {
+  inset-inline-start: 36.9%;
+  inset-block-start: 58.2%;
+  inline-size: 7.2%;
+}
+
+.escape {
+  inset-inline-start: 26.1%;
+  inset-block-start: 64%;
+  inline-size: 5.3%;
+}
+
+.walkOr,
+.useOr {
+  position: absolute;
+}
+
+.walkOr {
+  inset-inline-start: 36.8%;
+  inset-block-start: 47.3%;
+}
+
+.useOr {
+  inset-inline-start: 34.4%;
+  inset-block-start: 59%;
+}
+
+.walk,
+.focus,
+.use,
+.stop {
+  position: absolute;
+  inset-inline-start: 49.2%;
+}
+
+.walk {
+  inset-block-start: 47%;
+}
+
+.focus {
+  inset-block-start: 53.3%;
+}
+
+.use {
+  inset-block-start: 59.4%;
+}
+
+.stop {
+  inset-block-start: 65.5%;
+}
+
+.bottomRow {
+  position: absolute;
+  inset-inline: 336px 140px;
+  inset-block-start: 568px;
+  block-size: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.footer {
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.action {
+  --face: #49a19c;
+  --rim: #8a6420;
+  --light: #7abeb8;
+  --shade: #1f5458;
+
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  inline-size: 372px;
+  block-size: 100%;
+  border: 0;
+  padding: 8px 24px;
+  background: var(--rim);
+  color: #0f0d12;
+  box-shadow:
+    inset 0 4px 0 #e0b040,
+    inset 4px 0 0 #e0b040,
+    inset -4px 0 0 #261412,
+    inset 0 -8px 0 #0f0d12;
+  font: inherit;
+  font-size: 36px;
+  line-height: 1;
+  cursor: pointer;
+  /* Every corner advances in 4px steps, matching the scene's art grid. */
+  clip-path: polygon(
+    8px 0,
+    calc(100% - 8px) 0,
+    calc(100% - 8px) 4px,
+    calc(100% - 4px) 4px,
+    calc(100% - 4px) 8px,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 4px),
+    calc(100% - 8px) calc(100% - 4px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 4px),
+    4px calc(100% - 4px),
+    4px calc(100% - 8px),
+    0 calc(100% - 8px),
+    0 8px,
+    4px 8px,
+    4px 4px,
+    8px 4px
+  );
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    background: var(--face);
+    box-shadow:
+      inset 4px 4px 0 var(--light),
+      inset -4px -4px 0 var(--shade);
+    clip-path: polygon(
+      4px 0,
+      calc(100% - 4px) 0,
+      calc(100% - 4px) 4px,
+      100% 4px,
+      100% calc(100% - 4px),
+      calc(100% - 4px) calc(100% - 4px),
+      calc(100% - 4px) 100%,
+      4px 100%,
+      4px calc(100% - 4px),
+      0 calc(100% - 4px),
+      0 4px,
+      4px 4px
+    );
+    pointer-events: none;
+  }
+
+  /* Square enamel flecks and brass rivets, drawn entirely in CSS. */
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 16px;
+    inset-block-start: 16px;
+    inline-size: 4px;
+    block-size: 4px;
+    box-shadow:
+      0 16px 0 #e0b040,
+      4px 12px 0 #fff1a0,
+      4px 16px 0 #8a6420,
+      328px 16px 0 #e0b040,
+      332px 12px 0 #fff1a0,
+      332px 16px 0 #8a6420,
+      20px 0 0 #3a8a86,
+      36px 24px 0 #7abeb8,
+      52px 8px 0 #3a8a86,
+      68px 36px 0 #3a8a86,
+      84px 4px 0 #7abeb8,
+      100px 28px 0 #3a8a86,
+      116px 12px 0 #3a8a86,
+      132px 36px 0 #7abeb8,
+      148px 0 0 #3a8a86,
+      164px 24px 0 #3a8a86,
+      180px 8px 0 #7abeb8,
+      196px 36px 0 #3a8a86,
+      212px 4px 0 #3a8a86,
+      228px 28px 0 #7abeb8,
+      244px 12px 0 #3a8a86,
+      260px 36px 0 #3a8a86,
+      276px 0 0 #7abeb8,
+      292px 24px 0 #3a8a86,
+      308px 8px 0 #3a8a86;
+    pointer-events: none;
+  }
+
+  &:hover {
+    --face: #7abeb8;
+    --light: #c6e4f0;
+  }
+
+  &:focus-visible {
+    --rim: #fff1a0;
+    --light: #fff1a0;
+
+    outline: none;
+    box-shadow: inset 0 -4px 0 #fff1a0;
+  }
+
+  &:active {
+    --light: #1f5458;
+    --shade: #7abeb8;
+
+    transform: translateY(4px);
+  }
+}
+
+.actionLabel {
+  position: relative;
+  z-index: 1;
+}
+
+.actionHint {
+  display: block;
+  font-size: 14px;
+  margin-block-start: 3px;
+}

@@ -22,6 +22,7 @@ const overlaps = (a: Rect, b: Rect) =>
 const panel = { x: 0, y: 0, w: PANEL_W, h: PANEL_H };
 const rows = PANEL_LAYOUT.tickets.flatMap((t) => t.rows);
 const controls: Rect[] = [
+  PANEL_LAYOUT.help,
   ...rows.map((r) => r.rect),
   ...PANEL_LAYOUT.utilities.map((u) => u.rect),
 ];
@@ -71,6 +72,14 @@ describe("controls panel layout", () => {
     );
   });
 
+  test("Help has its own space beside the sentence line", () => {
+    expect(overlaps(PANEL_LAYOUT.help, PANEL_LAYOUT.sentence)).toBe(false);
+    const sound = PANEL_LAYOUT.utilities.find((u) => u.id === "sound")!;
+    expect(PANEL_LAYOUT.help.x + PANEL_LAYOUT.help.w / 2).toBe(
+      sound.rect.x + sound.rect.w / 2,
+    );
+  });
+
   test("controls stay big enough to hit in the smallest game window", () => {
     // The Win95 window shrinks the 1280 px game to about 0.6x; a 16 art px
     // control is still about 19 screen px there.
@@ -93,6 +102,7 @@ describe("sentence line", () => {
     expect(controlSentence("sound", true)).toBe("Turn off the sound");
     expect(controlSentence("github")).toMatch(/GitHub/);
     expect(controlSentence("linkedin")).toMatch(/LinkedIn/);
+    expect(controlSentence("help")).toBe("How to play");
   });
 
   test("a trip beats skipping, skipping beats hovering, and idle walks", () => {

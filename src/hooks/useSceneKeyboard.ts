@@ -21,8 +21,9 @@ const KEYS: Record<string, Dir> = {
  */
 export function useSceneKeyboard() {
   const gameWindowActive = useGameStore((s) => s.gameWindowActive);
+  const controlsOpen = useGameStore((s) => s.controlsOpen);
   useEffect(() => {
-    if (!gameWindowActive) return;
+    if (!gameWindowActive || controlsOpen) return;
     const held = new Set<Dir>();
     const push = () => {
       const dx = (held.has("right") ? 1 : 0) - (held.has("left") ? 1 : 0);
@@ -37,6 +38,7 @@ export function useSceneKeyboard() {
         s.contentSection !== null ||
         s.inspection !== null ||
         s.dialogOpen ||
+        s.controlsOpen ||
         !s.gameWindowActive
       );
     };
@@ -72,5 +74,5 @@ export function useSceneKeyboard() {
       held.clear();
       getEngine().setKeyboard(0, 0);
     };
-  }, [gameWindowActive]);
+  }, [gameWindowActive, controlsOpen]);
 }

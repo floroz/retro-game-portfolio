@@ -1,3 +1,4 @@
+import { beginAdventure } from "./adventure";
 import { test, expect, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import sharp from "sharp";
@@ -30,7 +31,7 @@ async function openAirport(page: Page) {
   await page.clock.pauseAt(
     new Date((await page.evaluate(() => Date.now())) + 1000),
   );
-  await page.keyboard.press("Space");
+  await beginAdventure(page);
   await page.clock.runFor(1000);
   await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();
   await page.keyboard.press("Escape");
@@ -476,7 +477,12 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
     }
     if (reducedMotion === "no-preference") {
       await advanceScene(page, 14000);
-      await expect(canvas).toHaveScreenshot("zurich-balloon.png");
+      // Adjacent RAF phases can move the lake shimmer across one art pixel.
+      // Allow at most its 4x4 native footprint; the motion assertions above
+      // still check every animated region independently.
+      await expect(canvas).toHaveScreenshot("zurich-balloon.png", {
+        maxDiffPixels: 16,
+      });
     }
     // The sky above the cow used to have no exit hotspot. Keep the cow
     // inspectable, then leave through that formerly dead part of the opening.

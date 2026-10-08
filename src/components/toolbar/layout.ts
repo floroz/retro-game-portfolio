@@ -4,6 +4,7 @@
  * 2x nearest-neighbour under the 1280x640 scene.
  *
  * - The **sentence line** runs along the top, as in SCUMM ("Walk to").
+ *   A small brass Help fitting sits at its right end.
  * - One **boarding pass** per country, in journey order: its stub carries
  *   the city's emblem, its header the city's name, and its body one row per
  *   section that lives there. Grouping the sections on their city's ticket
@@ -34,6 +35,7 @@ export interface TicketLayout {
 
 interface PanelLayout {
   sentence: Rect;
+  help: Rect;
   tickets: TicketLayout[];
   utilities: { id: UtilityId; rect: Rect }[];
 }
@@ -52,6 +54,7 @@ const UTILITY = 24;
 const UTILITY_GAP = 4;
 const UTILITY_COLS = 2;
 const UTILITY_ORDER: UtilityId[] = ["talk", "sound", "github", "linkedin"];
+const HELP_SIZE = 18;
 
 /** Section order on each ticket: the toolbar's order since v1. */
 const ROW_ORDER: SectionId[] = [
@@ -106,8 +109,17 @@ function buildLayout(): PanelLayout {
     },
   }));
 
+  // Centre Help above the right utility column, without moving the tickets.
+  const help: Rect = {
+    x: utilitiesX + UTILITY + UTILITY_GAP + (UTILITY - HELP_SIZE) / 2,
+    y: 4,
+    w: HELP_SIZE,
+    h: HELP_SIZE,
+  };
+
   return {
-    sentence: { x: MARGIN, y: 3, w: PANEL_W - MARGIN * 2, h: 19 },
+    sentence: { x: MARGIN, y: 3, w: help.x - MARGIN - 4, h: 19 },
+    help,
     tickets,
     utilities,
   };

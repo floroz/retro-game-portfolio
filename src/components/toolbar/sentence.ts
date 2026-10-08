@@ -11,10 +11,12 @@ export const IDLE_SENTENCE = "Walk to";
 
 /** What a panel control says on hover and to screen readers. */
 export function controlSentence(
-  control: SectionId | UtilityId,
+  control: SectionId | UtilityId | "help",
   soundEnabled = false,
 ): string {
   switch (control) {
+    case "help":
+      return "How to play";
     case "talk":
       return "Talk to Daniele";
     case "sound":

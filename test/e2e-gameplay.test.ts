@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import {
+  beginAdventure,
   waitForGameWindowReady,
   dismissWelcomeAndWaitForDialog,
   advanceUntilVisible,
@@ -279,9 +280,7 @@ test.describe("Portfolio E2E Tests", () => {
             ?.state,
       );
     expect(await contextState()).toBeUndefined();
-    await welcome
-      .getByRole("button", { name: "Press space or click to start" })
-      .click();
+    await beginAdventure(page);
     await expect(welcome).toBeHidden();
     await expect
       .poll(() => audioRequests.some((url) => url.includes("/audio/music/")))
@@ -333,7 +332,7 @@ test.describe("Portfolio E2E Tests", () => {
     await expect(welcomeScreen).toBeVisible({ timeout: 10000 });
 
     // Dismiss welcome screen
-    await page.keyboard.press("Space");
+    await beginAdventure(page);
 
     // Wait for game canvas to appear inside the Win95 game window
     const gameCanvas = page.locator("[data-e2e=game-canvas]");
@@ -422,4 +421,89 @@ test("toolbar keyboard navigation", async ({ page }) => {
   await page.keyboard.press("Tab");
   const thirdToolbarButton = page.locator("[data-e2e=toolbar-button]").nth(2);
   await expect(thirdToolbarButton).toBeFocused();
+});
+
+test("first visit requires explicit actions and later visits skip instructions @smoke", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await waitForGameWindowReady(page);
+  const welcome = page.locator("[data-e2e=welcome-screen]");
+  await welcome.click({ position: { x: 40, y: 40 } });
+  await page.keyboard.press("Space");
+  await expect(welcome).toBeVisible();
+  await page.locator("[data-e2e=welcome-screen-prompt]").focus();
+  await page.keyboard.press("Space");
+  const controls = page.locator("[data-e2e=how-to-play]");
+  await expect(controls).toBeVisible({ timeout: 15000 });
+  expect(
+    await page.evaluate(() =>
+      localStorage.getItem("retro-adventure:controls-seen:v1"),
+    ),
+  ).toBeNull();
+  await controls.click({ position: { x: 40, y: 40 } });
+  await page.keyboard.press("Space");
+  await page.keyboard.press("Escape");
+  await expect(controls).toBeVisible();
+  await page.keyboard.press("Tab");
+  await expect(page.locator("[data-e2e=how-to-play-continue]")).toBeFocused();
+  await page.keyboard.press("Space");
+  await expect(controls).toBeHidden();
+  await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();
+  expect(
+    await page.evaluate(() =>
+      localStorage.getItem("retro-adventure:controls-seen:v1"),
+    ),
+  ).toBe("1");
+  await page.reload();
+  await waitForGameWindowReady(page);
+  await page.locator("[data-e2e=welcome-screen-prompt]").click();
+  await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();
+  await expect(controls).toBeHidden();
+});
+
+test("toolbar instructions pause and resume the same adventure with focus restored", async ({
+  page,
+}) => {
+  await openAirport(page);
+  const help = page.getByRole("button", { name: "How to play", exact: true });
+  const pixels = () =>
+    page
+      .locator("canvas[data-drawn=hall]")
+      .evaluate((canvas) =>
+        (canvas as unknown as { toDataURL: () => string }).toDataURL(),
+      );
+  const before = await pixels();
+  await help.click();
+  await expect(page.locator("[data-e2e=how-to-play]")).toBeVisible();
+  await page.keyboard.press("ArrowRight");
+  await advanceScene(page, 2000);
+  expect(await pixels()).toBe(before);
+  await page.getByRole("button", { name: "Back to the adventure" }).click();
+  await expect(help).toBeFocused();
+  expect(await pixels()).toBe(before);
+  await help.click();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("[data-e2e=how-to-play]")).toBeHidden();
+  await expect(help).toBeFocused();
+});
+
+test("restricted storage never prevents starting the adventure", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(globalThis, "localStorage", {
+      get() {
+        throw new DOMException("Blocked", "SecurityError");
+      },
+    });
+  });
+  await page.goto("/");
+  await waitForGameWindowReady(page);
+  await page.locator("[data-e2e=welcome-screen-prompt]").click();
+  await expect(page.locator("[data-e2e=how-to-play]")).toBeVisible({
+    timeout: 15000,
+  });
+  await page.locator("[data-e2e=how-to-play-continue]").click();
+  await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();
 });

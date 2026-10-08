@@ -1,3 +1,4 @@
+import { beginAdventure } from "./adventure";
 import { expect, test, type Page } from "@playwright/test";
 import { PROFILE } from "../src/config/profile";
 
@@ -97,7 +98,7 @@ test("Show Desktop restores the active adventure at its original size", async ({
   page,
 }) => {
   await openDesktop(page);
-  await page.keyboard.press("Space");
+  await beginAdventure(page);
   await page.clock.runFor(1000);
   await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();
   await page.keyboard.press("Escape");
