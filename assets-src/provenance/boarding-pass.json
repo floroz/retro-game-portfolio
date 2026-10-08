@@ -9,5 +9,5 @@
   "approvedRaw": "assets-src/approved/boarding-pass.png",
   "cleanup": "Built-in image_gen edits, 1918x820 RGBA PNG. Reordered the city illustrations and labels to Sorrento, London, Zürich, then updated the role line to Senior Full Stack Engineer. Preserved transparent ticket silhouette, remaining identity text, blank control stub and barcode. Full-quality PNG retained in assets-src/approved/; shipped title encoded as lossless WebP by scripts/assets/remaster-ui.ts. Visually checked before integration.",
   "approvedBy": "codex-autonomous-qa",
-  "date": "2026-10-01"
+  "date": "2026-10-08"
 }

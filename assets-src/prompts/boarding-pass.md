@@ -22,3 +22,5 @@ Use case: precise-object-edit. Edit target: the attached vintage illustrated boa
 ## Official title edit — 2026-10-08
 
 Built-in `image_gen` text-localization edit of the approved boarding-pass artwork. Replaced only the role line with “Senior Full Stack Engineer”; all other wording and artwork stays the same.
+
+The previous image is preserved as `src/assets/remaster/title/boarding-pass-senior-software-engineer.webp`, with its full-quality source in `assets-src/approved/boarding-pass-senior-software-engineer.png`. To switch back, point the `boardingPass` import in `src/components/dialog/WelcomeScreen.tsx` to the alternate WebP.
