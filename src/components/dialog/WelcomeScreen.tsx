@@ -76,27 +76,27 @@ export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
     }
   }, [soundEnabled, soundLit, fontSettled]);
 
-  // Space starts the game, whatever has focus except a button the visitor
-  // tabbed to, which handles its own Space (the pass starts, the fitting
-  // toggles the sound). A click blurs the fitting for that reason.
+  const screenRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== " " && e.code !== "Space") return;
-      if (e.target instanceof HTMLButtonElement) return;
-      e.preventDefault();
-      if (!e.repeat) start();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [start]);
+    screenRef.current?.focus();
+  }, []);
 
   return (
     <div
       className={styles.screen}
+      ref={screenRef}
+      tabIndex={-1}
+      onKeyDown={(e) => {
+        if (e.key === " " || e.key === "Enter") {
+          e.stopPropagation();
+          if (e.repeat || !(e.target instanceof HTMLButtonElement))
+            e.preventDefault();
+        }
+      }}
       data-e2e="welcome-screen"
       role="dialog"
       aria-modal="true"
-      aria-label="Welcome screen - press space to start"
+      aria-label="Welcome screen"
       aria-busy={waiting}
     >
       <canvas
@@ -124,20 +124,21 @@ export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
         {PROFILE.title.split(" | ")[0]}
       </p>
 
-      <button
-        type="button"
-        className={styles.pass}
-        style={cardPct(PASS)}
-        data-e2e="welcome-screen-prompt"
-        aria-label="Press space or click to start"
-        aria-describedby={soundHintId}
-        onClick={start}
-      >
+      <div className={styles.pass} style={cardPct(PASS)}>
         <span className={styles.prompt}>
           <span className={styles.promptLabel}>
-            {waiting ? "HOLD ON" : "PRESS"}
+            {waiting ? "HOLD ON" : "PRESS / CLICK"}
           </span>
-          <span className={styles.key}>SPACE</span>
+          <button
+            type="button"
+            className={styles.key}
+            data-e2e="welcome-screen-prompt"
+            aria-label="Press space or click to start"
+            aria-describedby={soundHintId}
+            onClick={start}
+          >
+            SPACE
+          </button>
           <span className={styles.promptHint} role="status">
             {waiting ? "Loading…" : "to start"}
           </span>
@@ -145,7 +146,7 @@ export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
             {soundEnabled ? "Starts with sound" : "Starts silently"}
           </span>
         </span>
-      </button>
+      </div>
 
       <button
         type="button"
@@ -154,13 +155,10 @@ export function WelcomeScreen({ onDismiss, ready = true }: WelcomeScreenProps) {
         data-e2e="welcome-screen-sound"
         aria-pressed={soundEnabled}
         aria-label="Sound"
-        onClick={(e) => {
+        onClick={() => {
           toggleSound();
           if (queued && useGameStore.getState().soundEnabled)
             sceneAudio.unlock();
-          // A click (detail > 0, unlike Enter or Space) hands the keyboard
-          // back, so the next Space starts the game.
-          if (e.detail > 0) e.currentTarget.blur();
         }}
         onMouseEnter={() => setSoundHover(true)}
         onMouseLeave={() => setSoundHover(false)}

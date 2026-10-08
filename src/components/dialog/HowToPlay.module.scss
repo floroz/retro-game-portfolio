@@ -1,0 +1,215 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+}
+
+.screen {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
+  color: #f4d5a0;
+  font-family: "Pixel Operator", sans-serif;
+  font-size: 26px;
+  line-height: 1.05;
+  outline: none;
+
+  p,
+  h1,
+  h2 {
+    margin: 0;
+  }
+
+  h2 {
+    color: #edb756;
+    font-size: 28px;
+    font-weight: 400;
+    margin-block-end: 12px;
+  }
+}
+
+.art {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.title {
+  position: absolute;
+  inset-inline-start: 37.8%;
+  inset-block-start: 19.2%;
+  inline-size: 28.9%;
+  block-size: 6%;
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+  font-weight: 400;
+  color: #352719;
+}
+
+.leftMouse {
+  position: absolute;
+  inset-inline-start: 33.8%;
+  inset-block-start: 31%;
+  inline-size: 22%;
+}
+
+.rightMouse {
+  position: absolute;
+  inset-inline-start: 65.5%;
+  inset-block-start: 31%;
+  inline-size: 22%;
+}
+
+.arrows,
+.wasd,
+.tab,
+.enter,
+.space,
+.escape {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  block-size: 4.7%;
+  color: #382c1d;
+  font-size: 25px;
+}
+
+.arrows {
+  inset-inline-start: 26.1%;
+  inset-block-start: 46.4%;
+  inline-size: 9.6%;
+}
+
+.wasd {
+  inset-inline-start: 39.6%;
+  inset-block-start: 46.4%;
+  inline-size: 6.5%;
+}
+
+.tab {
+  inset-inline-start: 26.1%;
+  inset-block-start: 52.2%;
+  inline-size: 5.3%;
+}
+
+.enter {
+  inset-inline-start: 26.1%;
+  inset-block-start: 58.2%;
+  inline-size: 7.1%;
+}
+
+.space {
+  inset-inline-start: 36.9%;
+  inset-block-start: 58.2%;
+  inline-size: 7.2%;
+}
+
+.escape {
+  inset-inline-start: 26.1%;
+  inset-block-start: 64%;
+  inline-size: 5.3%;
+}
+
+.walkOr,
+.useOr {
+  position: absolute;
+}
+
+.walkOr {
+  inset-inline-start: 36.8%;
+  inset-block-start: 47.3%;
+}
+
+.useOr {
+  inset-inline-start: 34.4%;
+  inset-block-start: 59%;
+}
+
+.walk,
+.focus,
+.use,
+.stop {
+  position: absolute;
+  inset-inline-start: 49.2%;
+}
+
+.walk {
+  inset-block-start: 47%;
+}
+
+.focus {
+  inset-block-start: 53.3%;
+}
+
+.use {
+  inset-block-start: 59.4%;
+}
+
+.stop {
+  inset-block-start: 65.5%;
+}
+
+.bottomRow {
+  position: absolute;
+  inset-inline: 26.1% 11%;
+  inset-block-start: 72.2%;
+  block-size: 9%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.footer {
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.action {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  inline-size: 371px;
+  block-size: 100%;
+  border: 3px solid #0f0d12;
+  padding: 0 16px;
+  background: #49a19c;
+  color: #0f0d12;
+  box-shadow:
+    inset 3px 3px 0 #c6e4f0,
+    inset -3px -3px 0 #1f5458,
+    0 5px 0 #0f0d12;
+  font: inherit;
+  font-size: 40px;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    background: #7abeb8;
+  }
+
+  &:focus-visible {
+    outline: 3px solid #fff1a0;
+    outline-offset: 5px;
+  }
+
+  &:active {
+    transform: translateY(3px);
+    box-shadow:
+      inset 3px 3px 0 #1f5458,
+      inset -3px -3px 0 #c6e4f0,
+      0 2px 0 #0f0d12;
+  }
+}
+
+.actionLabel {
+  position: relative;
+}
+
+.actionHint {
+  display: block;
+  font-size: 16px;
+  margin-block-start: 3px;
+}

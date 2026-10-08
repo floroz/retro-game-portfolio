@@ -1,3 +1,4 @@
+import { beginAdventure } from "./adventure";
 import { test, expect, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import sharp from "sharp";
@@ -30,7 +31,7 @@ async function openAirport(page: Page) {
   await page.clock.pauseAt(
     new Date((await page.evaluate(() => Date.now())) + 1000),
   );
-  await page.keyboard.press("Space");
+  await beginAdventure(page);
   await page.clock.runFor(1000);
   await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();
   await page.keyboard.press("Escape");

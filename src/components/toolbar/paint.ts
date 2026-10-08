@@ -52,7 +52,7 @@ export const CANVAS_PANEL_H = PANEL_H * ART;
 /** Art px per logical px (the font's layout unit). */
 const LOGICAL = 2;
 
-export type ControlId = SectionId | UtilityId;
+export type ControlId = SectionId | UtilityId | "help";
 
 export interface PanelView {
   /** The country whose ticket is stamped: the current scene, or the trip's. */
@@ -380,6 +380,16 @@ function paintSentence(layer: TextLayer, view: PanelView) {
   const w = textMeasure(layer)(view.sentence, "regular") * LOGICAL;
   const x = Math.round(sentence.x + (sentence.w - w) / 2);
   const y = sentence.y + Math.round((sentence.h - cap("regular")) / 2);
+  // Long hotspot names stay in the groove rather than covering Help.
+  layer.ctx.save();
+  layer.ctx.beginPath();
+  layer.ctx.rect(
+    sentence.x * ART,
+    sentence.y * ART,
+    sentence.w * ART,
+    sentence.h * ART,
+  );
+  layer.ctx.clip();
   text(
     layer,
     view.sentence,
@@ -388,6 +398,26 @@ function paintSentence(layer: TextLayer, view: PanelView) {
     "regular",
     view.idle ? SENTENCE_IDLE : SENTENCE,
     INK,
+  );
+  layer.ctx.restore();
+}
+
+function paintHelp(ctx: Ctx, layer: TextLayer, view: PanelView) {
+  const lit = view.hovered === "help";
+  const r = {
+    ...PANEL_LAYOUT.help,
+    y: PANEL_LAYOUT.help.y + (view.pressed === "help" ? 1 : 0),
+  };
+  paintFitting(ctx, r, lit, false);
+  const w = textMeasure(layer)("?", "small") * LOGICAL;
+  text(
+    layer,
+    "?",
+    Math.round(r.x + (r.w - w) / 2),
+    r.y + Math.round((r.h - cap("small")) / 2),
+    "small",
+    lit ? BRASS.hi : PAPER.light,
+    false,
   );
 }
 
@@ -427,6 +457,7 @@ export function paintPanel(
   }
 
   paintSentence(layer, view);
+  paintHelp(ctx, layer, view);
 }
 
 // --- The conversation's page -------------------------------------------------------

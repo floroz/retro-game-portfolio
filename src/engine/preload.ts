@@ -1,15 +1,17 @@
 /**
  * Loads the game's art in the order the visitor meets it: the title card's
  * boarding pass, then Daniele and the first scene (the Hall), then the
- * other scenes and the travel map, then the inspection cards. Each tier
+ * airport instructions, then other scenes and the travel map, then the
+ * inspection cards. Each tier
  * starts once the one before it has finished, so the art on screen next
  * never shares bandwidth with art the visitor can't reach yet. The launch
  * dialog's progress bar follows the first two tiers.
  *
  * Canvas art is listed from the scene configs, so a new scene, sprite or
  * animation needs nothing here. Art drawn as a plain `<img>` (the boarding
- * pass, the inspection cards) is listed by hand: add any new one below.
+ * pass, the airport instructions, the inspection cards) is listed by hand: add any new one below.
  */
+import howToPlay from "../assets/remaster/title/how-to-play.png";
 import boardingPass from "../assets/remaster/title/boarding-pass.webp";
 import { sectionInspection } from "../config/inspections";
 import {
@@ -63,6 +65,7 @@ export function preloadTiers(): PreloadTier[] {
       ],
       "high",
     ),
+    tier([howToPlay], "high", false),
     tier(
       [
         ...Object.values(SCENES).flatMap(sceneImages),

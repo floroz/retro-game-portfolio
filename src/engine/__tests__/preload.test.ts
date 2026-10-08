@@ -33,6 +33,9 @@ describe("preload order", () => {
     const last = tiers.at(-1)!;
     expect(last.canvas).toBe(false);
     expect(last.urls.every((url) => /\.webp/.test(url))).toBe(true);
-    expect(tiers.slice(0, -1).every((tier) => tier.canvas)).toBe(true);
+    expect(tiers[2].canvas).toBe(false);
+    expect(tiers[2].priority).toBe("high");
+    expect(tiers[2].urls[0]).toMatch(/how-to-play/);
+    expect(tiers[3].canvas).toBe(true);
   });
 });

@@ -1,3 +1,4 @@
+import { beginAdventure } from "./adventure";
 import { test, expect, type Page } from "@playwright/test";
 import { PROFILE } from "../src/config/profile";
 
@@ -9,7 +10,7 @@ async function openAirport(page: Page) {
   });
   await page.waitForLoadState("networkidle");
   await page.clock.pauseAt(new Date("2030-01-01T00:01:00Z"));
-  await page.keyboard.press("Space");
+  await beginAdventure(page);
   await page.clock.runFor(1000);
   await expect(page.locator("[data-e2e=adventure-dialog]")).toBeVisible();
   await page.keyboard.press("Escape");

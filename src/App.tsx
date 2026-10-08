@@ -7,6 +7,8 @@ import { Toolbar } from "./components/toolbar/Toolbar";
 import { ObjectInspectionView } from "./components/game/ObjectInspectionView";
 import { sectionInspection } from "./config/inspections";
 import { Win95Desktop } from "./components/desktop/Win95Desktop";
+import { HowToPlay } from "./components/dialog/HowToPlay";
+import { hasSeenControls, rememberControls } from "./config/controls";
 import { WelcomeScreen } from "./components/dialog/WelcomeScreen";
 import { PocketAdventure } from "./components/mobile/PocketAdventure";
 import { useGameStore } from "./store/gameStore";
@@ -54,6 +56,9 @@ function App() {
     welcomeShown,
     dismissWelcome,
     openDialog,
+    controlsOpen,
+    openControls,
+    closeControls,
   } = useGameStore();
 
   const reading =
@@ -64,13 +69,24 @@ function App() {
 
   // Open intro dialog after welcome screen is dismissed (desktop only)
   useEffect(() => {
-    if (!isMobile && welcomeDismissed && welcomeShown) {
+    if (!isMobile && welcomeDismissed && welcomeShown && !controlsOpen) {
       const timer = setTimeout(() => {
         openDialog("intro");
+        setWelcomeDismissed(false);
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [isMobile, welcomeDismissed, welcomeShown, openDialog]);
+  }, [isMobile, welcomeDismissed, welcomeShown, controlsOpen, openDialog]);
+
+  const startAdventure = () => {
+    dismissWelcome();
+    setWelcomeDismissed(true);
+  };
+  const finishInstructions = () => {
+    rememberControls();
+    closeControls();
+    startAdventure();
+  };
 
   // Portrait adventure with direct access to the portfolio.
   if (isMobile) {
@@ -88,6 +104,9 @@ function App() {
         gameContent={
           welcomeShown ? (
             <>
+              {controlsOpen && (
+                <HowToPlay returning onContinue={closeControls} />
+              )}
               {reading && (
                 <ObjectInspectionView
                   key={inspection?.title ?? contentSection}
@@ -99,7 +118,9 @@ function App() {
                   visitor comes back to the same room, mid-animation. */}
               <div
                 className={styles.gameLayer}
-                inert={contentSection !== null || inspection !== null}
+                inert={
+                  contentSection !== null || inspection !== null || controlsOpen
+                }
               >
                 <GameCanvas>
                   {/* Scene area - 1280x640 */}
@@ -109,7 +130,7 @@ function App() {
 
                   {/* Toolbar area - 1280x160 */}
                   <div className={gameCanvasStyles.toolbar}>
-                    <Toolbar />
+                    <Toolbar onShowControls={openControls} />
                   </div>
                 </GameCanvas>
               </div>
@@ -118,13 +139,17 @@ function App() {
         }
         welcomeContent={
           !welcomeShown ? (
-            <WelcomeScreen
-              ready={ready}
-              onDismiss={() => {
-                dismissWelcome();
-                setWelcomeDismissed(true);
-              }}
-            />
+            controlsOpen ? (
+              <HowToPlay returning={false} onContinue={finishInstructions} />
+            ) : (
+              <WelcomeScreen
+                ready={ready}
+                onDismiss={() => {
+                  if (hasSeenControls()) startAdventure();
+                  else openControls();
+                }}
+              />
+            )
           ) : undefined
         }
       />

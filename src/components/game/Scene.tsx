@@ -56,6 +56,7 @@ export function Scene() {
   const contentOpen = useGameStore(
     (s) => s.contentSection !== null || s.inspection !== null,
   );
+  const controlsOpen = useGameStore((s) => s.controlsOpen);
   const setHoveredObject = useGameStore((s) => s.setHoveredObject);
   const spriteInfo = useSyncExternalStore(images.subscribe, images.getInfo);
   const scene = SCENES[currentScene];
@@ -70,15 +71,18 @@ export function Scene() {
     useGameStore.getState().setCurrentScene(getEngine().scene.id);
   }, []);
 
+  useEffect(() => {
+    if (!contentOpen) getEngine().contentClosed();
+  }, [contentOpen]);
+
   // The frame loop pauses while the content screen covers the scene.
   useEffect(() => {
-    if (contentOpen) return;
+    if (contentOpen || controlsOpen) return;
     const ctx = canvasRef.current?.getContext("2d");
     const textCtx = textRef.current?.getContext("2d");
     if (!ctx || !textCtx) return;
     const text = { ctx: textCtx, scale: TEXT_SCALE, paintLine: paintLettering };
     const engine = getEngine();
-    engine.contentClosed();
     let last = performance.now();
     const motionPreference = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -102,7 +106,7 @@ export function Scene() {
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [contentOpen]);
+  }, [contentOpen, controlsOpen]);
 
   const onFloorClick = (e: MouseEvent<HTMLDivElement>) => {
     const [x, y] = nativePoint(e);

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
 import { Toolbar } from "../Toolbar";
@@ -9,10 +9,10 @@ import type { SectionId } from "../../../engine/types";
 const initial = useGameStore.getState();
 
 /** The toolbar at its real size: 1280x160 under the scene. */
-function Panel() {
+function Panel({ onShowControls }: { onShowControls?: () => void } = {}) {
   return (
     <div style={{ width: 1280, height: 160, position: "relative" }}>
-      <Toolbar />
+      <Toolbar onShowControls={onShowControls} />
     </div>
   );
 }
@@ -147,13 +147,14 @@ describe("Toolbar: the travel trunk", () => {
       "Sound",
       "Visit GitHub profile",
       "Visit LinkedIn profile",
+      "How to play",
     ];
     sectionButton(container, "about").focus();
     for (const [i, name] of expected.entries()) {
       if (i > 0) await userEvent.keyboard("{Tab}");
       expect(document.activeElement?.getAttribute("aria-label")).toBe(name);
     }
-    await expect.poll(() => status(container)).toBe("Visit LinkedIn profile");
+    await expect.poll(() => status(container)).toBe("How to play");
   });
 
   test("Enter opens a focused section without starting a trip", async () => {
@@ -180,6 +181,26 @@ describe("Toolbar: the travel trunk", () => {
     await sound.click();
     expect(useGameStore.getState().soundEnabled).toBe(false);
     await expect.element(sound).toHaveAttribute("aria-pressed", "false");
+  });
+
+  test("Help identifies itself on hover and opens controls from the keyboard", async () => {
+    const onShowControls = vi.fn();
+    const { container } = await render(
+      <Panel onShowControls={onShowControls} />,
+    );
+    const help = page.getByRole("button", { name: "How to play" });
+    await userEvent.hover(help);
+    await expect.poll(() => status(container)).toBe("How to play");
+    container
+      .querySelector<HTMLButtonElement>('[data-control="help"]')!
+      .focus();
+    await userEvent.keyboard("{Enter}");
+    expect(onShowControls).toHaveBeenCalledTimes(1);
+    expect(useGameStore.getState()).toMatchObject({
+      currentScene: "hall",
+      contentSection: null,
+      dialogOpen: false,
+    });
   });
 
   test("GitHub and LinkedIn open the profiles in a new tab", async () => {

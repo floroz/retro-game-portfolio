@@ -1,0 +1,13 @@
+{
+  "id": "how-to-play",
+  "output": "src/assets/remaster/title/how-to-play.png",
+  "task": "how-to-play",
+  "source": "codex",
+  "prompt": "assets-src/prompts/how-to-play.md",
+  "candidate": "02",
+  "references": [],
+  "approvedRaw": "src/assets/remaster/title/how-to-play.png",
+  "cleanup": "Built-in image edit removed the lower-right action plaque from the text-free airport/trunk concept. Full-quality PNG retained as approved and application source. All instructional lettering and the action button are live HTML/CSS; no cropped background imagery supplies the button. Earlier concept previews remain in the conversation rather than application assets.",
+  "approvedBy": "user",
+  "date": "2026-10-08"
+}
