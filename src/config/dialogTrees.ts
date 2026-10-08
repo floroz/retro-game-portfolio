@@ -64,7 +64,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // About branch
   "about-intro": {
     speaker: "daniele",
-    text: "Plot twist: I started with a Master's in Psychology! Understanding users helps when building software.",
+    text: "Plot twist: I have two Psychology degrees from Federico II in Naples. Turns out users are worth studying.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "about-intro-2" },
     ],
@@ -161,7 +161,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Work branch
   "work-intro": {
     speaker: "daniele",
-    text: "I'm a Senior Full Stack Engineer at Snyk, building Frontend platforms and AI-powered security features.",
+    text: "I'm a Senior Full Stack Engineer at Snyk, building billing, security, and scanner features. Busy place, good quests.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-intro-2" },
     ],
@@ -199,7 +199,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-stack-2": {
     speaker: "daniele",
-    text: "Also deep into AI integration—won 3rd place company-wide at Snyk for AI adoption.",
+    text: "I also wrote AI playbooks adopted by 100+ Snyk engineers and placed third company-wide for AI adoption.",
     options: [
       {
         id: "work-projects",
@@ -216,7 +216,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-projects": {
     speaker: "daniele",
-    text: "At Snyk: Building Frontend platforms, Reporting Dashboards and AI-assisted security features.",
+    text: "At Snyk: a billing dashboard, custom security rules, and a scanner handling 500K+ scans a day. No idle animations there.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-projects-2" },
     ],
@@ -224,11 +224,28 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-projects-2": {
     speaker: "daniele",
-    text: "At Frontiers: Led Vue 3 component library. At Meta: Improved web performance by 60%. Check out the Experience section for more!",
+    text: "At Frontiers, Brink UI cut delivery time by 30%. At Meta, Mapillary's LCP fell by 60%. The Experience album has the details.",
     options: [
+      {
+        id: "side-projects",
+        label: "Any side quests?",
+        nextNode: "work-side-projects",
+      },
       {
         id: "back",
         label: "I'll check it out! Back to the main topics",
+        nextNode: "welcome",
+      },
+    ],
+  },
+
+  "work-side-projects": {
+    speaker: "daniele",
+    text: "I built this adventure and CalcolaFisco, an Italian tax calculator that reached 800 active users in its first week. Side quests count.",
+    options: [
+      {
+        id: "back",
+        label: "Back to the main topics",
         nextNode: "welcome",
       },
     ],
@@ -244,7 +261,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-experience-2": {
     speaker: "daniele",
-    text: "Also senior roles at Tundra, Tray.ai, and OVO Energy. 10 years shipping code.",
+    text: "Before that: Tundra, Tray.ai, OVO Energy, Noble, and Hackney Council. Ten years of shipping code, give or take a loading screen.",
     options: [
       {
         id: "back",
