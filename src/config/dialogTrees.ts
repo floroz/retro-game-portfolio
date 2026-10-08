@@ -10,7 +10,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Intro - shown first after welcome screen with typewriter effect
   intro: {
     speaker: "daniele",
-    text: `Hey! Welcome to my portfolio. I'm Daniele, a software engineer based in ${PROFILE.location}.`,
+    text: `Hey! Welcome to my portfolio. I'm Daniele, a Senior Full Stack Engineer based in ${PROFILE.location}.`,
     options: [{ id: "continue", label: "Continue...", nextNode: "intro-2" }],
   },
 

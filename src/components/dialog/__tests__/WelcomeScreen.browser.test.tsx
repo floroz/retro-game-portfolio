@@ -67,9 +67,7 @@ describe("WelcomeScreen: the title card", () => {
     await expect
       .element(page.getByRole("heading", { name: PROFILE.name }))
       .toBeInTheDocument();
-    await expect
-      .element(page.getByText(PROFILE.title.split(" | ")[0]))
-      .toBeInTheDocument();
+    await expect.element(page.getByText(PROFILE.title)).toBeInTheDocument();
   });
 
   test("Space starts the game", async () => {

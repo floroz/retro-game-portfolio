@@ -6,7 +6,7 @@
 export const PROFILE = {
   // Personal
   name: "Daniele Tortora",
-  title: "Senior Full-Stack Engineer | AI Engineering",
+  title: "Senior Full Stack Engineer",
   location: "Zürich, Switzerland",
 
   journey:
@@ -24,7 +24,7 @@ export const PROFILE = {
   // Bio/About summary
   bio: `Originally from Sorrento, I moved to London and then to Zürich, where I now live.
 
-As a software engineer with 10 years of experience, I've built my career on a core belief: that the most powerful systems are defined by their human experience.
+As a Senior Full Stack Engineer with 10 years of experience, I've built my career on a core belief: that the most powerful systems are defined by their human experience.
 
 I earned a BSc in Psychology and an MSc in Clinical Psychology at Federico II in Naples, graduating 110/110 in each. That background drives me to bridge the divide between complex software architecture and elegant, intuitive user interfaces.
 
@@ -108,7 +108,7 @@ When I'm not coding, you can find me:
   },
 
   // Experience summary
-  experienceSummary: `Senior Full-Stack Engineer with 10 years building data-intensive interfaces, scalable APIs, and distributed systems.
+  experienceSummary: `Senior Full Stack Engineer with 10 years building data-intensive interfaces, scalable APIs, and distributed systems.
 
 At Snyk, I helped launch the credit-based Billing & Usage Dashboard and built scanner features serving 500K+ daily scans. A worker-thread and caching redesign cut p95 latency by 65% and tripled throughput.
 
@@ -165,7 +165,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     },
     {
       company: "Frontiers",
-      role: "Technical Lead",
+      role: "Senior Full Stack Engineer",
       period: "Feb 2023 - May 2024",
       country: "switzerland",
       highlights: [
@@ -175,7 +175,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     },
     {
       company: "Meta",
-      role: "Frontend Engineer",
+      role: "Senior Full Stack Engineer",
       period: "Jun 2022 - Feb 2023",
       country: "switzerland",
       highlights: [
@@ -185,7 +185,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     },
     {
       company: "Tundra",
-      role: "Senior Frontend Engineer",
+      role: "Senior Full Stack Engineer",
       period: "Nov 2021 - Jun 2022",
       country: "switzerland",
       highlights: [
@@ -195,7 +195,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     },
     {
       company: "Tray.ai",
-      role: "Senior Frontend Engineer",
+      role: "Senior Full Stack Engineer",
       period: "Jan 2021 - Oct 2021",
       country: "london",
       highlights: [
@@ -205,7 +205,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     },
     {
       company: "OVO Energy | Noble | Hackney Council",
-      role: "Software Developer",
+      role: "Senior Full Stack Engineer",
       period: "Sep 2016 - Jan 2021",
       country: "london",
       highlights: [
@@ -219,8 +219,8 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     siteUrl: "https://danieletortora.com/",
     siteName: "Daniele Tortora - Portfolio",
     shortDescription:
-      "Senior Full-Stack Engineer in Zürich with 10 years building data-intensive UIs, scalable APIs, and distributed systems. Explore my career in a 90s point-and-click adventure.",
-    currentRole: "Senior Full-Stack Engineer",
+      "Senior Full Stack Engineer in Zürich with 10 years building data-intensive UIs, scalable APIs, and distributed systems. Explore my career in a 90s point-and-click adventure.",
+    currentRole: "Senior Full Stack Engineer",
     currentCompany: "Snyk",
     twitter: "@floroz87",
     themeColor: "#1a1a2e",
@@ -230,9 +230,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     keywords: [
       "Daniele Tortora",
       "floroz",
-      "Senior Software Engineer",
-      "Frontend Engineer",
-      "Full Stack Developer",
+      "Senior Full Stack Engineer",
       "React Developer",
       "TypeScript",
       "Vue.js",
