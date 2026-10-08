@@ -1,0 +1,13 @@
+{
+  "id": "boarding-pass-senior-software-engineer",
+  "output": "src/assets/remaster/title/boarding-pass-senior-software-engineer.webp",
+  "task": "official-title-alternate",
+  "source": "codex",
+  "prompt": "assets-src/prompts/boarding-pass.md",
+  "candidate": "previous-version",
+  "references": [],
+  "approvedRaw": "assets-src/approved/boarding-pass-senior-software-engineer.png",
+  "cleanup": "Archived byte-for-byte from the prior main revision as a switch-back option for the launch title card. The source PNG is re-encoded losslessly by scripts/assets/remaster-ui.ts.",
+  "approvedBy": "codex-autonomous-qa",
+  "date": "2026-10-08"
+}

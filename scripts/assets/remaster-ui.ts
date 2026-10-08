@@ -53,6 +53,21 @@ entries.push({
   treatment:
     "Original resolution and pixels preserved; lossless encoding only.",
 });
+
+const previousTitleSource =
+  "assets-src/approved/boarding-pass-senior-software-engineer.png";
+const previousTitleOutput = `${root}/title/boarding-pass-senior-software-engineer.webp`;
+const previousTitleInfo = await sharp(previousTitleSource)
+  .webp({ lossless: true, effort: 6 })
+  .toFile(previousTitleOutput);
+entries.push({
+  output: previousTitleOutput,
+  source: previousTitleSource,
+  width: previousTitleInfo.width,
+  height: previousTitleInfo.height,
+  treatment:
+    "Archived alternate title card with the previous role wording; original resolution and pixels preserved, lossless encoding only.",
+});
 await mkdir("assets-src/remaster", { recursive: true });
 await writeFile(
   "assets-src/remaster/ui-manifest.json",
