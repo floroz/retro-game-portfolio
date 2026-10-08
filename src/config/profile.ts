@@ -165,7 +165,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     },
     {
       company: "Frontiers",
-      role: "Senior Full Stack Engineer",
+      role: "Technical Lead",
       period: "Feb 2023 - May 2024",
       country: "switzerland",
       highlights: [
@@ -175,7 +175,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     },
     {
       company: "Meta",
-      role: "Senior Full Stack Engineer",
+      role: "Frontend Engineer",
       period: "Jun 2022 - Feb 2023",
       country: "switzerland",
       highlights: [
@@ -185,7 +185,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     },
     {
       company: "Tundra",
-      role: "Senior Full Stack Engineer",
+      role: "Senior Frontend Engineer",
       period: "Nov 2021 - Jun 2022",
       country: "switzerland",
       highlights: [
@@ -195,7 +195,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     },
     {
       company: "Tray.ai",
-      role: "Senior Full Stack Engineer",
+      role: "Senior Frontend Engineer",
       period: "Jan 2021 - Oct 2021",
       country: "london",
       highlights: [
@@ -205,7 +205,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     },
     {
       company: "OVO Energy | Noble | Hackney Council",
-      role: "Senior Full Stack Engineer",
+      role: "Software Developer",
       period: "Sep 2016 - Jan 2021",
       country: "london",
       highlights: [
