@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="docs/images/readme-sorrento.webp" alt="The desktop Sorrento scene: Daniele stands in a tiled kitchen with a view of the Gulf of Naples at sunset, a postcard-covered fridge, a telephone and a coffee pot, above the travel-trunk toolbar with boarding passes for Sorrento, London and Zürich" width="720" />
+<img src="docs/images/readme-sorrento.webp" alt="The desktop Sorrento scene: Daniele faces the viewer to the left of the kitchen table, with a view of the Gulf of Naples at sunset, a postcard-covered fridge, a telephone and a coffee pot, above the travel-trunk toolbar with boarding passes for Sorrento, London and Zürich" width="720" />
 
 ### [danieletortora.com](https://www.danieletortora.com)
 
@@ -101,16 +101,17 @@ Then open the URL shown in the terminal (usually `http://localhost:5173`).
 
 ### Scripts
 
-| Command                   | Description                                             |
-| ------------------------- | ------------------------------------------------------- |
-| `npm run dev`             | Start the dev server                                    |
-| `npm run build`           | Production build                                        |
-| `npm run preview`         | Preview the production build                            |
-| `npm run lint`            | Lint, types, formatting, styles, unused code and assets |
-| `npm run format`          | Format with Prettier                                    |
-| `npm run test:unit`       | Unit tests                                              |
-| `npm run test:browser`    | Component tests in a real browser                       |
-| `npm run test:e2e:docker` | Playwright end-to-end and screenshot tests, in Docker   |
+| Command                     | Description                                             |
+| --------------------------- | ------------------------------------------------------- |
+| `npm run dev`               | Start the dev server                                    |
+| `npm run build`             | Production build                                        |
+| `npm run preview`           | Preview the production build                            |
+| `npm run lint`              | Lint, types, formatting, styles, unused code and assets |
+| `npm run format`            | Format with Prettier                                    |
+| `npm run generate:og-image` | Regenerate the shared Sorrento README and social images |
+| `npm run test:unit`         | Unit tests                                              |
+| `npm run test:browser`      | Component tests in a real browser                       |
+| `npm run test:e2e:docker`   | Playwright end-to-end and screenshot tests, in Docker   |
 
 ### Developer views
 
