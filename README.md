@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="docs/images/readme-sorrento.webp" alt="The desktop Sorrento scene: Daniele faces the viewer to the left of the kitchen table, with a view of the Gulf of Naples at sunset, a postcard-covered fridge, a telephone and a coffee pot, above the travel-trunk toolbar with boarding passes for Sorrento, London and Zürich" width="720" />
+<img src="docs/images/readme-airport.webp" alt="The airport hall with Daniele facing the viewer among the passengers, with a departing airplane visible through the windows and the travel-trunk toolbar below" width="720" />
 
 ### [danieletortora.com](https://www.danieletortora.com)
 
@@ -108,7 +108,7 @@ Then open the URL shown in the terminal (usually `http://localhost:5173`).
 | `npm run preview`           | Preview the production build                            |
 | `npm run lint`              | Lint, types, formatting, styles, unused code and assets |
 | `npm run format`            | Format with Prettier                                    |
-| `npm run generate:og-image` | Regenerate the shared Sorrento README and social images |
+| `npm run generate:og-image` | Regenerate the shared airport README and social images  |
 | `npm run test:unit`         | Unit tests                                              |
 | `npm run test:browser`      | Component tests in a real browser                       |
 | `npm run test:e2e:docker`   | Playwright end-to-end and screenshot tests, in Docker   |
@@ -128,6 +128,8 @@ Each released version is tagged:
 | ------ | ------------------------------------------------------------------------------------------------------------------------------- |
 | `v1`   | The original: one painted scene with five hotspots, a Windows 95 desktop with an MS-DOS terminal, and a Game Boy view on mobile |
 | `v2.1` | The remastered adventure: the airport and three rooms, illustrated close-ups, the Windows 98 desktop and the Pocket Adventure   |
+
+<img src="docs/images/v1-v2-portfolio-comparison.png" alt="Side-by-side screenshots of the v1 portfolio and the current v2.1 portfolio" width="100%" />
 
 To run an older version, check out its tag (in a separate worktree, if you want to keep your current checkout) and install that version's dependencies:
 
