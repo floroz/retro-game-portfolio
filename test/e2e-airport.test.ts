@@ -477,7 +477,12 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
     }
     if (reducedMotion === "no-preference") {
       await advanceScene(page, 14000);
-      await expect(canvas).toHaveScreenshot("zurich-balloon.png");
+      // Adjacent RAF phases can move the lake shimmer across one art pixel.
+      // Allow at most its 4x4 native footprint; the motion assertions above
+      // still check every animated region independently.
+      await expect(canvas).toHaveScreenshot("zurich-balloon.png", {
+        maxDiffPixels: 16,
+      });
     }
     // The sky above the cow used to have no exit hotspot. Keep the cow
     // inspectable, then leave through that formerly dead part of the opening.
