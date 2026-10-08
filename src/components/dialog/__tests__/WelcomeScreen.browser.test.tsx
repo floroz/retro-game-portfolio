@@ -6,6 +6,7 @@ import { useGameStore } from "../../../store/gameStore";
 import { offGridPixels } from "../../../test/helpers/canvas";
 import { sceneAudio } from "../../../engine/runtime";
 import { useSceneAudio } from "../../../hooks/useSceneAudio";
+import { PROFILE } from "../../../config/profile";
 
 const initial = useGameStore.getState();
 
@@ -64,10 +65,10 @@ describe("WelcomeScreen: the title card", () => {
   test("names Daniele and his title for screen readers", async () => {
     await render(<Card onDismiss={vi.fn()} />);
     await expect
-      .element(page.getByRole("heading", { name: "Daniele Tortora" }))
+      .element(page.getByRole("heading", { name: PROFILE.name }))
       .toBeInTheDocument();
     await expect
-      .element(page.getByText("Senior Software Engineer"))
+      .element(page.getByText(PROFILE.title.split(" | ")[0]))
       .toBeInTheDocument();
   });
 

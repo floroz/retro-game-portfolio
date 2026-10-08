@@ -20,16 +20,31 @@ export function PocketReading({ section }: { section: SectionId }) {
                   <p className={styles.period}>{job.period}</p>
                   <h2>{job.company}</h2>
                   <p>{job.role}</p>
+                  {job.highlights.map((highlight) => (
+                    <p key={highlight}>{highlight}</p>
+                  ))}
                 </li>
               ))}
             </ol>
-            <h2>Between the pages</h2>
-            {PROFILE.experienceSummary
-              .split("\n\n")
-              .slice(1)
-              .map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
+            <h2>Side quests</h2>
+            {PROFILE.projects.map((project) => (
+              <section className={styles.readingSection} key={project.name}>
+                <h3>{project.name}</h3>
+                <p>{project.description}</p>
+                <p>{project.tech}</p>
+                <ul className={styles.links}>
+                  <li>
+                    <a
+                      href={project.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {project.linkLabel} <span aria-hidden="true">↗</span>
+                    </a>
+                  </li>
+                </ul>
+              </section>
+            ))}
           </>
         ) : (
           inspection.pages?.map((page, index) => (

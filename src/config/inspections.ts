@@ -65,7 +65,12 @@ export function sectionInspection(section: SectionId): InspectionReading {
           })),
           ...PROFILE.workExperience.map((job) => ({
             title: job.company,
-            paragraphs: [job.role, job.period],
+            paragraphs: [job.role, job.period, ...job.highlights],
+          })),
+          ...PROFILE.projects.map((project) => ({
+            title: project.name,
+            paragraphs: [project.description, project.tech],
+            links: [{ label: project.linkLabel, href: project.url }],
           })),
         ],
       };

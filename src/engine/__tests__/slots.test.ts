@@ -34,11 +34,14 @@ describe("slot rows", () => {
       PROFILE.workExperience
         .filter((j) => j.country === c)
         .map((j) => j.company);
-    expect(byCountry("london")).toEqual(["Tray.ai", "Past Frontend Roles"]);
+    expect(byCountry("london")).toEqual([
+      "Tray.ai",
+      "OVO Energy | Noble | Hackney Council",
+    ]);
     expect(byCountry("switzerland")).toEqual([
       "Snyk",
       "Frontiers",
-      "Meta (Facebook)",
+      "Meta",
       "Tundra",
     ]);
   });
