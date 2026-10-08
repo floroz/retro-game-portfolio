@@ -226,7 +226,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     themeColor: "#1a1a2e",
     ogImage: "og-image.png",
     ogImageAlt:
-      "Daniele’s Sorrento kitchen overlooking the Gulf of Naples, with the travel-trunk toolbar inside a Windows 98 game window.",
+      "Daniele faces the viewer in the airport hall among fellow travellers, with a departing airplane through the windows and the travel-trunk toolbar below.",
     keywords: [
       "Daniele Tortora",
       "floroz",
