@@ -17,7 +17,7 @@ const TAP_JOKES: Record<string, string> = {
   cloud: "Served in containers. Scales to any round.",
   data: "Aged in Postgres casks, with a Kafka chaser.",
   testing: "Checked twice. Flaky pints are sent back.",
-  leadership: "A round for the team, new starter included.",
+  delivery: "Several brewers, one recipe. Taste before serving.",
 };
 
 const FOLD_NAMES: Record<SlotKind, string> = {

@@ -9,9 +9,7 @@ import {
   cardPct,
   paintCard,
 } from "./titleCard";
-import boardingPass from "../../assets/remaster/title/boarding-pass.webp";
-// To restore the former role wording, point this import to
-// boarding-pass-senior-software-engineer.webp instead.
+import boardingPass from "../../assets/remaster/title/boarding-pass-senior-software-engineer.webp";
 import { PROFILE } from "../../config/profile";
 import { sceneAudio } from "../../engine/runtime";
 import styles from "./WelcomeScreen.module.scss";

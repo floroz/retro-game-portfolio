@@ -23,4 +23,8 @@ Use case: precise-object-edit. Edit target: the attached vintage illustrated boa
 
 Built-in `image_gen` text-localization edit of the approved boarding-pass artwork. Replaced only the role line with “Senior Full Stack Engineer”; all other wording and artwork stays the same.
 
-The previous image is preserved as `src/assets/remaster/title/boarding-pass-senior-software-engineer.webp`, with its full-quality source in `assets-src/approved/boarding-pass-senior-software-engineer.png`. To switch back, point the `boardingPass` import in `src/components/dialog/WelcomeScreen.tsx` to the alternate WebP.
+## Senior Software Engineer title restored — 2026-10-11
+
+The existing `src/assets/remaster/title/boarding-pass-senior-software-engineer.webp` is now the active welcome artwork and first preload tier. Its full-quality source remains in `assets-src/approved/boarding-pass-senior-software-engineer.png`; `scripts/assets/remaster-ui.ts` reproduces the lossless export. No new image generation or pixel edits were needed.
+
+The superseded Senior Full Stack Engineer image (`boarding-pass.webp`), approved source (`boarding-pass.png`) and provenance (`boarding-pass.json`) were removed from the current tree. Their history, including the earlier prompts above, remains at Git revision `d941007`.

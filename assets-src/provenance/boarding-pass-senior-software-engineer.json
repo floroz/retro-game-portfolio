@@ -7,7 +7,7 @@
   "candidate": "previous-version",
   "references": [],
   "approvedRaw": "assets-src/approved/boarding-pass-senior-software-engineer.png",
-  "cleanup": "Archived byte-for-byte from the prior main revision as a switch-back option for the launch title card. The source PNG is re-encoded losslessly by scripts/assets/remaster-ui.ts.",
+  "cleanup": "Restored as the active launch title card on 2026-10-11 to match the Senior Software Engineer profile title. Original source PNG and existing WebP preserved unchanged; scripts/assets/remaster-ui.ts reproduces the lossless export. Superseded Senior Full Stack Engineer artwork, source and provenance remain in Git history at d941007.",
   "approvedBy": "codex-autonomous-qa",
   "date": "2026-10-08"
 }
