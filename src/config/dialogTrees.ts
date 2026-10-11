@@ -161,7 +161,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Work branch
   "work-intro": {
     speaker: "daniele",
-    text: "I'm a Senior Software Engineer at Snyk. My latest quest: an AI support-triage workflow that can investigate customer logs and screenshots.",
+    text: "I'm a Senior Software Engineer at Snyk, building full-stack applications and AI-powered workflows. Interfaces, APIs, and a few side quests.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-intro-2" },
     ],
@@ -191,7 +191,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-stack": {
     speaker: "daniele",
-    text: "TypeScript, Node.js, React; Python, FastAPI and LangGraph for AI. LangSmith, Snowflake and Datadog MCP help investigate. Full menu on the Skills chalkboard.",
+    text: "TypeScript and React on the frontend, Node.js and Go on the backend, and Python, FastAPI and LangGraph for the AI layers.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-stack-2" },
     ],
@@ -199,7 +199,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-stack-2": {
     speaker: "daniele",
-    text: "I also wrote AI playbooks adopted by 100+ Snyk engineers and placed third company-wide for AI adoption.",
+    text: "I work across the whole system, from the interface to the services and AI workflows behind it. Full menu on the Skills chalkboard.",
     options: [
       {
         id: "work-projects",
@@ -208,7 +208,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
       },
       {
         id: "back",
-        label: "Impressive! Back to the main topics",
+        label: "Got it! Back to the main topics",
         nextNode: "welcome",
       },
     ],
@@ -216,7 +216,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-projects": {
     speaker: "daniele",
-    text: "At Snyk: AI attachment investigations, billing charts for customers representing hundreds of millions in ARR, and scanner features serving 500K+ scans a day.",
+    text: "I've worked on data-heavy dashboards, developer tools, and AI-powered workflows. Different quests, same goal: make complex systems easier to use.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-projects-2" },
     ],
