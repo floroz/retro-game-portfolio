@@ -10,7 +10,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Intro - shown first after welcome screen with typewriter effect
   intro: {
     speaker: "daniele",
-    text: `Hey! Welcome to my portfolio. I'm Daniele, a Senior Full Stack Engineer based in ${PROFILE.location}.`,
+    text: `Hey! Welcome to my portfolio. I'm Daniele, a ${PROFILE.seo.currentRole} based in ${PROFILE.location}. Full stack, AI, and the occasional side quest.`,
     options: [{ id: "continue", label: "Continue...", nextNode: "intro-2" }],
   },
 
@@ -94,7 +94,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-details": {
     speaker: "daniele",
-    text: "My psychology background drives my focus on human experience. Now I'm full-stack-React, Next.js, Vue, Node.js, Go, Kubernetes.",
+    text: "Psychology taught me to think about the person using the system. These days I build across interfaces, APIs, and distributed systems. Plenty of rooms to explore.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "about-details-2" },
     ],
@@ -102,7 +102,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-details-2": {
     speaker: "daniele",
-    text: "Currently exploring AI and making intelligent systems actually usable by humans.",
+    text: "I build AI-powered workflows and coordinate parallel coding agents. I write the quest, divide the tasks, then play through the result. Someone has to check the ending.",
     options: [
       {
         id: "about-philosophy",
@@ -119,7 +119,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "about-philosophy": {
     speaker: "daniele",
-    text: "Code should be clean, tested, and user-first. Tests aren't optional. And please don't use 'any' in TypeScript!",
+    text: "Start with what we're building and how we'll know it works. Clear specifications, technical judgment, and a good experience. The agents still need a quest director.",
     options: [
       {
         id: "back",
@@ -161,7 +161,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Work branch
   "work-intro": {
     speaker: "daniele",
-    text: "I'm a Senior Full Stack Engineer at Snyk, building billing, security, and scanner features. Busy place, good quests.",
+    text: "I'm a Senior Software Engineer at Snyk. My latest quest: an AI support-triage workflow that can investigate customer logs and screenshots.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-intro-2" },
     ],
@@ -169,7 +169,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-intro-2": {
     speaker: "daniele",
-    text: "Previously Tech Lead at Frontiers and engineer at Meta. I build delightful experiences while keeping an eye on performance and scalability.",
+    text: "Previously Senior Software Engineer (Frontend Lead) at Frontiers, and engineer at Meta. I care about the whole system, right down to how it feels to use.",
     options: [
       {
         id: "work-stack",
@@ -191,7 +191,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-stack": {
     speaker: "daniele",
-    text: "Frontend: React, Next.js, Vue, TypeScript, TanStack. Backend: Node.js, Go, PostgreSQL. DevOps: Kubernetes, Docker, CI/CD pipelines.",
+    text: "TypeScript, Node.js, React; Python, FastAPI and LangGraph for AI. LangSmith, Snowflake and Datadog MCP help investigate. Full menu on the Skills chalkboard.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-stack-2" },
     ],
@@ -216,7 +216,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-projects": {
     speaker: "daniele",
-    text: "At Snyk: a billing dashboard, custom security rules, and a scanner handling 500K+ scans a day. No idle animations there.",
+    text: "At Snyk: AI attachment investigations, billing charts for customers representing hundreds of millions in ARR, and scanner features serving 500K+ scans a day.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-projects-2" },
     ],
@@ -241,7 +241,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-side-projects": {
     speaker: "daniele",
-    text: "I built this adventure and CalcolaFisco, an Italian tax calculator that reached 800 active users in its first week. Side quests count.",
+    text: "This adventure: parallel Claude Code and Codex agents, with me directing and checking the result. CalcolaFisco: 800 active users in week one. Side quests count.",
     options: [
       {
         id: "back",
@@ -253,7 +253,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
 
   "work-experience": {
     speaker: "daniele",
-    text: "Currently at Snyk doing full-stack security tools. Before: Tech Lead at Frontiers, Frontend at Meta (Mapillary integration).",
+    text: "Senior Software Engineer at Snyk, building across full stack and AI. Before: Senior Software Engineer (Frontend Lead) at Frontiers, then Meta's Mapillary integration.",
     options: [
       { id: "continue", label: "Continue...", nextNode: "work-experience-2" },
     ],
@@ -274,7 +274,7 @@ export const DIALOG_TREE: Record<string, DialogNode> = {
   // Hire branch
   "hire-info": {
     speaker: "daniele",
-    text: "Always curious about exciting opportunities—especially involving AI, developer tools, or making complex systems more human-friendly.",
+    text: "Always curious about building AI-powered products, solving full-stack problems, and making complex systems feel simple. Remote quests welcome.",
     options: [
       {
         id: "hire-contact",

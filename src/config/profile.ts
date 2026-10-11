@@ -6,7 +6,7 @@
 export const PROFILE = {
   // Personal
   name: "Daniele Tortora",
-  title: "Senior Full Stack Engineer",
+  title: "Senior Software Engineer | Full Stack & AI",
   location: "Zürich, Switzerland",
 
   journey:
@@ -24,11 +24,13 @@ export const PROFILE = {
   // Bio/About summary
   bio: `Originally from Sorrento, I moved to London and then to Zürich, where I now live.
 
-As a Senior Full Stack Engineer with 10 years of experience, I've built my career on a core belief: that the most powerful systems are defined by their human experience.
+I'm a Senior Software Engineer with 10 years building full-stack applications, data-intensive interfaces, and distributed systems, including at Meta and Snyk. Today I build AI-powered workflows and use AI agents throughout my engineering work.
 
-I earned a BSc in Psychology and an MSc in Clinical Psychology at Federico II in Naples, graduating 110/110 in each. That background drives me to bridge the divide between complex software architecture and elegant, intuitive user interfaces.
+I earned a BSc in Psychology and an MSc in Clinical Psychology at Federico II in Naples, graduating 110/110 in each. That background shapes how I design interfaces and turn complex systems into intuitive experiences.
 
-I put this philosophy into practice across the full stack—delivering modern frontend applications, designing robust APIs, and building scalable distributed systems. I'm now keenly focused on applying this user-centric approach to AI, ensuring intelligent systems are not only powerful but also accessible and intuitive.
+I define outcomes, write specifications, and coordinate parallel agents across software and artwork. Then I evaluate what we've built: how the system holds together, whether it works reliably, and how it feels to use. This adventure is one of those experiments.
+
+I actively try new tools and approaches, share what works, and help other engineers explore what they can build with AI.
 
 When I'm not coding, you can find me:
 • Playing retro video games (hence this portfolio!)
@@ -38,8 +40,8 @@ When I'm not coding, you can find me:
   // Skills categories used by the London scene and reading pages
   skills: {
     frontend: [
-      "React",
       "TypeScript",
+      "React",
       "Next.js",
       "Vue.js",
       "JavaScript",
@@ -60,13 +62,22 @@ When I'm not coding, you can find me:
       "Distributed Systems",
     ],
     ai: [
-      "Agentic Systems",
-      "LangGraph & LangChain",
-      "OpenAI",
-      "Claude",
-      "OpenAI APIs",
-      "Prompt Engineering",
-      "Context Management",
+      "Python",
+      "FastAPI",
+      "LangChain",
+      "LangGraph",
+      "LangSmith",
+      "LLM Integration",
+      "Agentic Workflows",
+      "MCP Integrations",
+    ],
+    delivery: [
+      "Multi-Agent Orchestration",
+      "Specification-Driven Development",
+      "Agent Context Design",
+      "Claude Code",
+      "OpenAI Codex",
+      "Cursor",
     ],
     cloud: [
       "AWS",
@@ -77,7 +88,14 @@ When I'm not coding, you can find me:
       "GitHub Actions",
       "Datadog",
     ],
-    data: ["PostgreSQL", "Redis", "Kafka", "NATS", "Message Queues"],
+    data: [
+      "PostgreSQL",
+      "Redis",
+      "Kafka",
+      "NATS",
+      "Snowflake",
+      "Message Queues",
+    ],
     testing: [
       "Playwright",
       "Vitest",
@@ -86,43 +104,35 @@ When I'm not coding, you can find me:
       "Jest",
       "Visual Regression Testing",
     ],
-    leadership: [
-      "Technical Leadership",
-      "Team Management",
-      "Agile",
-      "Architecture Design",
-      "Code Review",
-      "Mentoring",
-    ],
   },
 
   // Display names for the skill groups above (the London taps and chalkboard)
   skillGroupLabels: {
     frontend: "Frontend",
     backend: "Backend",
-    ai: "AI & Tools",
+    ai: "AI Product Engineering",
+    delivery: "Agent-Assisted Delivery",
     cloud: "Cloud & DevOps",
     data: "Data",
     testing: "Testing",
-    leadership: "Leadership",
   },
 
   // Experience summary
-  experienceSummary: `Senior Full Stack Engineer with 10 years building data-intensive interfaces, scalable APIs, and distributed systems.
+  experienceSummary: `Senior Software Engineer with 10 years building full-stack applications, data-intensive interfaces, and distributed systems.
 
-At Snyk, I helped launch the credit-based Billing & Usage Dashboard and built scanner features serving 500K+ daily scans. A worker-thread and caching redesign cut p95 latency by 65% and tripled throughput.
+At Snyk, I audited an internal production AI support-triage workflow and added attachment processing so investigations could use customer logs and screenshots. AI engineering playbooks I wrote reached 100+ engineers; I placed third in a company-wide AI adoption competition.
 
-Before that, I led six engineers building Brink UI at Frontiers, where early adoption cut UI delivery time by 30%. At Meta, Mapillary's rebuild improved accessibility by 36% and reduced LCP by 60%.
+I also helped launch Snyk EVO's Billing & Usage Dashboard for enterprise customers representing hundreds of millions in ARR, with rich Vue 3 and Apache ECharts visualizations. Scanner features serve 500K+ daily scans; a worker-thread and caching redesign cut p95 latency by 65% and tripled throughput.
 
-I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed third company-wide for driving AI adoption.`,
+Before that, I led six engineers building Brink UI at Frontiers, where adoption cut UI delivery time by 30%. At Meta, Mapillary's rebuild improved accessibility by 36% and reduced LCP by 60%.`,
 
   // Personal projects shown in the Experience section
   projects: [
     {
       name: "This Portfolio",
       description:
-        "A point-and-click portfolio with a Windows 98 desktop, a canvas scene engine, and a separate Pocket Adventure for phones.",
-      tech: "React, TypeScript, SCSS, AI-augmented development",
+        "A LucasArts-inspired adventure with a Windows 98 desktop and a mobile Pocket Adventure. I directed parallel software and artwork agents through shared specifications and task ownership, evaluated the running experience, and caught loading problems that led to image optimization from 19.3 MB to 2.6 MB with automated asset budgets.",
+      tech: "TypeScript, React, Claude Code, OpenAI Codex, Multi-Agent Orchestration, Specification-Driven Development, Playwright",
       url: "https://github.com/floroz/retro-game-portfolio",
       linkLabel: "See source",
     },
@@ -138,8 +148,8 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
 
   // Contact section content
   contactInterests: [
-    "Exciting opportunities in AI and building platforms",
-    "Full-stack and frontend challenges",
+    "Senior software engineering opportunities building AI-powered products",
+    "Full-stack systems, interfaces, and delightful user experiences",
     "Tech conversations over coffee",
     "Open source collaboration",
   ],
@@ -153,24 +163,26 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
   workExperience: [
     {
       company: "Snyk",
-      role: "Senior Full Stack Engineer",
+      role: "Senior Software Engineer",
       period: "May 2024 - Present",
       country: "switzerland",
+      // Archived achievement (2026-10-11), retained for future reuse.
+      // "Migrated 300+ dashboard views to PostgreSQL across US, EU, and AU regions with zero downtime."
       highlights: [
-        "Led delivery of the Billing & Usage Dashboard for Snyk EVO's credit-based launch to enterprise customers representing hundreds of millions in ARR.",
-        "Built scanner features serving 500K+ daily scans; worker-thread caching cut p95 latency by 65% and tripled throughput.",
-        "Migrated 300+ dashboard views to PostgreSQL across US, EU, and AU regions with zero downtime.",
-        "AI engineering playbooks reached 100+ engineers; placed third company-wide for driving AI adoption.",
+        "Contributed to an internal production AI support-triage workflow investigating Salesforce customer cases through Snowflake and Datadog MCP integrations. Audited the workflow and built an attachment-processing pipeline so investigations could incorporate customer-provided logs and screenshots, addressing a limitation identified by technical support engineers.",
+        "Pioneered AI-augmented engineering practices across a 650-person engineering organization, winning 3rd place in a company-wide AI adoption competition. Authored playbooks adopted by 100+ engineers and used agentic workflows to compress multi-week refactoring projects into days.",
+        "Drove frontend delivery for Snyk's credit-based consumption model rollout to enterprise customers representing hundreds of millions in ARR. Built the Billing & Usage Dashboard, a data-intensive analytics page with rich visualizations (Vue 3, Apache ECharts), supporting the General Availability launch of Snyk EVO. Shipped Snyk Code Rule Extensions, a custom SAST rules interface for enterprise security teams.",
+        "Designed and shipped features for Snyk Open Source Java/Kotlin Scanner (500K+ daily scans), architecting microservices with REST/OpenAPI across multi-cloud Kubernetes clusters (AWS, GCP). Engineered a Node.js worker-thread architecture with multi-tier caching that cut p95 latency by 65% and delivered 3x throughput gains without event-loop blocking.",
       ],
     },
     {
       company: "Frontiers",
-      role: "Technical Lead",
+      role: "Senior Software Engineer (Frontend Lead)",
       period: "Feb 2023 - May 2024",
       country: "switzerland",
       highlights: [
-        "Led six engineers to launch Brink UI, a Vue 3 component library and design system.",
-        "Delivered the alpha in five months; early adoption cut UI delivery time by 30%.",
+        "Led 6 engineers to design and launch Brink UI, a component library and design system adopted across the organization. Defined component APIs and drove cross-functional adoption; delivered alpha in 5 months and reduced UI delivery time by 30%.",
+        "Owned the monorepo’s CI/CD, testing, and release lifecycle. Built developer tooling and contributed upstream Vue ecosystem fixes to support adoption across product teams.",
       ],
     },
     {
@@ -189,8 +201,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
       period: "Nov 2021 - Jun 2022",
       country: "switzerland",
       highlights: [
-        "Secured React and Chrome Extension sessions for more than 10K B2B users with OAuth 2.0 and JWT lifecycle management.",
-        "A Next.js migration improved Core Web Vitals by 20-40% and contributed to a 15% rise in conversion.",
+        "Delivered secure authentication across a B2B web application and Chrome extension serving 10K+ users. Led the migration from a legacy SPA to Next.js, improving Core Web Vitals by 20–40% and contributing to a 15% increase in conversion.",
       ],
     },
     {
@@ -199,8 +210,7 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
       period: "Jan 2021 - Oct 2021",
       country: "london",
       highlights: [
-        "Moved Tray Docs to Next.js with an interactive MDX compiler, cutting publishing time by 60% and lifting engagement by 45%.",
-        "Algolia-powered search reduced support tickets by 30%.",
+        "Led the documentation platform migration to Next.js, combining interactive content tooling and Algolia search. Reduced publishing time by 60%, increased engagement by 45%, and reduced support tickets by 30%.",
       ],
     },
     {
@@ -219,8 +229,8 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     siteUrl: "https://danieletortora.com/",
     siteName: "Daniele Tortora - Portfolio",
     shortDescription:
-      "Senior Full Stack Engineer in Zürich with 10 years building data-intensive UIs, scalable APIs, and distributed systems. Explore my career in a 90s point-and-click adventure.",
-    currentRole: "Senior Full Stack Engineer",
+      "Senior Software Engineer in Zürich building full-stack applications and AI-powered workflows. Explore 10 years of experience in a playable portfolio adventure.",
+    currentRole: "Senior Software Engineer",
     currentCompany: "Snyk",
     twitter: "@floroz87",
     themeColor: "#1a1a2e",
@@ -230,11 +240,19 @@ I also wrote AI engineering playbooks adopted by 100+ Snyk engineers and placed 
     keywords: [
       "Daniele Tortora",
       "floroz",
-      "Senior Full Stack Engineer",
+      "Senior Software Engineer",
+      "Full Stack",
+      "AI Engineering",
+      "Agentic Workflows",
+      "Specification-Driven Development",
       "React Developer",
       "TypeScript",
       "Vue.js",
       "Node.js",
+      "Python",
+      "FastAPI",
+      "LangGraph",
+      "Snowflake",
       "AI Integration",
       "Design Systems",
       "Switzerland",

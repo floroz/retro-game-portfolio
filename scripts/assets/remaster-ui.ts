@@ -40,8 +40,8 @@ for (const [name, raw] of inspections) {
       "Classic adventure location artwork at 2:1; nearest-neighbour resize, full colours, lossless source export. Text-safe insets live in src/config/inspections.ts.",
   });
 }
-const source = "assets-src/approved/boarding-pass.png";
-const output = `${root}/title/boarding-pass.webp`;
+const source = "assets-src/approved/boarding-pass-senior-software-engineer.png";
+const output = `${root}/title/boarding-pass-senior-software-engineer.webp`;
 const info = await sharp(source)
   .webp({ lossless: true, effort: 6 })
   .toFile(output);
@@ -54,20 +54,6 @@ entries.push({
     "Original resolution and pixels preserved; lossless encoding only.",
 });
 
-const previousTitleSource =
-  "assets-src/approved/boarding-pass-senior-software-engineer.png";
-const previousTitleOutput = `${root}/title/boarding-pass-senior-software-engineer.webp`;
-const previousTitleInfo = await sharp(previousTitleSource)
-  .webp({ lossless: true, effort: 6 })
-  .toFile(previousTitleOutput);
-entries.push({
-  output: previousTitleOutput,
-  source: previousTitleSource,
-  width: previousTitleInfo.width,
-  height: previousTitleInfo.height,
-  treatment:
-    "Archived alternate title card with the previous role wording; original resolution and pixels preserved, lossless encoding only.",
-});
 await mkdir("assets-src/remaster", { recursive: true });
 await writeFile(
   "assets-src/remaster/ui-manifest.json",

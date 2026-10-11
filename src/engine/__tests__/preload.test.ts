@@ -4,6 +4,7 @@ import { allImages } from "../runtime";
 import { sceneImages } from "../assets";
 import { SCENES } from "../scenes";
 import { START_SCENE } from "../SceneEngine";
+import boardingPass from "../../assets/remaster/title/boarding-pass-senior-software-engineer.webp";
 
 describe("preload order", () => {
   const tiers = preloadTiers();
@@ -19,7 +20,7 @@ describe("preload order", () => {
 
   test("loads the title card, then the first scene, before anything else", () => {
     expect(tiers[0].urls).toHaveLength(1);
-    expect(tiers[0].urls[0]).toMatch(/boarding-pass/);
+    expect(tiers[0].urls).toEqual([boardingPass]);
     const launch = [...tiers[0].urls, ...tiers[1].urls];
     for (const url of sceneImages(SCENES[START_SCENE])) {
       expect(launch).toContain(url);

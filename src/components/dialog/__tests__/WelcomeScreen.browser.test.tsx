@@ -7,6 +7,7 @@ import { offGridPixels } from "../../../test/helpers/canvas";
 import { sceneAudio } from "../../../engine/runtime";
 import { useSceneAudio } from "../../../hooks/useSceneAudio";
 import { PROFILE } from "../../../config/profile";
+import { preloadTiers } from "../../../engine/preload";
 
 const initial = useGameStore.getState();
 
@@ -75,7 +76,9 @@ describe("WelcomeScreen: the title card", () => {
     await expect
       .element(page.getByRole("heading", { name: PROFILE.name }))
       .toBeInTheDocument();
-    await expect.element(page.getByText(PROFILE.title)).toBeInTheDocument();
+    await expect
+      .element(page.getByText(PROFILE.title.split(" | ")[0]))
+      .toBeInTheDocument();
   });
 
   test("Space on the focused start button starts the game", async () => {
@@ -232,6 +235,7 @@ describe("WelcomeScreen: the title card", () => {
   test("the full-resolution ticket loads above the smoothly lettered backdrop", async () => {
     const { container } = await render(<Card onDismiss={vi.fn()} />);
     const artwork = container.querySelector("img")!;
+    expect(artwork.getAttribute("src")).toBe(preloadTiers()[0].urls[0]);
     await vi.waitFor(() => {
       expect(artwork.complete).toBe(true);
       expect(artwork.naturalWidth).toBeGreaterThan(1000);

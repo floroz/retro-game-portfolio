@@ -12,7 +12,7 @@
  * pass, the airport instructions, the inspection cards) is listed by hand: add any new one below.
  */
 import howToPlay from "../assets/remaster/title/how-to-play.png";
-import boardingPass from "../assets/remaster/title/boarding-pass.webp";
+import boardingPass from "../assets/remaster/title/boarding-pass-senior-software-engineer.webp";
 import { sectionInspection } from "../config/inspections";
 import {
   CHARACTER_RIG,
